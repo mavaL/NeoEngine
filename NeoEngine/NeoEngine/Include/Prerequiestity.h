@@ -46,6 +46,17 @@ enum eTextureUsage
 	eTextureUsage_RenderTarget	= 1 << 2
 };
 
+// Use for render target to control which part to render
+enum eRenderPhase
+{
+	eRenderPhase_Sky		= 1 << 0,
+	eRenderPhase_Terrain	= 1 << 1,
+	eRenderPhase_Solid		= 1 << 2,
+	eRenderPhase_Water		= 1 << 3,
+
+	eRenderPhase_All = eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_Solid | eRenderPhase_Water
+};
+
 enum ePixelFormat
 {
 	ePF_R8G8B8 = 0,
@@ -67,6 +78,16 @@ enum ePixelFormat
 	ePF_Unknown
 };
 
+enum eTransform
+{
+	eTransform_World,
+	eTransform_View,
+	eTransform_Proj,
+	eTransform_WVP,
+	eTransform_WorldIT,
+	eTransform_Count
+};
+
 /// Forward declaration
 namespace Common
 {
@@ -74,6 +95,7 @@ namespace Common
 	class Vector3;
 	class Vector4;
 	class Matrix44;
+	class Plane;
 	class AxisAlignBBox;
 }
 
@@ -95,6 +117,7 @@ namespace Neo
 	class	Terrain;
 	class	Water;
 	class	Sky;
+	class	SceneManager;
 }
 
 class Application;
@@ -107,6 +130,7 @@ struct SGlobalEnv
 	HWND					hwnd;			// Main window handle
 	Application*			pApp;			// App object
 	Neo::D3D11RenderSystem*	pRenderSystem;	// Render system
+	Neo::SceneManager*		pSceneMg;		// Scene manager
 };
 extern SGlobalEnv	g_env;
 

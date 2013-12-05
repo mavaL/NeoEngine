@@ -15,16 +15,19 @@ public:
 	IRefCount():m_refCnt(1) {}
 	virtual ~IRefCount() { Release(); }
 
-	void	AddRef()	{ ++m_refCnt; }
-	void	Release()
+	void	AddRef() const	{ ++m_refCnt; }
+	void	Release() const
 	{
-		assert(m_refCnt > 0);
-		if (--m_refCnt == 0)
-			delete this;
+		assert(m_refCnt >= 0);
+		if (m_refCnt > 0)
+		{
+			if (--m_refCnt == 0)
+				delete this;
+		}
 	}
 
 private:
-	int		m_refCnt;
+	mutable int		m_refCnt;
 };
 
 #endif // IRefCount_h__

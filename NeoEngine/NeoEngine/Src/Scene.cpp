@@ -3,17 +3,14 @@
 #include "Water.h"
 #include "Sky.h"
 #include "D3D11RenderSystem.h"
+#include "SceneManager.h"
 
 
 //------------------------------------------------------------------------------------
-Scene::Scene( StrategyFunc& setupFunc, StrategyFunc& enterFunc, StrategyFunc renderFunc )
+Scene::Scene( StrategyFunc& setupFunc, StrategyFunc& enterFunc )
 :m_bSetup(false)
 ,m_setupFunc(setupFunc)
 ,m_enterFunc(enterFunc)
-,m_renderFunc(renderFunc)
-,m_pTerrain(nullptr)
-,m_pWater(nullptr)
-,m_pSky(nullptr)
 {
 
 }
@@ -34,51 +31,15 @@ void Scene::Enter()
 	if(!m_bSetup)
 	{
 		m_setupFunc(this);
+		g_env.pSceneMg->SetSolidRenderList(m_renderList);
 		m_bSetup = true;
 	}
 	m_enterFunc(this);
 }
 //----------------------------------------------------------------------------------------
-void Scene::RenderPipeline()
+void Scene::Render()
 {
-	if (m_pWater)
-	{
-		m_pWater->Update();
-	}
-
-	if (m_pSky)
-	{
-		m_pSky->Update();
-	}
-
-	for (size_t i=0; i<m_renderList.size(); ++i)
-	{
-		Neo::RenderObject* obj = m_renderList[i];
-		obj->OnFrameMove();
-	}
-	
-
-	if (m_renderFunc)
-	{
-		m_renderFunc(this);
-	} 
-	else
-	{
-		/// Render sky
-		m_pSky->Render();
-
-		/// Render terrain
-
-		/// Render solid
-		for (size_t i=0; i<m_renderList.size(); ++i)
-		{
-			Neo::RenderObject* obj = m_renderList[i];
-			obj->Render();
-		}
-		
-		/// Render water
-		m_pWater->Render();
-	}
+	g_env.pSceneMg->RenderPipline();
 }
 
 

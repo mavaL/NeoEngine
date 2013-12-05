@@ -28,6 +28,7 @@ namespace Neo
 		void		_InitMaterial();
 		void		_InitWaterMesh();
 		void		_InitConstantBuffer();
+		void		_RenderReflection();
 		void		_RenderRefraction();
 		void		_RenderWaterDepth();
 		void		_FinalCompose();
@@ -74,6 +75,7 @@ namespace Neo
 		Material*			m_pFinalComposeMaterial;
 
 		RenderObject*		m_waterMesh;
+		Common::Plane		m_waterPlane;
 	};
 }
 

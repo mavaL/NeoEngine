@@ -24,6 +24,7 @@ namespace Neo
 	public:
 		void		SetClearEveryFrame(bool bClear);
 		void		SetClearColor(const SColor& color);
+		void		SetRenderPhase(uint32 phaseFlag) { m_phaseFlag = phaseFlag; }
 		void		Update();
 		D3D11Texture*	GetRenderTexture();
 
@@ -32,6 +33,7 @@ namespace Neo
 		D3D11Texture*	m_pRenderTexture;
 		bool			m_bClearEveryFrame;
 		SColor			m_clearColor;
+		uint32			m_phaseFlag;
 	};
 }
 

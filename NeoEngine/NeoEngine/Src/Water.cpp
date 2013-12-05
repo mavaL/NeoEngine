@@ -15,6 +15,14 @@ namespace Neo
 	Water::Water()
 	:m_waterMesh(new RenderObject)
 	,m_pRenderSystem(g_env.pRenderSystem)
+	,m_pCB_VS(nullptr)
+	,m_pCB_PS(nullptr)
+	,m_pRefracMaterial(nullptr)
+	,m_pWaterDepthMaterial(nullptr)
+	,m_pFinalComposeMaterial(nullptr)
+	,m_pTexRefracMask(nullptr)
+	,m_pRT_Reflection(nullptr)
+	,m_pRT_Depth(nullptr)
 	{
 		_InitMaterial();
 		_InitWaterMesh();
@@ -36,14 +44,12 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Water::_InitMaterial()
 	{
-		//TODO: Reflection RT
-		// 	video::ITexture* texReflection = driver->addTexture(driver->getScreenSize(), "WaterReflectionRT", 
-		// 		video::ePF_A8R8G8B8, video::eTextureUsage_RenderTarget);
-		// 	_IRR_DEBUG_BREAK_IF(!texReflection && "Failed to create RT!");
-		// 
-		// 	m_pRT_Reflection = driver->addRenderTarget(texReflection);
-		// 	m_pRT_Reflection->grab();
-		// 	m_pRT_Reflection->setRenderPhase(ESNRP_Terrain|ESNRP_SOLID);
+		// Reflection map
+		D3D11Texture* texReflection = m_pRenderSystem->CreateManualTexture(
+			"WaterReflectionRT", SCREEN_WIDTH, SCREEN_HEIGHT, ePF_A8B8G8R8, eTextureUsage_RenderTarget);
+
+		m_pRT_Reflection = new D3D11RenderTarget(texReflection);
+		m_pRT_Reflection->SetRenderPhase(eRenderPhase_All & ~eRenderPhase_Water);
 
 		// Scene map (alpha channel uses for refraction mask)
 		m_pTexRefracMask = m_pRenderSystem->CreateManualTexture(
@@ -69,7 +75,7 @@ namespace Neo
 		// Normal map
 		m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
 		// Reflection map
-		m_pFinalComposeMaterial->SetTexture(1, new D3D11Texture(GetResPath("Snow.dds"), eTextureType_CubeMap));
+		m_pFinalComposeMaterial->SetTexture(1, texReflection);
 		// Refraction mask map
 		m_pFinalComposeMaterial->SetTexture(2, m_pTexRefracMask);
 		// Water depth map
@@ -78,13 +84,15 @@ namespace Neo
 		// 		getMaterial(0).TextureLayer[1].TextureWrapU = video::ETC_CLAMP;
 		// 		getMaterial(0).TextureLayer[1].TextureWrapV = video::ETC_CLAMP;
 		// 		getMaterial(0).TextureLayer[2].TextureWrapU = video::ETC_CLAMP;
-		// 		getMaterial(0).TextureLayer[3].TextureWrapV = video::ETC_CLAMP;
+		// 		getMaterial(0).TextureLayer[2].TextureWrapV = video::ETC_CLAMP;
 		// 		getMaterial(0).TextureLayer[3].TextureWrapU = video::ETC_CLAMP;
 		// 		getMaterial(0).TextureLayer[3].TextureWrapV = video::ETC_CLAMP;
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_InitWaterMesh()
 	{
+		m_waterPlane.Set(VEC3::UNIT_Y, 0);
+
 		// Construct terrain likely grids
 		const int vertsPerSide = 151, cellSpace = 200;
 		const float dimension = (vertsPerSide - 1.0f) * cellSpace;
@@ -108,7 +116,7 @@ namespace Neo
 			{
 				int idx = z*vertsPerSide+x;
 
-				vert[idx].pos.Set(posX, 0, posZ);
+				vert[idx].pos.Set(posX, m_waterPlane.d, posZ);
 				vert[idx].uv.Set(x*uvInc, z*uvInc);
 
 				posX += cellSpace;
@@ -191,6 +199,8 @@ namespace Neo
 	{
 		_RenderRefraction();
 
+		_RenderReflection();
+
 		_RenderWaterDepth();
 
 		_FinalCompose();
@@ -222,9 +232,32 @@ namespace Neo
 		m_pRenderSystem->SetBlendStateDesc(blendDesc);
 	}
 	//------------------------------------------------------------------------------------
+	void Water::_RenderReflection()
+	{
+		// Reflect view matrix
+		D3D11_RASTERIZER_DESC& desc = m_pRenderSystem->GetRasterizeDesc();
+		desc.CullMode = D3D11_CULL_FRONT;
+		m_pRenderSystem->SetRasterizeDesc(desc);
+
+		const MAT44& matView = g_env.pApp->GetCamera()->GetViewMatrix();
+		const MAT44 matReflecView = Common::BuildReflectMatrix(m_waterPlane) * matView;
+		m_pRenderSystem->SetTransform(eTransform_View, matReflecView, true);
+
+		// Set clip plane
+
+		// Render
+		m_pRT_Reflection->Update();
+
+		// Restore render state
+		m_pRenderSystem->SetTransform(eTransform_View, matView, true);
+
+		desc.CullMode = D3D11_CULL_BACK;
+		m_pRenderSystem->SetRasterizeDesc(desc);
+	}
+	//------------------------------------------------------------------------------------
 	void Water::_RenderWaterDepth()
 	{
-
+		
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_FinalCompose()

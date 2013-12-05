@@ -51,21 +51,14 @@ namespace Neo
 
 		// Create SRV
 		CreateSRV();
-
-		// Bind RT view
-		if (m_usage & eTextureUsage_RenderTarget)
-		{
-			hr = m_pd3dDevice->CreateRenderTargetView( *pTex, NULL, &m_rtView );
-			assert(SUCCEEDED(hr) && "CreateRenderTargetView failed!");
-		}
 	}
 	//-------------------------------------------------------------------------------
-	D3D11Texture::D3D11Texture( int width, int height, ePixelFormat format, eTextureUsage usage, bool bMipMap )
+	D3D11Texture::D3D11Texture( int width, int height, ePixelFormat format, uint32 usage, bool bMipMap )
 	:m_pTexture2D(nullptr)
 	,m_pTexture3D(nullptr)
 	,m_rtView(nullptr)
 	,m_pSRV(nullptr)
-	,m_usage(0)
+	,m_usage(usage)
 	,m_texType(eTextureType_2D)
 	{
 		m_pd3dDevice = g_env.pRenderSystem->GetDevice();
@@ -195,6 +188,16 @@ namespace Neo
 		{
 			hr = D3DX11FilterTexture(m_pRenderSystem->GetDeviceContext(), m_pTexture2D, 0, D3DX11_DEFAULT);
 			assert(SUCCEEDED(hr) && "D3DX11FilterTexture failed!");
+		}
+
+		// Create SRV
+		CreateSRV();
+
+		// Bind RT view
+		if (m_usage & eTextureUsage_RenderTarget)
+		{
+			hr = m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView );
+			assert(SUCCEEDED(hr) && "CreateRenderTargetView failed!");
 		}
 	}
 	//-------------------------------------------------------------------------------

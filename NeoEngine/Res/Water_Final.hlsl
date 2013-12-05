@@ -9,7 +9,7 @@ static float3 offZ = float3(0.47, 0.19, 0.78);
 //--------------------------------------------------------------------------------------
 cbuffer cbufferGlobal : register( b0 )
 {
-    matrix	World;
+	matrix	World;
 	matrix	View;
 	matrix	Projection;
 	matrix	WVP;
@@ -44,15 +44,15 @@ cbuffer cbPS : register( b2 )
 };
 //--------------------------------------------------------------------------------------
 struct Wave {
-  float freq;  // 2*PI / wavelength
-  float amp;   // amplitude
-  float phase; // speed * 2*PI / wavelength
-  float2 dir;
+	float freq;  // 2*PI / wavelength
+	float amp;   // amplitude
+	float phase; // speed * 2*PI / wavelength
+	float2 dir;
 };
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float4 Pos : POSITION;
+	float4 Pos : POSITION;
 	float3 normal: NORMAL;
 	float2 uv  : TEXCOORD0;
 };
@@ -70,7 +70,7 @@ struct PS_INPUT
 
 	float3 eyeVector  : TEXCOORD6;
 	float4 projPos	  : TEXCOORD7;
-	
+
 	float3 eyeLinear  : TEXCOORD8;
 	float3 noisyUV    : TEXCOORD9;
 };
@@ -81,7 +81,7 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 PS_INPUT VS( VS_INPUT IN )
 {
-    PS_INPUT OUT = (PS_INPUT)0;
+	PS_INPUT OUT = (PS_INPUT)0;
 
 #define NWAVES 2
 	Wave wave[NWAVES] = {
@@ -89,11 +89,11 @@ PS_INPUT VS( VS_INPUT IN )
 		{ 2.0, 0.5, 1.7, float2(-0.7, 0.7) }
 	};
 
-    wave[0].freq = waveFreq;
-    wave[0].amp = waveAmp;
+	wave[0].freq = waveFreq;
+	wave[0].amp = waveAmp;
 
-    wave[1].freq = waveFreq * 3.0;
-    wave[1].amp = waveAmp * 0.33;
+	wave[1].freq = waveFreq * 3.0;
+	wave[1].amp = waveAmp * 0.33;
 
 	float4 P = IN.Pos;
 
@@ -138,12 +138,12 @@ PS_INPUT VS( VS_INPUT IN )
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 Texture2D		NormalMap	: register(t0);
-TextureCube		EnvironmentMap	: register(t1);
+Texture2D		ReflecMap	: register(t1);
 Texture2D		SceneMap	: register(t2);
 Texture2D		DepthMap	: register(t3);
 
 SamplerState	samNormal	: register( s0 );
-SamplerState	samCubeMap	: register( s1 );
+SamplerState	samReflec	: register( s1 );
 SamplerState	samScene	: register( s2 );
 SamplerState	samDepth	: register( s3 );
 
@@ -151,42 +151,40 @@ float4 PS( PS_INPUT IN ) : SV_Target
 {
 	// sum normal maps
 	// sample from 3 different points so no texture repetition is noticeable
-    float4 t0 = NormalMap.Sample(samNormal, IN.bumpCoord0) * 2.0 - 1.0;
-    float4 t1 = NormalMap.Sample(samNormal, IN.bumpCoord1) * 2.0 - 1.0;
-    float4 t2 = NormalMap.Sample(samNormal, IN.bumpCoord2) * 2.0 - 1.0;
-    float3 N = t0.xyz + t1.xyz + t2.xyz;
+	float4 t0 = NormalMap.Sample(samNormal, IN.bumpCoord0) * 2.0 - 1.0;
+	float4 t1 = NormalMap.Sample(samNormal, IN.bumpCoord1) * 2.0 - 1.0;
+	float4 t2 = NormalMap.Sample(samNormal, IN.bumpCoord2) * 2.0 - 1.0;
+	float3 N = t0.xyz + t1.xyz + t2.xyz;
 
-    float3x3 m; // tangent to object space matrix
-    m[0] = IN.rotMatrix1;
-    m[1] = IN.rotMatrix2;
-    m[2] = IN.rotMatrix3;
+	float3x3 m; // tangent to object space matrix
+	m[0] = IN.rotMatrix1;
+	m[1] = IN.rotMatrix2;
+	m[2] = IN.rotMatrix3;
 
-    N = normalize( mul( N, m ) );
-
-	//=====================================================================
-	// Reflection
-	//=====================================================================
-    float3 E = normalize(IN.eyeVector);
-    float4 R;
-    R.xyz = reflect(E, N);
-     // Ogre conversion for cube map lookup 
-	// ???? Dont konw meaning..
-     R.z = -R.z;
-    R.w = reflectionBlur;
-    float4 reflection = EnvironmentMap.Sample(samCubeMap, R);
-
-	// fresnel
-    float facing = 1.0 - max(dot(-E, N), 0);
-    float fresnel = saturate(fresnelBias + pow(facing, fresnelPower));
-
-    float4 waterColor = lerp(shallowColor, deepColor, facing) * waterAmount;
-
-    reflection = lerp(waterColor,  reflection * reflectionColor, fresnel) * reflectionAmount;
-    waterColor += reflection;
+	N = normalize( mul( N, m ) );
 
 	// Get projected uv
 	float2 projUV = IN.projPos.xy / IN.projPos.w;
 	projUV = projUV * float2(0.5, -0.5) + 0.5;
+
+	//=====================================================================
+	// Reflection
+	//=====================================================================
+	// Average bump layers
+	float3 vBumpTex=normalize(N * 0.33);
+	float3 vReflBump = vBumpTex * float3(0.1, 0.1, 1);  
+
+	float4 reflection = ReflecMap.Sample(samReflec, projUV + vReflBump.xy);
+
+	// fresnel
+	float3 E = normalize(IN.eyeVector);
+	float facing = 1.0 - max(dot(-E, N), 0);
+	float fresnel = saturate(fresnelBias + pow(facing, fresnelPower));
+
+	float4 waterColor = lerp(shallowColor, deepColor, facing) * waterAmount;
+
+	reflection = lerp(waterColor,  reflection * reflectionColor, fresnel) * reflectionAmount;
+	waterColor += reflection;
 
 	//=====================================================================
 	// Refraction

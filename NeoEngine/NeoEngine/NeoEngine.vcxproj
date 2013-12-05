@@ -89,6 +89,7 @@
     <ClInclude Include="Include\Application.h" />
     <ClInclude Include="Include\RenderObject.h" />
     <ClInclude Include="Include\Scene.h" />
+    <ClInclude Include="Include\SceneManager.h" />
     <ClInclude Include="Include\Sky.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\Terrain.h" />
@@ -116,6 +117,7 @@
     <ClCompile Include="Src\Application.cpp" />
     <ClCompile Include="Src\RenderObject.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
+    <ClCompile Include="Src\SceneManager.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
     <ClCompile Include="Src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

@@ -100,13 +100,15 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void RenderObject::SetMaterial( Neo::Material* pMaterial )
 	{
+		SAFE_RELEASE(m_pMaterial);
 		m_pMaterial = pMaterial;
 		pMaterial->AddRef();
 	}
 	//-------------------------------------------------------------------------------
 	void RenderObject::Render()
 	{
-		g_env.pRenderSystem->SetWorldTransform(GetWorldMatrix(), GetWorldITMatrix());
+		g_env.pRenderSystem->SetTransform(eTransform_World, GetWorldMatrix(), false);
+		g_env.pRenderSystem->SetTransform(eTransform_WorldIT, GetWorldITMatrix(), true);
 
 		m_pMaterial->Activate();
 

@@ -63,7 +63,7 @@ namespace Neo
 
 		Neo::Material* pMaterial = new Neo::Material;
 		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"));
-		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("cloudy_noon.dds"), eTextureType_CubeMap));
+		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
 
 		m_pSkyBox->SetMaterial(pMaterial);
 

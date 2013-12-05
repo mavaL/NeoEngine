@@ -22,7 +22,10 @@ namespace Neo
 	,m_pGlobalCBuf(nullptr)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
+		{
+			m_pSamplerState[i] = nullptr;
 			m_pTexture[i] = nullptr;
+		}
 	}
 	//----------------------------------------------------------------------------------------
 	bool D3D11RenderSystem::Init( HWND hwnd )
@@ -174,6 +177,21 @@ namespace Neo
 		hr = m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf );
 		assert(SUCCEEDED(hr) && "Create cBuffer failed!");
 
+		// Create sampler state
+		for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
+		{
+			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			// Default wrap mode
+			m_samplerStateDesc[i].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_samplerStateDesc[i].AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_samplerStateDesc[i].AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+			HRESULT hr = m_pd3dDevice->CreateSamplerState(&m_samplerStateDesc[i], &m_pSamplerState[i]);
+			assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
+
+			m_pDeviceContext->PSSetSamplers(i, 1, &m_pSamplerState[i]);
+		}
+		
 		return true;
 	}
 	//----------------------------------------------------------------------------------------
@@ -190,7 +208,10 @@ namespace Neo
 		SAFE_RELEASE(m_rasterState);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
+		{
+			SAFE_RELEASE(m_pSamplerState[i]);
 			SAFE_RELEASE(m_pTexture[i]);
+		}
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::BeginScene()
@@ -200,11 +221,16 @@ namespace Neo
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
 
 		// Update cBuffer
-		Camera* cam = g_env.pApp->GetCamera();
-		m_cBufferGlobal.matView = m_cBufferGlobal.matView.Transpose();
-		m_cBufferGlobal.matProj = m_cBufferGlobal.matProj.Transpose();
 		m_cBufferGlobal.time = GetTickCount() / 1000.0f;
-		SetWorldTransform(MAT44::IDENTITY, MAT44::IDENTITY);
+
+		Camera* cam = g_env.pApp->GetCamera();
+		const MAT44& matView = cam->GetViewMatrix();
+		const MAT44& matProj = cam->GetProjMatrix();
+
+		SetTransform(eTransform_World, MAT44::IDENTITY, false);
+		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
+		SetTransform(eTransform_View, matView, false);
+		SetTransform(eTransform_Proj, matProj, true);	
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::EndScene()
@@ -276,7 +302,7 @@ namespace Neo
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture* D3D11RenderSystem::CreateManualTexture( const STRING& name, uint32 width, uint32 height, 
-		ePixelFormat format, eTextureUsage usage, bool bMipMap )
+		ePixelFormat format, uint32 usage, bool bMipMap )
 	{
 		return new D3D11Texture(width, height, format, usage, bMipMap);
 	}
@@ -323,6 +349,19 @@ namespace Neo
 
 		m_pDeviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
 	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetSamplerStateDesc( int stage, const D3D11_SAMPLER_DESC& desc )
+	{
+		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+
+		SAFE_RELEASE(m_pSamplerState[stage]);
+
+		m_samplerStateDesc[stage] = desc;
+		HRESULT hr = m_pd3dDevice->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]);
+		assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
+
+		m_pDeviceContext->PSSetSamplers(stage, 1, &m_pSamplerState[stage]);
+	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::CopyFrameBufferToTexture( D3D11Texture* pTexture )
 	{
@@ -333,24 +372,22 @@ namespace Neo
 		pTexture->CreateSRV();
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetWorldTransform( const MAT44& matWorld, const MAT44& matWorldIT )
+	void D3D11RenderSystem::SetTransform(eTransform type, const MAT44& matrix, bool bUpdateCBuffer)
 	{
-		Camera* cam = g_env.pApp->GetCamera();
-
-		m_cBufferGlobal.matWorld = matWorld;
-		m_cBufferGlobal.matView = cam->GetViewMatrix();
-		m_cBufferGlobal.matProj = cam->GetProjMatrix();
-		m_cBufferGlobal.matMVP = m_cBufferGlobal.matWorld * m_cBufferGlobal.matView * m_cBufferGlobal.matProj;
-		m_cBufferGlobal.matWorldIT = matWorldIT;
-
 		// D3D11 wants column major by default
-		m_cBufferGlobal.matWorld = m_cBufferGlobal.matWorld.Transpose();
-		m_cBufferGlobal.matWorldIT = m_cBufferGlobal.matWorldIT.Transpose();		
-		m_cBufferGlobal.matMVP = m_cBufferGlobal.matMVP.Transpose();
+		m_cBufferGlobal.matTransform[type] = matrix.Transpose();
 
-		m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
-		m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
-		m_pDeviceContext->PSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+		if (bUpdateCBuffer)
+		{
+			m_cBufferGlobal.matTransform[eTransform_WVP] = (
+				m_cBufferGlobal.matTransform[eTransform_Proj]*
+				m_cBufferGlobal.matTransform[eTransform_View]*
+				m_cBufferGlobal.matTransform[eTransform_World]);
+
+			m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
+			m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+			m_pDeviceContext->PSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+		}
 	}
 }
 

@@ -49,7 +49,7 @@ namespace Common
 		SetRow(3, t);
 	}
 
-	Common::Matrix44 Matrix44::Transpose()
+	Matrix44 Matrix44::Transpose() const
 	{
 		return Matrix44(	m00, m10, m20, m30,
 							m01, m11, m21, m31,

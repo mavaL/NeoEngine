@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "MathDef.h"
 #include "GeometryDef.h"
+#include "SceneManager.h"
 
 
 //----------------------------------------------------------------------------------------
@@ -37,6 +38,7 @@ void Application::Init(HINSTANCE hInstance)
 		return;
 	}
 	g_env.pRenderSystem = m_pRenderSystem;
+	g_env.pSceneMg = new Neo::SceneManager;
 
 	m_camera = new Camera;
 
@@ -50,7 +52,8 @@ void Application::ShutDown()
 	m_scenes.clear();
 
 	SAFE_DELETE(m_camera);
-	
+	SAFE_DELETE(g_env.pSceneMg);
+
 	m_pRenderSystem->ShutDown();
 	SAFE_DELETE(m_pRenderSystem);
 }
@@ -210,7 +213,7 @@ void Application::Run()
 void Application::_RenderOneFrame()
 {
 	m_pRenderSystem->BeginScene();
-	m_pCurScene->RenderPipeline();
+	m_pCurScene->Render();
 	m_pRenderSystem->EndScene();
 }
 

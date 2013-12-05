@@ -5,17 +5,14 @@
 #include "Material.h"
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
-#include "Water.h"
-#include "Terrain.h"
-#include "Sky.h"
+#include "SceneManager.h"
 
 
-#define ADD_TEST_SCENE($setupFunc, $enterFunc, $renderFunc)			\
+#define ADD_TEST_SCENE($setupFunc, $enterFunc)						\
 {																	\
 	Scene::StrategyFunc setupFunc = $setupFunc;						\
 	Scene::StrategyFunc enterFunc = $enterFunc;						\
-	Scene::StrategyFunc renderFunc = $renderFunc;					\
-	Scene* pScene = new Scene(setupFunc, enterFunc, renderFunc);	\
+	Scene* pScene = new Scene(setupFunc, enterFunc);				\
 	m_scenes.push_back(pScene);										\
 }
 
@@ -58,22 +55,11 @@ void EnterTestScene1(Scene* scene)
 	g_env.pApp->GetCamera()->SetDirection(VEC3::UNIT_Z);
 }
 
-void RenderTestScene1(Scene* scene)
-{
-	const auto renderList = scene->GetRenderList();
-
-	for (size_t i=0; i<renderList.size(); ++i)
-	{
-		Neo::RenderObject* obj = renderList[i];
-		obj->Render();
-	}
-}
-
 
 void SetupTestScene2(Scene* scene)
 {
-	scene->m_pSky = new Neo::Sky;
-	scene->m_pWater = new Neo::Water;
+	g_env.pSceneMg->CreateSky();
+	g_env.pSceneMg->CreateWater();
 }
 
 void EnterTestScene2(Scene* scene)
@@ -90,9 +76,9 @@ void EnterTestScene2(Scene* scene)
 void Application::_InitAllScene()
 {
 	//// Test Scene 1: A textured triangle
-	ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1, RenderTestScene1);
+	ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
 
 	//// Test Scene 2: Sky, Terrain, Water
-	ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2, nullptr);
+	ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 }
 

@@ -22,7 +22,7 @@ namespace Neo
 		// Load from file
 		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D);
 		// Create manual
-		D3D11Texture(int width, int height, ePixelFormat format, eTextureUsage usage, bool bMipMap);
+		D3D11Texture(int width, int height, ePixelFormat format, uint32 usage, bool bMipMap);
 
 		~D3D11Texture();
 

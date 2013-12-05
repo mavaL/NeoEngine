@@ -2,6 +2,7 @@
 #include "D3D11RenderTarget.h"
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
+#include "SceneManager.h"
 
 
 namespace Neo
@@ -10,6 +11,7 @@ namespace Neo
 	D3D11RenderTarget::D3D11RenderTarget( D3D11Texture* pRenderTexture )
 	:m_clearColor(SColor::BLACK)
 	,m_bClearEveryFrame(true)
+	,m_phaseFlag(eRenderPhase_All)
 	{
 		m_pRenderSystem = g_env.pRenderSystem;
 		m_pRenderTexture = pRenderTexture;
@@ -23,9 +25,9 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderTarget::Update()
 	{
-		m_pRenderSystem->SetRenderTarget(this, m_bClearEveryFrame);
+		m_pRenderSystem->SetRenderTarget(this, m_bClearEveryFrame, &m_clearColor);
 
-		//m_driver->getSceneManagerImpl()->_render(m_phaseFlag, m_matID);
+		g_env.pSceneMg->RenderPipline(m_phaseFlag);
 
 		m_pRenderSystem->SetRenderTarget(nullptr, false);
 	}

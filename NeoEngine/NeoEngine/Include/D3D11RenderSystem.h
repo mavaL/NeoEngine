@@ -26,11 +26,7 @@ namespace Neo
 		__declspec(align(16))
 		struct cBufferGlobal
 		{
-			MAT44	matWorld;		// TODO: Maybe world matrix should be separate for efficiency
-			MAT44	matView;
-			MAT44	matProj;
-			MAT44	matMVP;
-			MAT44	matWorldIT;
+			MAT44	matTransform[eTransform_Count];		// TODO: Maybe world matrix should be separate for efficiency
 			SColor	ambientColor;
 			SColor	lightColor;
 			VEC3	lightDirection;
@@ -50,9 +46,11 @@ namespace Neo
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
 		D3D11_RASTERIZER_DESC&		GetRasterizeDesc()		{ return m_rasterDesc; }
 		D3D11_BLEND_DESC&			GetBlendStateDesc()		{ return m_blendDesc; }
+		D3D11_SAMPLER_DESC&			GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void						SetDepthStencelState(const D3D11_DEPTH_STENCIL_DESC& desc);
 		void						SetRasterizeDesc(const D3D11_RASTERIZER_DESC& desc);
 		void						SetBlendStateDesc(const D3D11_BLEND_DESC& desc);
+		void						SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 
 		// Add a new material to MatLib
 		void		AddMaterial(const STRING& name, Material* pMaterial);
@@ -64,7 +62,7 @@ namespace Neo
 		void		SetRenderTarget(D3D11RenderTarget* pRT, bool bClear, const SColor* pClearColor = nullptr);
 		// Manually create texture
 		D3D11Texture*	CreateManualTexture(const STRING& name, uint32 width, uint32 height, ePixelFormat format, 
-			eTextureUsage usage, bool bMipMap = false);
+			uint32 usage, bool bMipMap = false);
 		
 		/**	Copy back buffer content to another texture
 			Note: The texture must be the same type of the back buffer,
@@ -72,7 +70,7 @@ namespace Neo
 		*/
 		void		CopyFrameBufferToTexture(D3D11Texture* pTexture);
 
-		void		SetWorldTransform(const MAT44& matWorld, const MAT44& matWorldIT);
+		void		SetTransform(eTransform type, const MAT44& matrix, bool bUpdateCBuffer);
 
 	private:
 		ID3D11Device*				m_pd3dDevice;
@@ -87,6 +85,8 @@ namespace Neo
 		ID3D11RenderTargetView*		m_pRenderTargetView;	// Frame buffer RT
 		ID3D11DepthStencilView*		m_pDepthStencilView;
 		ID3D11Texture2D*			m_pDepthStencil;
+		D3D11_SAMPLER_DESC			m_samplerStateDesc[MAX_TEXTURE_STAGE];
+		ID3D11SamplerState*			m_pSamplerState[MAX_TEXTURE_STAGE];
 
 		cBufferGlobal				m_cBufferGlobal;
 		ID3D11Buffer*				m_pGlobalCBuf;

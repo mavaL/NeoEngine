@@ -84,6 +84,15 @@ namespace Common
 		m_arr[2][2] = scale.z;
 	}
 
+	__forceinline Matrix44 BuildReflectMatrix(const Plane& p)
+	{
+		return Matrix44(
+			-2 * p.n.x * p.n.x + 1,   -2 * p.n.x * p.n.y,       -2 * p.n.x * p.n.z,       0, 
+			-2 * p.n.y * p.n.x,       -2 * p.n.y * p.n.y + 1,   -2 * p.n.y * p.n.z,       0, 
+			-2 * p.n.z * p.n.x,       -2 * p.n.z * p.n.y,       -2 * p.n.z * p.n.z + 1,   0, 
+			-2 * p.n.x * p.d,         -2 * p.n.y * p.d,         -2 * p.n.z * p.d,         1);
+	}
+
 	__forceinline void		Add_Vec2_By_Vec2(Vector2& result, const Vector2& v1, const Vector2& v2)
 	{
 #if USE_SIMD == 1

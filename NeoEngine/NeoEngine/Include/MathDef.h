@@ -119,7 +119,7 @@ namespace Common
 		//求逆
 		Matrix44	Inverse() const;
 		//转置
-		Matrix44	Transpose();
+		Matrix44	Transpose() const;
 		//清除平移部分
 		inline void	ClearTranslation() { SetRow(3, Vector4(0,0,0,1)); }
 		//设置平移部分
@@ -147,6 +147,20 @@ namespace Common
 		static Matrix44 IDENTITY;
 	};
 
+	/////////////////////////////////////////////////////////////
+	//////// 3D plane
+	class Plane
+	{
+	public:
+		Plane() {}
+		Plane(const VEC3& _n, float _d):n(_n),d(_d) {}
+
+		void	Set(const VEC3& _n, float _d) { n = _n; d = _d; }
+
+		VEC3	n;
+		float	d;
+	};
+
 	//////// 以4x4矩阵变换4d坐标
 	void	Transform_Vec4_By_Mat44(Vector4& result, const Vector4& pt, const Matrix44& mat);
 	Vector4	Transform_Vec4_By_Mat44(const Vector4& pt, const Matrix44& mat);
@@ -171,6 +185,8 @@ namespace Common
 	Vector2		Multiply_Vec2_By_Vec2(const Vector2& v1, const Vector2& v2);
 	float		Angle_To_Radian(float angle);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
+	//建构关于平面的反射矩阵
+	Matrix44	BuildReflectMatrix(const Plane& p);
 }
 
 #include "MathDef.inl"

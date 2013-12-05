@@ -17,24 +17,18 @@ public:
 	typedef std::function<void(Scene*)>	StrategyFunc;
 
 public:
-	Scene(StrategyFunc& setupFunc, StrategyFunc& enterFunc, StrategyFunc renderFunc);
+	Scene(StrategyFunc& setupFunc, StrategyFunc& enterFunc);
 	~Scene();
-
-	Neo::Terrain*	m_pTerrain;
-	Neo::Water*		m_pWater;
-	Neo::Sky*		m_pSky;
 
 public:
 	void	Enter();
 	void	AddRenderObject(Neo::RenderObject* obj);
-	const Neo::RenderList& GetRenderList() const { return m_renderList; }
-	// Render pipeline! 
-	void	RenderPipeline();
+	Neo::RenderList&	GetRenderList() { return m_renderList; }
+	void	Render();
 
 private:
 	StrategyFunc	m_setupFunc;
 	StrategyFunc	m_enterFunc;
-	StrategyFunc	m_renderFunc;
 	bool			m_bSetup;
 	Neo::RenderList		m_renderList;	//场景中所有渲染物体
 };

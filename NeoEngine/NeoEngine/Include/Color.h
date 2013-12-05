@@ -33,7 +33,7 @@ namespace Neo
 		void	SetAsInt(DWORD color);
 		DWORD	GetAsInt() const;
 
-		float	a, r, g, b;
+		float	r, g, b, a;
 
 		static SColor WHITE;
 		static SColor BLACK;
