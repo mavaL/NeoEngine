@@ -23,11 +23,12 @@ namespace Neo
 		~RenderObject();
 
 	public:
-		bool	CreateVertexBuffer(const Neo::SVertex* pVerts, int nVert, bool bStatic);
+		bool	CreateVertexBuffer(const SVertex* pVerts, int nVert, bool bStatic);
 		bool	CreateIndexBuffer(const DWORD* pIdx, int nIdx, bool bStatic);
 		void	OnFrameMove();
-		void	Render();
-		void	SetMaterial(Neo::Material* pMaterial);
+		// Render mesh buffer. If pMaterial not null, then use it instead of own.
+		void	Render(Material* pMaterial = nullptr);
+		void	SetMaterial(Material* pMaterial);
 		void	SetWorldMatrix(const MAT44& matWorld)	{ m_matWorld = matWorld; }
 		const MAT44& GetWorldMatrix() const { return m_matWorld; }
 		const MAT44& GetWorldITMatrix() const { return m_matWorldIT; }
@@ -35,7 +36,7 @@ namespace Neo
 	private:
 		ID3D11Buffer*	m_pVertexBuf;
 		ID3D11Buffer*	m_pIndexBuf;
-		Neo::Material*	m_pMaterial;
+		Material*		m_pMaterial;
 
 		DWORD			m_nVertCnt;
 		DWORD			m_nPrimCnt;

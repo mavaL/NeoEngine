@@ -34,7 +34,7 @@ namespace Neo
 		void		_FinalCompose();
 
 		__declspec(align(16))
-		struct ConstantVS
+		struct cBufferVSFinal
 		{
 			VEC3	viewPt;
 			float	padding;
@@ -46,7 +46,7 @@ namespace Neo
 		};
 
 		__declspec(align(16))
-		struct ConstantPS 
+		struct cBufferPSFinal 
 		{
 			VEC4	deepColor;
 			VEC4	shallowColor;
@@ -59,16 +59,25 @@ namespace Neo
 			float	refractionAmount;
 		};
 
+		__declspec(align(16))
+		struct cBufferDepth
+		{
+			float	waterPlaneHeight;
+			float	depthLimit;
+		};
+
 	private:
 		D3D11RenderSystem*	m_pRenderSystem;
-		D3D11Texture*		m_pTexRefracMask;
+		D3D11Texture*		m_pTexSceneWithRefracMask;
 		D3D11RenderTarget*	m_pRT_Reflection;
 		D3D11RenderTarget*	m_pRT_Depth;
 
-		ConstantVS			m_constantBufVS;
-		ConstantPS			m_constantBufPS;
+		cBufferVSFinal		m_constantBufVS;
+		cBufferPSFinal		m_constantBufPS;
+		cBufferDepth		m_constantBufDepth;
 		ID3D11Buffer*		m_pCB_VS;
 		ID3D11Buffer*		m_pCB_PS;
+		ID3D11Buffer*		m_pCB_Depth;
 
 		Material*			m_pRefracMaterial;
 		Material*			m_pWaterDepthMaterial;

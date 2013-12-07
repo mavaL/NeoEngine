@@ -205,6 +205,8 @@ void Application::Run()
 		{
 			// Render a frame during idle time (no messages are waiting)
 			m_camera->Update();
+			m_pRenderSystem->Update();
+			g_env.pSceneMg->Update();
 			_RenderOneFrame();
 		}
 	}

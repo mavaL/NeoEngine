@@ -20,12 +20,10 @@ namespace Neo
 	,m_blendState(nullptr)
 	,m_depthState(nullptr)
 	,m_pGlobalCBuf(nullptr)
+	,m_bClipPlaneEnabled(false)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
-		{
-			m_pSamplerState[i] = nullptr;
 			m_pTexture[i] = nullptr;
-		}
 	}
 	//----------------------------------------------------------------------------------------
 	bool D3D11RenderSystem::Init( HWND hwnd )
@@ -157,14 +155,14 @@ namespace Neo
 		SetBlendStateDesc(m_blendDesc);
 
 		// Setup the viewport
-		D3D11_VIEWPORT vp;
-		vp.Width = (FLOAT)width;
-		vp.Height = (FLOAT)height;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		vp.TopLeftX = 0;
-		vp.TopLeftY = 0;
-		m_pDeviceContext->RSSetViewports( 1, &vp );
+		m_viewport.Width = (FLOAT)width;
+		m_viewport.Height = (FLOAT)height;
+		m_viewport.MinDepth = 0.0f;
+		m_viewport.MaxDepth = 1.0f;
+		m_viewport.TopLeftX = 0;
+		m_viewport.TopLeftY = 0;
+
+		SetViewport(m_viewport);
 
 		// Create the constant buffer
 		D3D11_BUFFER_DESC bd;
@@ -176,21 +174,6 @@ namespace Neo
 
 		hr = m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf );
 		assert(SUCCEEDED(hr) && "Create cBuffer failed!");
-
-		// Create sampler state
-		for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
-		{
-			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			// Default wrap mode
-			m_samplerStateDesc[i].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			m_samplerStateDesc[i].AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			m_samplerStateDesc[i].AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-			HRESULT hr = m_pd3dDevice->CreateSamplerState(&m_samplerStateDesc[i], &m_pSamplerState[i]);
-			assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
-
-			m_pDeviceContext->PSSetSamplers(i, 1, &m_pSamplerState[i]);
-		}
 		
 		return true;
 	}
@@ -208,10 +191,7 @@ namespace Neo
 		SAFE_RELEASE(m_rasterState);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
-		{
-			SAFE_RELEASE(m_pSamplerState[i]);
 			SAFE_RELEASE(m_pTexture[i]);
-		}
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::BeginScene()
@@ -219,18 +199,6 @@ namespace Neo
 		float c[4] = {0.0f, 0.125f, 0.3f, 1};
 		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, c );
 		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
-
-		// Update cBuffer
-		m_cBufferGlobal.time = GetTickCount() / 1000.0f;
-
-		Camera* cam = g_env.pApp->GetCamera();
-		const MAT44& matView = cam->GetViewMatrix();
-		const MAT44& matProj = cam->GetProjMatrix();
-
-		SetTransform(eTransform_World, MAT44::IDENTITY, false);
-		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
-		SetTransform(eTransform_View, matView, false);
-		SetTransform(eTransform_Proj, matProj, true);	
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::EndScene()
@@ -266,7 +234,7 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetActiveTexture( int stage, D3D11Texture* pTexture )
+	void D3D11RenderSystem::SetActiveTexture( int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler)
 	{
 		assert(stage >=0 && stage < MAX_TEXTURE_STAGE);
 
@@ -280,24 +248,33 @@ namespace Neo
 		{
 			pTexture->AddRef();
 			m_pDeviceContext->PSSetShaderResources(stage, 1, pTexture->GetSRV());
+			m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
 		}
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetRenderTarget( D3D11RenderTarget* pRT, bool bClear, const SColor* pClearColor )
 	{
 		ID3D11RenderTargetView* rtView = nullptr;
-		if (pRT)
-			rtView = pRT->GetRenderTexture()->GetRTView();
-		else	// Recover back frame buffer
-			rtView = m_pRenderTargetView;
+		ID3D11DepthStencilView* dsView = nullptr;
 
-		m_pDeviceContext->OMSetRenderTargets(1, &rtView, m_pDepthStencilView);
+		if (pRT)
+		{
+			rtView = pRT->GetRenderTexture()->GetRTView();
+			dsView = pRT->GetDSView();
+		}
+		else	// Recover back frame buffer
+		{
+			rtView = m_pRenderTargetView;
+			dsView = m_pDepthStencilView;
+		}
+
+		m_pDeviceContext->OMSetRenderTargets(1, &rtView, dsView);
 
 		if (bClear)
 		{
 			assert(pClearColor);
 			m_pDeviceContext->ClearRenderTargetView( rtView, (float*)pClearColor );
-			m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+			m_pDeviceContext->ClearDepthStencilView( dsView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -349,19 +326,6 @@ namespace Neo
 
 		m_pDeviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
 	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetSamplerStateDesc( int stage, const D3D11_SAMPLER_DESC& desc )
-	{
-		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
-
-		SAFE_RELEASE(m_pSamplerState[stage]);
-
-		m_samplerStateDesc[stage] = desc;
-		HRESULT hr = m_pd3dDevice->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]);
-		assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
-
-		m_pDeviceContext->PSSetSamplers(stage, 1, &m_pSamplerState[stage]);
-	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::CopyFrameBufferToTexture( D3D11Texture* pTexture )
 	{
@@ -384,10 +348,47 @@ namespace Neo
 				m_cBufferGlobal.matTransform[eTransform_View]*
 				m_cBufferGlobal.matTransform[eTransform_World]);
 
-			m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
-			m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
-			m_pDeviceContext->PSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+			UpdateGlobalCBuffer();
 		}
+	}
+	//-------------------------------------------------------------------------------
+	void D3D11RenderSystem::Update()
+	{
+		// Update cBuffer
+		m_cBufferGlobal.time = GetTickCount() / 1000.0f;
+
+		Camera* cam = g_env.pApp->GetCamera();
+		const MAT44& matView = cam->GetViewMatrix();
+		const MAT44& matProj = cam->GetProjMatrix();
+
+		SetTransform(eTransform_World, MAT44::IDENTITY, false);
+		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
+		SetTransform(eTransform_View, matView, false);
+		SetTransform(eTransform_Proj, matProj, true);	
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetViewport( const D3D11_VIEWPORT& vp )
+	{
+		m_viewport = vp;
+		m_pDeviceContext->RSSetViewports( 1, &m_viewport );
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::EnableClipPlane( bool bEnable, const PLANE* plane )
+	{
+		m_bClipPlaneEnabled = bEnable;
+		if (m_bClipPlaneEnabled)
+		{
+			assert(plane);
+			m_cBufferGlobal.clipPlane = *plane;
+			UpdateGlobalCBuffer();
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::UpdateGlobalCBuffer()
+	{
+		m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
+		m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+		m_pDeviceContext->PSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 	}
 }
 

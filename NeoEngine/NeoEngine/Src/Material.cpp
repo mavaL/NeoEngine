@@ -9,26 +9,28 @@ namespace Neo
 {
 	//-------------------------------------------------------------------------------
 	Material::Material()
-	:ambient(SColor::WHITE)
+	:m_pRenderSystem(g_env.pRenderSystem)
+	,ambient(SColor::WHITE)
 	,diffuse(SColor::WHITE)
 	,specular(SColor::WHITE)
 	,shiness(20)
 	,m_pVertexShader(nullptr)
 	,m_pPixelShader(nullptr)
+	,m_pVS_WithClipPlane(nullptr)
 	,m_pInputLayout(nullptr)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
 			m_pTexture[i] = nullptr;
+			m_pSamplerState[i] = nullptr;
 
-			D3D11_SAMPLER_DESC ssDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			// Default wrap mode
-			ssDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			ssDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			ssDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_samplerStateDesc[i].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_samplerStateDesc[i].AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_samplerStateDesc[i].AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
-			HRESULT hr = g_env.pRenderSystem->GetDevice()->CreateSamplerState(&ssDesc, &m_pSamplerState[i]);
-			assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
+			SetSamplerStateDesc(i, m_samplerStateDesc[i]);
 		}
 	}
 	//-------------------------------------------------------------------------------
@@ -37,6 +39,7 @@ namespace Neo
 		SAFE_RELEASE(m_pInputLayout);
 		SAFE_RELEASE(m_pVertexShader);
 		SAFE_RELEASE(m_pPixelShader);
+		SAFE_RELEASE(m_pVS_WithClipPlane);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
@@ -45,7 +48,7 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName )
+	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader )
 	{
 		HRESULT hr = S_OK;
 
@@ -55,7 +58,7 @@ namespace Neo
 		assert(bSucceed);
 
 		// Create the vertex shader
-		hr = g_env.pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader );
+		hr = m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader );
 		assert(SUCCEEDED(hr) && "Create vertex shader failed!");
 
 		// Compile the pixel shader
@@ -64,7 +67,7 @@ namespace Neo
 		assert(bSucceed);
 
 		// Create the pixel shader
-		hr = g_env.pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader );
+		hr = m_pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader );
 		assert(SUCCEEDED(hr) && "Create pixel shader failed!");		
 
 		m_vsCode.resize(pVSBlob->GetBufferSize());
@@ -72,6 +75,19 @@ namespace Neo
 
 		pVSBlob->Release();
 		pPSBlob->Release();
+
+		// Create clip plane shader
+		m_bHasClipPlaneShader = bHasClipPlaneShader;
+		if (m_bHasClipPlaneShader)
+		{
+			bSucceed = _CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", &pVSBlob );
+			assert(bSucceed);
+
+			hr = m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane );
+			assert(SUCCEEDED(hr) && "Create clip plane shader failed!");
+
+			pVSBlob->Release();
+		}
 
 		// Create vertex layout
 		_CreateVertexLayout();
@@ -117,7 +133,7 @@ namespace Neo
 
 		SAFE_RELEASE(m_pInputLayout);
 
-		HRESULT hr = g_env.pRenderSystem->GetDevice()->CreateInputLayout( 
+		HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
 			layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
 
 		assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
@@ -125,19 +141,19 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Material::Activate()
 	{
-		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
+		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
 
-		pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
+		if (m_pRenderSystem->IsClipPlaneEnabled() && m_pVS_WithClipPlane)
+			pDeviceContext->VSSetShader( m_pVS_WithClipPlane, NULL, 0 );
+		else			
+			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
+
 		pDeviceContext->PSSetShader( m_pPixelShader, NULL, 0 );
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
-			if (m_pTexture[i])
-			{
-				pDeviceContext->PSSetSamplers(i, 1, &m_pSamplerState[i]);
-				pDeviceContext->PSSetShaderResources(i, 1, m_pTexture[i]->GetSRV());
-			}
+			m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -150,6 +166,17 @@ namespace Neo
 
 		if(pTexture)
 			pTexture->AddRef();
+	}
+	//------------------------------------------------------------------------------------
+	void Material::SetSamplerStateDesc( int stage, const D3D11_SAMPLER_DESC& desc )
+	{
+		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+
+		SAFE_RELEASE(m_pSamplerState[stage]);
+
+		m_samplerStateDesc[stage] = desc;
+		HRESULT hr = m_pRenderSystem->GetDevice()->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]);
+		assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
 	}
 }
 

@@ -62,13 +62,16 @@ namespace Neo
 		SAFE_DELETE_ARRAY(pIndices);
 
 		Neo::Material* pMaterial = new Neo::Material;
-		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"));
+		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), false);
 		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
 
 		m_pSkyBox->SetMaterial(pMaterial);
 
-		//mat.TextureLayer[0].TextureWrapU = video::ETC_CLAMP_TO_EDGE;
-		//mat.TextureLayer[0].TextureWrapV = video::ETC_CLAMP_TO_EDGE;
+		D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
+		sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		
+		pMaterial->SetSamplerStateDesc(0, sampler);
 	}
 	//-------------------------------------------------------------------------------
 	void Sky::Update()

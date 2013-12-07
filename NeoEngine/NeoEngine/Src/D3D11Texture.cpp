@@ -12,6 +12,8 @@ namespace Neo
 	,m_pSRV(nullptr)
 	,m_usage(0)
 	,m_texType(type)
+	,m_width(0)
+	,m_height(0)
 	{
 		m_pd3dDevice = g_env.pRenderSystem->GetDevice();
 		if (m_pd3dDevice)
@@ -199,6 +201,12 @@ namespace Neo
 			hr = m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView );
 			assert(SUCCEEDED(hr) && "CreateRenderTargetView failed!");
 		}
+
+		D3D11_TEXTURE2D_DESC SMTextureDesc;
+		m_pTexture2D->GetDesc(&SMTextureDesc);
+
+		m_width = SMTextureDesc.Width;
+		m_height = SMTextureDesc.Height;
 	}
 	//-------------------------------------------------------------------------------
 	D3D11Texture::~D3D11Texture()

@@ -14,6 +14,7 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	Projection;
 	matrix	WVP;
 	matrix	WorldIT;
+	float4	clipPlane;
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
@@ -170,11 +171,8 @@ float4 PS( PS_INPUT IN ) : SV_Target
 	//=====================================================================
 	// Reflection
 	//=====================================================================
-	// Average bump layers
-	float3 vBumpTex=normalize(N * 0.33);
-	float3 vReflBump = vBumpTex * float3(0.1, 0.1, 1);  
-
-	float4 reflection = ReflecMap.Sample(samReflec, projUV + vReflBump.xy);
+	float2 reflecUV = projUV + N.xz * reflectionAmount;
+	float4 reflection = ReflecMap.Sample(samReflec, reflecUV);
 
 	// fresnel
 	float3 E = normalize(IN.eyeVector);
@@ -183,7 +181,7 @@ float4 PS( PS_INPUT IN ) : SV_Target
 
 	float4 waterColor = lerp(shallowColor, deepColor, facing) * waterAmount;
 
-	reflection = lerp(waterColor,  reflection * reflectionColor, fresnel) * reflectionAmount;
+	reflection = lerp(waterColor,  reflection * reflectionColor, fresnel);
 	waterColor += reflection;
 
 	//=====================================================================
@@ -201,7 +199,7 @@ float4 PS( PS_INPUT IN ) : SV_Target
 	//========================================================================
 	float depth = DepthMap.Sample(samDepth, projUV).r;
 
-	//waterColor = lerp(waterColor, refraction, depth);
+	waterColor = lerp(waterColor, refraction, depth);
 
 	return waterColor;
 }

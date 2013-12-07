@@ -33,6 +33,8 @@ namespace Neo
 		ID3D11RenderTargetView*				GetRTView() { return m_rtView; }
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }
 		void								CreateSRV();
+		uint32								GetWidth() const { return m_width; }
+		uint32								GetHeight() const { return m_height; }
 
 	private:
 		ID3D11Device*		m_pd3dDevice;
@@ -44,6 +46,7 @@ namespace Neo
 
 		eTextureType		m_texType;
 		int					m_usage;
+		uint32				m_width, m_height;
 	};
 }
 

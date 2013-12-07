@@ -28,9 +28,6 @@ const int	MAX_TEXTURE_STAGE	=	8;
 #define SAFE_DELETE_ARRAY(p) if(p) { delete []p; p=nullptr; }
 #endif
 
-typedef std::string		STRING;
-typedef unsigned int	uint32;
-typedef unsigned short	uint16;
 
 enum eTextureType
 {
@@ -99,11 +96,15 @@ namespace Common
 	class AxisAlignBBox;
 }
 
+typedef std::string			STRING;
+typedef unsigned int		uint32;
+typedef unsigned short		uint16;
 typedef Common::Vector2			VEC2;
 typedef Common::Vector3			VEC3;
 typedef Common::Vector4			VEC4;
 typedef Common::Matrix44		MAT44;
 typedef Common::AxisAlignBBox	AABB;
+typedef Common::Plane			PLANE;
 
 namespace Neo
 {

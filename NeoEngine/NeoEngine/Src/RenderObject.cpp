@@ -33,13 +33,13 @@ namespace Neo
 		m_worldAABB.Transform(m_matWorld);
 	}
 	//-------------------------------------------------------------------------------
-	bool RenderObject::CreateVertexBuffer( const Neo::SVertex* pVerts, int nVert, bool bStatic )
+	bool RenderObject::CreateVertexBuffer( const SVertex* pVerts, int nVert, bool bStatic )
 	{
 		SAFE_RELEASE(m_pVertexBuf);
 
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory( &bd, sizeof(bd) );
-		bd.ByteWidth = sizeof(Neo::SVertex) * nVert;
+		bd.ByteWidth = sizeof(SVertex) * nVert;
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.Usage = D3D11_USAGE_DEFAULT;
@@ -98,23 +98,26 @@ namespace Neo
 		return true;
 	}
 	//-------------------------------------------------------------------------------
-	void RenderObject::SetMaterial( Neo::Material* pMaterial )
+	void RenderObject::SetMaterial( Material* pMaterial )
 	{
 		SAFE_RELEASE(m_pMaterial);
 		m_pMaterial = pMaterial;
 		pMaterial->AddRef();
 	}
 	//-------------------------------------------------------------------------------
-	void RenderObject::Render()
+	void RenderObject::Render(Material* pMaterial)
 	{
+		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
+
 		g_env.pRenderSystem->SetTransform(eTransform_World, GetWorldMatrix(), false);
 		g_env.pRenderSystem->SetTransform(eTransform_WorldIT, GetWorldITMatrix(), true);
 
-		m_pMaterial->Activate();
+		if (pMaterial)
+			pMaterial->Activate();
+		else
+			m_pMaterial->Activate();
 
-		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
-
-		const UINT stride = sizeof(Neo::SVertex);
+		const UINT stride = sizeof(SVertex);
 		UINT offset = 0;
 
 		pDeviceContext->IASetVertexBuffers( 0, 1, &m_pVertexBuf, &stride, &offset );

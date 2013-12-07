@@ -12,9 +12,7 @@ Camera::Camera()
 	,m_bActive(false)
 {
 	m_fov = Common::Angle_To_Radian(45);
-	m_aspectRatio = SCREEN_WIDTH / (float)SCREEN_HEIGHT;
-
-	_BuildProjMatrix();
+	SetAspectRatio(SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 }
 
 void Camera::Update()
@@ -178,6 +176,13 @@ void Camera::SetFarClip( float f )
 	m_farClip = f;
 	_BuildProjMatrix();
 }
+
+void Camera::SetAspectRatio( float r )
+{
+	m_aspectRatio = r;
+	_BuildProjMatrix();
+}
+
 
 
 

@@ -23,6 +23,7 @@ public:
 
 	void	SetNearClip(float n);
 	void	SetFarClip(float f);
+	void	SetAspectRatio(float r);
 	void	SetPosition(const VEC3& pos);
 	void	SetDirection(const VEC3& dir);
 	void	Yaw(float angle);

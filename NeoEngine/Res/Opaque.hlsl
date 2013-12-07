@@ -1,3 +1,4 @@
+
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
@@ -8,6 +9,7 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	Projection;
 	matrix	WVP;
 	matrix	WorldIT;
+	float4	clipPlane;
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
@@ -30,7 +32,6 @@ struct PS_INPUT
 	float2 uv		: TEXCOORD0;
 	float3 normal	: TEXCOORD1;
 };
-
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
@@ -61,3 +62,5 @@ float4 PS( PS_INPUT input ) : SV_Target
 
 	return float4(oColor.rgb, 1);
 }
+
+#include "ClipPlaneWrapper.hlsl"
