@@ -16,6 +16,8 @@ namespace Neo
 	,shiness(20)
 	,m_pVertexShader(nullptr)
 	,m_pPixelShader(nullptr)
+	,m_pHullShader(nullptr)
+	,m_pDomainShader(nullptr)
 	,m_pVS_WithClipPlane(nullptr)
 	,m_pInputLayout(nullptr)
 	{
@@ -39,6 +41,8 @@ namespace Neo
 		SAFE_RELEASE(m_pInputLayout);
 		SAFE_RELEASE(m_pVertexShader);
 		SAFE_RELEASE(m_pPixelShader);
+		SAFE_RELEASE(m_pHullShader);
+		SAFE_RELEASE(m_pDomainShader);
 		SAFE_RELEASE(m_pVS_WithClipPlane);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
@@ -51,24 +55,16 @@ namespace Neo
 	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader )
 	{
 		HRESULT hr = S_OK;
-
-		// Compile the vertex shader
 		ID3DBlob* pVSBlob = NULL;
-		bool bSucceed = _CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", &pVSBlob );
-		assert(bSucceed);
-
-		// Create the vertex shader
-		hr = m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader );
-		assert(SUCCEEDED(hr) && "Create vertex shader failed!");
-
-		// Compile the pixel shader
 		ID3DBlob* pPSBlob = NULL;
-		bSucceed = _CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", &pPSBlob );
-		assert(bSucceed);
 
-		// Create the pixel shader
-		hr = m_pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader );
-		assert(SUCCEEDED(hr) && "Create pixel shader failed!");		
+		// Compile
+		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", &pVSBlob ));
+		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", &pPSBlob ));
+
+		// Create shader
+		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
+		V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader ));
 
 		m_vsCode.resize(pVSBlob->GetBufferSize());
 		memcpy_s(&m_vsCode[0], m_vsCode.size(), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize());
@@ -80,17 +76,33 @@ namespace Neo
 		m_bHasClipPlaneShader = bHasClipPlaneShader;
 		if (m_bHasClipPlaneShader)
 		{
-			bSucceed = _CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", &pVSBlob );
-			assert(bSucceed);
+			V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", &pVSBlob ));
 
-			hr = m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane );
-			assert(SUCCEEDED(hr) && "Create clip plane shader failed!");
+			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane ));
 
 			pVSBlob->Release();
 		}
 
 		// Create vertex layout
 		_CreateVertexLayout();
+
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool Material::InitTessellationShader( const STRING& filename )
+	{
+		HRESULT hr = S_OK;
+		ID3DBlob* pHSBlob = NULL;
+		ID3DBlob* pDSBlob = NULL;
+
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", &pHSBlob ));
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", &pDSBlob ));
+
+		V_RETURN(m_pRenderSystem->GetDevice()->CreateHullShader( pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), NULL, &m_pHullShader ));
+		V_RETURN(m_pRenderSystem->GetDevice()->CreateDomainShader( pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), NULL, &m_pDomainShader ));
+
+		pHSBlob->Release();
+		pDSBlob->Release();
 
 		return true;
 	}
@@ -151,6 +163,20 @@ namespace Neo
 		pDeviceContext->PSSetShader( m_pPixelShader, NULL, 0 );
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
+		if (m_pHullShader && m_pDomainShader)
+		{
+			pDeviceContext->HSSetShader(m_pHullShader, nullptr, 0);
+			pDeviceContext->DSSetShader(m_pDomainShader, nullptr, 0);
+
+			m_pRenderSystem->UpdateGlobalCBuffer(true);
+
+			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST );
+		}
+		else
+		{
+			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+		}
+
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
 			m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
@@ -177,6 +203,14 @@ namespace Neo
 		m_samplerStateDesc[stage] = desc;
 		HRESULT hr = m_pRenderSystem->GetDevice()->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]);
 		assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
+	}
+	//-------------------------------------------------------------------------------
+	void Material::TurnOffTessellation()
+	{
+		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
+
+		pDeviceContext->HSSetShader(nullptr, nullptr, 0);
+		pDeviceContext->DSSetShader(nullptr, nullptr, 0);
 	}
 }
 

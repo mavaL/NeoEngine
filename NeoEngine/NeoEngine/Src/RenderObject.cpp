@@ -12,7 +12,7 @@ namespace Neo
 	,m_pVertexBuf(nullptr)
 	,m_pIndexBuf(nullptr)
 	,m_nVertCnt(0)
-	,m_nPrimCnt(0)
+	,m_nIndexCnt(0)
 	{
 
 	}
@@ -42,7 +42,7 @@ namespace Neo
 		bd.ByteWidth = sizeof(SVertex) * nVert;
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_IMMUTABLE;
 
 		D3D11_SUBRESOURCE_DATA InitData;
 		ZeroMemory( &InitData, sizeof(InitData) );
@@ -54,13 +54,11 @@ namespace Neo
 			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		}
 
-		HRESULT hr = g_env.pRenderSystem->GetDevice()->CreateBuffer( &bd, &InitData, &m_pVertexBuf );
-		if( FAILED( hr ) )
-		{
-			assert(0);
-			return false;
-		}
+		HRESULT hr = S_OK;
+		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer( &bd, &InitData, &m_pVertexBuf ));
+
 		m_nVertCnt = nVert;
+
 		return true;
 	}
 	//-------------------------------------------------------------------------------
@@ -74,7 +72,7 @@ namespace Neo
 		bd.ByteWidth = sizeof(DWORD) * nIdx;
 		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.Usage = D3D11_USAGE_IMMUTABLE;
 
 		D3D11_SUBRESOURCE_DATA InitData;
 		ZeroMemory( &InitData, sizeof(InitData) );
@@ -86,14 +84,10 @@ namespace Neo
 			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		}
 
-		HRESULT hr = g_env.pRenderSystem->GetDevice()->CreateBuffer( &bd, &InitData, &m_pIndexBuf );
-		if( FAILED( hr ) )
-		{
-			assert(0);
-			return false;
-		}
+		HRESULT hr = S_OK;
+		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer( &bd, &InitData, &m_pIndexBuf ));
 
-		m_nPrimCnt = nIdx / 3;
+		m_nIndexCnt = nIdx;
 
 		return true;
 	}
@@ -121,12 +115,11 @@ namespace Neo
 		UINT offset = 0;
 
 		pDeviceContext->IASetVertexBuffers( 0, 1, &m_pVertexBuf, &stride, &offset );
-		pDeviceContext->IASetIndexBuffer( m_pIndexBuf, DXGI_FORMAT_R32_UINT, 0 );
-		pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 
 		if (m_pIndexBuf)
 		{
-			pDeviceContext->DrawIndexed( m_nPrimCnt * 3, 0, 0 );
+			pDeviceContext->IASetIndexBuffer( m_pIndexBuf, DXGI_FORMAT_R32_UINT, 0 );
+			pDeviceContext->DrawIndexed( m_nIndexCnt, 0, 0 );
 		}
 		else
 		{

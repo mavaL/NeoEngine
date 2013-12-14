@@ -137,6 +137,7 @@ namespace Neo
 
 		// Init depth stencil desc
 		m_depthStencilDesc = CD3D11_DEPTH_STENCIL_DESC (CD3D11_DEFAULT());
+		m_depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
 		SetDepthStencelState(m_depthStencilDesc);
 
@@ -361,6 +362,8 @@ namespace Neo
 		const MAT44& matView = cam->GetViewMatrix();
 		const MAT44& matProj = cam->GetProjMatrix();
 
+		m_cBufferGlobal.camPos = cam->GetPos().GetVec3();
+
 		SetTransform(eTransform_World, MAT44::IDENTITY, false);
 		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
 		SetTransform(eTransform_View, matView, false);
@@ -384,11 +387,17 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::UpdateGlobalCBuffer()
+	void D3D11RenderSystem::UpdateGlobalCBuffer(bool bTessellate)
 	{
 		m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
 		m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 		m_pDeviceContext->PSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+
+		if (bTessellate)
+		{
+			m_pDeviceContext->HSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+			m_pDeviceContext->DSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+		}
 	}
 }
 

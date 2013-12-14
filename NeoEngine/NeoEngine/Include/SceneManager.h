@@ -25,6 +25,7 @@ namespace Neo
 		void		CreateWater();
 		void		SetSolidRenderList(const RenderList& lst) { m_renderList_Solid = lst; }
 		void		Update();
+		void		ClearScene();
 		void		RenderPipline(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
 
 	private:

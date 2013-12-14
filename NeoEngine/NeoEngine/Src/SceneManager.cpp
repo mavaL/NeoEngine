@@ -20,9 +20,7 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	SceneManager::~SceneManager()
 	{
-		SAFE_DELETE(m_pTerrain);
-		SAFE_DELETE(m_pWater);
-		SAFE_DELETE(m_pSky);
+		ClearScene();
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::CreateSky()
@@ -32,7 +30,7 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void SceneManager::CreateTerrain()
 	{
-		m_pTerrain = new Terrain;
+		m_pTerrain = new Terrain(GetResPath("terrain.raw"));
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::CreateWater()
@@ -49,6 +47,10 @@ namespace Neo
 		}
 
 		/// Render terrain
+		if (m_pTerrain && phaseFlag&eRenderPhase_Terrain)
+		{
+			m_pTerrain->Render();
+		}
 
 		/// Render solid
 		if (phaseFlag & eRenderPhase_Solid)
@@ -78,5 +80,14 @@ namespace Neo
 		{
 			m_renderList_Solid[i]->OnFrameMove();
 		}
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::ClearScene()
+	{
+		SAFE_DELETE(m_pTerrain);
+		SAFE_DELETE(m_pWater);
+		SAFE_DELETE(m_pSky);
+
+		m_renderList_Solid.clear();
 	}
 }

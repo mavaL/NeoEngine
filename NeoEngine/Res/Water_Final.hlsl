@@ -18,12 +18,13 @@ cbuffer cbufferGlobal : register( b0 )
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
+	float3	camPos;
 	float	time;
 };
 
 cbuffer cbVS : register( b1 )
 {
-	float3	viewPt;
+	float3	viewPt;			// Camera pos in object space
 	float2	texScale;
 	float2	bumpSpeed;
 	float	BumpScale;

@@ -100,6 +100,7 @@
     <None Include="..\Res\ClipPlaneWrapper.hlsl" />
     <None Include="..\Res\Opaque.hlsl" />
     <None Include="..\Res\Sky.hlsl" />
+    <None Include="..\Res\Terrain.hlsl" />
     <None Include="..\Res\Water_Depth.hlsl" />
     <None Include="..\Res\Water_Final.hlsl" />
     <None Include="..\Res\Water_RefractionMask.hlsl" />

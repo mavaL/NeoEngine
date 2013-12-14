@@ -13,6 +13,7 @@ cbuffer cbufferGlobal : register( b0 )
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
+	float3	camPos;
 	float	time;
 };
 

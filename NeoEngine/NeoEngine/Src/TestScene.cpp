@@ -254,9 +254,6 @@ static Neo::RenderObject*	CreateFrustum(const VEC3& minBottom, const VEC3& maxBo
 
 void SetupTestScene2(Scene* scene)
 {
-	g_env.pSceneMg->CreateSky();
-	g_env.pSceneMg->CreateWater();
-
 	/// Create a cube to observe reflection
 	Neo::RenderObject* pCube =  CreateCube(VEC3(-100,100,-100), VEC3(100,300,100));
 
@@ -276,10 +273,15 @@ void SetupTestScene2(Scene* scene)
 	MAT44 matWorld;
 	matWorld.SetTranslation(VEC4(2000, 0, 0, 1));
 	pGeometry->SetWorldMatrix(matWorld);
+
+	pMaterial->Release();
 }
 
 void EnterTestScene2(Scene* scene)
 {
+	g_env.pSceneMg->CreateSky();
+	g_env.pSceneMg->CreateWater();
+
 	Camera* pCamera = g_env.pApp->GetCamera();
 	pCamera->SetPosition(VEC3(0, 100, 0));
 	pCamera->SetNearClip(100);
@@ -289,12 +291,32 @@ void EnterTestScene2(Scene* scene)
 }
 
 
+void SetupTestScene3(Scene* scene)
+{
+}
+
+void EnterTestScene3(Scene* scene)
+{
+	g_env.pSceneMg->CreateTerrain();
+
+	Camera* pCamera = g_env.pApp->GetCamera();
+	pCamera->SetPosition(VEC3(0, 10, 0));
+	pCamera->SetNearClip(1);
+	pCamera->SetFarClip(30000.0f);
+	pCamera->SetMoveSpeed(1.0f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+}
+
+
 void Application::_InitAllScene()
 {
 	//// Test Scene 1: A textured triangle
 	ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
 
-	//// Test Scene 2: Sky, Terrain, Water
+	//// Test Scene 2: Sky, Water
 	ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
+
+	//// Test Scene 3: Terrain
+	ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 }
 

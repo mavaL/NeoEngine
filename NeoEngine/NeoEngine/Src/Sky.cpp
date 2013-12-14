@@ -66,6 +66,7 @@ namespace Neo
 		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
 
 		m_pSkyBox->SetMaterial(pMaterial);
+		pMaterial->Release();
 
 		D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
 		sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;

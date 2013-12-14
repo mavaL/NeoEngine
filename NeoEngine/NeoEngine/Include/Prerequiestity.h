@@ -16,18 +16,6 @@ const int	MAX_TEXTURE_STAGE	=	8;
 
 #define USE_SIMD				0			//ÊÇ·ñÊ¹ÓÃSIMD
 
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(p) if(p) { delete p; p=nullptr; }
-#endif
-
-#ifndef SAFE_RELEASE
-#define SAFE_RELEASE(p) if(p) { p->Release(); p=nullptr; }
-#endif
-
-#ifndef SAFE_DELETE_ARRAY
-#define SAFE_DELETE_ARRAY(p) if(p) { delete []p; p=nullptr; }
-#endif
-
 
 enum eTextureType
 {
@@ -99,6 +87,7 @@ namespace Common
 typedef std::string			STRING;
 typedef unsigned int		uint32;
 typedef unsigned short		uint16;
+typedef unsigned char		uint8;
 typedef Common::Vector2			VEC2;
 typedef Common::Vector3			VEC3;
 typedef Common::Vector4			VEC4;
@@ -143,5 +132,35 @@ inline STRING	GetResPath(const STRING& filename)
 	filepath += filename;
 	return std::move(filepath);
 }
+
+
+
+#ifndef SAFE_DELETE
+#define SAFE_DELETE(p) if(p) { delete p; p=nullptr; }
+#endif
+
+#ifndef SAFE_RELEASE
+#define SAFE_RELEASE(p) if(p) { p->Release(); p=nullptr; }
+#endif
+
+#ifndef SAFE_DELETE_ARRAY
+#define SAFE_DELETE_ARRAY(p) if(p) { delete []p; p=nullptr; }
+#endif
+
+#if defined(DEBUG) || defined(_DEBUG)
+#ifndef V
+#define V(x)           { hr = (x); assert(SUCCEEDED(hr)); }
+#endif
+#ifndef V_RETURN
+#define V_RETURN(x)    { hr = (x); if( FAILED(hr) ) { assert(0); return false; } }
+#endif
+#else
+#ifndef V
+#define V(x)           { hr = (x); }
+#endif
+#ifndef V_RETURN
+#define V_RETURN(x)    { hr = (x); assert(SUCCEEDED(hr)); }
+#endif
+#endif
 
 #endif // Prerequiestity_h__

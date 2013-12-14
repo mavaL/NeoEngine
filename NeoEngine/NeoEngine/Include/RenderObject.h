@@ -23,13 +23,14 @@ namespace Neo
 		~RenderObject();
 
 	public:
-		bool	CreateVertexBuffer(const SVertex* pVerts, int nVert, bool bStatic);
-		bool	CreateIndexBuffer(const DWORD* pIdx, int nIdx, bool bStatic);
-		void	OnFrameMove();
+		bool		CreateVertexBuffer(const SVertex* pVerts, int nVert, bool bStatic);
+		bool		CreateIndexBuffer(const DWORD* pIdx, int nIdx, bool bStatic);
+		void		OnFrameMove();
 		// Render mesh buffer. If pMaterial not null, then use it instead of own.
-		void	Render(Material* pMaterial = nullptr);
-		void	SetMaterial(Material* pMaterial);
-		void	SetWorldMatrix(const MAT44& matWorld)	{ m_matWorld = matWorld; }
+		void		Render(Material* pMaterial = nullptr);
+		void		SetMaterial(Material* pMaterial);
+		Material*	GetMaterial()	{ return m_pMaterial; }
+		void		SetWorldMatrix(const MAT44& matWorld)	{ m_matWorld = matWorld; }
 		const MAT44& GetWorldMatrix() const { return m_matWorld; }
 		const MAT44& GetWorldITMatrix() const { return m_matWorldIT; }
 
@@ -39,7 +40,7 @@ namespace Neo
 		Material*		m_pMaterial;
 
 		DWORD			m_nVertCnt;
-		DWORD			m_nPrimCnt;
+		DWORD			m_nIndexCnt;
 		MAT44			m_matWorld;
 		MAT44			m_matWorldIT;		//世界矩阵的逆转置,用于法线变换
 		AABB			m_localAABB;		//本地包围盒

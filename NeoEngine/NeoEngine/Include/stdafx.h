@@ -17,6 +17,7 @@
 #include <memory.h>
 #include <tchar.h>
 #include <cassert>
+#include <fstream>
 
 //STL
 #include <string>

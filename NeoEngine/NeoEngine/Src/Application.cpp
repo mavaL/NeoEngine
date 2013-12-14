@@ -168,10 +168,22 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 
 	case WM_CHAR:
 		{
-			if(wParam == 't')
+			switch (wParam)
 			{
-				g_env.pApp->ToggleScene();
-				return 0;
+			case 't':
+				{
+					g_env.pApp->ToggleScene();
+				}
+				break;
+
+			case 'r':
+				{
+					// Toggle fill mode
+					D3D11_RASTERIZER_DESC& rasDesc = g_env.pRenderSystem->GetRasterizeDesc();
+					rasDesc.FillMode = (rasDesc.FillMode==D3D11_FILL_SOLID?D3D11_FILL_WIREFRAME:D3D11_FILL_SOLID);
+					g_env.pRenderSystem->SetRasterizeDesc(rasDesc);
+				}
+				break;
 			}
 		}
 		break;

@@ -31,6 +31,8 @@ namespace Neo
 			SColor	ambientColor;
 			SColor	lightColor;
 			VEC3	lightDirection;
+			float	padding;
+			VEC3	camPos;
 			float	time;
 		};
 
@@ -69,7 +71,7 @@ namespace Neo
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
 		// Update global constant buffer to device
-		void		UpdateGlobalCBuffer();
+		void		UpdateGlobalCBuffer(bool bTessellate = false);
 		
 		/**	Copy back buffer content to another texture
 			Note: The texture must be the same type of the back buffer,

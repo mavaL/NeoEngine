@@ -25,7 +25,9 @@ namespace Neo
 		float		shiness;
 
 		void		Activate();
+		void		TurnOffTessellation();
 		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader);
+		bool		InitTessellationShader(const STRING& filename);
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
@@ -38,6 +40,8 @@ namespace Neo
 		D3D11RenderSystem*			m_pRenderSystem;
 		ID3D11VertexShader*			m_pVertexShader;
 		ID3D11PixelShader*			m_pPixelShader;
+		ID3D11HullShader*			m_pHullShader;
+		ID3D11DomainShader*			m_pDomainShader;
 		ID3D11VertexShader*			m_pVS_WithClipPlane;
 		ID3D11InputLayout*			m_pInputLayout;			// Why keep it here? Because it's depend on m_vsCode
 		std::vector<char>			m_vsCode;				// Cached for creating vertex layout
