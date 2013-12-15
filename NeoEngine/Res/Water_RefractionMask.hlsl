@@ -25,7 +25,7 @@ struct VS_INPUT
 	float2 uv		:	TEXCOORD0;
 };
 
-struct PS_INPUT
+struct VS_OUTPUT
 {
 	float4 oPos	:	SV_POSITION;
 	float2 uv	:	TEXCOORD0;
@@ -35,9 +35,9 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS( VS_INPUT IN )
+VS_OUTPUT VS( VS_INPUT IN )
 {
-    PS_INPUT OUT = (PS_INPUT)0;
+    VS_OUTPUT OUT = (VS_OUTPUT)0;
 
 	OUT.oPos = mul(IN.Pos, WVP);
 	OUT.uv	=	IN.uv;
@@ -49,7 +49,7 @@ PS_INPUT VS( VS_INPUT IN )
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-float4 PS( PS_INPUT input ) : SV_Target
+float4 PS( VS_OUTPUT input ) : SV_Target
 {
 	return float4(0,0,0,0);
 }

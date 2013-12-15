@@ -3,7 +3,7 @@
 //--------------------------------------------------------------------------------------
 struct PS_INPUT_ClipPlane
 {
-    PS_INPUT	vsData;
+    VS_OUTPUT	vsData;
 	float clip : SV_ClipDistance0;		
 };
 

@@ -4,7 +4,6 @@
 #include "D3D11RenderSystem.h"
 #include "Camera.h"
 #include "MathDef.h"
-#include "GeometryDef.h"
 #include "SceneManager.h"
 
 

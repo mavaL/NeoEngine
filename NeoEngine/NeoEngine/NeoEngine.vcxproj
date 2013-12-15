@@ -80,7 +80,6 @@
     <ClInclude Include="Include\Color.h" />
     <ClInclude Include="Include\D3D11RenderTarget.h" />
     <ClInclude Include="Include\D3D11Texture.h" />
-    <ClInclude Include="Include\GeometryDef.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MathDef.h" />
@@ -112,7 +111,6 @@
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
     <ClCompile Include="Src\D3D11RenderTarget.cpp" />
     <ClCompile Include="Src\D3D11Texture.cpp" />
-    <ClCompile Include="Src\GeometryDef.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />

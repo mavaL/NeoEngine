@@ -21,14 +21,16 @@ enum eTextureType
 {
 	eTextureType_2D,
 	eTextureType_3D,
-	eTextureType_CubeMap
+	eTextureType_CubeMap,
+	eTextureType_TextureArray
 };
 
 enum eTextureUsage
 {
 	eTextureUsage_WriteOnly		= 1 << 0,
 	eTextureUsage_ReadWrite		= 1 << 1,
-	eTextureUsage_RenderTarget	= 1 << 2
+	eTextureUsage_RenderTarget	= 1 << 2,
+	eTextureUsage_DomainShader	= 1 << 3		// Bind to domain shader
 };
 
 // Use for render target to control which part to render
@@ -85,6 +87,7 @@ namespace Common
 }
 
 typedef std::string			STRING;
+typedef std::vector<STRING>	StringVector;
 typedef unsigned int		uint32;
 typedef unsigned short		uint16;
 typedef unsigned char		uint8;
@@ -100,6 +103,7 @@ namespace Neo
 	class	D3D11RenderSystem;
 	class	PixelBox;
 	struct	SVertex;
+	struct	SDirectionLight;
 	class	Material;
 	class	RenderObject;
 	class	D3D11Texture;

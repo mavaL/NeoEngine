@@ -14,6 +14,7 @@
 
 namespace Neo
 {
+	//------------------------------------------------------------------------------------
 	class Material : public IRefCount
 	{
 	public:

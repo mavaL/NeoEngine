@@ -59,7 +59,7 @@ struct VS_INPUT
 	float2 uv  : TEXCOORD0;
 };
 
-struct PS_INPUT
+struct VS_OUTPUT
 {
 	float4 Position  : SV_POSITION;  // in clip space
 	float3 rotMatrix1 : TEXCOORD0; // first row of the 3x3 transform from tangent to obj space
@@ -81,9 +81,9 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS( VS_INPUT IN )
+VS_OUTPUT VS( VS_INPUT IN )
 {
-	PS_INPUT OUT = (PS_INPUT)0;
+	VS_OUTPUT OUT = (VS_OUTPUT)0;
 
 #define NWAVES 2
 	Wave wave[NWAVES] = {
@@ -149,7 +149,7 @@ SamplerState	samReflec	: register( s1 );
 SamplerState	samScene	: register( s2 );
 SamplerState	samDepth	: register( s3 );
 
-float4 PS( PS_INPUT IN ) : SV_Target
+float4 PS( VS_OUTPUT IN ) : SV_Target
 {
 	// sum normal maps
 	// sample from 3 different points so no texture repetition is noticeable

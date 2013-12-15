@@ -11,13 +11,14 @@ namespace Neo
 	static const uint32		HEIGHT_MAP_SIZE	=	2049;
 	static const uint32		CELLS_PER_PATCH	=	64;
 	static const float		CELL_SPACE		=	0.5f;
+	static const float		HEIGHT_SCALE	=	50;
 
 	//------------------------------------------------------------------------------------
 	Terrain::Terrain(const STRING& heightmapName)
 	:m_pMesh(new RenderObject)
 	,m_pRenderSystem(g_env.pRenderSystem)
 	{
-		_LoadHeightMap(heightmapName, HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE);
+		_InitHeightMap(heightmapName, HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE);
 		_InitMesh();
 		_InitMaterial();
 
@@ -25,6 +26,8 @@ namespace Neo
 		m_cBuffer.maxTessDist = 500;
 		m_cBuffer.minTess = 0;
 		m_cBuffer.maxTess = 6;
+		m_cBuffer.invTexSize.Set(1.0f/HEIGHT_MAP_SIZE, 1.0f/HEIGHT_MAP_SIZE);
+		m_cBuffer.terrainCellSpace = CELL_SPACE;
 
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory( &bd, sizeof(bd) );
@@ -40,15 +43,39 @@ namespace Neo
 	Terrain::~Terrain()
 	{
 		SAFE_RELEASE(m_pCB);
+		SAFE_RELEASE(m_pHeightMap);
+		SAFE_RELEASE(m_pLayerTexArray);
+		SAFE_RELEASE(m_pBlendMap);
 		SAFE_DELETE(m_pMesh);
 	}
 	//------------------------------------------------------------------------------------
-	void Terrain::_LoadHeightMap(const STRING& filename, uint32 width, uint32 height)
+	void Terrain::_InitHeightMap(const STRING& filename, uint32 width, uint32 height)
 	{
-		std::ifstream file(filename.c_str());
-		if(file.fail())
-			throw std::exception("Failed to load terrain height map!");
+		std::ifstream file;
+		file.open(filename.c_str(), std::ios_base::binary);
 
+		uint32 nCount = width * height;
+		std::vector<uint8> vecSrcData(nCount);
+		file.read((char*)&vecSrcData[0], nCount);
+		file.close();
+
+		// Height scale
+		std::vector<float> vecFloat(nCount);
+		std::transform(vecSrcData.begin(), vecSrcData.end(), vecFloat.begin(), [=](uint8 data)
+		{ 
+			return data / 255.0f * HEIGHT_SCALE;
+		});
+
+		// Smooth
+		_SmoothHeightMap(vecFloat);
+		_SmoothHeightMap(vecFloat);
+
+		// Convert to half-float
+		std::vector<HALF> vecHeightData(nCount);
+		std::transform(vecFloat.begin(), vecFloat.end(), vecHeightData.begin(), XMConvertFloatToHalf);
+
+		m_pHeightMap = new D3D11Texture(HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE, (char*)&vecHeightData[0],
+			ePF_R16F, eTextureUsage_DomainShader | eTextureUsage_WriteOnly, false);
 	}
 	//------------------------------------------------------------------------------------
 	void Terrain::_InitMesh()
@@ -106,9 +133,45 @@ namespace Neo
 	void Terrain::_InitMaterial()
 	{
 		Material* pMaterial = new Material;
-		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), false);
-		pMaterial->SetTexture(0, new D3D11Texture(GetResPath("lion.bmp")));
+		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), true);
 		pMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"));
+
+		// Create layer texture array
+		StringVector vecTexNames;
+		vecTexNames.push_back(GetResPath("darkdirt.dds"));
+		vecTexNames.push_back(GetResPath("grass.dds"));
+		vecTexNames.push_back(GetResPath("lightdirt.dds"));
+		vecTexNames.push_back(GetResPath("stone.dds"));
+		vecTexNames.push_back(GetResPath("Snow.dds"));
+
+		m_pLayerTexArray = new D3D11Texture(vecTexNames);
+
+		// Load layer blend map
+		m_pBlendMap = new D3D11Texture(GetResPath("blend.dds"));
+
+		// Setup texture stages
+		pMaterial->SetTexture(0, m_pHeightMap);
+		pMaterial->SetTexture(1, m_pLayerTexArray);
+		pMaterial->SetTexture(2, m_pBlendMap);
+
+		{
+			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
+			samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+
+			pMaterial->SetSamplerStateDesc(0, samDesc);
+		}
+		
+		{
+			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(1);
+			samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+
+			pMaterial->SetSamplerStateDesc(1, samDesc);
+			pMaterial->SetSamplerStateDesc(2, samDesc);
+		}
 
 		m_pMesh->SetMaterial(pMaterial);
 		pMaterial->Release();
@@ -137,4 +200,47 @@ namespace Neo
 		desc.CullMode = D3D11_CULL_BACK;
 		m_pRenderSystem->SetRasterizeDesc(desc);
 	}
+	//------------------------------------------------------------------------------------
+	static float Average(std::vector<float>& vecData, int i, int j)
+	{
+		POINT filter[9] = 
+		{
+			{-1,-1}, {0,-1}, {1,-1},
+			{-1,0},	 {0,0},  {1,0},
+			{-1,1},  {0,1},  {1,1}
+		};
+
+		float fSum = 0, fCnt = 0;
+
+		for (int ii=0; ii<9; ++ii)
+		{
+			int ix = i + filter[ii].x;
+			int iy= j + filter[ii].y;
+
+			if (ix < 0 || ix >= HEIGHT_MAP_SIZE ||
+				iy < 0 || iy >= HEIGHT_MAP_SIZE)
+				continue;
+
+			fSum += vecData[ix*HEIGHT_MAP_SIZE+iy];
+			fCnt += 1.0f;
+		}
+
+		return fSum / fCnt;
+	}
+
+	void Terrain::_SmoothHeightMap(std::vector<float>& vecData)
+	{
+		std::vector<float> tmp(vecData.size());
+
+		for(UINT i = 0; i < HEIGHT_MAP_SIZE; ++i)
+		{
+			for(UINT j = 0; j < HEIGHT_MAP_SIZE; ++j)
+			{
+				tmp[i*HEIGHT_MAP_SIZE+j] = Average(vecData, i,j);
+			}
+		}
+
+		vecData.swap(tmp);
+	}
+
 }

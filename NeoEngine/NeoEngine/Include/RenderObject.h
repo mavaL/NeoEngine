@@ -10,12 +10,25 @@
 #define RenderObject_h__
 
 #include "Prerequiestity.h"
-#include "MathDef.h"
-#include "GeometryDef.h"
+#include "Color.h"
 #include "AABB.h"
 
 namespace Neo
 {
+	struct SVertex 
+	{
+		SVertex()
+			:normal(VEC3::ZERO)
+			,color(SColor::WHITE)
+			,uv(-1,-1) {}
+
+		VEC3	pos;
+		VEC3	normal;
+		VEC2	uv;
+		SColor	color;
+	};
+
+	//------------------------------------------------------------------------------------
 	class RenderObject
 	{
 	public:

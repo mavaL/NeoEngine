@@ -23,7 +23,7 @@ struct VS_INPUT
     float4 Pos		: POSITION;
 };
 
-struct PS_INPUT
+struct VS_OUTPUT
 {
     float4 Pos	: SV_POSITION;
 	float3 oUV  : TEXCOORD0;
@@ -32,9 +32,9 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS( VS_INPUT IN )
+VS_OUTPUT VS( VS_INPUT IN )
 {
-	PS_INPUT OUT = (PS_INPUT)0;
+	VS_OUTPUT OUT = (VS_OUTPUT)0;
 
 	OUT.Pos = mul(IN.Pos, WVP);
 	OUT.oUV	= IN.Pos;
@@ -49,7 +49,7 @@ PS_INPUT VS( VS_INPUT IN )
 TextureCube tex : register(t0);
 SamplerState sam : register( s0 );
 
-float4 PS( PS_INPUT IN ) : SV_Target
+float4 PS( VS_OUTPUT IN ) : SV_Target
 {
 	float4 oColor = tex.Sample(sam, IN.oUV);
 

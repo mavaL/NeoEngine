@@ -20,9 +20,11 @@ namespace Neo
 	{
 	public:
 		// Load from file
-		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D);
-		// Create manual
-		D3D11Texture(int width, int height, ePixelFormat format, uint32 usage, bool bMipMap);
+		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0);
+		// Create as manual
+		D3D11Texture(int width, int height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
+		// Create as texture array
+		D3D11Texture(const StringVector& vecTexNames);
 
 		~D3D11Texture();
 
@@ -35,6 +37,7 @@ namespace Neo
 		void								CreateSRV();
 		uint32								GetWidth() const { return m_width; }
 		uint32								GetHeight() const { return m_height; }
+		uint32								GetUsage() const { return m_usage; }
 
 	private:
 		ID3D11Device*		m_pd3dDevice;

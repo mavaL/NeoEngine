@@ -27,7 +27,7 @@ struct VS_INPUT
 	float4 color : COLOR;
 };
 
-struct PS_INPUT
+struct VS_OUTPUT
 {
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
@@ -37,9 +37,9 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS( VS_INPUT input )
+VS_OUTPUT VS( VS_INPUT input )
 {
-    PS_INPUT output = (PS_INPUT)0;
+    VS_OUTPUT output = (VS_OUTPUT)0;
     output.Pos = mul( input.Pos, WVP );
 
 	output.uv = input.uv;
@@ -55,7 +55,7 @@ PS_INPUT VS( VS_INPUT input )
 Texture2D tex : register(t0);
 SamplerState sam : register( s0 );
 
-float4 PS( PS_INPUT input ) : SV_Target
+float4 PS( VS_OUTPUT input ) : SV_Target
 {
 	//float3 N = normalize(input.normal);
 	//float4 diffuse = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor);

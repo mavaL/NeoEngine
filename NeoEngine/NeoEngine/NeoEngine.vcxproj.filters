@@ -27,9 +27,6 @@
     <ClInclude Include="Include\Color.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Include\GeometryDef.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\MathDef.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -113,9 +110,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\GeometryDef.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\MathDef.cpp">
