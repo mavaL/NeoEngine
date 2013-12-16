@@ -84,6 +84,7 @@ namespace Common
 	class Matrix44;
 	class Plane;
 	class AxisAlignBBox;
+	class iPoint;
 }
 
 typedef std::string			STRING;
@@ -97,11 +98,13 @@ typedef Common::Vector4			VEC4;
 typedef Common::Matrix44		MAT44;
 typedef Common::AxisAlignBBox	AABB;
 typedef Common::Plane			PLANE;
+typedef Common::iPoint			IPOINT;
 
 namespace Neo
 {
 	class	D3D11RenderSystem;
 	class	PixelBox;
+	struct	SColor;
 	struct	SVertex;
 	struct	SDirectionLight;
 	class	Material;
@@ -112,6 +115,7 @@ namespace Neo
 	class	Water;
 	class	Sky;
 	class	SceneManager;
+	class	Font;
 }
 
 class Application;

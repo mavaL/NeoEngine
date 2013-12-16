@@ -5,6 +5,7 @@
 #include "Camera.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderTarget.h"
+#include "Font.h"
 
 namespace Neo
 {
@@ -166,12 +167,16 @@ namespace Neo
 		bd.ByteWidth = sizeof(cBufferGlobal);
 
 		V(m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf ));
+
+		m_pFont = new Font;
 		
 		return true;
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::ShutDown()
 	{
+		SAFE_DELETE(m_pFont);
+
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pRenderTargetView);
@@ -272,7 +277,9 @@ namespace Neo
 		if (bClear)
 		{
 			assert(pClearColor);
-			m_pDeviceContext->ClearRenderTargetView( rtView, (float*)pClearColor );
+			SColor dxColor = pClearColor->GetAsDx();
+
+			m_pDeviceContext->ClearRenderTargetView( rtView, (float*)&dxColor );
 			m_pDeviceContext->ClearDepthStencilView( dsView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 		}
 	}
@@ -399,6 +406,11 @@ namespace Neo
 			m_pDeviceContext->HSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 			m_pDeviceContext->DSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 		}
+	}
+	//-------------------------------------------------------------------------------
+	void D3D11RenderSystem::DrawText( const STRING& text, const IPOINT& pos, const SColor& color )
+	{
+		m_pFont->DrawText(text, pos, color);
 	}
 }
 

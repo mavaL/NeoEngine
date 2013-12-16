@@ -31,14 +31,15 @@ void Application::Init(HINSTANCE hInstance)
 	}
 
 	m_pRenderSystem = new Neo::D3D11RenderSystem;
+	g_env.pRenderSystem = m_pRenderSystem;
+
 	if(!m_pRenderSystem->Init(g_env.hwnd))
 	{
 		assert(0);
 		return;
 	}
-	g_env.pRenderSystem = m_pRenderSystem;
-	g_env.pSceneMg = new Neo::SceneManager;
 
+	g_env.pSceneMg = new Neo::SceneManager;
 	m_camera = new Camera;
 
 	_InitAllScene();
@@ -215,19 +216,48 @@ void Application::Run()
 		else
 		{
 			// Render a frame during idle time (no messages are waiting)
+			DWORD curTime = GetTickCount();
+			static DWORD lastTime = curTime, nFrameCnt = 0, nFrameTime = 0;
+
+			DWORD dt = curTime - lastTime;
+			lastTime = curTime;
+
+			// Get FPS
+			static float fps = 0.0f;
+			++nFrameCnt;
+			nFrameTime += dt;
+
+			if (nFrameTime >= 1000)
+			{
+				fps = nFrameCnt / (nFrameTime * 0.001f);
+				nFrameCnt = nFrameTime = 0;
+			}
+
 			m_camera->Update();
 			m_pRenderSystem->Update();
 			g_env.pSceneMg->Update();
-			_RenderOneFrame();
+			
+			m_pRenderSystem->BeginScene();
+			// Render scene
+			m_pCurScene->Render();
+
+			// Render UI
+			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+			depthDesc.DepthEnable = FALSE;
+			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			m_pRenderSystem->SetDepthStencelState(depthDesc);
+
+			char szBuf[64];
+			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %f", fps);
+			m_pRenderSystem->DrawText(szBuf, IPOINT(10,10), Neo::SColor::RED);
+
+			depthDesc.DepthEnable = TRUE;
+			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			m_pRenderSystem->SetDepthStencelState(depthDesc);
+
+			m_pRenderSystem->EndScene();
 		}
 	}
-}
-//----------------------------------------------------------------------------------------
-void Application::_RenderOneFrame()
-{
-	m_pRenderSystem->BeginScene();
-	m_pCurScene->Render();
-	m_pRenderSystem->EndScene();
 }
 
 

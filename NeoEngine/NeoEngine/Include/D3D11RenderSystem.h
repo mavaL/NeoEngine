@@ -80,6 +80,7 @@ namespace Neo
 		void		CopyFrameBufferToTexture(D3D11Texture* pTexture);
 
 		void		SetTransform(eTransform type, const MAT44& matrix, bool bUpdateCBuffer);
+		void		DrawText(const STRING& text, const IPOINT& pos, const SColor& color);
 
 	private:
 		ID3D11Device*				m_pd3dDevice;
@@ -96,6 +97,7 @@ namespace Neo
 		ID3D11DepthStencilView*		m_pDepthStencilView;
 		ID3D11Texture2D*			m_pDepthStencil;
 		D3D11Texture*				m_pTexture[MAX_TEXTURE_STAGE];
+		Font*						m_pFont;
 
 		cBufferGlobal				m_cBufferGlobal;
 		ID3D11Buffer*				m_pGlobalCBuf;

@@ -12,7 +12,7 @@
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
-	Water::Water()
+	Water::Water(float waterHeight)
 	:m_waterMesh(new RenderObject)
 	,m_pRenderSystem(g_env.pRenderSystem)
 	,m_pCB_VS(nullptr)
@@ -26,7 +26,7 @@ namespace Neo
 	,m_pRT_Depth(nullptr)
 	{
 		_InitMaterial();
-		_InitWaterMesh();
+		_InitWaterMesh(waterHeight);
 		_InitConstantBuffer();
 	}
 	//------------------------------------------------------------------------------------
@@ -63,8 +63,8 @@ namespace Neo
 			"WaterDepthRT", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ePF_A8B8G8R8, eTextureUsage_RenderTarget);
 
 		m_pRT_Depth = new D3D11RenderTarget(texDepth);
-		// Only terrain get water-shore transition
-		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid | eRenderPhase_Terrain);
+		// TODO: Only terrain get water-shore transition
+		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid/* | eRenderPhase_Terrain*/);
 
 		// Create material
 		m_pRefracMaterial = new Material;
@@ -95,9 +95,9 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void Water::_InitWaterMesh()
+	void Water::_InitWaterMesh(float waterHeight)
 	{
-		m_waterPlane.Set(VEC3::UNIT_Y, 0);
+		m_waterPlane.Set(VEC3::UNIT_Y, waterHeight);
 
 		// Construct terrain likely grids
 		const int vertsPerSide = 151, cellSpace = 200;

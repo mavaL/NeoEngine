@@ -22,7 +22,7 @@ namespace Neo
 	public:
 		void		CreateSky();
 		void		CreateTerrain();
-		void		CreateWater();
+		void		CreateWater(float waterHeight = 0.0f);
 		void		SetSolidRenderList(const RenderList& lst) { m_renderList_Solid = lst; }
 		void		Update();
 		void		ClearScene();

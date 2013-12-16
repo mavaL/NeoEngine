@@ -32,13 +32,15 @@ namespace Neo
 		void	Saturate();
 		void	SetAsInt(DWORD color);
 		DWORD	GetAsInt() const;
+		SColor	GetAsDx() const;
 
-		float	r, g, b, a;
+		float	b, g, r, a;
 
 		static SColor WHITE;
 		static SColor BLACK;
 		static SColor BLUE;
 		static SColor RED;
+		static SColor YELLOW;
 		static SColor NICE_BLUE;
 	};
 
@@ -166,6 +168,11 @@ namespace Neo
 		DWORD ret = (tmp_a << 24) + (tmp_r << 16) + (tmp_g << 8) + (tmp_b);
 
 		return ret;
+	}
+
+	__forceinline SColor SColor::GetAsDx() const
+	{
+		return SColor(b, g, r, a);
 	}
 }
 

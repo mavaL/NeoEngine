@@ -33,9 +33,9 @@ namespace Neo
 		m_pTerrain = new Terrain(GetResPath("terrain.raw"));
 	}
 	//-------------------------------------------------------------------------------
-	void SceneManager::CreateWater()
+	void SceneManager::CreateWater(float waterHeight)
 	{
-		m_pWater = new Water;
+		m_pWater = new Water(waterHeight);
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::RenderPipline(uint32 phaseFlag, Material* pMaterial)

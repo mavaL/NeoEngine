@@ -17,7 +17,7 @@ namespace Neo
 	class Water
 	{
 	public:
-		Water();
+		Water(float waterHeight);
 		~Water();
 
 	public:
@@ -26,7 +26,7 @@ namespace Neo
 
 	private:
 		void		_InitMaterial();
-		void		_InitWaterMesh();
+		void		_InitWaterMesh(float waterHeight);
 		void		_InitConstantBuffer();
 		void		_RenderReflection();
 		void		_RenderRefraction();

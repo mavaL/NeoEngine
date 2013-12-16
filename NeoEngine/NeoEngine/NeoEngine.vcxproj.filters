@@ -78,6 +78,9 @@
     <ClInclude Include="Include\SceneManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Font.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -102,6 +105,9 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="..\Res\Terrain.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\Res\Font.hlsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -161,6 +167,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\SceneManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Font.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

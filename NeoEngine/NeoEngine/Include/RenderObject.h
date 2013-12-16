@@ -18,9 +18,9 @@ namespace Neo
 	struct SVertex 
 	{
 		SVertex()
-			:normal(VEC3::ZERO)
-			,color(SColor::WHITE)
-			,uv(-1,-1) {}
+		:normal(VEC3::ZERO)
+		,color(SColor::WHITE)
+		,uv(-1,-1) {}
 
 		VEC3	pos;
 		VEC3	normal;
@@ -46,6 +46,7 @@ namespace Neo
 		void		SetWorldMatrix(const MAT44& matWorld)	{ m_matWorld = matWorld; }
 		const MAT44& GetWorldMatrix() const { return m_matWorld; }
 		const MAT44& GetWorldITMatrix() const { return m_matWorldIT; }
+		DWORD		GetVertCount() const	{ return m_nVertCnt; }
 
 	private:
 		ID3D11Buffer*	m_pVertexBuf;

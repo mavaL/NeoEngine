@@ -18,6 +18,17 @@ const float		TWO_PI		=	6.28318f;
 namespace Common
 {
 	/////////////////////////////////////////////////////////////
+	//////// Integer point
+	class iPoint
+	{
+	public:
+		iPoint(int _x, int _y):x(_x),y(_y) {}
+
+		int x, y;
+	};
+
+
+	/////////////////////////////////////////////////////////////
 	//////// 2D Vector
 	class Vector2
 	{

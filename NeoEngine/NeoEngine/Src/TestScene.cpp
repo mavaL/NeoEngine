@@ -298,6 +298,7 @@ void SetupTestScene3(Scene* scene)
 void EnterTestScene3(Scene* scene)
 {
 	g_env.pSceneMg->CreateTerrain();
+	//g_env.pSceneMg->CreateWater(5.0f);
 
 	Camera* pCamera = g_env.pApp->GetCamera();
 	pCamera->SetPosition(VEC3(0, 10, 0));

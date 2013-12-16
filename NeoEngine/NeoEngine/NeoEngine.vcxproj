@@ -80,6 +80,7 @@
     <ClInclude Include="Include\Color.h" />
     <ClInclude Include="Include\D3D11RenderTarget.h" />
     <ClInclude Include="Include\D3D11Texture.h" />
+    <ClInclude Include="Include\Font.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MathDef.h" />
@@ -97,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Res\ClipPlaneWrapper.hlsl" />
+    <None Include="..\Res\Font.hlsl" />
     <None Include="..\Res\Opaque.hlsl" />
     <None Include="..\Res\Sky.hlsl" />
     <None Include="..\Res\Terrain.hlsl" />
@@ -111,6 +113,7 @@
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
     <ClCompile Include="Src\D3D11RenderTarget.cpp" />
     <ClCompile Include="Src\D3D11Texture.cpp" />
+    <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />

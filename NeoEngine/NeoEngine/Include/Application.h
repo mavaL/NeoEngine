@@ -27,7 +27,6 @@ public:
 private:
 	bool	_InitWindow(HINSTANCE hInstance);
 	void	_InitAllScene();
-	void	_RenderOneFrame();
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
