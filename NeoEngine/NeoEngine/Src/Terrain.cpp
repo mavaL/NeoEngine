@@ -138,11 +138,16 @@ namespace Neo
 
 		// Create layer texture array
 		StringVector vecTexNames;
-		vecTexNames.push_back(GetResPath("darkdirt.dds"));
-		vecTexNames.push_back(GetResPath("grass.dds"));
-		vecTexNames.push_back(GetResPath("lightdirt.dds"));
-		vecTexNames.push_back(GetResPath("stone.dds"));
-		vecTexNames.push_back(GetResPath("Snow.dds"));
+// 		vecTexNames.push_back(GetResPath("darkdirt.dds"));
+// 		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+// 		vecTexNames.push_back(GetResPath("lightdirt.dds"));
+// 		vecTexNames.push_back(GetResPath("terrain\\detail\\rock_stone_011_2.dds"));
+// 		vecTexNames.push_back(GetResPath("Snow.dds"));
+		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
 
 		m_pLayerTexArray = new D3D11Texture(vecTexNames);
 
@@ -153,6 +158,10 @@ namespace Neo
 		pMaterial->SetTexture(0, m_pHeightMap);
 		pMaterial->SetTexture(1, m_pLayerTexArray);
 		pMaterial->SetTexture(2, m_pBlendMap);
+
+		D3D11Texture* pNormalMap = new D3D11Texture(GetResPath("dirt_grayrocky_ddn.dds"));
+		pMaterial->SetTexture(3, pNormalMap);
+		pNormalMap->Release();
 
 		{
 			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
@@ -171,6 +180,7 @@ namespace Neo
 
 			pMaterial->SetSamplerStateDesc(1, samDesc);
 			pMaterial->SetSamplerStateDesc(2, samDesc);
+			pMaterial->SetSamplerStateDesc(3, samDesc);
 		}
 
 		m_pMesh->SetMaterial(pMaterial);

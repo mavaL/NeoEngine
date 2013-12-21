@@ -249,7 +249,7 @@ void Application::Run()
 
 			char szBuf[64];
 			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %f", fps);
-			m_pRenderSystem->DrawText(szBuf, IPOINT(10,10), Neo::SColor::RED);
+			m_pRenderSystem->DrawText(szBuf, IPOINT(10,10), Neo::SColor::YELLOW);
 
 			depthDesc.DepthEnable = TRUE;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;

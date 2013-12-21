@@ -4,9 +4,11 @@
 Texture2D		gHeightMap		: register(t0);
 Texture2DArray	gLayerMaps		: register(t1);
 Texture2D		gBlendMap		: register(t2);
+Texture2D		gNormalMap		: register(t3);
 SamplerState	samHeightmap	: register(s0);
 SamplerState	samLayerMap		: register(s1);
 SamplerState	samBlendMap		: register(s2);
+SamplerState	samNormalMap	: register(s3);
 
 static const float2	g_layerTexScale = 50.0;
 
@@ -204,18 +206,19 @@ float4 PS( DomainOut IN ) : SV_Target
 	
 	float3 tangent = normalize(float3(2.0f*terrainCellSpace, rightY - leftY, 0.0f));
 	float3 bitan   = normalize(float3(0.0f, bottomY - topY, -2.0f*terrainCellSpace)); 
-	float3 N = cross(tangent, bitan);
+	
+	float3x3 matTBN = float3x3(tangent, bitan, cross(tangent, bitan));
 
 	//====================================================================================
 	// Texture splatting
 	//====================================================================================
-	float4 c0 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 0.0f) );
+	float4 c0 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
 	float4 c1 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
-	float4 c2 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 2.0f) );
-	float4 c3 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 3.0f) );
-	float4 c4 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 4.0f) ); 
+	float4 c2 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
+	float4 c3 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
+	float4 c4 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) ); 
 	
-	// Sample the blend map.
+	// blend map
 	float4 t  = gBlendMap.Sample( samBlendMap, IN.Tex ); 
     
     // Blend the layers on top of each other.
@@ -225,11 +228,22 @@ float4 PS( DomainOut IN ) : SV_Target
     texColor = lerp(texColor, c3, t.b);
     texColor = lerp(texColor, c4, t.a);
 
+	// normal map
+	float3 N = gNormalMap.Sample(samNormalMap, IN.TiledTex);
+	// decode normal
+	N = (N - 0.5) * 2.0;
+	// tangent space to world space
+	N = mul(N, matTBN);
+
 	// Do lighting
-	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor);
+	float3 PosToCam = camPos - IN.PosW;
+	float3 H = normalize(PosToCam + (-lightDirection));
+	float4 spec = pow(max(0, dot(N, H)), 50) * lightColor;
+
+	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor + spec);
 	oColor *= texColor;
 
-	return float4(oColor.rgb, 1.0);
+	return saturate(float4(oColor.rgb, 1.0));
 }
 
 #include "ClipPlaneWrapper.hlsl"

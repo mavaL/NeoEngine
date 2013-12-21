@@ -58,7 +58,7 @@ SamplerState sam : register( s0 );
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
 	float4 oColor = tex.Sample(sam, input.uv);
-	oColor.rgb/* *= input.color.rgb*/;
+	oColor.rgb *= input.color.rgb;
 	
 	return oColor;
 }

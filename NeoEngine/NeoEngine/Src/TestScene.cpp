@@ -42,7 +42,7 @@ void SetupTestScene1(Scene* scene)
 
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("lion.bmp")));
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("terrain\\detail\\grass_3_ddn.dds")));
 
 	g_env.pRenderSystem->AddMaterial("TestMaterial", pMaterial);
 	obj->SetMaterial(pMaterial);
@@ -51,7 +51,7 @@ void SetupTestScene1(Scene* scene)
 void EnterTestScene1(Scene* scene)
 {
 	g_env.pApp->GetCamera()->SetPosition(VEC3(0,0,-200));
-	g_env.pApp->GetCamera()->SetMoveSpeed(1.0f);
+	g_env.pApp->GetCamera()->SetMoveSpeed(0.2f);
 	g_env.pApp->GetCamera()->SetDirection(VEC3::UNIT_Z);
 }
 
@@ -304,7 +304,7 @@ void EnterTestScene3(Scene* scene)
 	pCamera->SetPosition(VEC3(0, 10, 0));
 	pCamera->SetNearClip(1);
 	pCamera->SetFarClip(30000.0f);
-	pCamera->SetMoveSpeed(1.0f);
+	pCamera->SetMoveSpeed(0.1f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 
