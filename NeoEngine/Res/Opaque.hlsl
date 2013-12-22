@@ -10,11 +10,13 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	WVP;
 	matrix	WorldIT;
 	float4	clipPlane;
+	float4	frustumFarCorner[4];
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
 	float3	camPos;
 	float	time;
+	float	nearZ, farZ;
 };
 
 
@@ -52,16 +54,31 @@ VS_OUTPUT VS( VS_INPUT input )
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-Texture2D tex : register(t0);
-SamplerState sam : register( s0 );
+Texture2D texDiffuse : register(t0);
+SamplerState samDiffuse : register(s0);
+
+#ifdef SSAO
+Texture2D texSSAO : register(t1);
+SamplerState samSSAO : register(s1);
+#endif
 
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
-	//float3 N = normalize(input.normal);
-	//float4 diffuse = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor);
-	float4 oColor = tex.Sample(sam, input.uv)/* * diffuse*/;
+	float3 N = normalize(input.normal);
+	float4 cLight = max(0, dot(N, -lightDirection)) * lightColor;
 
-	return float4(oColor.rgb, 1);
+#ifdef SSAO
+	float fAmbientAccess = texSSAO.Sample(samSSAO, input.uv).r;
+	// SSAO affects only ambient term!
+	cLight += ambientColor * fAmbientAccess;
+#else
+	cLight += ambientColor;
+#endif
+
+	cLight = saturate(cLight);
+	float4 oColor = texDiffuse.Sample(samDiffuse, input.uv) * cLight;
+
+	return float4(oColor.rgb, 1.0);
 }
 
 #include "ClipPlaneWrapper.hlsl"

@@ -18,34 +18,21 @@
 
 void SetupTestScene1(Scene* scene)
 {
-	Neo::RenderObject* obj=  new Neo::RenderObject;
-
-	Neo::SVertex v[3];
-	v[0].pos = VEC3(0, 15, 0);
-	v[1].pos = VEC3(20, -15, 0);
-	v[2].pos = VEC3(-20, -15, 0);
-
-	v[0].normal = VEC3::NEG_UNIT_Z;
-	v[1].normal = VEC3::NEG_UNIT_Z;
-	v[2].normal = VEC3::NEG_UNIT_Z;
-
-	v[0].uv = VEC2(0.5f, 0.0f);
-	v[1].uv = VEC2(1.0f, 1.0f);
-	v[2].uv = VEC2(0.0f, 1.0f);
-
-	DWORD index[3] = { 0,1,2 };
-
-	obj->CreateVertexBuffer(v, 3, true);
-	obj->CreateIndexBuffer(index, 3, true);
+	Neo::RenderObject* obj=  g_env.pSceneMg->LoadMesh(GetResPath("skull.mesh"));
 
 	scene->AddRenderObject(obj);
 
 	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("terrain\\detail\\grass_3_ddn.dds")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, true);	// Enable ssao
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 
-	g_env.pRenderSystem->AddMaterial("TestMaterial", pMaterial);
+	g_env.pSceneMg->EnableDebugRT(eDebugRT_SSAO);
+
 	obj->SetMaterial(pMaterial);
+
+	MAT44 mat;
+	mat.FromAxisAngle(VEC3::UNIT_Y, 90);
+	obj->SetWorldMatrix(mat);
 }
 
 void EnterTestScene1(Scene* scene)
@@ -311,7 +298,7 @@ void EnterTestScene3(Scene* scene)
 
 void Application::_InitAllScene()
 {
-	//// Test Scene 1: A textured triangle
+	//// Test Scene 1: mesh, SSAO post effect
 	ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
 
 	//// Test Scene 2: Sky, Water

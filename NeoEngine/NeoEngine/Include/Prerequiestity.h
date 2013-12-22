@@ -38,10 +38,13 @@ enum eRenderPhase
 {
 	eRenderPhase_Sky		= 1 << 0,
 	eRenderPhase_Terrain	= 1 << 1,
-	eRenderPhase_Solid		= 1 << 2,
-	eRenderPhase_Water		= 1 << 3,
+	eRenderPhase_SSAO		= 1 << 2,
+	eRenderPhase_Solid		= 1 << 3,
+	eRenderPhase_Water		= 1 << 4,
+	eRenderPhase_UI			= 1 << 5,
 
-	eRenderPhase_All = eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_Solid | eRenderPhase_Water
+	eRenderPhase_All = eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_SSAO | 
+	eRenderPhase_Solid | eRenderPhase_Water | eRenderPhase_UI
 };
 
 enum ePixelFormat
@@ -75,6 +78,12 @@ enum eTransform
 	eTransform_Count
 };
 
+enum eDebugRT
+{
+	eDebugRT_None,
+	eDebugRT_SSAO
+};
+
 /// Forward declaration
 namespace Common
 {
@@ -106,6 +115,7 @@ namespace Neo
 	class	PixelBox;
 	struct	SColor;
 	struct	SVertex;
+	struct	SFrameStat;
 	struct	SDirectionLight;
 	class	Material;
 	class	RenderObject;
@@ -116,6 +126,7 @@ namespace Neo
 	class	Sky;
 	class	SceneManager;
 	class	Font;
+	class	MeshLoader;
 }
 
 class Application;
@@ -129,6 +140,7 @@ struct SGlobalEnv
 	Application*			pApp;			// App object
 	Neo::D3D11RenderSystem*	pRenderSystem;	// Render system
 	Neo::SceneManager*		pSceneMg;		// Scene manager
+	Neo::SFrameStat*		pFrameStat;		// Frame statics info
 };
 extern SGlobalEnv	g_env;
 

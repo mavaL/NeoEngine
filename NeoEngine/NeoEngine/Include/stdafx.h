@@ -40,4 +40,8 @@
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
+//tinyxml
+#include <tinyxml/tinystr.h>
+#include <tinyxml/tinyxml.h>
+
 

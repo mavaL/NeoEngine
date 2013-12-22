@@ -16,6 +16,9 @@
     <Filter Include="Shader">
       <UniqueIdentifier>{fe547c33-8193-473c-b76d-bc712458f3b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\tinyxml">
+      <UniqueIdentifier>{c3ec6494-7242-4c09-8b92-409bbfd6e958}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AABB.h">
@@ -81,6 +84,15 @@
     <ClInclude Include="Include\Font.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Dependency\tinyxml\tinystr.h">
+      <Filter>源文件\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Dependency\tinyxml\tinyxml.h">
+      <Filter>源文件\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\MeshLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -108,6 +120,15 @@
       <Filter>Shader</Filter>
     </None>
     <None Include="..\Res\Font.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\Res\ViewSpaceNormalDepth.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\Res\SSAO.hlsl">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="..\Res\DebugRT.hlsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -170,6 +191,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Font.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinystr.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxml.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxmlerror.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxmlparser.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MeshLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

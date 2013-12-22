@@ -115,7 +115,7 @@ void Camera::_BuildProjMatrix()
 
 	//普适版投影矩阵.推导见: http://blog.csdn.net/popy007/article/details/1797121
 	float r,l,t,b;
-	r = m_nearClip*std::tan(m_fov/2);
+	r = m_nearClip*tanf(m_fov/2);
 	l = -r;
 	t = r/m_aspectRatio;
 	b= -t;
@@ -139,6 +139,15 @@ void Camera::_BuildProjMatrix()
 	m_matProj.m31 = 0;
 	m_matProj.m32 = -m_farClip*m_nearClip/(m_farClip-m_nearClip);
 	m_matProj.m33 = 0;
+
+	// Extract far corners
+	float halfWidth = m_farClip * tanf( 0.5f*m_fov );
+	float halfHeight  = halfWidth / m_aspectRatio;
+
+	m_farCorner[0].Set(-halfWidth, +halfHeight, m_farClip, 0.0f);
+	m_farCorner[1].Set(+halfWidth, +halfHeight, m_farClip, 0.0f);
+	m_farCorner[2].Set(-halfWidth, -halfHeight, m_farClip, 0.0f);
+	m_farCorner[3].Set(+halfWidth, -halfHeight, m_farClip, 0.0f);
 }
 
 VEC4 Camera::GetDirection() const
@@ -182,6 +191,12 @@ void Camera::SetAspectRatio( float r )
 	m_aspectRatio = r;
 	_BuildProjMatrix();
 }
+
+void Camera::GetFarCorner( VEC4 v[4] )
+{
+	memcpy(v, m_farCorner, sizeof(VEC4)*4);
+}
+
 
 
 

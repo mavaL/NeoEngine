@@ -90,7 +90,7 @@ namespace Neo
 			bytesPerPixel = 4;
 			break;
 		case ePF_A16B16G16R16F:
-			dxformat = DXGI_FORMAT_R16G16B16A16_UNORM;
+			dxformat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 			bytesPerPixel = 8;
 			break;
 		case ePF_L8:

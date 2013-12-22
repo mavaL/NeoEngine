@@ -4,7 +4,7 @@
 	filename: 	RenderObject.h
 	author:		maval
 	
-	purpose:	渲染对象高层封装
+	purpose:	Mesh object.采用Ogre的mesh格式,方便简洁.
 *********************************************************************/
 #ifndef RenderObject_h__
 #define RenderObject_h__
@@ -21,6 +21,11 @@ namespace Neo
 		:normal(VEC3::ZERO)
 		,color(SColor::WHITE)
 		,uv(-1,-1) {}
+
+		SVertex(const VEC3& p, const VEC2& t)
+		:pos(p)
+		,uv(t)
+		,color(SColor::WHITE) {}
 
 		VEC3	pos;
 		VEC3	normal;

@@ -9,17 +9,19 @@ static float3 offZ = float3(0.47, 0.19, 0.78);
 //--------------------------------------------------------------------------------------
 cbuffer cbufferGlobal : register( b0 )
 {
-	matrix	World;
+    matrix	World;
 	matrix	View;
 	matrix	Projection;
 	matrix	WVP;
 	matrix	WorldIT;
 	float4	clipPlane;
+	float4	frustumFarCorner[4];
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
 	float3	camPos;
 	float	time;
+	float	nearZ, farZ;
 };
 
 cbuffer cbVS : register( b1 )

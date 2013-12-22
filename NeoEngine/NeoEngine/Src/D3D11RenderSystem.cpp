@@ -256,7 +256,7 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetRenderTarget( D3D11RenderTarget* pRT, bool bClear, const SColor* pClearColor )
+	void D3D11RenderSystem::SetRenderTarget( D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor )
 	{
 		ID3D11RenderTargetView* rtView = nullptr;
 		ID3D11DepthStencilView* dsView = nullptr;
@@ -274,12 +274,16 @@ namespace Neo
 
 		m_pDeviceContext->OMSetRenderTargets(1, &rtView, dsView);
 
-		if (bClear)
+		if (bClearColor)
 		{
 			assert(pClearColor);
 			SColor dxColor = pClearColor->GetAsDx();
 
 			m_pDeviceContext->ClearRenderTargetView( rtView, (float*)&dxColor );
+		}
+		
+		if (bClearZBuffer)
+		{
 			m_pDeviceContext->ClearDepthStencilView( dsView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 		}
 	}
@@ -371,6 +375,10 @@ namespace Neo
 		m_cBufferGlobal.lightDirection.Set(1, -1, 2);
 		m_cBufferGlobal.lightColor.Set(0.6f, 0.6f, 0.6f);
 		m_cBufferGlobal.ambientColor.Set(0.2f, 0.2f, 0.2f);
+		m_cBufferGlobal.nearZ = cam->GetNearClip();
+		m_cBufferGlobal.farZ = cam->GetFarClip();
+		
+		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 
 		SetTransform(eTransform_World, MAT44::IDENTITY, false);
 		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);

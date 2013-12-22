@@ -49,7 +49,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>./Dependency/DXSDK/Include;./Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Dependency;./Dependency/DXSDK/Include;./Include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -74,6 +74,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Dependency\tinyxml\tinystr.h" />
+    <ClInclude Include="Dependency\tinyxml\tinyxml.h" />
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\D3D11RenderSystem.h" />
@@ -84,6 +86,7 @@
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MathDef.h" />
+    <ClInclude Include="Include\MeshLoader.h" />
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
     <ClInclude Include="Include\Application.h" />
@@ -98,16 +101,31 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Res\ClipPlaneWrapper.hlsl" />
+    <None Include="..\Res\DebugRT.hlsl" />
     <None Include="..\Res\Font.hlsl" />
     <None Include="..\Res\Opaque.hlsl" />
     <None Include="..\Res\Sky.hlsl" />
+    <None Include="..\Res\SSAO.hlsl" />
     <None Include="..\Res\Terrain.hlsl" />
+    <None Include="..\Res\ViewSpaceNormalDepth.hlsl" />
     <None Include="..\Res\Water_Depth.hlsl" />
     <None Include="..\Res\Water_Final.hlsl" />
     <None Include="..\Res\Water_RefractionMask.hlsl" />
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Dependency\tinyxml\tinystr.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxml.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxmlerror.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Dependency\tinyxml\tinyxmlparser.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Src\AABB.cpp" />
     <ClCompile Include="Src\Camera.cpp" />
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
@@ -116,6 +134,7 @@
     <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
+    <ClCompile Include="Src\MeshLoader.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />
     <ClCompile Include="Src\Application.cpp" />
     <ClCompile Include="Src\RenderObject.cpp" />

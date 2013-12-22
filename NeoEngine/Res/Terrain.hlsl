@@ -23,11 +23,13 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	WVP;
 	matrix	WorldIT;
 	float4	clipPlane;
+	float4	frustumFarCorner[4];
 	float4	ambientColor;
 	float4	lightColor;
 	float3	lightDirection;
 	float3	camPos;
 	float	time;
+	float	nearZ, farZ;
 };
 
 cbuffer cbufferTerrain : register( b1 )
@@ -240,8 +242,9 @@ float4 PS( DomainOut IN ) : SV_Target
 	float3 H = normalize(PosToCam + (-lightDirection));
 	float4 spec = pow(max(0, dot(N, H)), 50) * lightColor;
 
-	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor + spec);
+	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor);
 	oColor *= texColor;
+	oColor += spec;
 
 	return saturate(float4(oColor.rgb, 1.0));
 }

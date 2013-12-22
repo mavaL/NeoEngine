@@ -14,6 +14,12 @@
 
 namespace Neo
 {
+	struct SFrameStat 
+	{
+		SFrameStat():lastFPS(0) {}
+
+		float lastFPS;
+	};
 	//----------------------------------------------------------------------------------------
 	class D3D11RenderSystem
 	{
@@ -28,12 +34,14 @@ namespace Neo
 		{
 			MAT44	matTransform[eTransform_Count];		// TODO: Maybe world matrix should be separate for efficiency
 			PLANE	clipPlane;							// Clipping plane, for water reflection rendering
+			VEC4	frustumFarCorner[4];				// LT, RT, LB, RB
 			SColor	ambientColor;
 			SColor	lightColor;
 			VEC3	lightDirection;
 			float	padding;
 			VEC3	camPos;
 			float	time;
+			float	nearZ, farZ;
 		};
 
 	public:
@@ -47,6 +55,7 @@ namespace Neo
 
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
+		ID3D11DepthStencilView*		GetDSView()				{ return m_pDepthStencilView; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -63,7 +72,7 @@ namespace Neo
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler);
 		// Set RT to device
-		void		SetRenderTarget(D3D11RenderTarget* pRT, bool bClear, const SColor* pClearColor = nullptr);
+		void		SetRenderTarget(D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor = nullptr);
 		// Manually create texture
 		D3D11Texture*	CreateManualTexture(const STRING& name, uint32 width, uint32 height, ePixelFormat format, 
 			uint32 usage, bool bMipMap = false);
