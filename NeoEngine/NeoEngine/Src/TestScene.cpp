@@ -6,6 +6,7 @@
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
 #include "SceneManager.h"
+#include "SSAO.h"
 
 
 #define ADD_TEST_SCENE($setupFunc, $enterFunc)						\
@@ -22,9 +23,18 @@ void SetupTestScene1(Scene* scene)
 
 	scene->AddRenderObject(obj);
 
+	// Use ssao
+	std::vector<D3D_SHADER_MACRO> vecMacros;
+	D3D_SHADER_MACRO macro = { "SSAO", "" };
+	vecMacros.push_back(macro);
+
+	D3D_SHADER_MACRO end = {0};
+	vecMacros.push_back(end);
+
 	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, true);	// Enable ssao
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, &vecMacros);
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->SetTexture(1, g_env.pSceneMg->GetSSAO()->GetBlurVMap());
 
 	g_env.pSceneMg->EnableDebugRT(eDebugRT_SSAO);
 

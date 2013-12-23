@@ -94,23 +94,78 @@
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
     <ClInclude Include="Include\Sky.h" />
+    <ClInclude Include="Include\SSAO.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\Terrain.h" />
     <ClInclude Include="Include\Utility.h" />
     <ClInclude Include="Include\Water.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Res\ClipPlaneWrapper.hlsl" />
-    <None Include="..\Res\DebugRT.hlsl" />
-    <None Include="..\Res\Font.hlsl" />
-    <None Include="..\Res\Opaque.hlsl" />
-    <None Include="..\Res\Sky.hlsl" />
-    <None Include="..\Res\SSAO.hlsl" />
-    <None Include="..\Res\Terrain.hlsl" />
-    <None Include="..\Res\ViewSpaceNormalDepth.hlsl" />
-    <None Include="..\Res\Water_Depth.hlsl" />
-    <None Include="..\Res\Water_Final.hlsl" />
-    <None Include="..\Res\Water_RefractionMask.hlsl" />
+    <None Include="..\Res\ClipPlaneWrapper.hlsl">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
+      <FileType>Document</FileType>
+    </None>
+    <CustomBuild Include="..\Res\DebugRT.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\EdgePreservedBlur.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Font.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\GaussianBlur.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Opaque.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Sky.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\SSAO.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Terrain.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\ViewSpaceNormalDepth.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_Depth.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_Final.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +196,7 @@
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
+    <ClCompile Include="Src\SSAO.cpp" />
     <ClCompile Include="Src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>

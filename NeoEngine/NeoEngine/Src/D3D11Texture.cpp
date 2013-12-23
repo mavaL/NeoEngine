@@ -47,12 +47,41 @@ namespace Neo
 				pTex = (ID3D11Resource**)&m_pTexture3D;
 			}
 			break;
+
+		default: assert(0);
 		}
 
 		V(D3DX11CreateTextureFromFileA(m_pd3dDevice, filename.c_str(), &loadInfo, nullptr,pTex, nullptr));
 
 		// Create SRV
 		CreateSRV();
+
+		// Get texture dimension
+		switch (GetTextureType())
+		{
+		case eTextureType_2D:
+		case eTextureType_CubeMap:
+			{
+				D3D11_TEXTURE2D_DESC desc;
+				m_pTexture2D->GetDesc(&desc);
+
+				m_width = desc.Width;
+				m_height = desc.Height;
+			}
+			break;
+
+		case eTextureType_3D:
+			{
+				D3D11_TEXTURE3D_DESC desc;
+				m_pTexture3D->GetDesc(&desc);
+
+				m_width = desc.Width;
+				m_height = desc.Height;
+			}
+			break;
+
+		default: assert(0);
+		}
 	}
 	//-------------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture( int width, int height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap )
@@ -61,6 +90,8 @@ namespace Neo
 	,m_pRenderSystem(g_env.pRenderSystem)
 	,m_rtView(nullptr)
 	,m_pSRV(nullptr)
+	,m_width(width)
+	,m_height(height)
 	,m_usage(usage)
 	,m_texType(eTextureType_2D)
 	{
@@ -206,12 +237,6 @@ namespace Neo
 		{
 			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView ));
 		}
-
-		D3D11_TEXTURE2D_DESC SMTextureDesc;
-		m_pTexture2D->GetDesc(&SMTextureDesc);
-
-		m_width = SMTextureDesc.Width;
-		m_height = SMTextureDesc.Height;
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture( const StringVector& vecTexNames )
@@ -256,6 +281,9 @@ namespace Neo
 		// Then create the texture array object
 		D3D11_TEXTURE2D_DESC texElementDesc;
 		vecTexs[0]->GetDesc(&texElementDesc);
+
+		m_width = texElementDesc.Width;
+		m_height = texElementDesc.Height;
 
 		D3D11_TEXTURE2D_DESC texArrayDesc;
 		texArrayDesc.Width              = texElementDesc.Width;

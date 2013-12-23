@@ -91,25 +91,6 @@ SamplerState sam : register( s0 );
 // of distZ.
 float OcclusionFunction(float distZ)
 {
-	//
-	// If depth(q) is "behind" depth(p), then q cannot occlude p.  Moreover, if 
-	// depth(q) and depth(p) are sufficiently close, then we also assume q cannot
-	// occlude p because q needs to be in front of p by Epsilon to occlude p.
-	//
-	// We use the following function to determine the occlusion.  
-	// 
-	//
-	//       1.0     -------------\
-	//               |           |  \
-	//               |           |    \
-	//               |           |      \ 
-	//               |           |        \
-	//               |           |          \
-	//               |           |            \
-	//  ------|------|-----------|-------------|---------|--> zv
-	//        0     Eps          z0            z1        
-	//
-	
 	float occlusion = 0.0f;
 	if(distZ > gSurfaceEpsilon)
 	{

@@ -1,4 +1,3 @@
-
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
@@ -19,11 +18,32 @@ cbuffer cbufferGlobal : register( b0 )
 	float	nearZ, farZ;
 };
 
+cbuffer cbufferBlur : register( b1 )
+{
+	float4 texelKernel[13];
+};
+
+static const float BlurWeights[13] = 
+{
+    0.002216,
+    0.008764,
+    0.026995,
+    0.064759,
+    0.120985,
+    0.176033,
+    0.199471,
+    0.176033,
+    0.120985,
+    0.064759,
+    0.026995,
+    0.008764,
+    0.002216,
+};
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float3 Pos : POSITION;
+    float4 Pos : POSITION;
 	float2 uv  : TEXCOORD0;
 };
 
@@ -38,24 +58,26 @@ struct VS_OUTPUT
 //--------------------------------------------------------------------------------------
 VS_OUTPUT VS( VS_INPUT input )
 {
-    VS_OUTPUT output = (VS_OUTPUT)0;
+    VS_OUTPUT OUT = (VS_OUTPUT)0;
 
-    output.Pos = mul(float4(input.Pos, 1), World);
-    output.uv = input.uv;
+    OUT.Pos = input.Pos;
+	OUT.uv = input.uv;
     
-    return output;
+    return OUT;
 }
-
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-Texture2D tex : register(t0);
-SamplerState sam : register( s0 );
+Texture2D texSrc : register(t0);
+SamplerState samSrc : register(s0);
 
-float4 PS( VS_OUTPUT input ) : SV_Target
+float4 PS( VS_OUTPUT IN ) : SV_Target
 {
-	float c = tex.Sample(sam, input.uv).r;
-	
-	return float4(c,c,c,1);
+	float4 Color = 0;
+
+    for (int i = 0; i < 13; i++) 
+        Color += texSrc.Sample( samSrc, IN.uv + texelKernel[i].xy ) * BlurWeights[i];
+    
+    return Color;
 }

@@ -127,6 +127,7 @@ namespace Neo
 	class	SceneManager;
 	class	Font;
 	class	MeshLoader;
+	class	SSAO;
 }
 
 class Application;

@@ -27,7 +27,7 @@ namespace Neo
 
 		void		Activate();
 		void		TurnOffTessellation();
-		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, bool bSSAO = false);
+		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const std::vector<D3D_SHADER_MACRO>* macroDef = nullptr);
 		bool		InitTessellationShader(const STRING& filename);
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);

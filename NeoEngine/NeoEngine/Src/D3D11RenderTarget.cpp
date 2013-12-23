@@ -90,7 +90,6 @@ namespace Neo
 		SAFE_RELEASE(m_pDepthStencilView);
 		SAFE_RELEASE(m_pDepthStencil);
 		SAFE_RELEASE(m_pRenderTexture);
-		SAFE_DELETE(m_pQuadMesh);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::_BeforeRender()

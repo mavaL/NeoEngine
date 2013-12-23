@@ -93,42 +93,15 @@
     <ClInclude Include="Include\MeshLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\SSAO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
       <Filter>头文件</Filter>
     </None>
-    <None Include="..\Res\Water_Depth.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Water_Final.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Opaque.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Water_RefractionMask.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Sky.hlsl">
-      <Filter>Shader</Filter>
-    </None>
     <None Include="..\Res\ClipPlaneWrapper.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Terrain.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\Font.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\ViewSpaceNormalDepth.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\SSAO.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\DebugRT.hlsl">
       <Filter>Shader</Filter>
     </None>
   </ItemGroup>
@@ -208,5 +181,46 @@
     <ClCompile Include="Src\MeshLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Src\SSAO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\Res\SSAO.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\DebugRT.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\EdgePreservedBlur.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Font.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\GaussianBlur.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Opaque.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Sky.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Terrain.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\ViewSpaceNormalDepth.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_Depth.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_Final.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

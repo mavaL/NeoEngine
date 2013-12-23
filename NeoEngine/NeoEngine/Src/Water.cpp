@@ -155,14 +155,15 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Water::_InitConstantBuffer()
 	{
+		HRESULT hr = S_OK;
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory( &bd, sizeof(bd) );
+
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.ByteWidth = sizeof(cBufferVSFinal);
-		HRESULT hr = m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_VS );
-		assert(SUCCEEDED(hr) && "Create cBufferVSFinal failed!");
+		V(m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_VS ));
 
 		m_constantBufVS.texScale	=	VEC2(25, 26);
 		m_constantBufVS.bumpSpeed	=	VEC2(0.015f, 0.005f);
@@ -171,8 +172,7 @@ namespace Neo
 		m_constantBufVS.waveAmp		=	1.8f;
 
 		bd.ByteWidth = sizeof(cBufferPSFinal);
-		hr = m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_PS );
-		assert(SUCCEEDED(hr) && "Create cBufferPSFinal failed!");
+		V(m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_PS ));
 
 		m_constantBufPS.deepColor	=	VEC4(0.0f, 0.3f, 0.5f, 1.0f);
 		m_constantBufPS.shallowColor =	VEC4(0.0f, 1.0f, 1.0f, 1.0f);
@@ -185,8 +185,7 @@ namespace Neo
 		m_constantBufPS.refractionAmount =	0.075f;
 
 		bd.ByteWidth = sizeof(cBufferDepth);
-		hr = m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_Depth );
-		assert(SUCCEEDED(hr) && "Create cBufferDepth failed!");
+		V(m_pRenderSystem->GetDevice()->CreateBuffer( &bd, NULL, &m_pCB_Depth ));
 
 		m_constantBufDepth.waterPlaneHeight	= m_waterPlane.d;
 		m_constantBufDepth.depthLimit = 1.0f / 90.0f;

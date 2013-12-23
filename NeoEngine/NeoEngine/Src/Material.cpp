@@ -60,27 +60,15 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, bool bSSAO )
+	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const std::vector<D3D_SHADER_MACRO>* macroDef )
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
 		ID3DBlob* pPSBlob = NULL;
 
-		// Use ssao
-		std::vector<D3D_SHADER_MACRO> vecMacros;
-		if (bSSAO)
-		{
-			D3D_SHADER_MACRO macro = { "SSAO", "1" };
-			vecMacros.push_back(macro);
-
-			SetTexture(1, g_env.pSceneMg->GetSSAOMap());
-		}
-		D3D_SHADER_MACRO end = {0};
-		vecMacros.push_back(end);
-
 		// Compile
-		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", &vecMacros, &pVSBlob ));
-		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", &vecMacros, &pPSBlob ));
+		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", macroDef, &pVSBlob ));
+		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", macroDef, &pPSBlob ));
 
 		// Create shader
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
