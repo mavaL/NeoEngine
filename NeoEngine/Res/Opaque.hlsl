@@ -34,6 +34,9 @@ struct VS_OUTPUT
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
 	float3 normal	: TEXCOORD1;
+#ifdef SSAO
+	float4 projUV	: TEXCOORD2;
+#endif
 };
 
 //--------------------------------------------------------------------------------------
@@ -42,10 +45,17 @@ struct VS_OUTPUT
 VS_OUTPUT VS( VS_INPUT input )
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
-    output.Pos = mul( input.Pos, WVP );
+
+	float4 posH = mul(input.Pos, WVP);
+    output.Pos = posH;
 
 	output.uv = input.uv;
 	output.normal = mul(input.normal, WorldIT);
+
+#ifdef SSAO
+	output.projUV = float4(posH.x, -posH.y, 1, posH.w);
+	output.projUV.xy = (output.projUV.xy + posH.w) * 0.5f;    
+#endif
     
     return output;
 }
@@ -68,7 +78,9 @@ float4 PS( VS_OUTPUT input ) : SV_Target
 	float4 cLight = max(0, dot(N, -lightDirection)) * lightColor;
 
 #ifdef SSAO
-	float fAmbientAccess = texSSAO.Sample(samSSAO, input.uv).r;
+	input.projUV /= input.projUV.w;
+
+	float fAmbientAccess = texSSAO.Sample(samSSAO, input.projUV.xy).r;
 	// SSAO affects only ambient term!
 	cLight += ambientColor * fAmbientAccess;
 #else

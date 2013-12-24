@@ -29,7 +29,7 @@ namespace Neo
 		__declspec(align(16))
 		struct cBufferBlur
 		{
-			VEC4	texelKernel[13];
+			VEC4	texelKernel[11];
 		};
 
 		D3D11RenderSystem*	m_pRenderSystem;

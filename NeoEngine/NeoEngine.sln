@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NeoEngine", "NeoEngine\NeoEngine.vcxproj", "{DD26DC8A-0BE6-4861-8D94-2861515281D6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneEdit", "Editor\SceneEdit\SceneEdit.vcxproj", "{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{DD26DC8A-0BE6-4861-8D94-2861515281D6}.Debug|Win32.Build.0 = Debug|Win32
 		{DD26DC8A-0BE6-4861-8D94-2861515281D6}.Release|Win32.ActiveCfg = Release|Win32
 		{DD26DC8A-0BE6-4861-8D94-2861515281D6}.Release|Win32.Build.0 = Release|Win32
+		{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}.Debug|Win32.Build.0 = Debug|Win32
+		{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}.Release|Win32.ActiveCfg = Release|Win32
+		{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

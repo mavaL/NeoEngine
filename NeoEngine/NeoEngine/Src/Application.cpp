@@ -6,6 +6,7 @@
 #include "MathDef.h"
 #include "SceneManager.h"
 
+SGlobalEnv			g_env;
 
 //----------------------------------------------------------------------------------------
 Application::Application()

@@ -116,7 +116,7 @@ float4 PS( VS_OUTPUT IN ) : SV_Target
 	float3 PosV = IN.rayV * (linearZ / IN.rayV.z);
 
 	//=====================================================================
-	// Sample texels around to determin occlusion
+	// Sample texel kernels to determin occlusion
 	//=====================================================================
 	float occlusionSum = 0.0f;
 	for(int i = 0; i < 14; ++i)

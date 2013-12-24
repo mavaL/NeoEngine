@@ -48,7 +48,7 @@ void SetupTestScene1(Scene* scene)
 void EnterTestScene1(Scene* scene)
 {
 	g_env.pApp->GetCamera()->SetPosition(VEC3(0,0,-200));
-	g_env.pApp->GetCamera()->SetMoveSpeed(0.2f);
+	g_env.pApp->GetCamera()->SetMoveSpeed(0.5f);
 	g_env.pApp->GetCamera()->SetDirection(VEC3::UNIT_Z);
 }
 

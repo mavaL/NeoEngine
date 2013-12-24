@@ -49,12 +49,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>./Dependency;./Dependency/DXSDK/Include;./Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;./Include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./Dependency/DXSDK/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Dependency/DXSDK/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dx11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -74,8 +74,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Dependency\tinyxml\tinystr.h" />
-    <ClInclude Include="Dependency\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\Dependency\tinyxml\tinystr.h" />
+    <ClInclude Include="..\Dependency\tinyxml\tinyxml.h" />
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\D3D11RenderSystem.h" />
@@ -111,7 +111,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
     </CustomBuild>
-    <CustomBuild Include="..\Res\EdgePreservedBlur.hlsl">
+    <CustomBuild Include="..\Res\BilateralBlur.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
@@ -169,18 +169,19 @@
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Dependency\tinyxml\tinystr.cpp">
+    <ClCompile Include="..\Dependency\tinyxml\tinystr.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxml.cpp">
+    <ClCompile Include="..\Dependency\tinyxml\tinyxml.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxmlerror.cpp">
+    <ClCompile Include="..\Dependency\tinyxml\tinyxmlerror.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxmlparser.cpp">
+    <ClCompile Include="..\Dependency\tinyxml\tinyxmlparser.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\Game\main.cpp" />
     <ClCompile Include="Src\AABB.cpp" />
     <ClCompile Include="Src\Camera.cpp" />
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
@@ -202,7 +203,6 @@
     </ClCompile>
     <ClCompile Include="Src\Terrain.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
-    <ClCompile Include="Src\main.cpp" />
     <ClCompile Include="Src\Utility.cpp" />
     <ClCompile Include="Src\Water.cpp" />
   </ItemGroup>

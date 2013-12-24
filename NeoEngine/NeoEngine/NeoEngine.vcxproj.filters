@@ -84,17 +84,17 @@
     <ClInclude Include="Include\Font.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Dependency\tinyxml\tinystr.h">
-      <Filter>源文件\tinyxml</Filter>
-    </ClInclude>
-    <ClInclude Include="Dependency\tinyxml\tinyxml.h">
-      <Filter>源文件\tinyxml</Filter>
-    </ClInclude>
     <ClInclude Include="Include\MeshLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\SSAO.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependency\tinyxml\tinystr.h">
+      <Filter>源文件\tinyxml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dependency\tinyxml\tinyxml.h">
+      <Filter>源文件\tinyxml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -133,9 +133,6 @@
     <ClCompile Include="Src\Utility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Src\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Src\D3D11RenderSystem.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -166,22 +163,25 @@
     <ClCompile Include="Src\Font.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinystr.cpp">
-      <Filter>源文件\tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxml.cpp">
-      <Filter>源文件\tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxmlerror.cpp">
-      <Filter>源文件\tinyxml</Filter>
-    </ClCompile>
-    <ClCompile Include="Dependency\tinyxml\tinyxmlparser.cpp">
-      <Filter>源文件\tinyxml</Filter>
-    </ClCompile>
     <ClCompile Include="Src\MeshLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\SSAO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml\tinystr.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml\tinyxml.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml\tinyxmlerror.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Dependency\tinyxml\tinyxmlparser.cpp">
+      <Filter>源文件\tinyxml</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Game\main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -190,9 +190,6 @@
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\DebugRT.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\EdgePreservedBlur.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\Font.hlsl">
@@ -220,6 +217,9 @@
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\BilateralBlur.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
   </ItemGroup>

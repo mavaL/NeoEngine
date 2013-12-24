@@ -107,7 +107,7 @@ namespace Neo
 
 		obj->CreateVertexBuffer(&vecVertex[0], vecVertex.size(), true);
 		obj->CreateIndexBuffer(&vecIndex[0], vecIndex.size(), true);
-
+		
 		return obj;
 	}
 }

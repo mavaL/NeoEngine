@@ -56,10 +56,10 @@ namespace Neo
 
 		m_pBlurHMaterial = new Material;
 		m_pBlurVMaterial = new Material;
-		m_pBlurHMaterial->InitShader(GetResPath("GaussianBlur.hlsl"), GetResPath("GaussianBlur.hlsl"), false, nullptr);
-		m_pBlurVMaterial->InitShader(GetResPath("GaussianBlur.hlsl"), GetResPath("GaussianBlur.hlsl"), false, nullptr);
-		m_pBlurHMaterial->SetTexture(0, m_pTexSsao);
-		m_pBlurVMaterial->SetTexture(0, m_pTexBlurH);
+		m_pBlurHMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), false, nullptr);
+		m_pBlurVMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), false, nullptr);
+		m_pBlurHMaterial->SetTexture(0, m_pTexNormalDepth);
+		m_pBlurVMaterial->SetTexture(0, m_pTexNormalDepth);
 
 		// Clamp in case of out of border
 		D3D11_SAMPLER_DESC& sampler = m_pBlurHMaterial->GetSamplerStateDesc(0);
@@ -68,7 +68,9 @@ namespace Neo
 		sampler.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 
 		m_pBlurHMaterial->SetSamplerStateDesc(0, sampler);
+		m_pBlurHMaterial->SetSamplerStateDesc(1, sampler);
 		m_pBlurVMaterial->SetSamplerStateDesc(0, sampler);
+		m_pBlurVMaterial->SetSamplerStateDesc(1, sampler);
 
 		// Create constant buffer
 		HRESULT hr = S_OK;
@@ -108,25 +110,59 @@ namespace Neo
 		m_pRT_ssao->RenderScreenQuad(m_pSsaoMaterial);
 
 		ID3D11DeviceContext* pContext = m_pRenderSystem->GetDeviceContext();
+		float fInvTexW = 1.0f / m_pTexSsao->GetWidth();
+		float fInvTexH = 1.0f / m_pTexSsao->GetHeight();
+		const int blurRadius = 5;
 
 		// BlurH
-		for(int i=-6; i<=6; ++i)
-			m_cBufferBlur.texelKernel[i+6].Set(i/(float)m_pTexSsao->GetWidth(), 0, 0, 0);
+		for(int i=-blurRadius; i<=blurRadius; ++i)
+			m_cBufferBlur.texelKernel[i+blurRadius].Set(i*fInvTexW, 0, 0, 0);
 
 		pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
 		pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 		pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 
+		m_pBlurHMaterial->SetTexture(1, m_pTexSsao);
 		m_pRT_BlurH->RenderScreenQuad(m_pBlurHMaterial);
 
 		// BlurV
-		for(int i=-6; i<=6; ++i)
-			m_cBufferBlur.texelKernel[i+6].Set(0, i/(float)m_pTexSsao->GetHeight(), 0, 0);
+		for(int i=-blurRadius; i<=blurRadius; ++i)
+			m_cBufferBlur.texelKernel[i+blurRadius].Set(0, i*fInvTexH, 0, 0);
 
 		pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
 		pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 		pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 
+		m_pBlurVMaterial->SetTexture(1, m_pTexBlurH);
 		m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
+
+		// Blur and blur!
+		for (int iBlur=0; iBlur<3; ++iBlur)
+		{
+			for(int i=-blurRadius; i<=blurRadius; ++i)
+			{
+				m_cBufferBlur.texelKernel[i+blurRadius].Set(i*fInvTexW, 0, 0, 0);
+			}
+
+			pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
+			pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
+			pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
+
+			m_pBlurHMaterial->SetTexture(1, m_pTexBlurV);
+			m_pRT_BlurH->RenderScreenQuad(m_pBlurHMaterial);
+
+			// BlurV
+			for(int i=-blurRadius; i<=blurRadius; ++i)
+			{
+				m_cBufferBlur.texelKernel[i+blurRadius].Set(0, i*fInvTexH, 0, 0);
+			}
+
+			pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
+			pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
+			pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
+
+			m_pBlurVMaterial->SetTexture(1, m_pTexBlurH);
+			m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
+		}
 	}
 }
