@@ -135,34 +135,5 @@ namespace Neo
 
 		m_pBlurVMaterial->SetTexture(1, m_pTexBlurH);
 		m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
-
-		// Blur and blur!
-		for (int iBlur=0; iBlur<3; ++iBlur)
-		{
-			for(int i=-blurRadius; i<=blurRadius; ++i)
-			{
-				m_cBufferBlur.texelKernel[i+blurRadius].Set(i*fInvTexW, 0, 0, 0);
-			}
-
-			pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
-			pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
-			pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
-
-			m_pBlurHMaterial->SetTexture(1, m_pTexBlurV);
-			m_pRT_BlurH->RenderScreenQuad(m_pBlurHMaterial);
-
-			// BlurV
-			for(int i=-blurRadius; i<=blurRadius; ++i)
-			{
-				m_cBufferBlur.texelKernel[i+blurRadius].Set(0, i*fInvTexH, 0, 0);
-			}
-
-			pContext->UpdateSubresource( m_pCB_Blur, 0, NULL, &m_cBufferBlur, 0, 0 );
-			pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Blur );
-			pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
-
-			m_pBlurVMaterial->SetTexture(1, m_pTexBlurH);
-			m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
-		}
 	}
 }

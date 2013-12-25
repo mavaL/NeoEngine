@@ -9,6 +9,7 @@
 #ifndef Prerequiestity_h__
 #define Prerequiestity_h__
 
+
 const int	SCREEN_WIDTH		=	800;
 const int	SCREEN_HEIGHT		=	600;
 const int	MAX_TEXTURE_STAGE	=	8;

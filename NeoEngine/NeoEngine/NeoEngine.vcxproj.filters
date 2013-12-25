@@ -181,9 +181,6 @@
     <ClCompile Include="..\Dependency\tinyxml\tinyxmlparser.cpp">
       <Filter>源文件\tinyxml</Filter>
     </ClCompile>
-    <ClCompile Include="..\Game\main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Res\SSAO.hlsl">

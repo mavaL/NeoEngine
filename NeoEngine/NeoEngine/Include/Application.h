@@ -18,14 +18,14 @@ public:
 	~Application();
 
 public:
-	void	Init(HINSTANCE hInstance);
+	void	Init();
 	void	Run();
 	void	ShutDown();
 	void	ToggleScene();
 	Camera*	GetCamera()	{ return m_camera; }
 
 private:
-	bool	_InitWindow(HINSTANCE hInstance);
+	bool	_InitWindow();
 	void	_InitAllScene();
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

@@ -1,4 +1,3 @@
-// 算法来自D3D11龙书
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
@@ -121,8 +120,10 @@ float4 PS( VS_OUTPUT IN ) : SV_Target
 	float occlusionSum = 0.0f;
 	for(int i = 0; i < 14; ++i)
 	{
-		// Get the offset point
+		// Deal with self-occlusion
 		float flip = sign( dot(g_vecOffset[i].xyz, N) );
+
+		// Get the offset point
 		float3 ptOffset = PosV + flip * gOcclusionRadius * g_vecOffset[i].xyz;
 
 		// View space to texture space
@@ -130,14 +131,29 @@ float4 PS( VS_OUTPUT IN ) : SV_Target
 		projPt.xyz /= projPt.w;
 		projPt.xy = (projPt.xy + float2(1.0, -1.0)) * float2(0.5, -0.5);
 
-		// Get this texel's view space position
 		float ptDepth = tex.Sample(sam, projPt.xy).a;
+
+#ifdef SC2_SSAO
+		float occlusion = 0.0f, deltaZ = ptOffset.z - ptDepth;
+
+		if ( deltaZ > 0.01f ) 
+		{
+            // Past this distance there is no occlusion.
+            float fNoOcclusionRange = gOcclusionFadeEnd - gOcclusionFadeStart;      
+            if ( deltaZ < gOcclusionFadeStart )
+                occlusion = 1.0f;
+            else 
+				occlusion = max( 1.0f - ( ( deltaZ - gOcclusionFadeStart ) / fNoOcclusionRange ), 0.0f );
+        } 
+#else // From D3D11龙书,自遮闭更健壮一点,当然计算量也多了一点
+		// Get this texel's view space position
 		float3 NeighbourPosV = ptOffset * (ptDepth / ptOffset.z);
 
 		// Test whether occlusion occurs
 		float distZ = PosV.z - NeighbourPosV.z;
 		float dp = max(dot(N, normalize(NeighbourPosV - PosV)), 0.0f);
 		float occlusion = dp * OcclusionFunction(distZ);
+#endif
 		
 		occlusionSum += occlusion;
 	}

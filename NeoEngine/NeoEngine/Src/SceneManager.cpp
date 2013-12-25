@@ -94,7 +94,7 @@ namespace Neo
 		{
 			m_pSSAO->Update();
 
-			// Enable early-Z
+			// Make use of early-Z
 			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
 			depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;

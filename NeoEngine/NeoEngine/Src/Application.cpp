@@ -23,9 +23,9 @@ Application::~Application()
 	
 }
 //----------------------------------------------------------------------------------------
-void Application::Init(HINSTANCE hInstance)
+void Application::Init()
 {
-	if(!_InitWindow(hInstance))
+	if(!_InitWindow())
 	{
 		assert(0);
 		return;
@@ -60,8 +60,9 @@ void Application::ShutDown()
 	SAFE_DELETE(m_pRenderSystem);
 }
 //----------------------------------------------------------------------------------------
-bool Application::_InitWindow(HINSTANCE hInstance)
+bool Application::_InitWindow()
 {
+	HMODULE hInst = ::GetModuleHandle(nullptr);
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -69,7 +70,7 @@ bool Application::_InitWindow(HINSTANCE hInstance)
 	wcex.lpfnWndProc	= WndProc;
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
+	wcex.hInstance		= hInst;
 	wcex.hIcon			= nullptr;
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(GetStockObject(BLACK_BRUSH));
@@ -98,7 +99,7 @@ bool Application::_InitWindow(HINSTANCE hInstance)
 	int windowTop = (GetSystemMetrics(SM_CYSCREEN) - realHeight) / 2;
 
 	HWND hWnd = CreateWindow("NeoEngineWndClass", "TestApp", style,
-		windowLeft, windowTop, realWidth, realHeight, NULL, NULL, hInstance, NULL);
+		windowLeft, windowTop, realWidth, realHeight, NULL, NULL, hInst, NULL);
 
 	if (!hWnd)
 		return false;

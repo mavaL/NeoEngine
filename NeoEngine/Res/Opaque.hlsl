@@ -50,7 +50,7 @@ VS_OUTPUT VS( VS_INPUT input )
     output.Pos = posH;
 
 	output.uv = input.uv;
-	output.normal = mul(input.normal, WorldIT);
+	output.normal = mul(input.normal, (float3x3)WorldIT);
 
 #ifdef SSAO
 	output.projUV = float4(posH.x, -posH.y, 1, posH.w);
