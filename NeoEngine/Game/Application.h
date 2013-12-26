@@ -21,21 +21,15 @@ public:
 	void	Init();
 	void	Run();
 	void	ShutDown();
-	void	ToggleScene();
-	Camera*	GetCamera()	{ return m_camera; }
 
 private:
 	bool	_InitWindow();
-	void	_InitAllScene();
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
 	HINSTANCE				m_hInstance;
-	std::vector<Scene*>		m_scenes;	
-	Scene*					m_pCurScene;
 	Neo::D3D11RenderSystem*	m_pRenderSystem;
-	Camera*					m_camera;
 };
 
 #endif // Application_h__

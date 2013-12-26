@@ -44,8 +44,9 @@ enum eRenderPhase
 	eRenderPhase_Water		= 1 << 4,
 	eRenderPhase_UI			= 1 << 5,
 
-	eRenderPhase_All = eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_SSAO | 
-	eRenderPhase_Solid | eRenderPhase_Water | eRenderPhase_UI
+	eRenderPhase_Geometry	= eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_Solid | eRenderPhase_Water,
+
+	eRenderPhase_All = eRenderPhase_Geometry | eRenderPhase_UI | eRenderPhase_SSAO
 };
 
 enum ePixelFormat
@@ -131,7 +132,6 @@ namespace Neo
 	class	SSAO;
 }
 
-class Application;
 class Scene;
 class Camera;
 
@@ -139,9 +139,8 @@ class Camera;
 struct SGlobalEnv 
 {
 	HWND					hwnd;			// Main window handle
-	Application*			pApp;			// App object
 	Neo::D3D11RenderSystem*	pRenderSystem;	// Render system
-	Neo::SceneManager*		pSceneMg;		// Scene manager
+	Neo::SceneManager*		pSceneMgr;		// Scene manager
 	Neo::SFrameStat*		pFrameStat;		// Frame statics info
 };
 extern SGlobalEnv	g_env;
@@ -155,6 +154,70 @@ inline STRING	GetResPath(const STRING& filename)
 	return std::move(filepath);
 }
 
+
+template<class T>
+inline void Swap(T& t1, T& t2)
+{
+	T tmp = t1;
+	t1 = t2;
+	t2 = tmp;
+}
+
+template<class T>
+inline T Clamp(const T& val, const T& left, const T& right)
+{
+	if(val < left)
+		return left;
+	else if(val > right)
+		return right;
+	else
+		return val;
+}
+
+__forceinline int Ceil32_Fast(float x)
+{
+	const float h = 0.5f;
+	int t;
+
+	_asm
+	{
+		fld	x
+			fadd	h
+			fistp	t
+	}
+
+	return t;
+}
+
+__forceinline int Floor32_Fast(float x)
+{
+	const float h = 0.5f;
+	int t;
+
+	_asm
+	{
+		fld	x
+			fsub	h
+			fistp	t
+	}
+
+	return t;
+}
+
+__forceinline int Ftoi32_Fast(float x)
+{
+	int t;
+	_asm
+	{
+		fld	x
+			fistp	t
+	}
+
+	return t;
+
+	// SSE?
+	//return _mm_cvtt_ss2si(_mm_load_ss(&x)); 
+}
 
 
 #ifndef SAFE_DELETE

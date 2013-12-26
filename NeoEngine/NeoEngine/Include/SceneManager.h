@@ -20,6 +20,10 @@ namespace Neo
 		~SceneManager();
 
 	public:
+		void		ToggleScene();
+		Camera*		GetCamera()	{ return m_camera; }
+		Scene*		GetCurScene() { return m_pCurScene; }
+
 		void		CreateSky();
 		void		CreateTerrain();
 		void		CreateWater(float waterHeight = 0.0f);
@@ -33,6 +37,12 @@ namespace Neo
 		void		EnableDebugRT(eDebugRT type);
 
 	private:
+		void		_InitAllScene();
+
+		std::vector<Scene*>		m_scenes;	
+		Scene*					m_pCurScene;
+
+		Camera*			m_camera;
 		Terrain*		m_pTerrain;
 		Water*			m_pWater;
 		Sky*			m_pSky;

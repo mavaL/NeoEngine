@@ -48,13 +48,7 @@
     <ClInclude Include="Include\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Utility.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\D3D11RenderSystem.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Application.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\Material.h">
@@ -96,6 +90,9 @@
     <ClInclude Include="..\Dependency\tinyxml\tinyxml.h">
       <Filter>源文件\tinyxml</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Singleton.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -130,13 +127,7 @@
     <ClCompile Include="Src\TestScene.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Utility.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Src\D3D11RenderSystem.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Material.cpp">

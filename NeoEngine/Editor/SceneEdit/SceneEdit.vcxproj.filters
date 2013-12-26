@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{44c5d3c2-f93b-4e2c-ba58-64c4211623b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manipulator">
+      <UniqueIdentifier>{7985c4cc-42ce-4fec-8dc7-ce61963cd83e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EditorAction">
+      <UniqueIdentifier>{d11f9afa-1e67-4388-a448-db8bf6b8a699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Operation">
+      <UniqueIdentifier>{8ee60ae6-302d-4ee1-a0e3-b71047ae5e22}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI\Common">
+      <UniqueIdentifier>{c282c38e-54a2-40ae-89f5-09295d51d232}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\SceneEdit.ico">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\shiny-gear.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\SystemMenuLarge.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\Button.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\PaneProperties.bmp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="..\..\..\..\..\minicraft\Editor\SceneEdit\res\shiny-gear.png">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="res\SceneEdit.rc2">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SceneEdit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="View.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\DialogSceneNew.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorDefine.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Brush.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Gizmo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\PropertiesPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\TerrainPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorObject.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorScene.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorTerrain.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorEventCallback.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorAction.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionBase.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionNone.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionTerrainDeform.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionTerrainSplat.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionObjectEdit.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionObjectSelect.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ObjectPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorCamera.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorEditorResource.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\EffectPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\AttachmentPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Manipulator\ManipulatorOperation.h">
+      <Filter>Manipulator</Filter>
+    </ClInclude>
+    <ClInclude Include="Operation\Operation.h">
+      <Filter>Operation</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\DLightPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\ParticlePropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Common\DialogStringInput.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Common\XTPCustomPropertyGridItem.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Common\SubclassHelper.h">
+      <Filter>UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\EntityEffectPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Action\ActionPlantGrass.h">
+      <Filter>EditorAction</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\OceanPropertyPane.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="EventCallbackBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SceneEdit.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="View.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\DialogSceneNew.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Brush.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Gizmo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\PropertiesPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\TerrainPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorObject.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorScene.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorTerrain.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorAction.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionTerrainDeform.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionTerrainSplat.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionObjectEdit.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionNone.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionObjectSelect.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ObjectPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorCamera..cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorEditorResource.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\EffectPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\AttachmentPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Manipulator\ManipulatorOperation.cpp">
+      <Filter>Manipulator</Filter>
+    </ClCompile>
+    <ClCompile Include="Operation\Operation.cpp">
+      <Filter>Operation</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\DLightPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\ParticlePropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Common\DialogStringInput.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Common\XTPCustomPropertyGridItem.cpp">
+      <Filter>UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\EntityEffectPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Action\ActionPlantGrass.cpp">
+      <Filter>EditorAction</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\OceanPropertyPane.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SceneEdit.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

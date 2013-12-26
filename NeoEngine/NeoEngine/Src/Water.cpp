@@ -5,8 +5,8 @@
 #include "D3D11RenderTarget.h"
 #include "RenderObject.h"
 #include "Material.h"
-#include "Application.h"
 #include "Camera.h"
+#include "SceneManager.h"
 
 
 namespace Neo
@@ -51,7 +51,7 @@ namespace Neo
 			"WaterReflectionRT", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ePF_A8B8G8R8, eTextureUsage_RenderTarget);
 
 		m_pRT_Reflection = new D3D11RenderTarget(texReflection);
-		m_pRT_Reflection->SetRenderPhase(eRenderPhase_All & ~eRenderPhase_Water);
+		m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
 
 		// Scene map (alpha channel uses for refraction mask)
 		m_pTexSceneWithRefracMask = m_pRenderSystem->CreateManualTexture(
@@ -196,7 +196,7 @@ namespace Neo
 		// Camera pos in object space
 		MAT44 invWorld = m_waterMesh->GetWorldMatrix().Inverse();
 
-		m_constantBufVS.viewPt = g_env.pApp->GetCamera()->GetPos().GetVec3();
+		m_constantBufVS.viewPt = g_env.pSceneMgr->GetCamera()->GetPos().GetVec3();
 		Common::Transform_Vec3_By_Mat44(m_constantBufVS.viewPt, invWorld, true);
 	}
 	//------------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ namespace Neo
 		desc.CullMode = D3D11_CULL_FRONT;
 		m_pRenderSystem->SetRasterizeDesc(desc);
 
-		const MAT44 matView = g_env.pApp->GetCamera()->GetViewMatrix();
+		const MAT44 matView = g_env.pSceneMgr->GetCamera()->GetViewMatrix();
 		const MAT44 matReflecView = Common::BuildReflectMatrix(m_waterPlane) * matView;
 		m_pRenderSystem->SetTransform(eTransform_View, matReflecView, true);
 

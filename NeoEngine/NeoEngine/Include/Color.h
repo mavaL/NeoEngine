@@ -133,10 +133,10 @@ namespace Neo
 
 	__forceinline void SColor::Saturate()
 	{
-		a = Ext::Clamp(a, 0.0f, 1.0f);
-		r = Ext::Clamp(r, 0.0f, 1.0f);
-		g = Ext::Clamp(g, 0.0f, 1.0f);
-		b = Ext::Clamp(b, 0.0f, 1.0f);
+		a = Clamp(a, 0.0f, 1.0f);
+		r = Clamp(r, 0.0f, 1.0f);
+		g = Clamp(g, 0.0f, 1.0f);
+		b = Clamp(b, 0.0f, 1.0f);
 	}
 
 	__forceinline void SColor::SetAsInt( DWORD color )
@@ -155,15 +155,15 @@ namespace Neo
 		__m128 V2 =  _mm_set_ps1(255.0f);
 		Common::m128_to_vec4(c, _mm_mul_ps( V1, V2 ));
 
-		BYTE tmp_a = Ext::Ftoi32_Fast(c.w);
-		BYTE tmp_r = Ext::Ftoi32_Fast(c.x);
-		BYTE tmp_g = Ext::Ftoi32_Fast(c.y);
-		BYTE tmp_b = Ext::Ftoi32_Fast(c.z);
+		BYTE tmp_a = Ftoi32_Fast(c.w);
+		BYTE tmp_r = Ftoi32_Fast(c.x);
+		BYTE tmp_g = Ftoi32_Fast(c.y);
+		BYTE tmp_b = Ftoi32_Fast(c.z);
 #else
-		BYTE tmp_a = Ext::Ftoi32_Fast(a * 255);
-		BYTE tmp_r = Ext::Ftoi32_Fast(r * 255);
-		BYTE tmp_g = Ext::Ftoi32_Fast(g * 255);
-		BYTE tmp_b = Ext::Ftoi32_Fast(b * 255);
+		BYTE tmp_a = Ftoi32_Fast(a * 255);
+		BYTE tmp_r = Ftoi32_Fast(r * 255);
+		BYTE tmp_g = Ftoi32_Fast(g * 255);
+		BYTE tmp_b = Ftoi32_Fast(b * 255);
 #endif
 		DWORD ret = (tmp_a << 24) + (tmp_r << 16) + (tmp_g << 8) + (tmp_b);
 
@@ -173,42 +173,6 @@ namespace Neo
 	__forceinline SColor SColor::GetAsDx() const
 	{
 		return SColor(b, g, r, a);
-	}
-}
-
-namespace Ext
-{
-	//ÌØ»¯SColor
-	template<> inline void LinearLerp(Neo::SColor& result, const Neo::SColor& s, const Neo::SColor& e, float t)
-	{
-#if USE_SIMD == 1
-		__m128 V1 =  _mm_set_ps(s.a, s.b, s.g, s.r);
-		__m128 V2 =  _mm_set_ps(e.a, e.b, e.g, e.r);
-		__m128 Vt = _mm_set_ps1(t);
-		V2 = _mm_mul_ps(_mm_sub_ps(V2, V1), Vt);
-		m128_to_color(result, _mm_add_ps(V2, V1));
-#else
-		LinearLerp(result.a, s.a, e.a, t);
-		LinearLerp(result.r, s.r, e.r, t);
-		LinearLerp(result.g, s.g, e.g, t);
-		LinearLerp(result.b, s.b, e.b, t);
-#endif
-	}
-
-	template<> inline void HyperLerp(Neo::SColor& result, const Neo::SColor& s, const Neo::SColor& e, float t, float ws, float we)
-	{
-#if USE_SIMD == 1
-		__m128 V1 =  _mm_mul_ps(_mm_set_ps(s.a, s.b, s.g, s.r), _mm_set_ps1(ws));
-		__m128 V2 =  _mm_mul_ps(_mm_set_ps(e.a, e.b, e.g, e.r), _mm_set_ps1(we));
-		__m128 Vt = _mm_set_ps1(t);
-		V2 = _mm_mul_ps(_mm_sub_ps(V2, V1), Vt);
-		m128_to_color(result, _mm_add_ps(V1, V2));
-#else
-		HyperLerp(result.r, s.r, e.r, t, ws, we);
-		HyperLerp(result.g, s.g, e.g, t, ws, we);
-		HyperLerp(result.b, s.b, e.b, t, ws, we);
-		HyperLerp(result.a, s.a, e.a, t, ws, we);
-#endif
 	}
 }
 

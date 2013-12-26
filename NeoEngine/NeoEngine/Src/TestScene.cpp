@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Scene.h"
-#include "Application.h"
 #include "Camera.h"
 #include "Material.h"
 #include "D3D11RenderSystem.h"
@@ -19,7 +18,7 @@
 
 void SetupTestScene1(Scene* scene)
 {
-	Neo::RenderObject* obj=  g_env.pSceneMg->LoadMesh(GetResPath("skull.mesh"));
+	Neo::RenderObject* obj=  g_env.pSceneMgr->LoadMesh(GetResPath("skull.mesh"));
 
 	scene->AddRenderObject(obj);
 
@@ -34,9 +33,9 @@ void SetupTestScene1(Scene* scene)
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, &vecMacros);
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->SetTexture(1, g_env.pSceneMg->GetSSAO()->GetBlurVMap());
+	pMaterial->SetTexture(1, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
 
-	g_env.pSceneMg->EnableDebugRT(eDebugRT_SSAO);
+	g_env.pSceneMgr->EnableDebugRT(eDebugRT_SSAO);
 
 	obj->SetMaterial(pMaterial);
 
@@ -47,9 +46,9 @@ void SetupTestScene1(Scene* scene)
 
 void EnterTestScene1(Scene* scene)
 {
-	g_env.pApp->GetCamera()->SetPosition(VEC3(0,0,-200));
-	g_env.pApp->GetCamera()->SetMoveSpeed(0.5f);
-	g_env.pApp->GetCamera()->SetDirection(VEC3::UNIT_Z);
+	g_env.pSceneMgr->GetCamera()->SetPosition(VEC3(0,0,-200));
+	g_env.pSceneMgr->GetCamera()->SetMoveSpeed(0.5f);
+	g_env.pSceneMgr->GetCamera()->SetDirection(VEC3::UNIT_Z);
 }
 
 
@@ -276,10 +275,10 @@ void SetupTestScene2(Scene* scene)
 
 void EnterTestScene2(Scene* scene)
 {
-	g_env.pSceneMg->CreateSky();
-	g_env.pSceneMg->CreateWater();
+	g_env.pSceneMgr->CreateSky();
+	g_env.pSceneMgr->CreateWater();
 
-	Camera* pCamera = g_env.pApp->GetCamera();
+	Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 100, 0));
 	pCamera->SetNearClip(100);
 	pCamera->SetFarClip(100000.0f);
@@ -294,10 +293,10 @@ void SetupTestScene3(Scene* scene)
 
 void EnterTestScene3(Scene* scene)
 {
-	g_env.pSceneMg->CreateTerrain();
-	//g_env.pSceneMg->CreateWater(5.0f);
+	g_env.pSceneMgr->CreateTerrain();
+	//g_env.pSceneMgr->CreateWater(5.0f);
 
-	Camera* pCamera = g_env.pApp->GetCamera();
+	Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 10, 0));
 	pCamera->SetNearClip(1);
 	pCamera->SetFarClip(30000.0f);
@@ -305,16 +304,19 @@ void EnterTestScene3(Scene* scene)
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 
-
-void Application::_InitAllScene()
+namespace Neo
 {
-	//// Test Scene 1: mesh, SSAO post effect
-	ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
+	void SceneManager::_InitAllScene()
+	{
+		//// Test Scene 1: mesh, SSAO post effect
+		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
 
-	//// Test Scene 2: Sky, Water
-	ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
+		//// Test Scene 2: Sky, Water
+		ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
-	//// Test Scene 3: Terrain
-	ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		//// Test Scene 3: Terrain
+		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+	}
 }
+
 

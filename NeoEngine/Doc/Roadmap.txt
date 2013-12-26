@@ -1,5 +1,8 @@
 2013.11
 Water rendering.	[100%]
 
+
 2013.12
-Tessellated terrain rendering.	[0%]
+Tessellated terrain rendering.	[50%]
+
+TODO: Nvidia Graphics SDK11's FFT water and island demo is awesome, I'am going to study them.

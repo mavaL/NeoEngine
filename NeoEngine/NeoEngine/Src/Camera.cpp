@@ -171,7 +171,7 @@ void Camera::Yaw( float angle )
 void Camera::AddMoveSpeed( float delta )
 {
 	m_moveSpeed += delta;
-	m_moveSpeed = Ext::Clamp(m_moveSpeed, 0.1f, 10.0f);
+	m_moveSpeed = Clamp(m_moveSpeed, 0.1f, 10.0f);
 }
 
 void Camera::SetNearClip( float n )

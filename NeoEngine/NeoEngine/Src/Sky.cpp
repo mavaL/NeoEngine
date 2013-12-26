@@ -4,8 +4,8 @@
 #include "D3D11Texture.h"
 #include "RenderObject.h"
 #include "Material.h"
-#include "Application.h"
 #include "Camera.h"
+#include "SceneManager.h"
 
 
 namespace Neo
@@ -78,7 +78,7 @@ namespace Neo
 	void Sky::Update()
 	{
 		// Scale and translate our skybox
-		Camera* pCamera = g_env.pApp->GetCamera();
+		Camera* pCamera = g_env.pSceneMgr->GetCamera();
 		float scale = (pCamera->GetFarClip() - pCamera->GetNearClip()) / 2;
 
 		MAT44 matWorld;

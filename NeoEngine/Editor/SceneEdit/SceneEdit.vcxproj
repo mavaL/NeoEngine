@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F2B2D7A0-6DBB-4C53-9C3B-6B1A36EE807B}</ProjectGuid>
+    <RootNamespace>SceneEdit</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\Build\Bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Build\Intermediate\$(Configuration)\</IntDir>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\..\MiniCraft\Build\Bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\..\MiniCraft\Build\Intermediate\SceneEdit\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../NeoEngine/Include;./UI/Common;./;../../Dependency/DXSDK/Include;../../Dependency/XTP/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zm300 %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <TreatWarningAsError>false</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(OutDir);..\..\Dependency\DXSDK\Lib\x86;..\..\Dependency\XTP\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;d3dx11d.lib;UxTheme.lib;NeoEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./UI/Common;./;../../Kratos/Src;../../Kratos/Dependency\Lua5_1_4\src;../../Kratos/Dependency/rapidxml;../../Kratos/Dependency/OIS/include;../../Kratos/Dependency/Ogre/include;../../Kratos/Dependency/Ogre/include/ParticleUniverse;../../Kratos/Dependency/Ogre/include/Terrain;../../Kratos/Dependency/OgreRecast/include;../Dependency/XTP/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zm300 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SolutionDir)\..\MiniCraft\Build\Bin\$(Configuration);..\Dependency\XTP\lib\$(Configuration);..\..\Kratos\Dependency\OIS\lib\$(Configuration);..\..\Kratos\Dependency\Lua5_1_4\lib;..\..\Kratos\Dependency\Ogre\lib\$(Configuration)\opt;..\..\Kratos\Dependency\Ogre\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>UxTheme.lib;lua51.lib;OgreMain.lib;OgreTerrain.lib;ParticleUniverse.lib;Kratos.lib</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0804</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\minicraft\Editor\SceneEdit\res\shiny-gear.png" />
+    <None Include="ReadMe.txt" />
+    <None Include="res\Button.png" />
+    <None Include="res\PaneProperties.bmp" />
+    <None Include="res\SceneEdit.ico" />
+    <None Include="res\SceneEdit.rc2">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir);../../Dependency/XTP/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <FileType>RC</FileType>
+    </None>
+    <None Include="res\shiny-gear.png" />
+    <None Include="res\SystemMenuLarge.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Action\ActionBase.h" />
+    <ClInclude Include="Action\ActionNone.h" />
+    <ClInclude Include="Action\ActionObjectEdit.h" />
+    <ClInclude Include="Action\ActionObjectSelect.h" />
+    <ClInclude Include="Action\ActionPlantGrass.h" />
+    <ClInclude Include="Action\ActionTerrainDeform.h" />
+    <ClInclude Include="Action\ActionTerrainSplat.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Brush.h" />
+    <ClInclude Include="EditorDefine.h" />
+    <ClInclude Include="EventCallbackBase.h" />
+    <ClInclude Include="Gizmo.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="Manipulator\ManipulatorAction.h" />
+    <ClInclude Include="Manipulator\ManipulatorCamera.h" />
+    <ClInclude Include="Manipulator\ManipulatorEditorResource.h" />
+    <ClInclude Include="Manipulator\ManipulatorEventCallback.h" />
+    <ClInclude Include="Manipulator\ManipulatorObject.h" />
+    <ClInclude Include="Manipulator\ManipulatorOperation.h" />
+    <ClInclude Include="Manipulator\ManipulatorScene.h" />
+    <ClInclude Include="Manipulator\ManipulatorTerrain.h" />
+    <ClInclude Include="Operation\Operation.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="SceneEdit.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="UI\AttachmentPropertyPane.h" />
+    <ClInclude Include="UI\Common\DialogStringInput.h" />
+    <ClInclude Include="UI\Common\SubclassHelper.h" />
+    <ClInclude Include="UI\Common\XTPCustomPropertyGridItem.h" />
+    <ClInclude Include="UI\DialogSceneNew.h" />
+    <ClInclude Include="UI\DLightPropertyPane.h" />
+    <ClInclude Include="UI\EffectPropertyPane.h" />
+    <ClInclude Include="UI\EntityEffectPropertyPane.h" />
+    <ClInclude Include="UI\ObjectPropertyPane.h" />
+    <ClInclude Include="UI\OceanPropertyPane.h" />
+    <ClInclude Include="UI\ParticlePropertyPane.h" />
+    <ClInclude Include="UI\PropertiesPane.h" />
+    <ClInclude Include="UI\TerrainPropertyPane.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="View.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Action\ActionNone.cpp" />
+    <ClCompile Include="Action\ActionObjectEdit.cpp" />
+    <ClCompile Include="Action\ActionObjectSelect.cpp" />
+    <ClCompile Include="Action\ActionPlantGrass.cpp" />
+    <ClCompile Include="Action\ActionTerrainDeform.cpp" />
+    <ClCompile Include="Action\ActionTerrainSplat.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Brush.cpp" />
+    <ClCompile Include="Gizmo.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorAction.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorCamera..cpp" />
+    <ClCompile Include="Manipulator\ManipulatorEditorResource.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorObject.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorOperation.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorScene.cpp" />
+    <ClCompile Include="Manipulator\ManipulatorTerrain.cpp" />
+    <ClCompile Include="Operation\Operation.cpp" />
+    <ClCompile Include="SceneEdit.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="UI\AttachmentPropertyPane.cpp" />
+    <ClCompile Include="UI\Common\DialogStringInput.cpp" />
+    <ClCompile Include="UI\Common\XTPCustomPropertyGridItem.cpp" />
+    <ClCompile Include="UI\DialogSceneNew.cpp" />
+    <ClCompile Include="UI\DLightPropertyPane.cpp" />
+    <ClCompile Include="UI\EffectPropertyPane.cpp" />
+    <ClCompile Include="UI\EntityEffectPropertyPane.cpp" />
+    <ClCompile Include="UI\ObjectPropertyPane.cpp" />
+    <ClCompile Include="UI\OceanPropertyPane.cpp" />
+    <ClCompile Include="UI\ParticlePropertyPane.cpp" />
+    <ClCompile Include="UI\PropertiesPane.cpp" />
+    <ClCompile Include="UI\TerrainPropertyPane.cpp" />
+    <ClCompile Include="Utility.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="View.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SceneEdit.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../../Dependency/XTP/Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\Dependency\XTP\Source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Kratos\Kratos.vcxproj">
+      <Project>{d2c8141a-2358-446c-b1d1-307649aaaf22}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="SceneEdit.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

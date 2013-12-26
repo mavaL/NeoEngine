@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "PixelBox.h"
-#include "Utility.h"
 
 namespace Neo
 {
@@ -81,9 +80,9 @@ namespace Neo
 		case 3:
 			{
 				char* pData = m_data + y * m_pitch + x * 3;
-				pData[0] = Ext::Ftoi32_Fast(p.b);
-				pData[1] = Ext::Ftoi32_Fast(p.g);
-				pData[2] = Ext::Ftoi32_Fast(p.r);
+				pData[0] = Ftoi32_Fast(p.b);
+				pData[1] = Ftoi32_Fast(p.g);
+				pData[2] = Ftoi32_Fast(p.r);
 			}
 			break;
 

@@ -28,21 +28,21 @@ void Scene::AddRenderObject( Neo::RenderObject* obj )
 //------------------------------------------------------------------------------------
 void Scene::Enter()
 {
-	g_env.pSceneMg->ClearScene();
+	g_env.pSceneMgr->ClearScene();
 
 	if(!m_bSetup)
 	{
 		m_setupFunc(this);
 		m_bSetup = true;
 	}
-	g_env.pSceneMg->SetSolidRenderList(m_renderList);
+	g_env.pSceneMgr->SetSolidRenderList(m_renderList);
 
 	m_enterFunc(this);
 }
 //----------------------------------------------------------------------------------------
 void Scene::Render()
 {
-	g_env.pSceneMg->RenderPipline();
+	g_env.pSceneMgr->RenderPipline();
 }
 
 

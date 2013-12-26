@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SceneManager.h"
+#include "Camera.h"
 #include "Water.h"
 #include "Sky.h"
 #include "Terrain.h"
@@ -18,6 +19,8 @@ namespace Neo
 
 	SceneManager::SceneManager()
 	:m_pRenderSystem(g_env.pRenderSystem)
+	,m_camera(new Camera)
+	,m_pCurScene(nullptr)
 	,m_pTerrain(nullptr)
 	,m_pWater(nullptr)
 	,m_pSky(nullptr)
@@ -43,11 +46,18 @@ namespace Neo
 		m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), false);
 
 		m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
+
+		_InitAllScene();
 	}
 	//-------------------------------------------------------------------------------
 	SceneManager::~SceneManager()
 	{
 		ClearScene();
+
+		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
+		m_scenes.clear();
+
+		SAFE_DELETE(m_camera);
 		SAFE_DELETE(m_pDebugRTMesh);
 		SAFE_DELETE(m_pMeshLoader);
 		SAFE_DELETE(m_pSSAO);
@@ -199,5 +209,16 @@ namespace Neo
 	void SceneManager::EnableDebugRT( eDebugRT type )
 	{
 		m_debugRT = type;
+	}
+	//----------------------------------------------------------------------------------------
+	void SceneManager::ToggleScene()
+	{
+		static int curScene = -1;
+		++curScene;
+		if(curScene == m_scenes.size())
+			curScene = 0;
+
+		m_pCurScene = m_scenes[curScene];
+		m_pCurScene->Enter();
 	}
 }

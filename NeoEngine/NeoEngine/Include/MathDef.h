@@ -9,7 +9,6 @@
 #ifndef MathDef_h__
 #define MathDef_h__
 
-#include "Utility.h"
 
 const float		PI			=	3.14159f;
 const float		HALF_PI		=	1.57079f;
@@ -136,7 +135,7 @@ namespace Common
 		//设置平移部分
 		void		SetTranslation(const Vector4& t);
 		//获取平移部分
-		inline Vector4	GetTranslation() const { return std::move(VEC4(m30, m31, m32, m33)); }
+		inline Vector4	GetTranslation() const { return std::move(Vector4(m30, m31, m32, m33)); }
 		//通过轴角对构建旋转矩阵,平移部分设为0
 		void		FromAxisAngle(const Vector3& axis, float angle);
 		//通过轴构建矩阵
@@ -164,11 +163,11 @@ namespace Common
 	{
 	public:
 		Plane() {}
-		Plane(const VEC3& _n, float _d):n(_n),d(_d) {}
+		Plane(const Vector3& _n, float _d):n(_n),d(_d) {}
 
-		void	Set(const VEC3& _n, float _d) { n = _n; d = _d; }
+		void	Set(const Vector3& _n, float _d) { n = _n; d = _d; }
 
-		VEC3	n;
+		Vector3	n;
 		float	d;
 	};
 

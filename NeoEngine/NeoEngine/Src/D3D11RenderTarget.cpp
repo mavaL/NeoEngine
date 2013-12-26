@@ -3,7 +3,6 @@
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
 #include "SceneManager.h"
-#include "Application.h"
 #include "Camera.h"
 
 
@@ -16,7 +15,7 @@ namespace Neo
 	,m_bClearColor(true)
 	,m_bClearZBuffer(true)
 	,m_bUpdateViewport(bUpdateViewport)
-	,m_phaseFlag(eRenderPhase_All)
+	,m_phaseFlag(eRenderPhase_Geometry)
 	,m_pDepthStencil(nullptr)
 	,m_pDepthStencilView(nullptr)
 	{
@@ -97,7 +96,7 @@ namespace Neo
 		// Update aspect ratio and viewport
 		if (m_bUpdateViewport)
 		{
-			Camera* pCamera = g_env.pApp->GetCamera();
+			Camera* pCamera = g_env.pSceneMgr->GetCamera();
 			m_oldAspectRatio = pCamera->GetAspectRatio();
 			D3D11_VIEWPORT& vp = m_pRenderSystem->GetViewport();
 
@@ -119,7 +118,7 @@ namespace Neo
 		// Restore
 		if (m_bUpdateViewport)
 		{
-			Camera* pCamera = g_env.pApp->GetCamera();
+			Camera* pCamera = g_env.pSceneMgr->GetCamera();
 			D3D11_VIEWPORT& vp = m_pRenderSystem->GetViewport();
 
 			pCamera->SetAspectRatio(m_oldAspectRatio);
@@ -138,7 +137,7 @@ namespace Neo
 	{
 		_BeforeRender();
 
-		g_env.pSceneMg->RenderPipline(m_phaseFlag, pMaterial);
+		g_env.pSceneMgr->RenderPipline(m_phaseFlag, pMaterial);
 
 		_AfterRender();
 	}

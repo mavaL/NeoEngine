@@ -2,17 +2,15 @@
 #include "Application.h"
 #include "Scene.h"
 #include "D3D11RenderSystem.h"
-#include "Camera.h"
 #include "MathDef.h"
 #include "SceneManager.h"
+#include "Camera.h"
 
 SGlobalEnv			g_env;
 
 //----------------------------------------------------------------------------------------
 Application::Application()
-:m_pCurScene(nullptr)
-,m_hInstance(nullptr)
-,m_camera(nullptr)
+:m_hInstance(nullptr)
 ,m_pRenderSystem(nullptr)
 {
 
@@ -41,20 +39,14 @@ void Application::Init()
 	}
 
 	g_env.pFrameStat = new Neo::SFrameStat;
-	g_env.pSceneMg = new Neo::SceneManager;
-	m_camera = new Camera;
+	g_env.pSceneMgr = new Neo::SceneManager;
 
-	_InitAllScene();
-	ToggleScene();
+	g_env.pSceneMgr->ToggleScene();
 }
 //----------------------------------------------------------------------------------------
 void Application::ShutDown()
 {
-	std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
-	m_scenes.clear();
-
-	SAFE_DELETE(m_camera);
-	SAFE_DELETE(g_env.pSceneMg);
+	SAFE_DELETE(g_env.pSceneMgr);
 
 	m_pRenderSystem->ShutDown();
 	SAFE_DELETE(m_pRenderSystem);
@@ -104,7 +96,6 @@ bool Application::_InitWindow()
 	if (!hWnd)
 		return false;
 
-	g_env.pApp = this;
 	g_env.hwnd = hWnd;
 
 	ShowWindow(hWnd, SW_SHOWNORMAL);
@@ -113,20 +104,10 @@ bool Application::_InitWindow()
 	return true;
 }
 //----------------------------------------------------------------------------------------
-void Application::ToggleScene()
-{
-	static int curScene = -1;
-	++curScene;
-	if(curScene == m_scenes.size())
-		curScene = 0;
-
-	m_pCurScene = m_scenes[curScene];
-	m_pCurScene->Enter();
-}
-//----------------------------------------------------------------------------------------
 LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	PAINTSTRUCT ps;
+	Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
 	switch (message)
 	{
@@ -136,11 +117,11 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 		break;
 
 	case WM_LBUTTONDOWN:
-		g_env.pApp->GetCamera()->m_bActive = true;
+		pSceneMgr->GetCamera()->m_bActive = true;
 		return 0;
 
 	case WM_LBUTTONUP:
-		g_env.pApp->GetCamera()->m_bActive = false;
+		pSceneMgr->GetCamera()->m_bActive = false;
 		return 0;
 
 	case WM_KEYDOWN:
@@ -149,13 +130,13 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 			{
 			case VK_ADD:
 				{
-					g_env.pApp->GetCamera()->AddMoveSpeed(1.0f);
+					pSceneMgr->GetCamera()->AddMoveSpeed(1.0f);
 					return 0;
 				}
 				break;
 			case VK_SUBTRACT:
 				{
-					g_env.pApp->GetCamera()->AddMoveSpeed(-0.2f);
+					pSceneMgr->GetCamera()->AddMoveSpeed(-0.2f);
 					return 0;
 				}
 				break;
@@ -175,7 +156,7 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 			{
 			case 't':
 				{
-					g_env.pApp->ToggleScene();
+					g_env.pSceneMgr->ToggleScene();
 				}
 				break;
 
@@ -235,12 +216,14 @@ void Application::Run()
 				nFrameCnt = nFrameTime = 0;
 			}
 
-			m_camera->Update();
+			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
+
+			pSceneMgr->GetCamera()->Update();
 			m_pRenderSystem->Update();
-			g_env.pSceneMg->Update();
+			pSceneMgr->Update();
 			
 			m_pRenderSystem->BeginScene();
-			m_pCurScene->Render();
+			pSceneMgr->GetCurScene()->Render();
 			m_pRenderSystem->EndScene();
 		}
 	}

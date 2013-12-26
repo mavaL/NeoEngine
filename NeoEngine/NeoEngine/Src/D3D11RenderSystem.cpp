@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "D3D11RenderSystem.h"
 #include "Color.h"
-#include "Application.h"
 #include "Camera.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderTarget.h"
 #include "Font.h"
+#include "SceneManager.h"
 
 namespace Neo
 {
@@ -367,7 +367,7 @@ namespace Neo
 		// Update cBuffer
 		m_cBufferGlobal.time = GetTickCount() / 1000.0f;
 
-		Camera* cam = g_env.pApp->GetCamera();
+		Camera* cam = g_env.pSceneMgr->GetCamera();
 		const MAT44& matView = cam->GetViewMatrix();
 		const MAT44& matProj = cam->GetProjMatrix();
 
