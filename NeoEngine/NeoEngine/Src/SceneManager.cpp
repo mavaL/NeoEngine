@@ -16,7 +16,7 @@
 
 namespace Neo
 {
-
+	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
 	:m_pRenderSystem(g_env.pRenderSystem)
 	,m_camera(new Camera)
@@ -26,28 +26,45 @@ namespace Neo
 	,m_pSky(nullptr)
 	,m_pMeshLoader(new MeshLoader)
 	,m_debugRT(eDebugRT_None)
-	,m_pSSAO(new SSAO)
 	{
-		m_pDebugRTMesh = new RenderObject;
+		
+	}
+	//------------------------------------------------------------------------------------
+	bool SceneManager::Init()
+	{
+		RECT rc;
+		GetClientRect( g_env.hwnd, &rc );
+		UINT width = rc.right - rc.left;
+		UINT height = rc.bottom - rc.top;
 
-		SVertex v[4] = 
+		m_pRenderSystem->OnViewportResize(width, height);
+
+		m_pSSAO = new SSAO;
+
 		{
-			SVertex(VEC3(0.5f,1.0f,0), VEC2(0,0)),
-			SVertex(VEC3(1.0f,1.0f,0), VEC2(1,0)),
-			SVertex(VEC3(0.5f,0.4f,0), VEC2(0,1)),
-			SVertex(VEC3(1.0f,0.4f,0), VEC2(1,1))
-		};
-		DWORD index[6] = { 0,1,2, 1,3,2 };
+			m_pDebugRTMesh = new RenderObject;
 
-		m_pDebugRTMesh->CreateVertexBuffer(v, ARRAYSIZE(v), true);
-		m_pDebugRTMesh->CreateIndexBuffer(index, ARRAYSIZE(index), true);
+			SVertex v[4] = 
+			{
+				SVertex(VEC3(0.5f,1.0f,0), VEC2(0,0)),
+				SVertex(VEC3(1.0f,1.0f,0), VEC2(1,0)),
+				SVertex(VEC3(0.5f,0.4f,0), VEC2(0,1)),
+				SVertex(VEC3(1.0f,0.4f,0), VEC2(1,1))
+			};
+			DWORD index[6] = { 0,1,2, 1,3,2 };
 
-		m_pDebugRTMaterial = new Material;
-		m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), false);
+			m_pDebugRTMesh->CreateVertexBuffer(v, ARRAYSIZE(v), true);
+			m_pDebugRTMesh->CreateIndexBuffer(index, ARRAYSIZE(index), true);
 
-		m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
+			m_pDebugRTMaterial = new Material;
+			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), false);
+
+			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
+		}
 
 		_InitAllScene();
+
+		return true;
 	}
 	//-------------------------------------------------------------------------------
 	SceneManager::~SceneManager()

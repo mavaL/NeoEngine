@@ -46,23 +46,21 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Water::_InitMaterial()
 	{
-		// Reflection map
-		D3D11Texture* texReflection = m_pRenderSystem->CreateManualTexture(
-			"WaterReflectionRT", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ePF_A8B8G8R8, eTextureUsage_RenderTarget);
+		const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		const uint32 screenH = m_pRenderSystem->GetWndHeight();
 
-		m_pRT_Reflection = new D3D11RenderTarget(texReflection);
+		// Reflection map
+		m_pRT_Reflection = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Reflection->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
 		m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
 
 		// Scene map (alpha channel uses for refraction mask)
-		m_pTexSceneWithRefracMask = m_pRenderSystem->CreateManualTexture(
-			"WaterSceneTex", SCREEN_WIDTH, SCREEN_HEIGHT, ePF_A8B8G8R8, eTextureUsage_WriteOnly);
-		m_pTexSceneWithRefracMask->AddRef();
+		m_pTexSceneWithRefracMask = new D3D11Texture(screenW, screenH, nullptr, ePF_A8B8G8R8, eTextureUsage_WriteOnly, false);
 
 		// Water depth map
-		D3D11Texture* texDepth = m_pRenderSystem->CreateManualTexture(
-			"WaterDepthRT", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, ePF_A8B8G8R8, eTextureUsage_RenderTarget);
+		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Depth->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
 
-		m_pRT_Depth = new D3D11RenderTarget(texDepth);
 		// TODO: Only terrain get water-shore transition
 		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid/* | eRenderPhase_Terrain*/);
 
@@ -79,7 +77,7 @@ namespace Neo
 		// Noise map
 		m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
 		// Reflection map
-		m_pFinalComposeMaterial->SetTexture(1, texReflection);
+		m_pFinalComposeMaterial->SetTexture(1, m_pRT_Reflection->GetRenderTexture());
 		// Refraction mask map
 		m_pFinalComposeMaterial->SetTexture(2, m_pTexSceneWithRefracMask);
 		// Water depth map

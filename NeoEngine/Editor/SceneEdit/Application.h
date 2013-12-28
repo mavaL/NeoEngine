@@ -1,6 +1,6 @@
 /********************************************************************
 	created:	14:10:2012   9:15
-	filename: 	C:\Users\mavaL\Desktop\SceneEdit\SceneEdit\SceneEdit\Application.h
+	filename: 	Application.h
 	author:		maval
 	
 	purpose:	编辑器应用程序框架类
@@ -8,12 +8,6 @@
 
 #ifndef Application_h__
 #define Application_h__
-
-namespace Ogre
-{
-	class RenderWindow;
-	class Root;
-}
 
 struct SActionParam;
 
@@ -24,11 +18,11 @@ public:
 	~Application() {}
 
 public:
-	bool		Init(int width, int height, HWND hwnd, HWND hParent);
+	bool		Init(HWND hwnd, HWND hParent);
 	bool		Update();
 	void		Shutdown();
 	//渲染视口大小改变,进行相应处理
-	void		OnViewportResized(int w, int h);
+	void		OnWindowResize(int w, int h);
 
 	void		SceneNew();
 	void		SceneOpen();
@@ -49,7 +43,9 @@ private:
 	void		_CreateActionParam(const POINT& viewClientPt, SActionParam& retParam);
 
 private:
+	bool		m_bInit;
 	int			m_appSnapshot;
+	Neo::D3D11RenderSystem*	m_pRenderSystem;
 };
 
 #endif // Application_h__

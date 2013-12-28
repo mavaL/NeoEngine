@@ -8,8 +8,6 @@
 
 namespace Neo
 {
-	static const VEC2	GLYGH_SIZE		=	VEC2(15.0f / SCREEN_WIDTH, 42.0f / SCREEN_HEIGHT);
-	static const float	GLYGH_UV_SIZEX	=	0.010526315f;
 	//-------------------------------------------------------------------------------
 	Font::Font()
 	:m_pMesh(nullptr)
@@ -45,8 +43,14 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Font::_InitMesh( const STRING& text, const IPOINT& pos, const SColor& color )
 	{
+		const uint32 screenW = g_env.pRenderSystem->GetWndWidth();
+		const uint32 screenH = g_env.pRenderSystem->GetWndHeight();
+
+		const VEC2	GLYGH_SIZE		=	VEC2(15.0f / screenW, 42.0f / screenH);
+		const float	GLYGH_UV_SIZEX	=	0.010526315f;
+
 		// Screen pos --> NDC pos
-		VEC2 startPos(pos.x/(float)SCREEN_WIDTH, pos.y/(float)SCREEN_HEIGHT);
+		VEC2 startPos(pos.x/(float)screenW, pos.y/(float)screenH);
 
 		startPos.x = startPos.x * 2.0f - 1.0f;
 		startPos.y = 1.0f - startPos.y * 2.0f;

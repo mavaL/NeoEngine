@@ -45,5 +45,8 @@
 #include <Prerequiestity.h>
 #include <MathDef.h>
 #include <Singleton.h>
+#include <D3D11RenderSystem.h>
+#include <SceneManager.h>
+#include <Camera.h>
 
 

@@ -5,4 +5,5 @@ Water rendering.	[100%]
 2013.12
 Tessellated terrain rendering.	[50%]
 
-TODO: Nvidia Graphics SDK11's FFT water and island demo is awesome, I'am going to study them.
+TODO: Nvidia Graphics SDK11's FFT water and island demo is awesome, I'am going to add fractal terrain generation.
+	And the demo's performance is very bad I think, what about tessellation only happening at slope cliff?

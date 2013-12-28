@@ -15,6 +15,7 @@ namespace Neo
 	,m_texType(type)
 	,m_width(0)
 	,m_height(0)
+	,m_bMipMap(true)
 	{
 		m_pd3dDevice = m_pRenderSystem->GetDevice();
 		if (m_pd3dDevice)
@@ -84,7 +85,7 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	D3D11Texture::D3D11Texture( int width, int height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap )
+	D3D11Texture::D3D11Texture( uint32 width, uint32 height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap )
 	:m_pTexture2D(nullptr)
 	,m_pTexture3D(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
@@ -94,149 +95,14 @@ namespace Neo
 	,m_height(height)
 	,m_usage(usage)
 	,m_texType(eTextureType_2D)
+	,m_bMipMap(bMipMap)
+	,m_texFormat(format)
 	{
 		m_pd3dDevice = m_pRenderSystem->GetDevice();
 		if (m_pd3dDevice)
 			m_pd3dDevice->AddRef();
 
-		DXGI_FORMAT dxformat = DXGI_FORMAT_UNKNOWN;
-		DWORD bytesPerPixel = 0;
-
-		switch(format)
-		{
-		case ePF_A8R8G8B8:
-			dxformat = DXGI_FORMAT_B8G8R8A8_UNORM;
-			bytesPerPixel = 4;
-			break;
-		case ePF_A8B8G8R8:
-			dxformat = DXGI_FORMAT_R8G8B8A8_UNORM;
-			bytesPerPixel = 4;
-			break;
-		case ePF_L16:
-			dxformat = DXGI_FORMAT_R16_UNORM; 
-			bytesPerPixel = 2;
-			break;
-		case ePF_R8G8B8:
-			dxformat = DXGI_FORMAT_B8G8R8A8_UNORM;
-			bytesPerPixel = 4;
-			break;
-		case ePF_A16B16G16R16F:
-			dxformat = DXGI_FORMAT_R16G16B16A16_FLOAT;
-			bytesPerPixel = 8;
-			break;
-		case ePF_L8:
-			dxformat = DXGI_FORMAT_R8_UNORM;
-			bytesPerPixel = 1;
-			break;
-		case ePF_R16F:
-			dxformat = DXGI_FORMAT_R16_FLOAT;
-			bytesPerPixel = 2;
-			break;
-		case ePF_R32F:
-			dxformat = DXGI_FORMAT_R32_FLOAT;
-			bytesPerPixel = 4;
-			break;
-
-		case ePF_DXT1: dxformat = DXGI_FORMAT_BC1_UNORM; bytesPerPixel = 4; break;
-		case ePF_DXT2: dxformat = DXGI_FORMAT_BC2_UNORM; bytesPerPixel = 4; break;
-		case ePF_DXT3: dxformat = DXGI_FORMAT_BC3_UNORM; bytesPerPixel = 4; break;
-		case ePF_DXT4: dxformat = DXGI_FORMAT_BC4_UNORM; bytesPerPixel = 4; break;
-		case ePF_DXT5: dxformat = DXGI_FORMAT_BC5_UNORM; bytesPerPixel = 4; break;
-
-		default:
-			assert(true);	// Not support yet...
-			break;
-		}
-
-		DWORD pitch = bytesPerPixel * width;
-		char* tmpBuf = (char*)pTexData;
-
-		if(!pTexData)
-			tmpBuf = new char[pitch * height];
-
-		D3D11_SUBRESOURCE_DATA subData;
-		D3D11_SUBRESOURCE_DATA* subDataArray = nullptr;
-		subData.pSysMem = tmpBuf;
-		subData.SysMemPitch = pitch;
-
-		CD3D11_TEXTURE2D_DESC desc(dxformat, width, height);
-
-		if (bMipMap)
-		{
-			int wid = width, hei = height;
-			// Get mipmap level
-			desc.MipLevels = 1;
-			while((wid > 1) || (hei > 1))
-			{
-				wid = max(wid / 2, 1);
-				hei = max(hei / 2, 1);
-				++desc.MipLevels;
-			}
-
-			// Not correct mipmap data, just make room for later D3DX11FilterTexture
-			subDataArray = new D3D11_SUBRESOURCE_DATA[desc.MipLevels];
-			for (size_t i=0; i<desc.MipLevels; ++i)
-			{
-				subDataArray[i].pSysMem = tmpBuf;
-				subDataArray[i].SysMemPitch = pitch;
-			}
-		}
-		else
-		{
-			desc.MipLevels = 1;
-			subDataArray = &subData;
-		}
-
-		// Validate usage
-		assert(!((usage&eTextureUsage_WriteOnly)&&(usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
-
-		// Assign usage
-		if (usage & eTextureUsage_WriteOnly)
-		{
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			desc.Usage = D3D11_USAGE_DYNAMIC;
-		}
-		else if (usage & eTextureUsage_ReadWrite)
-		{
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-			desc.Usage = D3D11_USAGE_STAGING;
-			desc.BindFlags = 0;
-		}
-
-		if (usage & eTextureUsage_RenderTarget)
-		{
-			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		}
-
-		if (GetTextureType() == eTextureType_CubeMap)
-		{
-			desc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
-			desc.ArraySize = 6;
-		}
-
-		HRESULT hr = m_pd3dDevice->CreateTexture2D(&desc, subDataArray, &m_pTexture2D);
-
-		if(!pTexData)
-		{
-			SAFE_DELETE_ARRAY(tmpBuf);
-		}
-
-		assert(SUCCEEDED(hr) && "Create texture failed!");
-
-		// Generate mipmap levels
-		if (bMipMap)
-		{
-			V(D3DX11FilterTexture(m_pRenderSystem->GetDeviceContext(), m_pTexture2D, 0, D3DX11_DEFAULT));
-		}
-
-		// Create SRV
-		CreateSRV();
-
-		// Bind RT view
-		if (m_usage & eTextureUsage_RenderTarget)
-		{
-			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView ));
-		}
+		_CreateManual(pTexData);
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture( const StringVector& vecTexNames )
@@ -247,6 +113,7 @@ namespace Neo
 	,m_pSRV(nullptr)
 	,m_usage(0)
 	,m_texType(eTextureType_TextureArray)
+	,m_bMipMap(true)
 	{
 		m_pd3dDevice = m_pRenderSystem->GetDevice();
 		if (m_pd3dDevice)
@@ -326,9 +193,158 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	D3D11Texture::~D3D11Texture()
 	{
+		Destroy();
+		SAFE_RELEASE(m_pd3dDevice);
+	}
+	//-----------------------------------------------------------------------------------
+	void D3D11Texture::Destroy()
+	{
 		SAFE_RELEASE(m_pTexture2D);
 		SAFE_RELEASE(m_pTexture3D);
-		SAFE_RELEASE(m_pd3dDevice);
+		SAFE_RELEASE(m_pSRV);
+		SAFE_RELEASE(m_rtView);
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11Texture::_CreateManual(const char* pTexData)
+	{
+		DXGI_FORMAT dxformat = DXGI_FORMAT_UNKNOWN;
+		DWORD bytesPerPixel = 0;
+
+		switch(m_texFormat)
+		{
+		case ePF_A8R8G8B8:
+			dxformat = DXGI_FORMAT_B8G8R8A8_UNORM;
+			bytesPerPixel = 4;
+			break;
+		case ePF_A8B8G8R8:
+			dxformat = DXGI_FORMAT_R8G8B8A8_UNORM;
+			bytesPerPixel = 4;
+			break;
+		case ePF_L16:
+			dxformat = DXGI_FORMAT_R16_UNORM; 
+			bytesPerPixel = 2;
+			break;
+		case ePF_R8G8B8:
+			dxformat = DXGI_FORMAT_B8G8R8A8_UNORM;
+			bytesPerPixel = 4;
+			break;
+		case ePF_A16B16G16R16F:
+			dxformat = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			bytesPerPixel = 8;
+			break;
+		case ePF_L8:
+			dxformat = DXGI_FORMAT_R8_UNORM;
+			bytesPerPixel = 1;
+			break;
+		case ePF_R16F:
+			dxformat = DXGI_FORMAT_R16_FLOAT;
+			bytesPerPixel = 2;
+			break;
+		case ePF_R32F:
+			dxformat = DXGI_FORMAT_R32_FLOAT;
+			bytesPerPixel = 4;
+			break;
+
+		case ePF_DXT1: dxformat = DXGI_FORMAT_BC1_UNORM; bytesPerPixel = 4; break;
+		case ePF_DXT2: dxformat = DXGI_FORMAT_BC2_UNORM; bytesPerPixel = 4; break;
+		case ePF_DXT3: dxformat = DXGI_FORMAT_BC3_UNORM; bytesPerPixel = 4; break;
+		case ePF_DXT4: dxformat = DXGI_FORMAT_BC4_UNORM; bytesPerPixel = 4; break;
+		case ePF_DXT5: dxformat = DXGI_FORMAT_BC5_UNORM; bytesPerPixel = 4; break;
+
+		default:
+			assert(true);	// Not support yet...
+			break;
+		}
+
+		DWORD pitch = bytesPerPixel * m_width;
+		char* tmpBuf = (char*)pTexData;
+
+		if(!pTexData)
+			tmpBuf = new char[pitch * m_height];
+
+		D3D11_SUBRESOURCE_DATA subData;
+		D3D11_SUBRESOURCE_DATA* subDataArray = nullptr;
+		subData.pSysMem = tmpBuf;
+		subData.SysMemPitch = pitch;
+
+		CD3D11_TEXTURE2D_DESC desc(dxformat, m_width, m_height);
+
+		if (m_bMipMap)
+		{
+			int wid = m_width, hei = m_height;
+			// Get mipmap level
+			desc.MipLevels = 1;
+			while((wid > 1) || (hei > 1))
+			{
+				wid = max(wid / 2, 1);
+				hei = max(hei / 2, 1);
+				++desc.MipLevels;
+			}
+
+			// Not correct mipmap data, just make room for later D3DX11FilterTexture
+			subDataArray = new D3D11_SUBRESOURCE_DATA[desc.MipLevels];
+			for (size_t i=0; i<desc.MipLevels; ++i)
+			{
+				subDataArray[i].pSysMem = tmpBuf;
+				subDataArray[i].SysMemPitch = pitch;
+			}
+		}
+		else
+		{
+			desc.MipLevels = 1;
+			subDataArray = &subData;
+		}
+
+		// Validate usage
+		assert(!((m_usage&eTextureUsage_WriteOnly)&&(m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
+
+		// Assign usage
+		if (m_usage & eTextureUsage_WriteOnly)
+		{
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			desc.Usage = D3D11_USAGE_DYNAMIC;
+		}
+		else if (m_usage & eTextureUsage_ReadWrite)
+		{
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+			desc.Usage = D3D11_USAGE_STAGING;
+			desc.BindFlags = 0;
+		}
+
+		if (m_usage & eTextureUsage_RenderTarget)
+		{
+			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		}
+
+		if (GetTextureType() == eTextureType_CubeMap)
+		{
+			desc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+			desc.ArraySize = 6;
+		}
+
+		HRESULT hr = m_pd3dDevice->CreateTexture2D(&desc, subDataArray, &m_pTexture2D);
+
+		if(!pTexData)
+		{
+			SAFE_DELETE_ARRAY(tmpBuf);
+		}
+
+		assert(SUCCEEDED(hr) && "Create texture failed!");
+
+		// Generate mipmap levels
+		if (m_bMipMap)
+		{
+			V(D3DX11FilterTexture(m_pRenderSystem->GetDeviceContext(), m_pTexture2D, 0, D3DX11_DEFAULT));
+		}
+
+		// Create SRV
+		CreateSRV();
+
+		// Bind RT view
+		if (m_usage & eTextureUsage_RenderTarget)
+		{
+			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView ));
+		}
 	}
 	//-------------------------------------------------------------------------------
 	bool D3D11Texture::SaveToFile( const char* filename )
@@ -418,5 +434,17 @@ namespace Neo
 
 		HRESULT hr = S_OK;
 		V(m_pd3dDevice->CreateShaderResourceView(*pTex, &SMViewDesc, &m_pSRV));
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11Texture::Resize( uint32 width, uint32 height )
+	{
+		assert(m_usage & eTextureUsage_RenderTarget);
+
+		Destroy();
+
+		m_width = width;
+		m_height = height;
+
+		_CreateManual(nullptr);
 	}
 }

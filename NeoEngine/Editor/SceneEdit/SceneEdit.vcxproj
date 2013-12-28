@@ -110,7 +110,6 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\minicraft\Editor\SceneEdit\res\shiny-gear.png" />
     <None Include="ReadMe.txt" />
     <None Include="res\Button.png" />
     <None Include="res\PaneProperties.bmp" />

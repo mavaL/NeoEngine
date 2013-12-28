@@ -10,52 +10,21 @@ namespace Neo
 {
 	RenderObject* D3D11RenderTarget::m_pQuadMesh = nullptr;
 	//----------------------------------------------------------------------------------------
-	D3D11RenderTarget::D3D11RenderTarget( D3D11Texture* pRenderTexture, bool bUpdateViewport, bool bOwnDepthBuffer )
-	:m_clearColor(SColor::BLACK)
+	D3D11RenderTarget::D3D11RenderTarget()
+	:m_pRenderSystem(g_env.pRenderSystem)
+	,m_pRenderTexture(nullptr)
+	,m_clearColor(SColor::BLACK)
 	,m_bClearColor(true)
 	,m_bClearZBuffer(true)
-	,m_bUpdateViewport(bUpdateViewport)
+	,m_bUpdateViewport(false)
+	,m_bHasDepthBuffer(false)
 	,m_phaseFlag(eRenderPhase_Geometry)
 	,m_pDepthStencil(nullptr)
 	,m_pDepthStencilView(nullptr)
+	,m_oldViewportW(0)
+	,m_oldViewportH(0)
+	,m_sizeRatio(0, 0)
 	{
-		m_pRenderSystem = g_env.pRenderSystem;
-		m_pRenderTexture = pRenderTexture;
-		pRenderTexture->AddRef();
-
-		// Create depth stencil buffer
-		if (bOwnDepthBuffer)
-		{
-			D3D11_TEXTURE2D_DESC descTex;
-			pRenderTexture->GetInternalTex()->GetDesc(&descTex);
-
-			D3D11_TEXTURE2D_DESC descDepth;
-			ZeroMemory( &descDepth, sizeof(descDepth) );
-
-			descDepth.Width = pRenderTexture->GetWidth();
-			descDepth.Height = pRenderTexture->GetHeight();
-			descDepth.MipLevels				= 1;
-			descDepth.ArraySize				= descTex.ArraySize;
-			descDepth.Format				= DXGI_FORMAT_D32_FLOAT;
-			descDepth.SampleDesc.Count		= descTex.SampleDesc.Count;
-			descDepth.SampleDesc.Quality	= descTex.SampleDesc.Quality;
-			descDepth.Usage					= D3D11_USAGE_DEFAULT;
-			descDepth.BindFlags				= D3D11_BIND_DEPTH_STENCIL;
-			descDepth.CPUAccessFlags		= 0;
-			descDepth.MiscFlags				= 0;
-
-			HRESULT hr = S_OK;
-			V(m_pRenderSystem->GetDevice()->CreateTexture2D( &descDepth, NULL, &m_pDepthStencil ));
-
-			// Create the depth stencil view
-			D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-			ZeroMemory( &descDSV, sizeof(descDSV) );
-			descDSV.Format = descDepth.Format;
-			descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-			descDSV.Texture2D.MipSlice = 0;
-			V(m_pRenderSystem->GetDevice()->CreateDepthStencilView( m_pDepthStencil, &descDSV, &m_pDepthStencilView ));
-		}
-
 		// Create screen quad
 		static bool bCreate = false;
 		if (!bCreate)
@@ -86,9 +55,64 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	D3D11RenderTarget::~D3D11RenderTarget()
 	{
+		Destroy();
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::Init( uint32 width, uint32 height, ePixelFormat format, bool bUpdateViewport /*= true*/, bool bOwnDepthBuffer /*= true*/ )
+	{
+		const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		const uint32 screenH = m_pRenderSystem->GetWndHeight();
+
+		m_sizeRatio.Set(width / (float)screenW, height / (float)screenH);
+
+		m_bUpdateViewport = bUpdateViewport;
+		m_bHasDepthBuffer = bOwnDepthBuffer;
+
+		// Create render texture
+		m_pRenderTexture = new D3D11Texture(width, height, nullptr, format, eTextureUsage_RenderTarget, false);
+
+		// Create depth stencil buffer
+		if (m_bHasDepthBuffer)
+			_CreateDepthBuffer(width, height);
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::Destroy()
+	{
 		SAFE_RELEASE(m_pDepthStencilView);
 		SAFE_RELEASE(m_pDepthStencil);
 		SAFE_RELEASE(m_pRenderTexture);
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::_CreateDepthBuffer( uint32 width, uint32 height )
+	{
+		D3D11_TEXTURE2D_DESC descTex;
+		m_pRenderTexture->GetInternalTex()->GetDesc(&descTex);
+
+		D3D11_TEXTURE2D_DESC descDepth;
+		ZeroMemory( &descDepth, sizeof(descDepth) );
+
+		descDepth.Width = width;
+		descDepth.Height = height;
+		descDepth.MipLevels				= 1;
+		descDepth.ArraySize				= descTex.ArraySize;
+		descDepth.Format				= DXGI_FORMAT_D32_FLOAT;
+		descDepth.SampleDesc.Count		= descTex.SampleDesc.Count;
+		descDepth.SampleDesc.Quality	= descTex.SampleDesc.Quality;
+		descDepth.Usage					= D3D11_USAGE_DEFAULT;
+		descDepth.BindFlags				= D3D11_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags		= 0;
+		descDepth.MiscFlags				= 0;
+
+		HRESULT hr = S_OK;
+		V(m_pRenderSystem->GetDevice()->CreateTexture2D( &descDepth, NULL, &m_pDepthStencil ));
+
+		// Create the depth stencil view
+		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+		ZeroMemory( &descDSV, sizeof(descDSV) );
+		descDSV.Format = descDepth.Format;
+		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		V(m_pRenderSystem->GetDevice()->CreateDepthStencilView( m_pDepthStencil, &descDSV, &m_pDepthStencilView ));
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::_BeforeRender()
@@ -96,18 +120,10 @@ namespace Neo
 		// Update aspect ratio and viewport
 		if (m_bUpdateViewport)
 		{
-			Camera* pCamera = g_env.pSceneMgr->GetCamera();
-			m_oldAspectRatio = pCamera->GetAspectRatio();
-			D3D11_VIEWPORT& vp = m_pRenderSystem->GetViewport();
+			m_oldViewportW = m_pRenderSystem->GetWndWidth();
+			m_oldViewportH = m_pRenderSystem->GetWndHeight();
 
-			pCamera->SetAspectRatio(m_pRenderTexture->GetWidth() / (float)m_pRenderTexture->GetHeight());
-
-			m_pRenderSystem->SetTransform(eTransform_Proj, pCamera->GetProjMatrix(), true);
-
-			vp.Width = (float)m_pRenderTexture->GetWidth();
-			vp.Height = (float)m_pRenderTexture->GetHeight();
-
-			m_pRenderSystem->SetViewport(vp);
+			m_pRenderSystem->OnViewportResize(m_pRenderTexture->GetWidth(), m_pRenderTexture->GetHeight());
 		}
 
 		m_pRenderSystem->SetRenderTarget(this, m_bClearColor, m_bClearZBuffer, &m_clearColor);
@@ -118,16 +134,7 @@ namespace Neo
 		// Restore
 		if (m_bUpdateViewport)
 		{
-			Camera* pCamera = g_env.pSceneMgr->GetCamera();
-			D3D11_VIEWPORT& vp = m_pRenderSystem->GetViewport();
-
-			pCamera->SetAspectRatio(m_oldAspectRatio);
-			m_pRenderSystem->SetTransform(eTransform_Proj, pCamera->GetProjMatrix(), true);
-
-			vp.Width = (float)SCREEN_WIDTH;
-			vp.Height = (float)SCREEN_HEIGHT;
-
-			m_pRenderSystem->SetViewport(vp);
+			m_pRenderSystem->OnViewportResize(m_oldViewportW, m_oldViewportH);
 		}
 
 		m_pRenderSystem->SetRenderTarget(nullptr, false, false);
@@ -181,5 +188,26 @@ namespace Neo
 		depthDesc.DepthEnable = TRUE;
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::OnWindowResized()
+	{
+		const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		const uint32 screenH = m_pRenderSystem->GetWndHeight();
+
+		const uint32 newWidth = (uint32)(screenW * m_sizeRatio.x);
+		const uint32 newHeight = (uint32)(screenH * m_sizeRatio.y);
+
+		// Resize render texture
+		m_pRenderTexture->Resize(newWidth, newHeight);
+
+		// Resize depth stencil buffer
+		if (m_bHasDepthBuffer)
+		{
+			SAFE_RELEASE(m_pDepthStencilView);
+			SAFE_RELEASE(m_pDepthStencil);
+
+			_CreateDepthBuffer(newWidth, newHeight);
+		}
 	}
 }

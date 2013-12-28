@@ -8,6 +8,8 @@
 
 SGlobalEnv			g_env;
 
+static const uint32	SCREEN_WIDTH	=	1024;
+static const uint32	SCREEN_HEIGHT	=	768;
 //----------------------------------------------------------------------------------------
 Application::Application()
 :m_hInstance(nullptr)
@@ -32,15 +34,16 @@ void Application::Init()
 	m_pRenderSystem = new Neo::D3D11RenderSystem;
 	g_env.pRenderSystem = m_pRenderSystem;
 
-	if(!m_pRenderSystem->Init(g_env.hwnd))
+	if(!m_pRenderSystem->Init(SCREEN_WIDTH, SCREEN_HEIGHT, g_env.hwnd))
 	{
 		assert(0);
 		return;
 	}
 
 	g_env.pFrameStat = new Neo::SFrameStat;
-	g_env.pSceneMgr = new Neo::SceneManager;
 
+	g_env.pSceneMgr = new Neo::SceneManager;
+	g_env.pSceneMgr->Init();
 	g_env.pSceneMgr->ToggleScene();
 }
 //----------------------------------------------------------------------------------------
@@ -200,22 +203,6 @@ void Application::Run()
 		else
 		{
 			// Render a frame during idle time (no messages are waiting)
-			DWORD curTime = GetTickCount();
-			static DWORD lastTime = curTime, nFrameCnt = 0, nFrameTime = 0;
-
-			DWORD dt = curTime - lastTime;
-			lastTime = curTime;
-
-			// Calc FPS
-			++nFrameCnt;
-			nFrameTime += dt;
-
-			if (nFrameTime >= 1000)
-			{
-				g_env.pFrameStat->lastFPS = nFrameCnt / (nFrameTime * 0.001f);
-				nFrameCnt = nFrameTime = 0;
-			}
-
 			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
 			pSceneMgr->GetCamera()->Update();

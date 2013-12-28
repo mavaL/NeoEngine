@@ -132,8 +132,10 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
 	cs.lpszClass = AfxRegisterWndClass(0);
+
 	cs.cx = EDITOR_CLIENT_W;
 	cs.cy = EDITOR_CLIENT_H;
+
 	return TRUE;
 }
 

@@ -34,9 +34,6 @@
     <None Include="res\SceneEdit.ico">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\shiny-gear.png">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="res\SystemMenuLarge.png">
       <Filter>资源文件</Filter>
     </None>
@@ -46,10 +43,10 @@
     <None Include="res\PaneProperties.bmp">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="..\..\..\..\..\minicraft\Editor\SceneEdit\res\shiny-gear.png">
+    <None Include="res\SceneEdit.rc2">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\SceneEdit.rc2">
+    <None Include="res\shiny-gear.png">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

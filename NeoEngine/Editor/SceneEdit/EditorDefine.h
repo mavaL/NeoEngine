@@ -12,7 +12,7 @@
 
 const	int		EDITOR_CLIENT_W			=	1024;
 const	int		EDITOR_CLIENT_H			=	768;
-const	int		MESH_ICON_SIZE		=	64;
+const	int		MESH_ICON_SIZE			=	64;
 const	int		RES_SELECTOR_COLUMN_WIDTH	=	80;
 
 //…„œÒª˙¿‡–Õ

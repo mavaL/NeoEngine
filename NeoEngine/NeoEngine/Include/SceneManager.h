@@ -20,6 +20,7 @@ namespace Neo
 		~SceneManager();
 
 	public:
+		bool		Init();
 		void		ToggleScene();
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }

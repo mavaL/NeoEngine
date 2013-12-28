@@ -20,10 +20,14 @@ namespace Neo
 	public:
 		// NB: If the viewport dimension is not the same as the frame buffer, you should set
 		// bUpdateViewport to true
-		D3D11RenderTarget(D3D11Texture* pRenderTexture, bool bUpdateViewport = true, bool bOwnDepthBuffer = true);
+		D3D11RenderTarget();
 		~D3D11RenderTarget();
 
 	public:
+		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bUpdateViewport = true, bool bOwnDepthBuffer = true);
+		void			Destroy();
+		void			OnWindowResized();
+
 		void			SetClearEveryFrame(bool bColor, bool bZBuffer);
 		void			SetClearColor(const SColor& color);
 		void			SetRenderPhase(uint32 phaseFlag) { m_phaseFlag = phaseFlag; }
@@ -39,6 +43,7 @@ namespace Neo
 		ID3D11DepthStencilView*	GetDSView();
 
 	private:
+		void			_CreateDepthBuffer(uint32 width, uint32 height);
 		void			_BeforeRender();
 		void			_AfterRender();
 
@@ -49,12 +54,14 @@ namespace Neo
 
 		static RenderObject*		m_pQuadMesh;
 
+		VEC2			m_sizeRatio;		// ratio to screen size
 		bool			m_bClearColor;
 		bool			m_bClearZBuffer;
 		bool			m_bUpdateViewport;
+		bool			m_bHasDepthBuffer;
 		SColor			m_clearColor;
 		uint32			m_phaseFlag;
-		float			m_oldAspectRatio;
+		uint32			m_oldViewportW, m_oldViewportH;
 	};
 }
 

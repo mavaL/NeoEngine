@@ -44,6 +44,8 @@ CSceneEditApp::CSceneEditApp()
 // 唯一的一个 CSceneEditApp 对象
 
 CSceneEditApp theApp;
+SGlobalEnv	g_env;
+
 
 ULONG_PTR g_gdiplusToken;
 
@@ -93,10 +95,8 @@ BOOL CSceneEditApp::InitInstance()
 	///////////////////////////////////////////
 	///////////////////////////初始化主程序
 	CView* pView = pFrame->GetActiveView();
-	RECT rect;
-	pView->GetClientRect(&rect);
 
-	if(!m_app.Init(rect.right-rect.left, rect.bottom-rect.top, pView->GetSafeHwnd(), m_pMainWnd->GetSafeHwnd()))
+	if(!m_app.Init(pView->GetSafeHwnd(), m_pMainWnd->GetSafeHwnd()))
 	{
 		MessageBoxW(nullptr, L"Failed to init the app!", L"Fatal Error", MB_OK | MB_ICONERROR);
 		return FALSE;

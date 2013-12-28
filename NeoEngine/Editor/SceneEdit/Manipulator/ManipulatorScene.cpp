@@ -9,6 +9,8 @@
 ManipulatorScene::ManipulatorScene()
 :m_sceneName(L"")
 ,m_bIsSceneReay(false)
+,m_pSceneMgr(g_env.pSceneMgr)
+,m_pCurScene(nullptr)
 {
 }
 
@@ -29,7 +31,8 @@ void ManipulatorScene::Init()
 	m_manipulatorResource = new ManipulatorResource;
 	m_manipualtorOp		= new ManipulatorOperation;
 
-	//m_pCurScene = new Scene;
+	m_pSceneMgr->ToggleScene();
+	m_pCurScene = m_pSceneMgr->GetCurScene();
 }
 
 void ManipulatorScene::Shutdown()
@@ -39,7 +42,6 @@ void ManipulatorScene::Shutdown()
 	SAFE_DELETE(m_manipulatorCamera);
 	SAFE_DELETE(m_manipulatorResource);
 	SAFE_DELETE(m_manipualtorOp);
-	SAFE_DELETE(m_pCurScene);
 }
 
 void ManipulatorScene::SceneNew(const std::wstring& sceneName)
@@ -113,6 +115,16 @@ void ManipulatorScene::OnGizmoNodeReset()
 void ManipulatorScene::OnFrameMove( float dt )
 {
 	m_manipulatorObject->OnFrameMove(dt);
+
+	Neo::D3D11RenderSystem* pRenderSys = g_env.pRenderSystem;
+
+	m_pSceneMgr->GetCamera()->Update();
+	pRenderSys->Update();
+	m_pSceneMgr->Update();
+
+	pRenderSys->BeginScene();
+	m_pCurScene->Render();
+	pRenderSys->EndScene();
 }
 
 void ManipulatorScene::_LoadObjects( rapidxml::xml_node<>* node )

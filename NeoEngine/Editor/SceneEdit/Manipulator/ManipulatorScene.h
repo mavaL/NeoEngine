@@ -61,6 +61,7 @@ public:
 	ManipulatorOperation&	GetOperation()	{ return *m_manipualtorOp;		}
 
 private:
+	Neo::SceneManager*	m_pSceneMgr;
 	std::wstring		m_scenePath;
 	std::wstring		m_sceneName;
 	Scene*				m_pCurScene;

@@ -69,7 +69,7 @@ void CEditorView::OnPaint()
 void CEditorView::OnSize( UINT nType, int cx, int cy )
 {
 	CView::OnSize(nType, cx, cy);
-	((CSceneEditApp*)AfxGetApp())->m_app.OnViewportResized(cx, cy);
+	((CSceneEditApp*)AfxGetApp())->m_app.OnWindowResize(cx, cy);
 }
 
 int CEditorView::OnCreate( LPCREATESTRUCT lpCreateStruct )

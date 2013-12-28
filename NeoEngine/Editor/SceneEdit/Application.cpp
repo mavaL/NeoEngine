@@ -10,40 +10,53 @@
 
 #include "Utility.h"
 
-SGlobalEnv	g_env;
 
 Application::Application()
 :m_appSnapshot(0)
+,m_bInit(false)
+,m_pRenderSystem(nullptr)
 {
 }
 
-bool Application::Init( int width, int height, HWND hwnd, HWND hParent )
+bool Application::Init( HWND hwnd, HWND hParent )
 {
-	Utility::WorkingDirectory wd;
+	g_env.hwnd = hwnd;
 
-// 	if(!RenderSys.Init(true, hwnd, hParent, width, height))
-// 		return false;
+	m_pRenderSystem = new Neo::D3D11RenderSystem;
+	g_env.pRenderSystem = m_pRenderSystem;
+
+	RECT rc;
+	GetWindowRect(hwnd, &rc);
+
+	if(!m_pRenderSystem->Init(rc.right-rc.left, rc.bottom-rc.top, hwnd))
+		return false;
+
+	g_env.pFrameStat = new Neo::SFrameStat;
+
+	g_env.pSceneMgr = new Neo::SceneManager;
+	if(!g_env.pSceneMgr->Init())
+		return false;
 
 	ManipulatorScene& manScene = ManipulatorScene::GetSingleton();
 	manScene.Init();
+
+	m_bInit = true;
 
 	return true;
 }
 
 bool Application::Update()
 {
-// 	UINT curTime = g_env.pIrrDevice->getTimer()->getTime();
-// 	static UINT lastTime = curTime;
-// 	float dt = (curTime - lastTime) / 1000.0f;
-// 
-// 	_UpdateInput(dt);
-// 
-// 	ManipulatorAction::GetSingleton().GetActiveActoin()->OnFrameMove(dt);
-// 	ManipulatorSystem.OnFrameMove(dt);
-// 
-// 	RenderSys.Update();
-// 
-// 	lastTime = curTime;
+	UINT curTime = GetTickCount();
+	static UINT lastTime = curTime;
+	float dt = (curTime - lastTime) / 1000.0f;
+
+	_UpdateInput(dt);
+
+	ManipulatorAction::GetSingleton().GetActiveActoin()->OnFrameMove(dt);
+	ManipulatorSystem.OnFrameMove(dt);
+
+	lastTime = curTime;
 
 	return true;
 }
@@ -53,7 +66,10 @@ void Application::Shutdown()
 	if(SceneClose())
 	{
 		ManipulatorSystem.Shutdown();
-//		RenderSys.Shutdown();
+
+		SAFE_DELETE(g_env.pSceneMgr);
+		m_pRenderSystem->ShutDown();
+		SAFE_DELETE(m_pRenderSystem);
 	}
 }
 
@@ -123,11 +139,12 @@ bool Application::SceneClose()
 	return true;
 }
 
-void Application::OnViewportResized(int w, int h)
+void Application::OnWindowResize(int w, int h)
 {
-	assert(0);
-// 	if(RenderSys.IsInit())
-// 		RenderSys.OnViewportResized(w, h);
+	if (m_bInit)
+	{
+		m_pRenderSystem->OnWindowResize(w, h);
+	}
 }
 
 void Application::_UpdateInput(float dt)

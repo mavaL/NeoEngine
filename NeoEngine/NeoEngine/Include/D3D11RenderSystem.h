@@ -45,13 +45,17 @@ namespace Neo
 		};
 
 	public:
-		bool		Init(HWND hwnd);
+		bool		Init(uint32 wndWidth, uint32 wndHeight, HWND hwnd);
 		void		Update();
 		void		ShutDown();
 		void		BeginScene();
 		void		EndScene();
 		void		SetViewport(const D3D11_VIEWPORT& vp);
 		D3D11_VIEWPORT&	GetViewport() { return m_viewport; }
+		void		OnViewportResize(uint32 width, uint32 height);
+		void		OnWindowResize(uint32 width, uint32 height);
+		uint32		GetWndWidth() const { return m_vpWidth; }
+		uint32		GetWndHeight() const { return m_vpHeight; }
 
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
@@ -71,11 +75,12 @@ namespace Neo
 		Material*	GetMaterial(const STRING& name);
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler);
+
+		// Create a RT
+		D3D11RenderTarget* CreateRenderTarget();
 		// Set RT to device
 		void		SetRenderTarget(D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor = nullptr);
-		// Manually create texture
-		D3D11Texture*	CreateManualTexture(const STRING& name, uint32 width, uint32 height, ePixelFormat format, 
-			uint32 usage, bool bMipMap = false);
+
 		// Enable/Disable clipping plane
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
@@ -92,8 +97,14 @@ namespace Neo
 		void		DrawText(const STRING& text, const IPOINT& pos, const SColor& color);
 
 	private:
+		bool		_InitDevice(uint32 wndWidth, uint32 wndHeight, HWND hwnd);
+		void		_ShutDownDevice();
+		HRESULT		_OnSwapChainResized();
+
+	private:
 		ID3D11Device*				m_pd3dDevice;
 		ID3D11DeviceContext*		m_pDeviceContext;
+		DXGI_SWAP_CHAIN_DESC		m_swapChainDesc;
 		IDXGISwapChain*				m_pSwapChain;
 		D3D11_VIEWPORT				m_viewport;
 		D3D11_RASTERIZER_DESC		m_rasterDesc;
@@ -108,12 +119,16 @@ namespace Neo
 		D3D11Texture*				m_pTexture[MAX_TEXTURE_STAGE];
 		Font*						m_pFont;
 
+		uint32						m_vpWidth, m_vpHeight;
+
 		cBufferGlobal				m_cBufferGlobal;
 		ID3D11Buffer*				m_pGlobalCBuf;
 		bool						m_bClipPlaneEnabled;
 
 		typedef std::unordered_map<STRING, Material*>	MaterialLib;
-		MaterialLib					m_matLib;	
+		MaterialLib					m_matLib;
+
+		std::vector<D3D11RenderTarget*>	m_vecRT;	// We centralize RT here for supporting to resize window.
 	};
 }
 #endif // D3D11RenderSystem_h__

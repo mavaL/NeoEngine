@@ -22,13 +22,14 @@ namespace Neo
 		// Load from file
 		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0);
 		// Create as manual
-		D3D11Texture(int width, int height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
+		D3D11Texture(uint32 width, uint32 height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
 		// Create as texture array
 		D3D11Texture(const StringVector& vecTexNames);
 
 		~D3D11Texture();
 
 	public:
+		void								Destroy();
 		eTextureType						GetTextureType() const { return m_texType; }
 		bool								SaveToFile(const char* filename);
 		ID3D11ShaderResourceView* const*	GetSRV() const { return &m_pSRV; }
@@ -38,6 +39,11 @@ namespace Neo
 		uint32								GetWidth() const { return m_width; }
 		uint32								GetHeight() const { return m_height; }
 		uint32								GetUsage() const { return m_usage; }
+		// NB: Only for render texture!
+		void								Resize(uint32 width, uint32 height);
+
+	private:
+		void				_CreateManual(const char* pTexData);
 
 	private:
 		ID3D11Device*		m_pd3dDevice;
@@ -50,6 +56,8 @@ namespace Neo
 		eTextureType		m_texType;
 		int					m_usage;
 		uint32				m_width, m_height;
+		ePixelFormat		m_texFormat;
+		bool				m_bMipMap;
 	};
 }
 

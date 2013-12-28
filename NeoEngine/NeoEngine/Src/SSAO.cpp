@@ -12,22 +12,27 @@ namespace Neo
 	SSAO::SSAO()
 	:m_pRenderSystem(g_env.pRenderSystem)
 	{
-		// Init ssao RT & material
-		m_pTexNormalDepth = new D3D11Texture(SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, 
-			ePF_A16B16G16R16F, eTextureUsage_RenderTarget, false);
+		const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		const uint32 screenH = m_pRenderSystem->GetWndHeight();
 
-		m_pRT_NormalDepth = new D3D11RenderTarget(m_pTexNormalDepth, false, false);
+		// Init ssao RT & material
+		m_pRT_NormalDepth = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F, false, false);
 		m_pRT_NormalDepth->SetRenderPhase(eRenderPhase_Solid);
 		m_pRT_NormalDepth->SetClearEveryFrame(true, false);
+
+		m_pTexNormalDepth = m_pRT_NormalDepth->GetRenderTexture();
+		m_pTexNormalDepth->AddRef();
 
 		m_pNormalDepthMaterial = new Material;
 		m_pNormalDepthMaterial->InitShader(GetResPath("ViewSpaceNormalDepth.hlsl"), GetResPath("ViewSpaceNormalDepth.hlsl"), false);
 
-		m_pTexSsao = new D3D11Texture(SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, 
-			ePF_R16F, eTextureUsage_RenderTarget, false);
-
-		m_pRT_ssao = new D3D11RenderTarget(m_pTexSsao, false, false);
+		m_pRT_ssao = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_ssao->Init(screenW, screenH, ePF_R16F, false, false);
 		m_pRT_ssao->SetClearEveryFrame(false, false);
+
+		m_pTexSsao = m_pRT_ssao->GetRenderTexture();
+		m_pTexSsao->AddRef();
 
 		m_pSsaoMaterial = new Material;
 		m_pSsaoMaterial->InitShader(GetResPath("SSAO.hlsl"), GetResPath("SSAO.hlsl"), false);
@@ -45,11 +50,16 @@ namespace Neo
 		m_pSsaoMaterial->SetSamplerStateDesc(0, samDesc);
 
 		// Init blur RT & material
-		m_pTexBlurH = new D3D11Texture(SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, ePF_R16F, eTextureUsage_RenderTarget, false);
-		m_pTexBlurV = new D3D11Texture(SCREEN_WIDTH, SCREEN_HEIGHT, nullptr, ePF_R16F, eTextureUsage_RenderTarget, false);
+		m_pRT_BlurH = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_BlurV = m_pRenderSystem->CreateRenderTarget();
 
-		m_pRT_BlurH = new D3D11RenderTarget(m_pTexBlurH, false, false);
-		m_pRT_BlurV = new D3D11RenderTarget(m_pTexBlurV, false, false);
+		m_pRT_BlurH->Init(screenW, screenH, ePF_R16F, false, false);
+		m_pRT_BlurV->Init(screenW, screenH, ePF_R16F, false, false);
+
+		m_pTexBlurH = m_pRT_BlurH->GetRenderTexture();
+		m_pTexBlurH->AddRef();
+		m_pTexBlurV = m_pRT_BlurV->GetRenderTexture();
+		m_pTexBlurV->AddRef();
 
 		m_pRT_BlurH->SetClearEveryFrame(true, false);
 		m_pRT_BlurV->SetClearEveryFrame(true, false);

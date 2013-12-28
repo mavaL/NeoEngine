@@ -11,7 +11,9 @@ namespace Neo
 {
 	//----------------------------------------------------------------------------------------
 	D3D11RenderSystem::D3D11RenderSystem()
-	:m_pd3dDevice(nullptr)		   
+	:m_pd3dDevice(nullptr)
+	,m_vpWidth(0)
+	,m_vpHeight(0)
 	,m_pDeviceContext(nullptr)
 	,m_pSwapChain(nullptr)
 	,m_pRenderTargetView(nullptr)
@@ -27,14 +29,19 @@ namespace Neo
 			m_pTexture[i] = nullptr;
 	}
 	//----------------------------------------------------------------------------------------
-	bool D3D11RenderSystem::Init( HWND hwnd )
+	bool D3D11RenderSystem::Init( uint32 wndWidth, uint32 wndHeight, HWND hwnd )
+	{
+		if(!_InitDevice(wndWidth, wndHeight, hwnd))
+			return false;
+
+		m_pFont = new Font;
+		
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool D3D11RenderSystem::_InitDevice(uint32 wndWidth, uint32 wndHeight, HWND hwnd)
 	{
 		HRESULT hr = S_OK;
-
-		RECT rc;
-		GetClientRect( hwnd, &rc );
-		UINT width = rc.right - rc.left;
-		UINT height = rc.bottom - rc.top;
 
 		UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -47,72 +54,40 @@ namespace Neo
 		D3D_FEATURE_LEVEL featureLevels[] = { D3D_FEATURE_LEVEL_11_0 };
 		UINT numFeatureLevels = ARRAYSIZE( featureLevels );
 
-		DXGI_SWAP_CHAIN_DESC sd;
-		ZeroMemory( &sd, sizeof( sd ) );
-		sd.BufferCount = 1;
-		sd.BufferDesc.Width = width;
-		sd.BufferDesc.Height = height;
-		sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		ZeroMemory( &m_swapChainDesc, sizeof( DXGI_SWAP_CHAIN_DESC ) );
+		m_swapChainDesc.BufferCount = 1;
+		m_swapChainDesc.SwapEffect	= DXGI_SWAP_EFFECT_DISCARD;
+		m_swapChainDesc.BufferDesc.Width = wndWidth;
+		m_swapChainDesc.BufferDesc.Height = wndHeight;
+		m_swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		if (/*m_bEnableVsync*/false)
 		{
-			sd.BufferDesc.RefreshRate.Numerator = 60;	
-			sd.BufferDesc.RefreshRate.Denominator = 1;
+			m_swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;	
+			m_swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		}
 		else
 		{
-			sd.BufferDesc.RefreshRate.Numerator = 0;	
-			sd.BufferDesc.RefreshRate.Denominator = 1;
+			m_swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;	
+			m_swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 		}
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		sd.OutputWindow = hwnd;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.Windowed = TRUE;
+		m_swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		m_swapChainDesc.OutputWindow = hwnd;
+		m_swapChainDesc.SampleDesc.Count = 1;
+		m_swapChainDesc.SampleDesc.Quality = 0;
+		m_swapChainDesc.Windowed = TRUE;
 
 		for( UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++ )
 		{
 			D3D_FEATURE_LEVEL featureLevel;
 			D3D_DRIVER_TYPE driverType = driverTypes[driverTypeIndex];
 			hr = D3D11CreateDeviceAndSwapChain( NULL, driverType, NULL, createDeviceFlags, featureLevels, numFeatureLevels,
-				D3D11_SDK_VERSION, &sd, &m_pSwapChain, &m_pd3dDevice, &featureLevel, &m_pDeviceContext );
+				D3D11_SDK_VERSION, &m_swapChainDesc, &m_pSwapChain, &m_pd3dDevice, &featureLevel, &m_pDeviceContext );
 			if( SUCCEEDED( hr ) )
 				break;
 		}
 		V_RETURN(hr);
 
-		// Create a render target view
-		ID3D11Texture2D* pBackBuffer = NULL;
-		V_RETURN(m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&pBackBuffer ));
-
-		hr = m_pd3dDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView );
-		pBackBuffer->Release();
-		V_RETURN(hr);
-
-		// Create depth stencil texture
-		D3D11_TEXTURE2D_DESC descDepth;
-		ZeroMemory( &descDepth, sizeof(descDepth) );
-		descDepth.Width = width;
-		descDepth.Height = height;
-		descDepth.MipLevels = 1;
-		descDepth.ArraySize = 1;
-		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		descDepth.SampleDesc.Count = 1;
-		descDepth.SampleDesc.Quality = 0;
-		descDepth.Usage = D3D11_USAGE_DEFAULT;
-		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		descDepth.CPUAccessFlags = 0;
-		descDepth.MiscFlags = 0;
-		V_RETURN(m_pd3dDevice->CreateTexture2D( &descDepth, NULL, &m_pDepthStencil ));
-
-		// Create the depth stencil view
-		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-		ZeroMemory( &descDSV, sizeof(descDSV) );
-		descDSV.Format = descDepth.Format;
-		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		descDSV.Texture2D.MipSlice = 0;
-		V_RETURN(m_pd3dDevice->CreateDepthStencilView( m_pDepthStencil, &descDSV, &m_pDepthStencilView ));
-
-		m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilView );
+		V_RETURN(_OnSwapChainResized());
 
 		// Init rasterize desc
 		m_rasterDesc.AntialiasedLineEnable = false;
@@ -149,46 +124,97 @@ namespace Neo
 		SetBlendStateDesc(m_blendDesc);
 
 		// Setup the viewport
-		m_viewport.Width = (FLOAT)width;
-		m_viewport.Height = (FLOAT)height;
+		m_viewport.Width = (float)wndWidth;
+		m_viewport.Height = (float)wndHeight;
 		m_viewport.MinDepth = 0.0f;
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0;
 		m_viewport.TopLeftY = 0;
 
-		SetViewport(m_viewport);
-
 		// Create the constant buffer
 		D3D11_BUFFER_DESC bd;
-		ZeroMemory( &bd, sizeof(bd) );
+		ZeroMemory( &bd, sizeof(D3D11_BUFFER_DESC) );
 		bd.Usage = D3D11_USAGE_DEFAULT;
 		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		bd.CPUAccessFlags = 0;
 		bd.ByteWidth = sizeof(cBufferGlobal);
 
-		V(m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf ));
+		V_RETURN(m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf ));
 
-		m_pFont = new Font;
-		
 		return true;
+	}
+	//------------------------------------------------------------------------------------
+	HRESULT D3D11RenderSystem::_OnSwapChainResized()
+	{
+		HRESULT hr = S_OK;
+		ID3D11Texture2D* pBackBuffer = NULL;
+		
+		// Create back buffer render target view
+		V(m_pSwapChain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), ( LPVOID* )&pBackBuffer ));
+		V(m_pd3dDevice->CreateRenderTargetView( pBackBuffer, NULL, &m_pRenderTargetView ));
+
+		D3D11_TEXTURE2D_DESC BBDesc;
+		pBackBuffer->GetDesc( &BBDesc );
+
+		// Create depth stencil texture
+		D3D11_TEXTURE2D_DESC descDepth;
+		ZeroMemory( &descDepth, sizeof(D3D11_TEXTURE2D_DESC) );
+		descDepth.Width = BBDesc.Width;
+		descDepth.Height = BBDesc.Height;
+		descDepth.MipLevels = 1;
+		descDepth.ArraySize = 1;
+		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDepth.SampleDesc.Count = 1;
+		descDepth.SampleDesc.Quality = 0;
+		descDepth.Usage = D3D11_USAGE_DEFAULT;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.CPUAccessFlags = 0;
+		descDepth.MiscFlags = 0;
+		V(m_pd3dDevice->CreateTexture2D( &descDepth, NULL, &m_pDepthStencil ));
+
+		// Create the depth stencil view
+		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+		ZeroMemory( &descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC) );
+		descDSV.Format = descDepth.Format;
+		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		V(m_pd3dDevice->CreateDepthStencilView( m_pDepthStencil, &descDSV, &m_pDepthStencilView ));
+
+		m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilView );
+
+		pBackBuffer->Release();
+
+		return hr;
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::_ShutDownDevice()
+	{
+		for(size_t i=0; i<m_vecRT.size(); ++i)
+			SAFE_RELEASE(m_vecRT[i]);
+		m_vecRT.clear();
+
+		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
+		SAFE_RELEASE(m_pGlobalCBuf);
+		SAFE_RELEASE(m_pRenderTargetView);
+		SAFE_RELEASE(m_pDepthStencilView);
+		SAFE_RELEASE(m_pDepthStencil);
+		SAFE_RELEASE(m_rasterState);
+		SAFE_RELEASE(m_blendState);
+		SAFE_RELEASE(m_depthState);
+
+		SAFE_RELEASE(m_pSwapChain);
+		SAFE_RELEASE(m_pDeviceContext);
+		SAFE_RELEASE(m_pd3dDevice);
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::ShutDown()
 	{
 		SAFE_DELETE(m_pFont);
 
-		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
-		SAFE_RELEASE(m_pGlobalCBuf);
-		SAFE_RELEASE(m_pRenderTargetView);
-		SAFE_RELEASE(m_pSwapChain);
-		SAFE_RELEASE(m_pDeviceContext);
-		SAFE_RELEASE(m_pd3dDevice);
-		SAFE_RELEASE(m_pDepthStencilView);
-		SAFE_RELEASE(m_pDepthStencil);
-		SAFE_RELEASE(m_rasterState);
-
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 			SAFE_RELEASE(m_pTexture[i]);
+
+		_ShutDownDevice();
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::BeginScene()
@@ -200,10 +226,8 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::EndScene()
 	{
-		if(FAILED(m_pSwapChain->Present(0, 0)))
-		{
-			assert(0);
-		}
+		HRESULT hr = S_OK;
+		V(m_pSwapChain->Present(0, 0));
 	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::AddMaterial( const STRING& name, Material* pMaterial )
@@ -256,6 +280,16 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
+	D3D11RenderTarget* D3D11RenderSystem::CreateRenderTarget()
+	{
+		D3D11RenderTarget* pRT = new D3D11RenderTarget;
+		pRT->AddRef();
+
+		m_vecRT.push_back(pRT);
+
+		return pRT;
+	}
+	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetRenderTarget( D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor )
 	{
 		ID3D11RenderTargetView* rtView = nullptr;
@@ -286,12 +320,6 @@ namespace Neo
 		{
 			m_pDeviceContext->ClearDepthStencilView( dsView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
 		}
-	}
-	//------------------------------------------------------------------------------------
-	D3D11Texture* D3D11RenderSystem::CreateManualTexture( const STRING& name, uint32 width, uint32 height, 
-		ePixelFormat format, uint32 usage, bool bMipMap )
-	{
-		return new D3D11Texture(width, height, nullptr, format, usage, bMipMap);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetDepthStencelState( const D3D11_DEPTH_STENCIL_DESC& desc )
@@ -364,6 +392,22 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::Update()
 	{
+		DWORD curTime = GetTickCount();
+		static DWORD lastTime = curTime, nFrameCnt = 0, nFrameTime = 0;
+
+		DWORD dt = curTime - lastTime;
+		lastTime = curTime;
+
+		// Calc FPS
+		++nFrameCnt;
+		nFrameTime += dt;
+
+		if (nFrameTime >= 1000)
+		{
+			g_env.pFrameStat->lastFPS = nFrameCnt / (nFrameTime * 0.001f);
+			nFrameCnt = nFrameTime = 0;
+		}
+
 		// Update cBuffer
 		m_cBufferGlobal.time = GetTickCount() / 1000.0f;
 
@@ -419,6 +463,45 @@ namespace Neo
 	void D3D11RenderSystem::DrawText( const STRING& text, const IPOINT& pos, const SColor& color )
 	{
 		m_pFont->DrawText(text, pos, color);
+	}
+	//-------------------------------------------------------------------------------
+	void D3D11RenderSystem::OnViewportResize( uint32 width, uint32 height )
+	{
+		m_vpWidth = width;
+		m_vpHeight = height;
+
+		g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_vpWidth / (float)m_vpHeight);
+		SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);		
+
+		m_viewport.Width = (float)width;
+		m_viewport.Height = (float)height;
+
+		SetViewport(m_viewport);
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::OnWindowResize( uint32 width, uint32 height )
+	{
+		// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb205075(v=vs.85).aspx#Handling_Window_Resizing
+
+		HRESULT hr = S_OK;
+		UINT Flags = 0;
+
+		// Unbind view
+		m_pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+
+		SAFE_RELEASE(m_pRenderTargetView);
+		SAFE_RELEASE(m_pDepthStencilView);
+		SAFE_RELEASE(m_pDepthStencil);
+
+		V(m_pSwapChain->ResizeBuffers(m_swapChainDesc.BufferCount, width, height, m_swapChainDesc.BufferDesc.Format, Flags));
+
+		V(_OnSwapChainResized());
+
+		OnViewportResize(width, height);
+
+		// Recreate RT resources
+		for(size_t i=0; i<m_vecRT.size(); ++i)
+			m_vecRT[i]->OnWindowResized();
 	}
 }
 

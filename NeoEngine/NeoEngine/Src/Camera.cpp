@@ -4,15 +4,15 @@
 
 
 Camera::Camera()
-	:m_viewPt(0, 0, 0, 1)
-	,m_nearClip(1)
-	,m_farClip(1000)
-	,m_fixYawAxis(true)
-	,m_moveSpeed(1.0f)
-	,m_bActive(false)
+:m_viewPt(0, 0, 0, 1)
+,m_nearClip(1)
+,m_farClip(1000)
+,m_aspectRatio(0)
+,m_fixYawAxis(true)
+,m_moveSpeed(1.0f)
+,m_bActive(false)
 {
 	m_fov = Common::Angle_To_Radian(45);
-	SetAspectRatio(SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 }
 
 void Camera::Update()
