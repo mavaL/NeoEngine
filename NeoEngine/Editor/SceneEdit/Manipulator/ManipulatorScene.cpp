@@ -33,6 +33,8 @@ void ManipulatorScene::Init()
 
 	m_pSceneMgr->ToggleScene();
 	m_pCurScene = m_pSceneMgr->GetCurScene();
+
+	m_bIsSceneReay = true;
 }
 
 void ManipulatorScene::Shutdown()

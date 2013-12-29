@@ -39,12 +39,11 @@ public:
 	void	OnKeyUp(UINT nChar);
 
 private:
-//	Ogre::Camera*	m_pCamera;
+	Neo::Camera*	m_pCamera;
 	eCameraType		m_type;
 	bool			m_bRBDown;
 	bool			m_bLBDown;
 	POINT			m_ptLast;
-//	Ogre::Entity*	m_pTarget;
 };
 
 

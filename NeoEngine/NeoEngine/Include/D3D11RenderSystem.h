@@ -75,6 +75,8 @@ namespace Neo
 		Material*	GetMaterial(const STRING& name);
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler);
+		// This texture will be recreated after window resized.
+		void		AddResizableTexture(D3D11Texture* pTexture);
 
 		// Create a RT
 		D3D11RenderTarget* CreateRenderTarget();
@@ -128,7 +130,9 @@ namespace Neo
 		typedef std::unordered_map<STRING, Material*>	MaterialLib;
 		MaterialLib					m_matLib;
 
-		std::vector<D3D11RenderTarget*>	m_vecRT;	// We centralize RT here for supporting to resize window.
+		// We centralize them here for supporting to resize window.
+		std::vector<D3D11RenderTarget*>			m_vecRT;
+		std::unordered_map<D3D11Texture*, VEC2>	m_mapTexNeedResize;		// Map value records size ratio
 	};
 }
 #endif // D3D11RenderSystem_h__

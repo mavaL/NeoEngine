@@ -29,7 +29,8 @@ enum eTextureUsage
 	eTextureUsage_WriteOnly		= 1 << 0,
 	eTextureUsage_ReadWrite		= 1 << 1,
 	eTextureUsage_RenderTarget	= 1 << 2,
-	eTextureUsage_DomainShader	= 1 << 3		// Bind to domain shader
+	eTextureUsage_DomainShader	= 1 << 3,		// Bind to domain shader
+	eTextureUsage_RecreateOnWndResized = 1 << 4
 };
 
 // Use for render target to control which part to render
@@ -111,6 +112,7 @@ typedef Common::iPoint			IPOINT;
 
 namespace Neo
 {
+	class	Camera;
 	class	D3D11RenderSystem;
 	class	PixelBox;
 	struct	SColor;
@@ -131,7 +133,6 @@ namespace Neo
 }
 
 class Scene;
-class Camera;
 
 
 struct SGlobalEnv 

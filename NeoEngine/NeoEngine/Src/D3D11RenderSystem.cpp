@@ -189,10 +189,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::_ShutDownDevice()
 	{
-		for(size_t i=0; i<m_vecRT.size(); ++i)
-			SAFE_RELEASE(m_vecRT[i]);
-		m_vecRT.clear();
-
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pRenderTargetView);
@@ -213,6 +209,17 @@ namespace Neo
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 			SAFE_RELEASE(m_pTexture[i]);
+
+		for(size_t i=0; i<m_vecRT.size(); ++i)
+			m_vecRT[i]->Release();
+		m_vecRT.clear();
+
+		for (auto iter=m_mapTexNeedResize.begin(); iter!=m_mapTexNeedResize.end(); ++iter)	
+		{
+			D3D11Texture* tex = iter->first;
+			tex->Release();
+		}
+		m_mapTexNeedResize.clear();
 
 		_ShutDownDevice();
 	}
@@ -328,8 +335,8 @@ namespace Neo
 
 		SAFE_RELEASE(m_depthState);
 
-		HRESULT hr = m_pd3dDevice->CreateDepthStencilState(&m_depthStencilDesc, &m_depthState);
-		assert(SUCCEEDED(hr));		
+		HRESULT hr = S_OK;
+		V(m_pd3dDevice->CreateDepthStencilState(&m_depthStencilDesc, &m_depthState));	
 
 		m_pDeviceContext->OMSetDepthStencilState(m_depthState, 1);
 	}
@@ -340,8 +347,8 @@ namespace Neo
 
 		SAFE_RELEASE(m_rasterState);
 
-		HRESULT hr = m_pd3dDevice->CreateRasterizerState(&m_rasterDesc, &m_rasterState);
-		assert(SUCCEEDED(hr));
+		HRESULT hr = S_OK;
+		V(m_pd3dDevice->CreateRasterizerState(&m_rasterDesc, &m_rasterState));
 
 		m_pDeviceContext->RSSetState(m_rasterState);
 	}
@@ -352,8 +359,8 @@ namespace Neo
 
 		SAFE_RELEASE(m_blendState);
 
-		HRESULT hr = m_pd3dDevice->CreateBlendState(&m_blendDesc, &m_blendState);
-		assert(SUCCEEDED(hr));
+		HRESULT hr = S_OK;
+		V(m_pd3dDevice->CreateBlendState(&m_blendDesc, &m_blendState));
 
 		float blendFactor[4];
 		// Setup the blend factor.
@@ -369,7 +376,9 @@ namespace Neo
 	{
 		ID3D11Resource* pSrcTex = nullptr;
 		m_pRenderTargetView->GetResource(&pSrcTex);
+
 		m_pDeviceContext->CopyResource(pTexture->GetInternalTex(), pSrcTex);
+		pSrcTex->Release();
 
 		pTexture->CreateSRV();
 	}
@@ -464,6 +473,17 @@ namespace Neo
 	{
 		m_pFont->DrawText(text, pos, color);
 	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::AddResizableTexture( D3D11Texture* pTexture )
+	{
+		assert(m_mapTexNeedResize.find(pTexture) == m_mapTexNeedResize.end() && "This texture already added!");
+
+		VEC2 ratio(pTexture->GetWidth() / (float)m_vpWidth, pTexture->GetHeight() / (float)m_vpHeight);
+
+		m_mapTexNeedResize.insert(std::make_pair(pTexture, ratio));
+
+		pTexture->AddRef();
+	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::OnViewportResize( uint32 width, uint32 height )
 	{
@@ -502,6 +522,18 @@ namespace Neo
 		// Recreate RT resources
 		for(size_t i=0; i<m_vecRT.size(); ++i)
 			m_vecRT[i]->OnWindowResized();
+
+		// Recreate resizable textures
+		for (auto iter=m_mapTexNeedResize.begin(); iter!=m_mapTexNeedResize.end(); ++iter)
+		{
+			D3D11Texture* tex = iter->first;
+			const VEC2& ratio = iter->second;
+
+			const uint32 newWidth = (uint32)(m_vpWidth * ratio.x);
+			const uint32 newHeight = (uint32)(m_vpHeight * ratio.y);
+
+			tex->Resize(newWidth, newHeight);
+		}
 	}
 }
 

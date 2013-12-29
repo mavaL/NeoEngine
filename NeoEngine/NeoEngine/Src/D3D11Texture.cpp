@@ -103,6 +103,9 @@ namespace Neo
 			m_pd3dDevice->AddRef();
 
 		_CreateManual(pTexData);
+
+		if (m_usage & eTextureUsage_RecreateOnWndResized)
+			m_pRenderSystem->AddResizableTexture(this);
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture( const StringVector& vecTexNames )
@@ -438,7 +441,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11Texture::Resize( uint32 width, uint32 height )
 	{
-		assert(m_usage & eTextureUsage_RenderTarget);
+		assert(m_usage & eTextureUsage_RenderTarget || m_usage & eTextureUsage_RecreateOnWndResized);
 
 		Destroy();
 

@@ -55,7 +55,8 @@ namespace Neo
 		m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
 
 		// Scene map (alpha channel uses for refraction mask)
-		m_pTexSceneWithRefracMask = new D3D11Texture(screenW, screenH, nullptr, ePF_A8B8G8R8, eTextureUsage_WriteOnly, false);
+		m_pTexSceneWithRefracMask = new D3D11Texture(screenW, screenH, nullptr, ePF_A8B8G8R8, 
+			eTextureUsage_WriteOnly | eTextureUsage_RecreateOnWndResized, false);
 
 		// Water depth map
 		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();

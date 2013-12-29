@@ -278,7 +278,7 @@ void EnterTestScene2(Scene* scene)
 	g_env.pSceneMgr->CreateSky();
 	g_env.pSceneMgr->CreateWater();
 
-	Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 100, 0));
 	pCamera->SetNearClip(100);
 	pCamera->SetFarClip(100000.0f);
@@ -296,7 +296,7 @@ void EnterTestScene3(Scene* scene)
 	g_env.pSceneMgr->CreateTerrain();
 	//g_env.pSceneMgr->CreateWater(5.0f);
 
-	Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 10, 0));
 	pCamera->SetNearClip(1);
 	pCamera->SetFarClip(30000.0f);

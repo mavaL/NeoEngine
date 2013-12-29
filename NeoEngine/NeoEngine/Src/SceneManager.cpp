@@ -230,6 +230,8 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	void SceneManager::ToggleScene()
 	{
+		EnableDebugRT(eDebugRT_None);
+
 		static int curScene = -1;
 		++curScene;
 		if(curScene == m_scenes.size())

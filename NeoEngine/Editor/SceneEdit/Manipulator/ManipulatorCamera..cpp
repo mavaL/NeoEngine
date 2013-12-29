@@ -5,6 +5,7 @@
 ManipulatorCamera::ManipulatorCamera()
 :m_bRBDown(false)
 ,m_bLBDown(false)
+,m_pCamera(g_env.pSceneMgr->GetCamera())
 {
 	Reset();
 }
@@ -31,9 +32,7 @@ void ManipulatorCamera::OnLButtonUp( const SActionParam& param )
 void ManipulatorCamera::OnRButtonDown( const SActionParam& param )
 {
 	m_ptLast = param.m_ptScreen;
-
-// 	g_env.pIrrDevice->getCursorControl()->setVisible(false);
-// 	g_env.pIrrDevice->getCursorControl()->setPosition(0.5f, 0.5f);
+	m_pCamera->m_bActive = true;
 	m_bRBDown = true;
 }
 
@@ -44,7 +43,8 @@ void ManipulatorCamera::OnRButtonUp( const SActionParam& param )
 // 	g_env.pIrrDevice->getCursorControl()->setVisible(true);
 // 	g_env.pIrrDevice->getCursorControl()->setPosition(pt.x, pt.y);
 // 	SetCursorPos(m_ptLast.x, m_ptLast.y);
-// 	m_bRBDown = false;
+	m_pCamera->m_bActive = false;
+ 	m_bRBDown = false;
 }
 
 void ManipulatorCamera::OnMouseMove( const SActionParam& param )

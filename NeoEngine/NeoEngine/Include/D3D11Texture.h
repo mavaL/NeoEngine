@@ -39,6 +39,7 @@ namespace Neo
 		uint32								GetWidth() const { return m_width; }
 		uint32								GetHeight() const { return m_height; }
 		uint32								GetUsage() const { return m_usage; }
+
 		// NB: Only for render texture!
 		void								Resize(uint32 width, uint32 height);
 
