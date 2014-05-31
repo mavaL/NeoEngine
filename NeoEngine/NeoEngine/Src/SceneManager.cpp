@@ -12,6 +12,7 @@
 #include "D3D11RenderSystem.h"
 #include "Material.h"
 #include "SSAO.h"
+#include "ShadowMap.h"
 
 
 namespace Neo
@@ -26,18 +27,16 @@ namespace Neo
 	,m_pSky(nullptr)
 	,m_pMeshLoader(new MeshLoader)
 	,m_debugRT(eDebugRT_None)
+	,m_pShadowMap(new ShadowMap)
 	{
 		
 	}
 	//------------------------------------------------------------------------------------
 	bool SceneManager::Init()
 	{
-		RECT rc;
-		GetClientRect( g_env.hwnd, &rc );
-		UINT width = rc.right - rc.left;
-		UINT height = rc.bottom - rc.top;
-
-		m_pRenderSystem->OnViewportResize(width, height);
+		m_sunLight.lightDir.Set(1, -1, 2);
+		m_sunLight.lightDir.Normalize();
+		m_sunLight.lightColor.Set(0.6f, 0.6f, 0.6f);
 
 		m_pSSAO = new SSAO;
 
@@ -74,6 +73,7 @@ namespace Neo
 		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
 		m_scenes.clear();
 
+		SAFE_DELETE(m_pShadowMap);
 		SAFE_DELETE(m_camera);
 		SAFE_DELETE(m_pDebugRTMesh);
 		SAFE_DELETE(m_pMeshLoader);
@@ -95,6 +95,17 @@ namespace Neo
 	{
 		m_pWater = new Water(waterHeight);
 	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::Render(uint32 phaseFlag, Material* pMaterial)
+	{
+		// Render shadow map
+		if (m_pShadowMap)
+		{
+			m_pShadowMap->Render();
+		}
+
+		RenderPipline(phaseFlag, pMaterial);
+	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::RenderPipline(uint32 phaseFlag, Material* pMaterial)
 	{
@@ -112,6 +123,10 @@ namespace Neo
 		if (m_pTerrain && phaseFlag&eRenderPhase_Terrain)
 		{
 			m_pTerrain->Render();
+		}
+		else if (m_pTerrain && phaseFlag&eRenderPhase_ShadowMap)
+		{
+			m_pTerrain->Render(m_pTerrain->GetShadowMaterial());
 		}
 
 		//================================================================================
@@ -136,6 +151,13 @@ namespace Neo
 			for (size_t i=0; i<m_renderList_Solid.size(); ++i)
 			{
 				m_renderList_Solid[i]->Render(pMaterial);
+			}
+		}
+		else if (phaseFlag & eRenderPhase_ShadowMap)
+		{
+			for (size_t i=0; i<m_renderList_Solid.size(); ++i)
+			{
+				m_renderList_Solid[i]->Render();
 			}
 		}
 
@@ -188,6 +210,14 @@ namespace Neo
 				m_pDebugRTMaterial->SetTexture(0, m_pSSAO->GetBlurVMap());
 				m_pDebugRTMesh->Render();
 			}
+			else if (m_debugRT == eDebugRT_ShadowMap)
+			{
+				MAT44 matWorld = MAT44::IDENTITY;
+
+				m_pDebugRTMesh->SetWorldMatrix(matWorld);
+				m_pDebugRTMaterial->SetTexture(0, m_pShadowMap->GetShadowTexture());
+				m_pDebugRTMesh->Render();
+			}
 
 			depthDesc.DepthEnable = TRUE;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -197,6 +227,9 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void SceneManager::Update()
 	{
+		if(m_pShadowMap)
+			m_pShadowMap->Update();
+
 		if (m_pWater)
 			m_pWater->Update();
 
@@ -239,5 +272,11 @@ namespace Neo
 
 		m_pCurScene = m_scenes[curScene];
 		m_pCurScene->Enter();
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::SetupSunLight( const VEC3& dir, const SColor& color )
+	{
+		m_sunLight.lightDir = dir;
+		m_sunLight.lightColor = color;
 	}
 }

@@ -22,15 +22,18 @@ public:
 
 public:
 	void	Enter();
-	void	AddRenderObject(Neo::RenderObject* obj);
-	Neo::RenderList&	GetRenderList() { return m_renderList; }
 	void	Render();
+
+	void				AddRenderObject(Neo::RenderObject* obj);
+	Neo::RenderList&	GetRenderList() { return m_renderList; }
+	const AABB&			GetSceneAABB() const { return m_sceneAABB; }
 
 private:
 	StrategyFunc	m_setupFunc;
 	StrategyFunc	m_enterFunc;
 	bool			m_bSetup;
 	Neo::RenderList		m_renderList;	//场景中所有渲染物体
+	AABB			m_sceneAABB;		// AABB of the whole scene
 };
 
 #endif // Scene_h__

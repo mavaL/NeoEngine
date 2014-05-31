@@ -6,14 +6,16 @@
 #include "D3D11RenderTarget.h"
 #include "Font.h"
 #include "SceneManager.h"
+#include "Material.h"
+#include "ShadowMap.h"
 
 namespace Neo
 {
 	//----------------------------------------------------------------------------------------
 	D3D11RenderSystem::D3D11RenderSystem()
 	:m_pd3dDevice(nullptr)
-	,m_vpWidth(0)
-	,m_vpHeight(0)
+	,m_wndWidth(0)
+	,m_wndHeight(0)
 	,m_pDeviceContext(nullptr)
 	,m_pSwapChain(nullptr)
 	,m_pRenderTargetView(nullptr)
@@ -42,6 +44,8 @@ namespace Neo
 	bool D3D11RenderSystem::_InitDevice(uint32 wndWidth, uint32 wndHeight, HWND hwnd)
 	{
 		HRESULT hr = S_OK;
+		m_wndWidth = wndWidth;
+		m_wndHeight = wndHeight;
 
 		UINT createDeviceFlags = 0;
 #ifdef _DEBUG
@@ -130,6 +134,8 @@ namespace Neo
 		m_viewport.MaxDepth = 1.0f;
 		m_viewport.TopLeftX = 0;
 		m_viewport.TopLeftY = 0;
+		
+		SetViewport(m_viewport);
 
 		// Create the constant buffer
 		D3D11_BUFFER_DESC bd;
@@ -282,6 +288,12 @@ namespace Neo
 				m_pDeviceContext->DSSetSamplers(stage, 1, &sampler);
 			}
 
+			if (pTexture->GetUsage() & eTextureUsage_HullShader)
+			{
+				m_pDeviceContext->HSSetShaderResources(stage, 1, pTexture->GetSRV());
+				m_pDeviceContext->HSSetSamplers(stage, 1, &sampler);
+			}
+
 			m_pDeviceContext->PSSetShaderResources(stage, 1, pTexture->GetSRV());
 			m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
 		}
@@ -301,10 +313,18 @@ namespace Neo
 	{
 		ID3D11RenderTargetView* rtView = nullptr;
 		ID3D11DepthStencilView* dsView = nullptr;
+		bool bNoFrameBuffer = false;
 
 		if (pRT)
 		{
-			rtView = pRT->GetRenderTexture()->GetRTView();
+			if (pRT->IsNoFrameBuffer()) 
+			{
+				bNoFrameBuffer = true;
+			}
+			else
+			{
+				rtView = pRT->GetRenderTexture()->GetRTView();
+			}
 			dsView = pRT->GetDSView();
 		}
 		else	// Recover back frame buffer
@@ -313,9 +333,16 @@ namespace Neo
 			dsView = m_pDepthStencilView;
 		}
 
-		m_pDeviceContext->OMSetRenderTargets(1, &rtView, dsView);
+		if (bNoFrameBuffer)
+		{
+			m_pDeviceContext->OMSetRenderTargets(0, nullptr, dsView);
+		}
+		else
+		{
+			m_pDeviceContext->OMSetRenderTargets(1, &rtView, dsView);
+		}
 
-		if (bClearColor)
+		if (bClearColor && !bNoFrameBuffer)
 		{
 			assert(pClearColor);
 			SColor dxColor = pClearColor->GetAsDx();
@@ -424,15 +451,16 @@ namespace Neo
 		const MAT44& matView = cam->GetViewMatrix();
 		const MAT44& matProj = cam->GetProjMatrix();
 
-		m_cBufferGlobal.camPos = cam->GetPos().GetVec3();
-		m_cBufferGlobal.lightDirection.Set(1, -1, 2);
-		m_cBufferGlobal.lightColor.Set(0.6f, 0.6f, 0.6f);
+		m_cBufferGlobal.camPos = cam->GetPos();
+		m_cBufferGlobal.lightDirection = g_env.pSceneMgr->GetSunLight().lightDir;
+		m_cBufferGlobal.lightColor = g_env.pSceneMgr->GetSunLight().lightColor;
 		m_cBufferGlobal.ambientColor.Set(0.2f, 0.2f, 0.2f);
 		m_cBufferGlobal.nearZ = cam->GetNearClip();
 		m_cBufferGlobal.farZ = cam->GetFarClip();
 		
 		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 
+		SetTransform(eTransform_Shadow, g_env.pSceneMgr->GetShadowMap()->GetShadowTransform(), false);
 		SetTransform(eTransform_World, MAT44::IDENTITY, false);
 		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
 		SetTransform(eTransform_View, matView, false);
@@ -441,8 +469,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetViewport( const D3D11_VIEWPORT& vp )
 	{
-		m_viewport = vp;
-		m_pDeviceContext->RSSetViewports( 1, &m_viewport );
+		m_pDeviceContext->RSSetViewports( 1, &vp );
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::EnableClipPlane( bool bEnable, const PLANE* plane )
@@ -478,25 +505,16 @@ namespace Neo
 	{
 		assert(m_mapTexNeedResize.find(pTexture) == m_mapTexNeedResize.end() && "This texture already added!");
 
-		VEC2 ratio(pTexture->GetWidth() / (float)m_vpWidth, pTexture->GetHeight() / (float)m_vpHeight);
+		VEC2 ratio(pTexture->GetWidth() / (float)m_wndWidth, pTexture->GetHeight() / (float)m_wndHeight);
 
 		m_mapTexNeedResize.insert(std::make_pair(pTexture, ratio));
 
 		pTexture->AddRef();
 	}
 	//-------------------------------------------------------------------------------
-	void D3D11RenderSystem::OnViewportResize( uint32 width, uint32 height )
+	void D3D11RenderSystem::RestoreViewport()
 	{
-		m_vpWidth = width;
-		m_vpHeight = height;
-
-		g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_vpWidth / (float)m_vpHeight);
-		SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);		
-
-		m_viewport.Width = (float)width;
-		m_viewport.Height = (float)height;
-
-		SetViewport(m_viewport);
+		SetViewport(m_viewport);	
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::OnWindowResize( uint32 width, uint32 height )
@@ -517,7 +535,12 @@ namespace Neo
 
 		V(_OnSwapChainResized());
 
-		OnViewportResize(width, height);
+		m_viewport.Width = (float)width;
+		m_viewport.Height = (float)height;
+		SetViewport(m_viewport);
+
+		g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_viewport.Width / m_viewport.Height);
+		SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);
 
 		// Recreate RT resources
 		for(size_t i=0; i<m_vecRT.size(); ++i)
@@ -529,11 +552,58 @@ namespace Neo
 			D3D11Texture* tex = iter->first;
 			const VEC2& ratio = iter->second;
 
-			const uint32 newWidth = (uint32)(m_vpWidth * ratio.x);
-			const uint32 newHeight = (uint32)(m_vpHeight * ratio.y);
+			const uint32 newWidth = (uint32)(m_wndWidth * ratio.x);
+			const uint32 newHeight = (uint32)(m_wndHeight * ratio.y);
 
 			tex->Resize(newWidth, newHeight);
 		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::ExtractFrustumWorldPlanes( PLANE oPlanes[6], const MAT44& matViewProj )
+	{
+		// Left clipping plane
+		oPlanes[0].n.x = matViewProj.m03 + matViewProj.m00;
+		oPlanes[0].n.y = matViewProj.m13 + matViewProj.m10;
+		oPlanes[0].n.z = matViewProj.m23 + matViewProj.m20;
+		oPlanes[0].d = matViewProj.m33 + matViewProj.m30;
+
+		// Right clipping plane
+		oPlanes[1].n.x = matViewProj.m03 - matViewProj.m00;
+		oPlanes[1].n.y = matViewProj.m13 - matViewProj.m10;
+		oPlanes[1].n.z = matViewProj.m23 - matViewProj.m20;
+		oPlanes[1].d = matViewProj.m33 - matViewProj.m30;
+
+		// Top clipping plane
+		oPlanes[2].n.x = matViewProj.m03 - matViewProj.m01;
+		oPlanes[2].n.y = matViewProj.m13 - matViewProj.m11;
+		oPlanes[2].n.z = matViewProj.m23 - matViewProj.m21;
+		oPlanes[2].d = matViewProj.m33 - matViewProj.m31;
+
+		// Bottom clipping plane
+		oPlanes[3].n.x = matViewProj.m03 + matViewProj.m01;
+		oPlanes[3].n.y = matViewProj.m13 + matViewProj.m11;
+		oPlanes[3].n.z = matViewProj.m23 + matViewProj.m21;
+		oPlanes[3].d = matViewProj.m33 + matViewProj.m31;
+
+		// Near clipping plane
+		oPlanes[4].n.x = matViewProj.m02;
+		oPlanes[4].n.y = matViewProj.m12;
+		oPlanes[4].n.z = matViewProj.m22;
+		oPlanes[4].d = matViewProj.m32;
+
+		// Far clipping plane
+		oPlanes[5].n.x = matViewProj.m03 - matViewProj.m02;
+		oPlanes[5].n.y = matViewProj.m13 - matViewProj.m12;
+		oPlanes[5].n.z = matViewProj.m23 - matViewProj.m22;
+		oPlanes[5].d = matViewProj.m33 - matViewProj.m32;
+
+		// Normalize the plane equations
+		oPlanes[0].Normalize();
+		oPlanes[1].Normalize();
+		oPlanes[2].Normalize();
+		oPlanes[3].Normalize();
+		oPlanes[4].Normalize();
+		oPlanes[5].Normalize();
 	}
 }
 

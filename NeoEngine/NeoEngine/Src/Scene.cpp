@@ -4,6 +4,7 @@
 #include "Sky.h"
 #include "D3D11RenderSystem.h"
 #include "SceneManager.h"
+#include "Terrain.h"
 
 
 //------------------------------------------------------------------------------------
@@ -38,11 +39,27 @@ void Scene::Enter()
 	g_env.pSceneMgr->SetSolidRenderList(m_renderList);
 
 	m_enterFunc(this);
+
+	// Compute and store the scene aabb
+	m_sceneAABB.SetNull();
+
+	Neo::Terrain* pTerrain = g_env.pSceneMgr->GetTerrain();
+	if (pTerrain)
+	{
+		m_sceneAABB.Merge(pTerrain->GetTerrainAABB());
+	}
+
+	for (size_t i=0; i<m_renderList.size(); ++i)
+	{
+		Neo::RenderObject* obj = m_renderList[i];
+		obj->OnFrameMove();		// Manually update its world aabb
+		m_sceneAABB.Merge(obj->GetWorldAABB());
+	}
 }
 //----------------------------------------------------------------------------------------
 void Scene::Render()
 {
-	g_env.pSceneMgr->RenderPipline();
+	g_env.pSceneMgr->Render();
 }
 
 

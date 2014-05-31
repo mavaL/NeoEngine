@@ -64,7 +64,7 @@ namespace Common
 			return (sqlen < (1e-06 * 1e-06));
 		}
 
-		void	Normalize();
+		float	Normalize();
 		//求负
 		void	Neg() { x = -x; y = -y; z = -z; }
 
@@ -166,6 +166,7 @@ namespace Common
 		Plane(const Vector3& _n, float _d):n(_n),d(_d) {}
 
 		void	Set(const Vector3& _n, float _d) { n = _n; d = _d; }
+		void	Normalize();
 
 		Vector3	n;
 		float	d;
@@ -195,8 +196,13 @@ namespace Common
 	Vector2		Multiply_Vec2_By_Vec2(const Vector2& v1, const Vector2& v2);
 	float		Angle_To_Radian(float angle);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
+
 	//建构关于平面的反射矩阵
 	Matrix44	BuildReflectMatrix(const Plane& p);
+	// Build view matrix, Left handed
+	Matrix44	BuildViewMatrix(const Vector3& vEye, const Vector3& vLookAt, const Vector3& vUp);
+	// Build othrographic projection matrix, left handed
+	Matrix44	BuildOthroMatrix(float l, float r, float b, float t, float n, float f);
 }
 
 #include "MathDef.inl"

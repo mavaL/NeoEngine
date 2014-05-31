@@ -5,7 +5,7 @@
 namespace Neo
 {
 	Camera::Camera()
-		:m_viewPt(0, 0, 0, 1)
+		:m_viewPt(VEC3::ZERO)
 		,m_nearClip(1)
 		,m_farClip(1000)
 		,m_aspectRatio(0)
@@ -51,23 +51,21 @@ namespace Neo
 		}
 
 		//Ïà»úÒÆ¶¯
-		VEC4 forward = GetDirection();
-		VEC4 right = GetRight();
+		VEC3 forward = GetDirection();
+		VEC3 right = GetRight();
 
-		forward = Common::Multiply_Vec4_By_K(forward, m_moveSpeed);
-		right = Common::Multiply_Vec4_By_K(right, m_moveSpeed);
+		forward = Common::Multiply_Vec3_By_K(forward, m_moveSpeed);
+		right = Common::Multiply_Vec3_By_K(right, m_moveSpeed);
 
-		if(GetAsyncKeyState('W') < 0)		m_viewPt = Add_Vec4_By_Vec4(m_viewPt, forward);
-		else if(GetAsyncKeyState('S') < 0)	m_viewPt = Sub_Vec4_By_Vec4(m_viewPt, forward);
-		if(GetAsyncKeyState('A') < 0)		m_viewPt = Sub_Vec4_By_Vec4(m_viewPt, right);
-		else if(GetAsyncKeyState('D') < 0)	m_viewPt = Add_Vec4_By_Vec4(m_viewPt, right);
-
-		m_viewPt.w = 1;
+		if(GetAsyncKeyState('W') < 0)		m_viewPt = Add_Vec3_By_Vec3(m_viewPt, forward);
+		else if(GetAsyncKeyState('S') < 0)	m_viewPt = Sub_Vec3_By_Vec3(m_viewPt, forward);
+		if(GetAsyncKeyState('A') < 0)		m_viewPt = Sub_Vec3_By_Vec3(m_viewPt, right);
+		else if(GetAsyncKeyState('D') < 0)	m_viewPt = Add_Vec3_By_Vec3(m_viewPt, right);
 	}
 
 	void Camera::SetPosition( const VEC3& pos )
 	{
-		m_viewPt = VEC4(pos, 1);
+		m_viewPt = pos;
 	}
 
 	void Camera::SetDirection( const VEC3& dir )
@@ -92,7 +90,7 @@ namespace Neo
 		m_matView = m_matRot.Transpose();
 
 		VEC4 trans;
-		trans = Common::Transform_Vec4_By_Mat44(m_viewPt, m_matView);
+		trans = Common::Transform_Vec3_By_Mat44(m_viewPt, m_matView, true);
 		m_matView.SetTranslation(VEC4(-trans.x, -trans.y, -trans.z, 1));
 	}
 
@@ -151,14 +149,14 @@ namespace Neo
 		m_farCorner[3].Set(+halfWidth, -halfHeight, m_farClip, 0.0f);
 	}
 
-	VEC4 Camera::GetDirection() const
+	VEC3 Camera::GetDirection() const
 	{
-		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Z, m_matRot, false);
+		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Z, m_matRot, false).GetVec3();
 	}
 
-	VEC4 Camera::GetRight() const	
+	VEC3 Camera::GetRight() const	
 	{
-		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_X, m_matRot, false);
+		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_X, m_matRot, false).GetVec3();
 	}
 
 	void Camera::Yaw( float angle )

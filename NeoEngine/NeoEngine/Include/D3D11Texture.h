@@ -33,15 +33,22 @@ namespace Neo
 		eTextureType						GetTextureType() const { return m_texType; }
 		bool								SaveToFile(const char* filename);
 		ID3D11ShaderResourceView* const*	GetSRV() const { return &m_pSRV; }
+		ID3D11DepthStencilView*				GetDSV() const { return m_pDSV; }
 		ID3D11RenderTargetView*				GetRTView() { return m_rtView; }
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }
 		void								CreateSRV();
+		void								CreateDSV();
 		uint32								GetWidth() const { return m_width; }
 		uint32								GetHeight() const { return m_height; }
 		uint32								GetUsage() const { return m_usage; }
+		ePixelFormat						GetFormat() const { return m_texFormat; }
 
 		// NB: Only for render texture!
 		void								Resize(uint32 width, uint32 height);
+
+		static ePixelFormat					ConvertFromDXFormat(DXGI_FORMAT dxformat);
+		static DXGI_FORMAT					ConvertToDXFormat(ePixelFormat format);
+		static uint32						GetBytesPerPixelFromFormat(ePixelFormat format);
 
 	private:
 		void				_CreateManual(const char* pTexData);
@@ -52,6 +59,7 @@ namespace Neo
 		ID3D11Texture3D*	m_pTexture3D;
 		D3D11RenderSystem*	m_pRenderSystem;
 		ID3D11ShaderResourceView*	m_pSRV;
+		ID3D11DepthStencilView*		m_pDSV;
 		ID3D11RenderTargetView*		m_rtView;
 
 		eTextureType		m_texType;

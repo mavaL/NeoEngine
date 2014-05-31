@@ -18,20 +18,20 @@ namespace Neo
 	class D3D11RenderTarget : public IRefCount
 	{
 	public:
-		// NB: If the viewport dimension is not the same as the frame buffer, you should set
-		// bUpdateViewport to true
 		D3D11RenderTarget();
 		~D3D11RenderTarget();
 
 	public:
-		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bUpdateViewport = true, bool bOwnDepthBuffer = true);
+		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoFrameBuffer = false);
 		void			Destroy();
 		void			OnWindowResized();
 
 		void			SetClearEveryFrame(bool bColor, bool bZBuffer);
 		void			SetClearColor(const SColor& color);
+		bool			IsNoFrameBuffer() const { return m_bNoFrameBuffer; }
 		void			SetRenderPhase(uint32 phaseFlag) { m_phaseFlag = phaseFlag; }
-		D3D11Texture*	GetRenderTexture();
+		D3D11Texture*	GetRenderTexture() { return m_pRenderTexture; }
+		D3D11Texture*	GetDepthTexture() {return m_pDepthStencil; }
 
 		// If pMaterial not null, use it to render all objects of this RT
 		void			Update(Material* pMaterial = nullptr);
@@ -48,20 +48,20 @@ namespace Neo
 		void			_AfterRender();
 
 		D3D11RenderSystem*			m_pRenderSystem;
+		D3D11_VIEWPORT				m_viewport;
 		D3D11Texture*				m_pRenderTexture;
-		ID3D11DepthStencilView*		m_pDepthStencilView;
-		ID3D11Texture2D*			m_pDepthStencil;
+		D3D11Texture*				m_pDepthStencil;
 
 		static RenderObject*		m_pQuadMesh;
 
 		VEC2			m_sizeRatio;		// ratio to screen size
 		bool			m_bClearColor;
 		bool			m_bClearZBuffer;
-		bool			m_bUpdateViewport;
 		bool			m_bHasDepthBuffer;
+		bool			m_bNoFrameBuffer;
+		bool			m_bUpdateRatioAspect;
 		SColor			m_clearColor;
 		uint32			m_phaseFlag;
-		uint32			m_oldViewportW, m_oldViewportH;
 	};
 }
 

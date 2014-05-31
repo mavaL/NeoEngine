@@ -40,7 +40,7 @@ namespace Common
 	}
 	////////////////////
 
-	__forceinline void Vector3::Normalize()
+	__forceinline float Vector3::Normalize()
 	{
 #if USE_SIMD == 1
 		__m128 V =  _mm_set_ps(0, z, y, x);
@@ -68,12 +68,19 @@ namespace Common
 		__m128 vTemp1 = _mm_andnot_ps(vLengthSq,g_XMQNaN.v);
 		__m128 vTemp2 = _mm_and_ps(vResult,vLengthSq);
 		m128_to_vec3(*this, _mm_or_ps(vTemp1,vTemp2));
+
+		float oLen;
+		XMStoreFloat(&oLen, _mm_sqrt_ps(vLengthSq));
+
+		return oLen;
 #else
-		float mod = std::sqrt(x * x + y * y + z * z);
+		float mod = sqrtf(x * x + y * y + z * z);
 		float invMode = 1 / mod;
 		x *= invMode;
 		y *= invMode;
 		z *= invMode;
+
+		return mod;
 #endif
 	}
 
@@ -91,6 +98,47 @@ namespace Common
 			-2 * p.n.y * p.n.x,       -2 * p.n.y * p.n.y + 1,   -2 * p.n.y * p.n.z,       0, 
 			-2 * p.n.z * p.n.x,       -2 * p.n.z * p.n.y,       -2 * p.n.z * p.n.z + 1,   0, 
 			-2 * p.n.x * p.d,         -2 * p.n.y * p.d,         -2 * p.n.z * p.d,         1);
+	}
+
+	__forceinline Matrix44	BuildViewMatrix(const Vector3& vEye, Vector3& vLookAt, const Vector3& vUp)
+	{
+		Vector3 zAxis(Sub_Vec3_By_Vec3(vLookAt, vEye));
+		zAxis.Normalize();
+
+		Vector3 xAxis, yAxis;
+		xAxis = CrossProduct_Vec3_By_Vec3(vUp, zAxis);
+		xAxis.Normalize();
+
+		yAxis = CrossProduct_Vec3_By_Vec3(zAxis, xAxis);
+		yAxis.Normalize();
+
+		Matrix44 ret;
+		ret.FromAxises(xAxis, yAxis, zAxis);
+
+		ret = ret.Transpose();
+
+		Vector4 trans;
+		trans = Transform_Vec3_By_Mat44(vEye, ret, true);
+		ret.SetTranslation(Vector4(-trans.x, -trans.y, -trans.z, 1));
+
+		return ret;
+	}
+
+	__forceinline Matrix44	BuildOthroMatrix(float l, float r, float b, float t, float n, float f)
+	{
+		float    ReciprocalWidth;
+		float    ReciprocalHeight;
+		Matrix44 ret;
+
+		ReciprocalWidth = 1.0f / (r - l);
+		ReciprocalHeight = 1.0f / (t - b);
+
+		ret.SetRow(0, Vector4(ReciprocalWidth + ReciprocalWidth, 0.0f, 0.0f, 0.0f));
+		ret.SetRow(1, Vector4(0.0f, ReciprocalHeight + ReciprocalHeight, 0.0f, 0.0f));
+		ret.SetRow(2, Vector4(0.0f, 0.0f, 1.0f / (f - n), 0.0f));
+		ret.SetRow(3, Vector4(-(l + r) * ReciprocalWidth, -(t + b) * ReciprocalHeight,-ret.m22 * n,1.0f));
+
+		return ret;
 	}
 
 	__forceinline void		Add_Vec2_By_Vec2(Vector2& result, const Vector2& v1, const Vector2& v2)
@@ -415,6 +463,13 @@ namespace Common
 	{
 		return Multiply_Mat44_By_Mat44(lhs, rhs);
 	}
+
+	__forceinline void Plane::Normalize()
+	{
+		float normalLen = n.Normalize();
+		d /= normalLen;
+	}
+
 }
 
 #endif // MathDef_inl__

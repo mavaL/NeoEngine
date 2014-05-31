@@ -51,11 +51,11 @@ namespace Neo
 		void		BeginScene();
 		void		EndScene();
 		void		SetViewport(const D3D11_VIEWPORT& vp);
+		void		RestoreViewport();
 		D3D11_VIEWPORT&	GetViewport() { return m_viewport; }
-		void		OnViewportResize(uint32 width, uint32 height);
 		void		OnWindowResize(uint32 width, uint32 height);
-		uint32		GetWndWidth() const { return m_vpWidth; }
-		uint32		GetWndHeight() const { return m_vpHeight; }
+		uint32		GetWndWidth() const { return m_wndWidth; }
+		uint32		GetWndHeight() const { return m_wndHeight; }
 
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
@@ -88,6 +88,8 @@ namespace Neo
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
 		// Update global constant buffer to device
 		void		UpdateGlobalCBuffer(bool bTessellate = false);
+		// Extract frustum planes in world space from view projection matrix
+		void		ExtractFrustumWorldPlanes(PLANE oPlanes[6], const MAT44& matViewProj);
 		
 		/**	Copy back buffer content to another texture
 			Note: The texture must be the same type of the back buffer,
@@ -121,7 +123,7 @@ namespace Neo
 		D3D11Texture*				m_pTexture[MAX_TEXTURE_STAGE];
 		Font*						m_pFont;
 
-		uint32						m_vpWidth, m_vpHeight;
+		uint32						m_wndWidth, m_wndHeight;
 
 		cBufferGlobal				m_cBufferGlobal;
 		ID3D11Buffer*				m_pGlobalCBuf;

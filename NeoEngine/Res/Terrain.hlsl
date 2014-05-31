@@ -5,10 +5,12 @@ Texture2D		gHeightMap		: register(t0);
 Texture2DArray	gLayerMaps		: register(t1);
 Texture2D		gBlendMap		: register(t2);
 Texture2D		gNormalMap		: register(t3);
+Texture2D		gShadowMap		: register(t4);
 SamplerState	samHeightmap	: register(s0);
 SamplerState	samLayerMap		: register(s1);
 SamplerState	samBlendMap		: register(s2);
 SamplerState	samNormalMap	: register(s3);
+SamplerComparisonState	samShadowMap	: register(s4);
 
 static const float2	g_layerTexScale = 50.0;
 
@@ -22,6 +24,7 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	Projection;
 	matrix	WVP;
 	matrix	WorldIT;
+	matrix	ShadowTransform;
 	float4	clipPlane;
 	float4	frustumFarCorner[4];
 	float4	ambientColor;
@@ -34,12 +37,14 @@ cbuffer cbufferGlobal : register( b0 )
 
 cbuffer cbufferTerrain : register( b1 )
 {
+	float4	frustumWorldPlanes[4];
 	float	minTessDist;
 	float	maxTessDist;
 	float	minTess;
 	float	maxTess;
 	float2	invTexSize;
 	float	terrainCellSpace;
+	float	shadowMapTexelSize;
 };
 
 //--------------------------------------------------------------------------------------
@@ -55,7 +60,7 @@ struct VS_OUTPUT
 {
     float3 PosW		: POSITION;
 	float2 uv		: TEXCOORD0;
-	float3 normal	: TEXCOORD1;
+	float2 boundY	: TEXCOORD1;
 };
 
 //--------------------------------------------------------------------------------------
@@ -67,6 +72,7 @@ VS_OUTPUT VS( VS_INPUT input )
 
     OUT.PosW = input.Pos;
 	OUT.uv = input.uv;
+	OUT.boundY = input.color.xy;
     
     return OUT;
 }
@@ -75,6 +81,35 @@ VS_OUTPUT VS( VS_INPUT input )
 //--------------------------------------------------------------------------------------
 // Hull Shader
 //--------------------------------------------------------------------------------------
+bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
+{
+	float3 n = abs(plane.xyz);
+	
+	// This is always positive.
+	float r = dot(extents, n);
+	
+	// signed distance from center point to plane.
+	float s = dot( float4(center, 1.0f), plane );
+	
+	// If the center point of the box is a distance of e or more behind the
+	// plane (in which case s is negative since it is behind the plane),
+	// then the box is completely in the negative half space of the plane.
+	return (s + r) < 0.0f;
+}
+
+bool FrustumCull(float3 center, float3 extents)
+{
+	for(int i = 0; i < 4; ++i)
+	{
+		if( AabbBehindPlaneTest(center, extents, frustumWorldPlanes[i]) )
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 float CalcTessFactor(float3 p)
 {
 	float d = distance(p, camPos);
@@ -97,25 +132,52 @@ PatchTess ConstantHS(InputPatch<VS_OUTPUT, 4> patch, uint patchID : SV_Primitive
 {
 	PatchTess pt;
 
-	// Do tessellation based on distance.
-	// It is important to do the tess factor calculation based on the
-	// edge properties so that edges shared by more than one patch will
-	// have the same tessellation factor.  Otherwise, gaps can appear.
+	// Frusum culling
+	float minY = patch[0].boundY.x;
+	float maxY = patch[0].boundY.y;
+	
+	// Build axis-aligned bounding box
+	float3 vMin = float3(patch[0].PosW.x, minY, patch[0].PosW.z);
+	float3 vMax = float3(patch[3].PosW.x, maxY, patch[3].PosW.z);
 
-	// Compute midpoint on edges, and patch center
-	float3 e0 = 0.5f*(patch[0].PosW + patch[2].PosW);
-	float3 e1 = 0.5f*(patch[0].PosW + patch[1].PosW);
-	float3 e2 = 0.5f*(patch[1].PosW + patch[3].PosW);
-	float3 e3 = 0.5f*(patch[2].PosW + patch[3].PosW);
-	float3  c = 0.25f*(patch[0].PosW + patch[1].PosW + patch[2].PosW + patch[3].PosW);
+	float3 boxCenter  = 0.5f*(vMin + vMax);
+	float3 boxExtents = 0.5f*(vMax - vMin);
 
-	pt.EdgeTess[0] = CalcTessFactor(e0);
-	pt.EdgeTess[1] = CalcTessFactor(e1);
-	pt.EdgeTess[2] = CalcTessFactor(e2);
-	pt.EdgeTess[3] = CalcTessFactor(e3);
+	bool bUseGpuFrustumClip = false;
+#ifdef GPU_FRUSTUM_CLIP
+	bUseGpuFrustumClip = true;
+#endif
+	if(bUseGpuFrustumClip && FrustumCull(boxCenter, boxExtents))
+	{
+		pt.EdgeTess[0] = 0;
+		pt.EdgeTess[1] = 0;
+		pt.EdgeTess[2] = 0;
+		pt.EdgeTess[3] = 0;
 
-	pt.InsideTess[0] = CalcTessFactor(c);
-	pt.InsideTess[1] = pt.InsideTess[0];
+		pt.InsideTess[0] = pt.InsideTess[1] = 0;
+	}
+	else
+	{
+		// Do tessellation based on distance.
+		// It is important to do the tess factor calculation based on the
+		// edge properties so that edges shared by more than one patch will
+		// have the same tessellation factor.  Otherwise, gaps can appear.
+
+		// Compute midpoint on edges, and patch center
+		float3 e0 = 0.5f*(patch[0].PosW + patch[2].PosW);
+		float3 e1 = 0.5f*(patch[0].PosW + patch[1].PosW);
+		float3 e2 = 0.5f*(patch[1].PosW + patch[3].PosW);
+		float3 e3 = 0.5f*(patch[2].PosW + patch[3].PosW);
+		float3  c = 0.25f*(patch[0].PosW + patch[1].PosW + patch[2].PosW + patch[3].PosW);
+
+		pt.EdgeTess[0] = CalcTessFactor(e0);
+		pt.EdgeTess[1] = CalcTessFactor(e1);
+		pt.EdgeTess[2] = CalcTessFactor(e2);
+		pt.EdgeTess[3] = CalcTessFactor(e3);
+
+		pt.InsideTess[0] = CalcTessFactor(c);
+		pt.InsideTess[1] = pt.InsideTess[0];
+	}
 
 	return pt;
 }
@@ -237,12 +299,23 @@ float4 PS( DomainOut IN ) : SV_Target
 	// tangent space to world space
 	N = mul(N, matTBN);
 
+	// Do shadowing
+	float4 shadowPos = mul(float4(IN.PosW, 1.0f), ShadowTransform);
+	shadowPos.xyz /= shadowPos.w;
+	float2 shadowTexUV = shadowPos.xy;
+
+	// 2x2 PCF kernel
+	float fLitFactor = 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(-shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
+	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(+shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
+	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(-shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
+	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(+shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
+
 	// Do lighting
 	float3 PosToCam = camPos - IN.PosW;
 	float3 H = normalize(PosToCam + (-lightDirection));
 	float4 spec = pow(max(0, dot(N, H)), 50) * lightColor;
 
-	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor + ambientColor);
+	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor * fLitFactor + ambientColor);
 	oColor *= texColor;
 	oColor += spec;
 

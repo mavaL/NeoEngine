@@ -14,6 +14,11 @@
 
 namespace Neo
 {
+	struct SDirectionLight
+	{
+		VEC3	lightDir;
+		SColor	lightColor;
+	};
 	//------------------------------------------------------------------------------------
 	class Material : public IRefCount
 	{
@@ -27,8 +32,8 @@ namespace Neo
 
 		void		Activate();
 		void		TurnOffTessellation();
-		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const std::vector<D3D_SHADER_MACRO>* macroDef = nullptr);
-		bool		InitTessellationShader(const STRING& filename);
+		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const D3D_SHADER_MACRO* pMacro = nullptr);
+		bool		InitTessellationShader(const STRING& filename, const D3D_SHADER_MACRO* pMacro = nullptr);
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
@@ -36,7 +41,7 @@ namespace Neo
 
 	private:
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-			const std::vector<D3D_SHADER_MACRO>* vecMacros, ID3DBlob** ppBlobOut );		
+			const D3D_SHADER_MACRO* pMacro, ID3DBlob** ppBlobOut );		
 		void		_CreateVertexLayout();
 
 		D3D11RenderSystem*			m_pRenderSystem;

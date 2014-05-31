@@ -23,19 +23,13 @@ void SetupTestScene1(Scene* scene)
 	scene->AddRenderObject(obj);
 
 	// Use ssao
-	std::vector<D3D_SHADER_MACRO> vecMacros;
-	D3D_SHADER_MACRO macro = { "SSAO", "" };
-	vecMacros.push_back(macro);
-
-	D3D_SHADER_MACRO end = {0};
-	vecMacros.push_back(end);
+	D3D_SHADER_MACRO macro[] = { "SSAO", "", 0, 0 };
 
 	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, &vecMacros);
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, macro);
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->SetTexture(1, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
 
-	g_env.pSceneMgr->EnableDebugRT(eDebugRT_SSAO);
 
 	obj->SetMaterial(pMaterial);
 
@@ -49,6 +43,8 @@ void EnterTestScene1(Scene* scene)
 	g_env.pSceneMgr->GetCamera()->SetPosition(VEC3(0,0,-200));
 	g_env.pSceneMgr->GetCamera()->SetMoveSpeed(0.5f);
 	g_env.pSceneMgr->GetCamera()->SetDirection(VEC3::UNIT_Z);
+
+	g_env.pSceneMgr->EnableDebugRT(eDebugRT_SSAO);
 }
 
 
@@ -297,11 +293,13 @@ void EnterTestScene3(Scene* scene)
 	//g_env.pSceneMgr->CreateWater(5.0f);
 
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0, 10, 0));
+	pCamera->SetPosition(VEC3(0, 100, 0));
 	pCamera->SetNearClip(1);
 	pCamera->SetFarClip(30000.0f);
-	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetMoveSpeed(0.5f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
+
+	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
 }
 
 namespace Neo
@@ -309,10 +307,10 @@ namespace Neo
 	void SceneManager::_InitAllScene()
 	{
 		//// Test Scene 1: mesh, SSAO post effect
-		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
-
-		//// Test Scene 2: Sky, Water
-		ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
+// 		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
+// 
+// 		//// Test Scene 2: Sky, Water
+// 		ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		//// Test Scene 3: Terrain
 		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);

@@ -19,22 +19,11 @@ namespace Common
 	public:
 		AxisAlignBBox();
 
-		void	SetNull()
-		{
-			m_minCorner.Set(10000,10000,10000);
-			m_maxCorner.Set(-10000,-10000,-10000);
-			m_boundingRadius = -1;
-		}
-
-		VEC3	GetCenter() const
-		{ 
-			VEC3 ret = Common::Add_Vec3_By_Vec3(m_minCorner, m_maxCorner);
-			ret = Common::Multiply_Vec3_By_K(ret, 0.5f);
-			
-			return std::move(ret);
-		}
-
-		void	Merge(const VEC4& pt);
+		void	SetNull();
+		VEC3	GetCenter() const;
+		void	Merge(const VEC3& pt);
+		void	Merge(const AABB& aabb);
+		VEC3	GetSize() const;
 		//变换AABB,from ogre. NB: 变换后需要保持轴对齐
 		void	Transform(const MAT44& matrix);
 

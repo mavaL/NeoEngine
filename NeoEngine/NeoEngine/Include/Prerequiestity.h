@@ -27,10 +27,12 @@ enum eTextureType
 enum eTextureUsage
 {
 	eTextureUsage_WriteOnly		= 1 << 0,
-	eTextureUsage_ReadWrite		= 1 << 1,
+	eTextureUsage_ReadWrite		= 1 << 1,		// Staging
 	eTextureUsage_RenderTarget	= 1 << 2,
 	eTextureUsage_DomainShader	= 1 << 3,		// Bind to domain shader
-	eTextureUsage_RecreateOnWndResized = 1 << 4
+	eTextureUsage_HullShader	= 1 << 4,		// Bind to hull shader
+	eTextureUsage_RecreateOnWndResized = 1 << 5,
+	eTextureUsage_Depth			= 1 << 6
 };
 
 // Use for render target to control which part to render
@@ -42,6 +44,7 @@ enum eRenderPhase
 	eRenderPhase_Solid		= 1 << 3,
 	eRenderPhase_Water		= 1 << 4,
 	eRenderPhase_UI			= 1 << 5,
+	eRenderPhase_ShadowMap	= 1 << 6,
 
 	eRenderPhase_Geometry	= eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_Solid | eRenderPhase_Water,
 
@@ -76,13 +79,15 @@ enum eTransform
 	eTransform_Proj,
 	eTransform_WVP,
 	eTransform_WorldIT,
+	eTransform_Shadow,		// World space -> sun light NDC space -> texture space
 	eTransform_Count
 };
 
 enum eDebugRT
 {
 	eDebugRT_None,
-	eDebugRT_SSAO
+	eDebugRT_SSAO,
+	eDebugRT_ShadowMap
 };
 
 /// Forward declaration
@@ -130,6 +135,7 @@ namespace Neo
 	class	Font;
 	class	MeshLoader;
 	class	SSAO;
+	class	ShadowMap;
 }
 
 class Scene;

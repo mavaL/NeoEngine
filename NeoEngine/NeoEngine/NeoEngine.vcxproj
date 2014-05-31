@@ -93,6 +93,7 @@
     <ClInclude Include="Include\RenderObject.h" />
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
+    <ClInclude Include="Include\ShadowMap.h" />
     <ClInclude Include="Include\Singleton.h" />
     <ClInclude Include="Include\Sky.h" />
     <ClInclude Include="Include\SSAO.h" />
@@ -166,6 +167,11 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
     </CustomBuild>
+    <CustomBuild Include="..\Res\Terrain_Depth.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +200,7 @@
     <ClCompile Include="Src\RenderObject.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
+    <ClCompile Include="Src\ShadowMap.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
     <ClCompile Include="Src\SSAO.cpp" />
     <ClCompile Include="Src\stdafx.cpp">

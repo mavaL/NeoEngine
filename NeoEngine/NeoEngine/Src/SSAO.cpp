@@ -14,10 +14,12 @@ namespace Neo
 	{
 		const uint32 screenW = m_pRenderSystem->GetWndWidth();
 		const uint32 screenH = m_pRenderSystem->GetWndHeight();
+		const uint32 halfW = screenW / 2;
+		const uint32 halfH = screenH / 2;
 
 		// Init ssao RT & material
 		m_pRT_NormalDepth = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F, false, false);
+		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F);
 		m_pRT_NormalDepth->SetRenderPhase(eRenderPhase_Solid);
 		m_pRT_NormalDepth->SetClearEveryFrame(true, false);
 
@@ -28,7 +30,7 @@ namespace Neo
 		m_pNormalDepthMaterial->InitShader(GetResPath("ViewSpaceNormalDepth.hlsl"), GetResPath("ViewSpaceNormalDepth.hlsl"), false);
 
 		m_pRT_ssao = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_ssao->Init(screenW, screenH, ePF_R16F, false, false);
+		m_pRT_ssao->Init(halfW, halfH, ePF_R16F);
 		m_pRT_ssao->SetClearEveryFrame(false, false);
 
 		m_pTexSsao = m_pRT_ssao->GetRenderTexture();
@@ -53,8 +55,8 @@ namespace Neo
 		m_pRT_BlurH = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_BlurV = m_pRenderSystem->CreateRenderTarget();
 
-		m_pRT_BlurH->Init(screenW, screenH, ePF_R16F, false, false);
-		m_pRT_BlurV->Init(screenW, screenH, ePF_R16F, false, false);
+		m_pRT_BlurH->Init(halfW, halfH, ePF_R16F);
+		m_pRT_BlurV->Init(halfW, halfH, ePF_R16F);
 
 		m_pTexBlurH = m_pRT_BlurH->GetRenderTexture();
 		m_pTexBlurH->AddRef();

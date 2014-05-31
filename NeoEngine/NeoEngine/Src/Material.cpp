@@ -60,15 +60,15 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const std::vector<D3D_SHADER_MACRO>* macroDef )
+	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const D3D_SHADER_MACRO* pMacro )
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
 		ID3DBlob* pPSBlob = NULL;
 
 		// Compile
-		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", macroDef, &pVSBlob ));
-		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", macroDef, &pPSBlob ));
+		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", pMacro, &pVSBlob ));
+		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", pMacro, &pPSBlob ));
 
 		// Create shader
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
@@ -97,14 +97,14 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	bool Material::InitTessellationShader( const STRING& filename )
+	bool Material::InitTessellationShader( const STRING& filename, const D3D_SHADER_MACRO* pMacro )
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pHSBlob = NULL;
 		ID3DBlob* pDSBlob = NULL;
 
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", nullptr, &pHSBlob ));
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", nullptr, &pDSBlob ));
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", pMacro, &pHSBlob ));
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", pMacro, &pDSBlob ));
 
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateHullShader( pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), NULL, &m_pHullShader ));
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateDomainShader( pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), NULL, &m_pDomainShader ));
@@ -116,7 +116,7 @@ namespace Neo
 	}
 	//-------------------------------------------------------------------------------
 	bool Material::_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-		const std::vector<D3D_SHADER_MACRO>* vecMacros, ID3DBlob** ppBlobOut )
+		const D3D_SHADER_MACRO* pMacro, ID3DBlob** ppBlobOut )
 	{
 		HRESULT hr = S_OK;
 
@@ -126,7 +126,7 @@ namespace Neo
 #endif
 
 		ID3DBlob* pErrorBlob;
-		hr = D3DX11CompileFromFile( szFileName, vecMacros?&vecMacros->at(0):NULL, NULL, szEntryPoint, szShaderModel, 
+		hr = D3DX11CompileFromFile( szFileName, pMacro, NULL, szEntryPoint, szShaderModel, 
 			dwShaderFlags, 0, NULL, ppBlobOut, &pErrorBlob, NULL );
 		if( FAILED(hr) )
 		{

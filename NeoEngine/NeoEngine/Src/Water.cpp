@@ -195,7 +195,7 @@ namespace Neo
 		// Camera pos in object space
 		MAT44 invWorld = m_waterMesh->GetWorldMatrix().Inverse();
 
-		m_constantBufVS.viewPt = g_env.pSceneMgr->GetCamera()->GetPos().GetVec3();
+		m_constantBufVS.viewPt = g_env.pSceneMgr->GetCamera()->GetPos();
 		Common::Transform_Vec3_By_Mat44(m_constantBufVS.viewPt, invWorld, true);
 	}
 	//------------------------------------------------------------------------------------

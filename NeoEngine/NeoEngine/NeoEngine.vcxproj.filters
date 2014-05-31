@@ -93,6 +93,9 @@
     <ClInclude Include="Include\Singleton.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ShadowMap.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -172,6 +175,9 @@
     <ClCompile Include="..\Dependency\tinyxml\tinyxmlparser.cpp">
       <Filter>源文件\tinyxml</Filter>
     </ClCompile>
+    <ClCompile Include="Src\ShadowMap.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Res\SSAO.hlsl">
@@ -208,6 +214,9 @@
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\BilateralBlur.hlsl">
+      <Filter>Shader</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Terrain_Depth.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
   </ItemGroup>

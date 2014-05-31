@@ -83,7 +83,7 @@ namespace Neo
 
 		MAT44 matWorld;
 		matWorld.SetScale(VEC3(scale,scale,scale));
-		matWorld.SetTranslation(pCamera->GetPos());
+		matWorld.SetTranslation(VEC4(pCamera->GetPos(), 1.0f));
 
 		m_pSkyBox->SetWorldMatrix(matWorld);
 	}

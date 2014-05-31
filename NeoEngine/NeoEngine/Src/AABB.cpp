@@ -9,7 +9,7 @@ namespace Common
 		SetNull();
 	}
 
-	void AxisAlignBBox::Merge( const VEC4& pt )
+	void AxisAlignBBox::Merge( const VEC3& pt )
 	{
 		m_minCorner.x = min(m_minCorner.x, pt.x);
 		m_minCorner.y = min(m_minCorner.y, pt.y);
@@ -18,6 +18,15 @@ namespace Common
 		m_maxCorner.x = max(m_maxCorner.x, pt.x);
 		m_maxCorner.y = max(m_maxCorner.y, pt.y);
 		m_maxCorner.z = max(m_maxCorner.z, pt.z);
+
+		//更新外接球球径
+		m_boundingRadius = Common::Vec3_Distance(m_minCorner, m_maxCorner) / 2;
+	}
+
+	void AxisAlignBBox::Merge( const AABB& aabb )
+	{
+		Merge(aabb.m_minCorner);
+		Merge(aabb.m_maxCorner);
 	}
 
 	void AxisAlignBBox::Transform( const MAT44& matrix )
@@ -41,38 +50,56 @@ namespace Common
 		// First corner 
 		// min min min
 		currentCorner = oldMin;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// min,min,max
 		currentCorner.z = oldMax.z;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// min max max
 		currentCorner.y = oldMax.y;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// min max min
 		currentCorner.z = oldMin.z;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// max max min
 		currentCorner.x = oldMax.x;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// max max max
 		currentCorner.z = oldMax.z;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// max min max
 		currentCorner.y = oldMin.y;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) );
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() );
 
 		// max min min
 		currentCorner.z = oldMin.z;
-		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true) ); 
-
-		//更新外接球球径
-		m_boundingRadius = Common::Vec3_Distance(m_minCorner, m_maxCorner) / 2;
+		Merge( Common::Transform_Vec3_By_Mat44(currentCorner, matrix, true).GetVec3() ); 
 	}
+	//------------------------------------------------------------------------------------
+	void AxisAlignBBox::SetNull()
+	{
+		m_minCorner.Set(10000,10000,10000);
+		m_maxCorner.Set(-10000,-10000,-10000);
+		m_boundingRadius = -1;
+	}
+	//------------------------------------------------------------------------------------
+	VEC3 AxisAlignBBox::GetCenter() const
+	{
+		VEC3 ret = Common::Add_Vec3_By_Vec3(m_minCorner, m_maxCorner);
+		ret = Common::Multiply_Vec3_By_K(ret, 0.5f);
 
+		return std::move(ret);
+	}
+	//------------------------------------------------------------------------------------
+	VEC3 AxisAlignBBox::GetSize() const
+	{
+		return VEC3(m_maxCorner.x - m_minCorner.x,
+			m_maxCorner.y - m_minCorner.y,
+			m_maxCorner.z - m_minCorner.z);
+	}
 }

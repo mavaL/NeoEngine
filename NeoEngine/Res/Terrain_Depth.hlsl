@@ -20,43 +20,38 @@ cbuffer cbufferGlobal : register( b0 )
 	float	nearZ, farZ;
 };
 
-
-//--------------------------------------------------------------------------------------
-struct VS_INPUT
+cbuffer cbufferTerrain : register( b1 )
 {
-    float3 Pos : POSITION;
-	float2 uv  : TEXCOORD0;
+	float4	frustumWorldPlanes[4];
+	float	minTessDist;
+	float	maxTessDist;
+	float	minTess;
+	float	maxTess;
+	float2	invTexSize;
+	float	terrainCellSpace;
 };
 
+//--------------------------------------------------------------------------------------
 struct VS_OUTPUT
 {
-    float4 Pos		: SV_POSITION;
+    float3 PosW		: POSITION;
 	float2 uv		: TEXCOORD0;
+	float2 boundY	: TEXCOORD1;
 };
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-VS_OUTPUT VS( VS_INPUT input )
+struct DomainOut
 {
-    VS_OUTPUT output = (VS_OUTPUT)0;
-
-    output.Pos = mul(float4(input.Pos, 1), World);
-    output.uv = input.uv;
-    
-    return output;
-}
-
+	float4 PosH     : SV_POSITION;
+    float3 PosW     : POSITION;
+	float2 Tex      : TEXCOORD0;
+	float2 TiledTex : TEXCOORD1;
+};
 
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-Texture2D tex : register(t0);
-SamplerState sam : register( s0 );
 
-float4 PS( VS_OUTPUT input ) : SV_Target
+float4 PS( DomainOut IN ) : SV_Target
 {
-	float c = tex.Sample(sam, input.uv).r;
-	
-	return float4(c,c,c,1);
+	return float4(1.0f, 1.0f, 1.0f, 1.0f);
 }

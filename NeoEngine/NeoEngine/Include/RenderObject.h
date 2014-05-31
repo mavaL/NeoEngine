@@ -52,6 +52,7 @@ namespace Neo
 		const MAT44& GetWorldMatrix() const { return m_matWorld; }
 		const MAT44& GetWorldITMatrix() const { return m_matWorldIT; }
 		DWORD		GetVertCount() const	{ return m_nVertCnt; }
+		const AABB&	GetWorldAABB() const	{ return m_worldAABB; }
 
 	private:
 		ID3D11Buffer*	m_pVertexBuf;

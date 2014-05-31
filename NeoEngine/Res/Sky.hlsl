@@ -9,6 +9,7 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	Projection;
 	matrix	WVP;
 	matrix	WorldIT;
+	matrix	ShadowTransform;
 	float4	clipPlane;
 	float4	frustumFarCorner[4];
 	float4	ambientColor;

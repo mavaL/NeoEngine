@@ -33,9 +33,9 @@ namespace Neo
 		void	AddMoveSpeed(float delta);
 		float	GetMoveSpeed()	{ return m_moveSpeed; }
 
-		const VEC4&		GetPos() const		{ return m_viewPt;	}
-		VEC4			GetDirection() const;
-		VEC4			GetRight() const;
+		const VEC3&		GetPos() const		{ return m_viewPt;	}
+		VEC3			GetDirection() const;
+		VEC3			GetRight() const;
 		float	GetNearClip() const	{ return m_nearClip; }
 		float	GetFarClip() const	{ return m_farClip; }
 		float	GetFov() const		{ return m_fov; }
@@ -49,7 +49,7 @@ namespace Neo
 		void	_BuildProjMatrix();
 
 	private:
-		VEC4	m_viewPt;
+		VEC3	m_viewPt;
 
 		float	m_nearClip;
 		float	m_farClip;
