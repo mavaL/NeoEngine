@@ -19,14 +19,19 @@ namespace Neo
 		m_pRT_ShadowMap->SetRenderPhase(eRenderPhase_ShadowMap);
 
 		m_depthBiasRasterDesc = pRenderSystem->GetRasterizeDesc();
-		m_depthBiasRasterDesc.DepthBias = 100000;
-		m_depthBiasRasterDesc.DepthBiasClamp = 0.0f;
-		m_depthBiasRasterDesc.SlopeScaledDepthBias = 1.0f;
+		SetDepthBias(100000);
 	}
 	//------------------------------------------------------------------------------------
 	ShadowMap::~ShadowMap()
 	{
 		SAFE_RELEASE(m_pRT_ShadowMap);
+	}
+	//------------------------------------------------------------------------------------
+	void ShadowMap::SetDepthBias( int bias )
+	{
+		m_depthBiasRasterDesc.DepthBias = bias;
+		m_depthBiasRasterDesc.DepthBiasClamp = 0.0f;
+		m_depthBiasRasterDesc.SlopeScaledDepthBias = 1.0f;
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMap::Render()
@@ -59,9 +64,10 @@ namespace Neo
 	void ShadowMap::Update()
 	{
 		// Compute light space view/proj matrix
+		AABB sceneAABB = g_env.pSceneMgr->GetCurScene()->GetSceneShadowReceiverAABB();
+
 		VEC3 vInvLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
 		vInvLightDir.Neg();
-		const AABB& sceneAABB = g_env.pSceneMgr->GetCurScene()->GetSceneAABB();
 		VEC3 vLightTarget = sceneAABB.GetCenter();
 		VEC3 vLightPos = Common::Add_Vec3_By_Vec3(vLightTarget, Common::Multiply_Vec3_By_K(vInvLightDir, sceneAABB.m_boundingRadius));
 

@@ -2,24 +2,36 @@
 #include "Font.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderSystem.h"
-#include "RenderObject.h"
 #include "Material.h"
+#include "Mesh.h"
+#include "Entity.h"
 
 
 namespace Neo
 {
 	//-------------------------------------------------------------------------------
 	Font::Font()
-	:m_pMesh(nullptr)
-	,m_pMaterial(nullptr)
+	:m_pMaterial(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
 	{
 		_InitMaterial();
+
+		m_pMesh = new Mesh;
+		SubMesh* pSubMesh = new SubMesh;
+
+		m_pMesh->AddSubMesh(pSubMesh);
+		pSubMesh->SetMaterial(m_pMaterial);
+
+		m_pEntity = new Entity(m_pMesh, false);
+
+		m_pEntity->SetCastShadow(false);
+		m_pEntity->SetReceiveShadow(false);
 	}
 	//-------------------------------------------------------------------------------
 	Font::~Font()
 	{
 		SAFE_DELETE(m_pMesh);
+		SAFE_DELETE(m_pEntity);
 		SAFE_RELEASE(m_pMaterial);
 	}
 	//-------------------------------------------------------------------------------
@@ -34,7 +46,7 @@ namespace Neo
 		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		m_pRenderSystem->SetBlendStateDesc(blendDesc);
 
-		m_pMesh->Render();
+		m_pEntity->Render();
 
 		// Reset render state
 		blendDesc.RenderTarget[0].BlendEnable = FALSE;
@@ -117,12 +129,14 @@ namespace Neo
 		}
 
 		// Is old buffer big enough?
+		
+
 		const uint32 nBufSize = sizeof(SVertex) * nChar;
-		const uint32 nOldSize = sizeof(SVertex) * m_pMesh->GetVertCount();
+		const uint32 nOldSize = sizeof(SVertex) * m_pMesh->GetSubMesh(0)->GetVertData().GetVertCount();
 
 		if (/*nOldSize < nBufSize*/true)	// Not enough
 		{
-			m_pMesh->CreateVertexBuffer(pVert, nChar*2*3, false);
+			m_pMesh->GetSubMesh(0)->InitVertData(eVertexType_General, pVert, nChar*2*3, false);
 		}
 		else	// Enough
 		{
@@ -136,10 +150,7 @@ namespace Neo
 	{
 		m_pMaterial = new Material;
 		m_pMaterial->SetTexture(0, new D3D11Texture(GetResPath("Font.dds")));
-		m_pMaterial->InitShader(GetResPath("Font.hlsl"), GetResPath("Font.hlsl"), false);
-
-		m_pMesh = new RenderObject;
-		m_pMesh->SetMaterial(m_pMaterial);
+		m_pMaterial->InitShader(GetResPath("Font.hlsl"), GetResPath("Font.hlsl"));
 	}
 }
 

@@ -23,7 +23,7 @@ namespace Neo
 	class Material : public IRefCount
 	{
 	public:
-		Material();
+		Material(eVertexType type = eVertexType_General);
 		~Material();
 
 	public:
@@ -32,17 +32,20 @@ namespace Neo
 
 		void		Activate();
 		void		TurnOffTessellation();
-		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const D3D_SHADER_MACRO* pMacro = nullptr);
-		bool		InitTessellationShader(const STRING& filename, const D3D_SHADER_MACRO* pMacro = nullptr);
-		void		SetTexture(int stage, D3D11Texture* pTexture);
+		// NB: Should be called after all texture stages have been setup
+		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
+		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
+
+		void					SetTexture(int stage, D3D11Texture* pTexture);
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
-
+		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
 
 	private:
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-			const D3D_SHADER_MACRO* pMacro, ID3DBlob** ppBlobOut );		
+			const std::vector<D3D_SHADER_MACRO>& vecMacro, ID3DBlob** ppBlobOut );		
 		void		_CreateVertexLayout();
+		std::vector<D3D_SHADER_MACRO> _InternelInitShader(const D3D_SHADER_MACRO* pMacro);
 
 		D3D11RenderSystem*			m_pRenderSystem;
 		ID3D11VertexShader*			m_pVertexShader;
@@ -51,8 +54,11 @@ namespace Neo
 		ID3D11DomainShader*			m_pDomainShader;
 		ID3D11VertexShader*			m_pVS_WithClipPlane;
 		ID3D11InputLayout*			m_pInputLayout;			// Why keep it here? Because it's depend on m_vsCode
+
 		std::vector<char>			m_vsCode;				// Cached for creating vertex layout
-		bool						m_bHasClipPlaneShader;	// This material has clip plane shader?
+		uint32						m_shaderFlag;
+		D3D11_CULL_MODE				m_cullMode;
+		eVertexType					m_vertType;
 
 		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
 		D3D11_SAMPLER_DESC	m_samplerStateDesc[MAX_TEXTURE_STAGE];

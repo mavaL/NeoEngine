@@ -9,7 +9,6 @@
 #define SceneManager_h__
 
 #include "Prerequiestity.h"
-#include "RenderObject.h"
 #include "Material.h"
 
 namespace Neo
@@ -23,19 +22,24 @@ namespace Neo
 	public:
 		bool		Init();
 		void		Update();
+		void		Render(Material* pMaterial = nullptr);
+		void		RenderPipline(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
+
 		void		ToggleScene();
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }
+		void		ClearScene();
+
+		// Create entity from loaded mesh
+		Entity*		CreateEntity(eEntity type, const STRING& meshname);
+
+		void		SetRenderFlag(uint32 flag) { m_renderFlag = flag; }
+		uint32		GetRenderFlag() const	{ return m_renderFlag; }
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
 		void		CreateSky();
 		void		CreateTerrain();
 		void		CreateWater(float waterHeight = 0.0f);
-		void		SetSolidRenderList(const RenderList& lst) { m_renderList_Solid = lst; }
-		void		ClearScene();
-		void		Render(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
-		void		RenderPipline(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
-		RenderObject* LoadMesh(const STRING& filename);
 
 		const SDirectionLight& GetSunLight() const { return m_sunLight; }
 		SSAO*		GetSSAO()		{ return m_pSSAO; }
@@ -43,25 +47,35 @@ namespace Neo
 		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
 		void		EnableDebugRT(eDebugRT type);
 
+		// Convenient mesh create function
+		static Mesh*	CreatePlaneMesh(float w, float h);
+		static Mesh*	CreateCubeMesh(const VEC3& minPt, const VEC3& maxPt);
+		static Mesh*	CreateFrustumMesh(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop);
+
 	private:
-		void		_InitAllScene();
+		void		_InitAllScene();	
 
 		std::vector<Scene*>		m_scenes;	
 		Scene*					m_pCurScene;
 
+		D3D11RenderSystem* m_pRenderSystem;
+		uint32			m_renderFlag;	// Render phase control flag
 		Camera*			m_camera;
 		SDirectionLight	m_sunLight;
 		Terrain*		m_pTerrain;
 		Water*			m_pWater;
 		Sky*			m_pSky;
-		RenderList		m_renderList_Solid;
-		MeshLoader*		m_pMeshLoader;
 		ShadowMap*		m_pShadowMap;
-
-		D3D11RenderSystem* m_pRenderSystem;
 		SSAO*			m_pSSAO;
+		
+
+		MeshLoader*		m_pMeshLoader;
+		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;
+		MeshContainer	m_meshes;
+
+		
 		eDebugRT		m_debugRT;
-		RenderObject*	m_pDebugRTMesh;
+		Mesh*			m_pDebugRTMesh;
 		Material*		m_pDebugRTMaterial;
 	};
 }

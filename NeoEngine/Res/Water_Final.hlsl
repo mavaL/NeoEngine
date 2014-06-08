@@ -23,6 +23,7 @@ cbuffer cbufferGlobal : register( b0 )
 	float3	camPos;
 	float	time;
 	float	nearZ, farZ;
+	float	shadowMapTexelSize;
 };
 
 cbuffer cbVS : register( b1 )

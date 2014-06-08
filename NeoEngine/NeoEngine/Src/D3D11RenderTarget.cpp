@@ -3,12 +3,16 @@
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
 #include "SceneManager.h"
+#include "Mesh.h"
 #include "Camera.h"
+#include "Entity.h"
 
 
 namespace Neo
 {
-	RenderObject* D3D11RenderTarget::m_pQuadMesh = nullptr;
+	Mesh* D3D11RenderTarget::m_pQuadMesh = nullptr;
+	Entity* D3D11RenderTarget::m_pQuadEntity = nullptr;
+
 	//----------------------------------------------------------------------------------------
 	D3D11RenderTarget::D3D11RenderTarget()
 	:m_pRenderSystem(g_env.pRenderSystem)
@@ -27,7 +31,8 @@ namespace Neo
 		static bool bCreate = false;
 		if (!bCreate)
 		{
-			m_pQuadMesh = new RenderObject;
+			m_pQuadMesh = new Mesh;
+			SubMesh* pSubMesh = new SubMesh;
 
 			SVertex v[4] = 
 			{
@@ -44,8 +49,15 @@ namespace Neo
 			v[2].normal.x = 2;
 			v[3].normal.x = 3;
 
-			m_pQuadMesh->CreateVertexBuffer(v, ARRAYSIZE(v), true);
-			m_pQuadMesh->CreateIndexBuffer(index, ARRAYSIZE(index), true);
+			pSubMesh->InitVertData(eVertexType_General, v, ARRAYSIZE(v), true);
+			pSubMesh->InitIndexData(index, ARRAYSIZE(index), true);
+
+			m_pQuadMesh->AddSubMesh(pSubMesh);
+
+			m_pQuadEntity = new Entity(m_pQuadMesh);
+
+			m_pQuadEntity->SetCastShadow(false);
+			m_pQuadEntity->SetReceiveShadow(false);
 
 			bCreate = true;
 		}
@@ -155,7 +167,7 @@ namespace Neo
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
 
-		m_pQuadMesh->Render(pMaterial);	
+		m_pQuadEntity->Render(pMaterial);	
 
 		_AfterRender();
 

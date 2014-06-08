@@ -19,7 +19,7 @@ namespace Neo
 
 		// Init ssao RT & material
 		m_pRT_NormalDepth = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F);
+		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F, false);
 		m_pRT_NormalDepth->SetRenderPhase(eRenderPhase_Solid);
 		m_pRT_NormalDepth->SetClearEveryFrame(true, false);
 
@@ -27,7 +27,7 @@ namespace Neo
 		m_pTexNormalDepth->AddRef();
 
 		m_pNormalDepthMaterial = new Material;
-		m_pNormalDepthMaterial->InitShader(GetResPath("ViewSpaceNormalDepth.hlsl"), GetResPath("ViewSpaceNormalDepth.hlsl"), false);
+		m_pNormalDepthMaterial->InitShader(GetResPath("ViewSpaceNormalDepth.hlsl"), GetResPath("ViewSpaceNormalDepth.hlsl"));
 
 		m_pRT_ssao = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_ssao->Init(halfW, halfH, ePF_R16F);
@@ -37,7 +37,7 @@ namespace Neo
 		m_pTexSsao->AddRef();
 
 		m_pSsaoMaterial = new Material;
-		m_pSsaoMaterial->InitShader(GetResPath("SSAO.hlsl"), GetResPath("SSAO.hlsl"), false);
+		m_pSsaoMaterial->InitShader(GetResPath("SSAO.hlsl"), GetResPath("SSAO.hlsl"));
 		m_pSsaoMaterial->SetTexture(0, m_pTexNormalDepth);
 
 		D3D11_SAMPLER_DESC& samDesc = m_pSsaoMaterial->GetSamplerStateDesc(0);
@@ -68,8 +68,8 @@ namespace Neo
 
 		m_pBlurHMaterial = new Material;
 		m_pBlurVMaterial = new Material;
-		m_pBlurHMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), false, nullptr);
-		m_pBlurVMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), false, nullptr);
+		m_pBlurHMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"));
+		m_pBlurVMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"));
 		m_pBlurHMaterial->SetTexture(0, m_pTexNormalDepth);
 		m_pBlurVMaterial->SetTexture(0, m_pTexNormalDepth);
 

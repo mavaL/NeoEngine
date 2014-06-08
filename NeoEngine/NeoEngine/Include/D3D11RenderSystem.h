@@ -42,6 +42,7 @@ namespace Neo
 			VEC3	camPos;
 			float	time;
 			float	nearZ, farZ;
+			float	shadowMapTexelSize;
 		};
 
 	public:

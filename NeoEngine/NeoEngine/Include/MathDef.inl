@@ -119,7 +119,8 @@ namespace Common
 
 		Vector4 trans;
 		trans = Transform_Vec3_By_Mat44(vEye, ret, true);
-		ret.SetTranslation(Vector4(-trans.x, -trans.y, -trans.z, 1));
+		trans.Neg();
+		ret.SetTranslation(trans.GetVec3());
 
 		return ret;
 	}

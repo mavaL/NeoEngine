@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "MeshLoader.h"
-#include "RenderObject.h"
+#include "Mesh.h"
+
 
 using namespace std;
 
 namespace Neo
 {
-	RenderObject* MeshLoader::LoadMesh( const STRING& filename )
+	Mesh* MeshLoader::LoadMesh( const STRING& filename )
 	{
 		TiXmlDocument doc;
 		if(!doc.LoadFile(filename.c_str()))
@@ -15,100 +16,190 @@ namespace Neo
 			return nullptr;
 		}
 
-		vector<SVertex> vecVertex;
-		vector<DWORD> vecIndex;
-		RenderObject* obj = new RenderObject;
+		Mesh* pMesh = new Mesh;
 
+		// For each submesh
 		TiXmlElement* submeshNode = doc.FirstChildElement("mesh")->FirstChildElement("submeshes")->FirstChildElement("submesh");
 
-		//读取面信息
+		while (submeshNode)
 		{
-			TiXmlElement* facesNode = submeshNode->FirstChildElement("faces");
-			int nFace = 0;
-			facesNode->Attribute("count", &nFace);
+			vector<DWORD> vecIndex;
 
-			vecIndex.resize(nFace*3);
+			SubMesh* pSubMesh = new SubMesh;
+			pMesh->AddSubMesh(pSubMesh);
 
-			int idx = 0;
-			TiXmlElement* faceNode = facesNode->FirstChildElement("face");
-			while (faceNode)
+			const char* szName = submeshNode->Attribute("name");
+			if(szName) 
+				pSubMesh->SetName(szName);
+
+			//读取面信息
 			{
-				int v1, v2, v3;
-				faceNode->Attribute("v1", &v1);
-				faceNode->Attribute("v2", &v2);
-				faceNode->Attribute("v3", &v3);
+				TiXmlElement* facesNode = submeshNode->FirstChildElement("faces");
+				int nFace = 0;
+				facesNode->Attribute("count", &nFace);
 
-				vecIndex[idx++] = v1;
-				vecIndex[idx++] = v2;
-				vecIndex[idx++] = v3;
+				vecIndex.resize(nFace*3);
 
-				faceNode = faceNode->NextSiblingElement("face");
-			}
-		}
-
-		//读取顶点数据
-		{
-			TiXmlElement* geometryNode = submeshNode->FirstChildElement("geometry");
-			int nVert = 0;
-			geometryNode->Attribute("vertexcount", &nVert);
-
-			vecVertex.resize(nVert);
-
-			TiXmlElement* vbNode = geometryNode->FirstChildElement("vertexbuffer");
-			//check what we have..
-			if(vbNode->Attribute("positions") != STRING("true"))
-			{
-				throw std::logic_error("Error, the .mesh file doesn't even have vertex position info!");
-				return false;
-			}
-			if(vbNode->Attribute("normals") != STRING("true"))
-			{
-				throw std::logic_error("Error, the .mesh file doesn't even have vertex normal info!");
-				return false;
-			}
-
-			int idx = 0;
-			TiXmlElement* vertNode = vbNode->FirstChildElement("vertex");
-			while (vertNode)
-			{
-				//position
-				TiXmlElement* posNode = vertNode->FirstChildElement("position");
-				double x, y, z;
-				posNode->Attribute("x", &x);
-				posNode->Attribute("y", &y);
-				posNode->Attribute("z", &z);
-
-				//normal
-				TiXmlElement* normalNode = vertNode->FirstChildElement("normal");
-				double nx, ny, nz;
-				normalNode->Attribute("x", &nx);
-				normalNode->Attribute("y", &ny);
-				normalNode->Attribute("z", &nz);
-
-				//uv
-				TiXmlElement* uvNode = vertNode->FirstChildElement("texcoord");
-				double texu, texv;
-				if(uvNode)
+				int idx = 0;
+				TiXmlElement* faceNode = facesNode->FirstChildElement("face");
+				while (faceNode)
 				{
-					uvNode->Attribute("u", &texu);
-					uvNode->Attribute("v", &texv);
+					int v1, v2, v3;
+					faceNode->Attribute("v1", &v1);
+					faceNode->Attribute("v2", &v2);
+					faceNode->Attribute("v3", &v3);
+
+					vecIndex[idx++] = v1;
+					vecIndex[idx++] = v2;
+					vecIndex[idx++] = v3;
+
+					faceNode = faceNode->NextSiblingElement("face");
 				}
 
-				SVertex& vert = vecVertex[idx++];
-				vert.pos.Set(x,y,z);
-				vert.normal.Set(nx,ny,nz);
-				vert.normal.Normalize();
-				if(uvNode)
-					vert.uv.Set(texu, texv);
-
-				vertNode = vertNode->NextSiblingElement("vertex");
+				pSubMesh->InitIndexData(&vecIndex[0], vecIndex.size(), true);
 			}
+
+			//读取顶点数据
+			{
+				TiXmlElement* geometryNode = submeshNode->FirstChildElement("geometry");
+				int nVert = 0;
+				geometryNode->Attribute("vertexcount", &nVert);
+
+				TiXmlElement* vertNode = geometryNode->FirstChildElement("vertexbuffer")->FirstChildElement("vertex");
+
+				const char* szVertType = submeshNode->Attribute("vertextype");
+
+				if (szVertType && !strcmp(szVertType, "treeleaf"))
+					_LoadVertex_Leaf(vertNode, nVert, pSubMesh);
+				else
+					_LoadVertex_General(vertNode, nVert, pSubMesh);
+			}
+
+			submeshNode = submeshNode->NextSiblingElement("submesh");
+		}
+		
+		return pMesh;
+	}
+	//------------------------------------------------------------------------------------
+	void MeshLoader::_LoadVertex_General( TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh )
+	{
+		int idx = 0;
+		std::vector<SVertex> vecVertex(nVert);
+
+		while (vertNode)
+		{
+			//position
+			TiXmlElement* posNode = vertNode->FirstChildElement("position");
+			assert(posNode);
+
+			double x, y, z;
+			posNode->Attribute("x", &x);
+			posNode->Attribute("y", &y);
+			posNode->Attribute("z", &z);
+
+			//normal
+			TiXmlElement* normalNode = vertNode->FirstChildElement("normal");
+			assert(normalNode);
+
+			double nx, ny, nz;
+			normalNode->Attribute("x", &nx);
+			normalNode->Attribute("y", &ny);
+			normalNode->Attribute("z", &nz);
+
+			//uv
+			TiXmlElement* uvNode = vertNode->FirstChildElement("texcoord");
+			assert(uvNode);
+
+			double texu, texv;
+			if(uvNode)
+			{
+				uvNode->Attribute("u", &texu);
+				uvNode->Attribute("v", &texv);
+			}
+
+			SVertex& vert = vecVertex[idx++];
+			vert.pos.Set(x,y,z);
+			vert.normal.Set(nx,ny,nz);
+			vert.normal.Normalize();
+			if(uvNode)
+				vert.uv.Set(texu, texv);
+
+			vertNode = vertNode->NextSiblingElement("vertex");
 		}
 
-		obj->CreateVertexBuffer(&vecVertex[0], vecVertex.size(), true);
-		obj->CreateIndexBuffer(&vecIndex[0], vecIndex.size(), true);
-		
-		return obj;
+		pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], nVert, true);
+	}
+	//------------------------------------------------------------------------------------
+	void MeshLoader::_LoadVertex_Leaf( TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh )
+	{
+		int idx = 0;
+		std::vector<STreeLeafVertex> vecVertex(nVert);
+
+		while (vertNode)
+		{
+			//position
+			TiXmlElement* posNode = vertNode->FirstChildElement("position");
+			assert(posNode);
+
+			double x, y, z;
+			posNode->Attribute("x", &x);
+			posNode->Attribute("y", &y);
+			posNode->Attribute("z", &z);
+
+			//normal
+			TiXmlElement* normalNode = vertNode->FirstChildElement("normal");
+			assert(normalNode);
+
+			double nx, ny, nz;
+			normalNode->Attribute("x", &nx);
+			normalNode->Attribute("y", &ny);
+			normalNode->Attribute("z", &nz);
+
+			//uv
+			TiXmlElement* uvNode = vertNode->FirstChildElement("texcoord");
+			assert(uvNode);
+
+			double texu, texv, texw;
+			uvNode->Attribute("u", &texu);
+			uvNode->Attribute("v", &texv);
+
+			STreeLeafVertex& vert = vecVertex[idx++];
+			vert.pos.Set(x,y,z);
+			vert.normal.Set(nx,ny,nz);
+			vert.normal.Normalize();
+			vert.uv.Set(texu, texv);
+
+			uvNode = uvNode->NextSiblingElement("texcoord");
+			assert(uvNode);
+
+			uvNode->Attribute("u", &texu);
+			uvNode->Attribute("v", &texv);
+			uvNode->Attribute("w", &texw);
+
+			vert.uv2.Set(texu, texv, texw);
+
+			uvNode = uvNode->NextSiblingElement("texcoord");
+			assert(uvNode);
+
+			uvNode->Attribute("u", &texu);
+			uvNode->Attribute("v", &texv);
+			uvNode->Attribute("w", &texw);
+
+			vert.uv3.Set(texu, texv, texw);
+
+			uvNode = uvNode->NextSiblingElement("texcoord");
+			assert(uvNode);
+
+			uvNode->Attribute("u", &texu);
+			uvNode->Attribute("v", &texv);
+			uvNode->Attribute("w", &texw);
+
+			vert.uv4.Set(texu, texv, texw);
+
+			vertNode = vertNode->NextSiblingElement("vertex");
+		}
+
+		pSubMesh->InitVertData(eVertexType_TreeLeaf, &vecVertex[0], nVert, true);
 	}
 }
 

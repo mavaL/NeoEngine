@@ -77,20 +77,23 @@
   <ItemGroup>
     <ClInclude Include="..\Dependency\tinyxml\tinystr.h" />
     <ClInclude Include="..\Dependency\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\Res\Common.h" />
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\Camera.h" />
+    <ClInclude Include="Include\Common.h" />
     <ClInclude Include="Include\D3D11RenderSystem.h" />
     <ClInclude Include="Include\Color.h" />
     <ClInclude Include="Include\D3D11RenderTarget.h" />
     <ClInclude Include="Include\D3D11Texture.h" />
+    <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\Font.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MathDef.h" />
+    <ClInclude Include="Include\Mesh.h" />
     <ClInclude Include="Include\MeshLoader.h" />
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
-    <ClInclude Include="Include\RenderObject.h" />
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
     <ClInclude Include="Include\ShadowMap.h" />
@@ -99,6 +102,8 @@
     <ClInclude Include="Include\SSAO.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\Terrain.h" />
+    <ClInclude Include="Include\Tree.h" />
+    <ClInclude Include="Include\VertexData.h" />
     <ClInclude Include="Include\Water.h" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +177,22 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
     </CustomBuild>
+    <CustomBuild Include="..\Res\Tree\Branch.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Tree\Frond.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="..\Res\Tree\Leaf.hlsl">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
+    </CustomBuild>
+    <None Include="..\Res\WhiteNoLight.hlsl" />
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -192,12 +213,13 @@
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
     <ClCompile Include="Src\D3D11RenderTarget.cpp" />
     <ClCompile Include="Src\D3D11Texture.cpp" />
+    <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
+    <ClCompile Include="Src\Mesh.cpp" />
     <ClCompile Include="Src\MeshLoader.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />
-    <ClCompile Include="Src\RenderObject.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
     <ClCompile Include="Src\ShadowMap.cpp" />
@@ -208,6 +230,8 @@
     </ClCompile>
     <ClCompile Include="Src\Terrain.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
+    <ClCompile Include="Src\Tree.cpp" />
+    <ClCompile Include="Src\VertexData.cpp" />
     <ClCompile Include="Src\Water.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

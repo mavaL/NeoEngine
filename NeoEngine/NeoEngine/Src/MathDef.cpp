@@ -19,6 +19,9 @@ namespace Common
 												0, 0, 0, 1);
 
 
+	Common::Quaternion Quaternion::IDENTITY	=	Quaternion(1, 0, 0, 0);
+
+
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	void Transform_Vec4_By_Mat44( Vector4& result, const Vector4& pt, const Matrix44& mat )
 	{
@@ -44,9 +47,9 @@ namespace Common
 		m30 = 0; m31 = 0; m32 = 0; m33 = 1;
 	}
 
-	void Matrix44::SetTranslation( const Vector4& t )
+	void Matrix44::SetTranslation( const Vector3& t )
 	{
-		SetRow(3, t);
+		SetRow(3, Vector4(t, 1.0f));
 	}
 
 	Matrix44 Matrix44::Transpose() const
@@ -95,6 +98,24 @@ namespace Common
 		m10 = v2.x; m11 = v2.y; m12 = v2.z; m13 = 0;
 		m20 = v3.x; m21 = v3.y; m22 = v3.z; m23 = 0;
 		m30 = 0;	m31 = 0;	m32 = 0;	m33 = 1;
+	}
+
+	void Matrix44::FromQuaternion(const Quaternion& quat)
+	{
+		float xy = quat.x * quat.y;
+		float xz = quat.x * quat.z;
+		float xw = quat.x * quat.w;
+		float yz = quat.y * quat.z;
+		float yw = quat.y * quat.w;
+		float zw = quat.z * quat.w;
+		float xx = quat.x * quat.x;
+		float yy = quat.y * quat.y;
+		float zz = quat.z * quat.z;
+
+		m00 = 1 - 2 * (yy + zz);	m01 = 2 * (xy + zw);	m02 = 2 * (xz - yw);	m03 = 0;
+		m10 = 2 * (xy - zw);		m11 = 1 - 2 * (xx + zz); m12 = 2 * (yz = xw);	m13 = 0;
+		m20 = 2 * (xz + yw);		m21 = 2 * (yz - xw);	m22 = 1 - 2 * (xx + yy); m23 = 0;
+		m30 = 0;					m31 = 0;				m32 = 0;				m33 = 1;
 	}
 
 	void Matrix44::SetRow( int row, const Vector4& vec )
@@ -167,6 +188,15 @@ namespace Common
 			d10, d11, d12, d13,
 			d20, d21, d22, d23,
 			d30, d31, d32, d33);
+	}
+
+	void Quaternion::FromAxisAngle( const Vector3& axis, float angle )
+	{
+		float fHalfRadin = Angle_To_Radian(angle * 0.5f);
+		x = axis.x * sinf(fHalfRadin);
+		y = axis.y * sinf(fHalfRadin);
+		z = axis.z * sinf(fHalfRadin);
+		w = cosf(fHalfRadin);
 	}
 }
 

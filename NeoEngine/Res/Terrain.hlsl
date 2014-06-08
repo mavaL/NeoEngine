@@ -1,3 +1,5 @@
+#include "Common.h"
+
 //--------------------------------------------------------------------------------------
 // Global Variables
 //--------------------------------------------------------------------------------------
@@ -33,6 +35,7 @@ cbuffer cbufferGlobal : register( b0 )
 	float3	camPos;
 	float	time;
 	float	nearZ, farZ;
+	float	shadowMapTexelSize;
 };
 
 cbuffer cbufferTerrain : register( b1 )
@@ -44,7 +47,6 @@ cbuffer cbufferTerrain : register( b1 )
 	float	maxTess;
 	float2	invTexSize;
 	float	terrainCellSpace;
-	float	shadowMapTexelSize;
 };
 
 //--------------------------------------------------------------------------------------
@@ -276,11 +278,11 @@ float4 PS( DomainOut IN ) : SV_Target
 	//====================================================================================
 	// Texture splatting
 	//====================================================================================
-	float4 c0 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
+	float4 c0 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 0.0f) );
 	float4 c1 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
-	float4 c2 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
-	float4 c3 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
-	float4 c4 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) ); 
+	float4 c2 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 2.0f) );
+	float4 c3 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 3.0f) );
+	float4 c4 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 4.0f) ); 
 	
 	// blend map
 	float4 t  = gBlendMap.Sample( samBlendMap, IN.Tex ); 
@@ -300,15 +302,7 @@ float4 PS( DomainOut IN ) : SV_Target
 	N = mul(N, matTBN);
 
 	// Do shadowing
-	float4 shadowPos = mul(float4(IN.PosW, 1.0f), ShadowTransform);
-	shadowPos.xyz /= shadowPos.w;
-	float2 shadowTexUV = shadowPos.xy;
-
-	// 2x2 PCF kernel
-	float fLitFactor = 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(-shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(+shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(-shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * gShadowMap.SampleCmpLevelZero(samShadowMap, shadowTexUV + float2(+shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
+	float fLitFactor = ComputeShdow(IN.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
 
 	// Do lighting
 	float3 PosToCam = camPos - IN.PosW;

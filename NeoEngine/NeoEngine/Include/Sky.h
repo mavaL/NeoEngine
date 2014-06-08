@@ -28,8 +28,8 @@ namespace Neo
 
 	private:
 		D3D11RenderSystem*	m_pRenderSystem;
-		Material*			m_pMaterial;
-		RenderObject*		m_pSkyBox;
+		Mesh*				m_pMesh;
+		Entity*				m_pEntity;
 	};
 }
 

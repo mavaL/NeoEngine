@@ -457,6 +457,7 @@ namespace Neo
 		m_cBufferGlobal.ambientColor.Set(0.2f, 0.2f, 0.2f);
 		m_cBufferGlobal.nearZ = cam->GetNearClip();
 		m_cBufferGlobal.farZ = cam->GetFarClip();
+		m_cBufferGlobal.shadowMapTexelSize = 1.0f / ShadowMap::SHADOW_MAP_SIZE;
 		
 		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 

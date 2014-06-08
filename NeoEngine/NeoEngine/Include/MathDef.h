@@ -103,6 +103,27 @@ namespace Common
 	};
 
 	/////////////////////////////////////////////////////////////
+	//////// Quaternion
+	class Quaternion
+	{
+	public:
+		Quaternion() { Identity(); }
+
+		Quaternion(float _w, float _x, float _y, float _z)
+			:w(_w),x(_x),y(_y),z(_z) {}
+
+		Quaternion(const Vector3& axis, float angle) { FromAxisAngle(axis, angle); }
+
+		void	Identity() { *this = IDENTITY; }
+
+		void	FromAxisAngle(const Vector3& axis, float angle);
+
+		static Quaternion IDENTITY;
+
+		float w, x, y, z;
+	};
+
+	/////////////////////////////////////////////////////////////
 	//////// 4x4 Matrix
 	class Matrix44
 	{
@@ -133,13 +154,15 @@ namespace Common
 		//清除平移部分
 		inline void	ClearTranslation() { SetRow(3, Vector4(0,0,0,1)); }
 		//设置平移部分
-		void		SetTranslation(const Vector4& t);
+		void		SetTranslation(const Vector3& t);
 		//获取平移部分
 		inline Vector4	GetTranslation() const { return std::move(Vector4(m30, m31, m32, m33)); }
 		//通过轴角对构建旋转矩阵,平移部分设为0
 		void		FromAxisAngle(const Vector3& axis, float angle);
 		//通过轴构建矩阵
 		void		FromAxises(const Vector3& v1, const Vector3& v2, const Vector3& v3);
+		//通过四元数构建
+		void		FromQuaternion(const Quaternion& quat);
 
 		union
 		{
@@ -171,6 +194,7 @@ namespace Common
 		Vector3	n;
 		float	d;
 	};
+
 
 	//////// 以4x4矩阵变换4d坐标
 	void	Transform_Vec4_By_Mat44(Vector4& result, const Vector4& pt, const Matrix44& mat);

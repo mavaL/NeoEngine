@@ -15,7 +15,11 @@ namespace Neo
 	class MeshLoader
 	{
 	public:
-		static RenderObject*	LoadMesh(const STRING& filename);
+		static Mesh*	LoadMesh(const STRING& filename);
+
+	private:
+		static void		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);
+		static void		_LoadVertex_Leaf(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);
 	};
 }
 

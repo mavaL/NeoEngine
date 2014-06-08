@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Camera.h"
-#include "RenderObject.h"
 
 namespace Neo
 {
@@ -91,7 +90,8 @@ namespace Neo
 
 		VEC4 trans;
 		trans = Common::Transform_Vec3_By_Mat44(m_viewPt, m_matView, true);
-		m_matView.SetTranslation(VEC4(-trans.x, -trans.y, -trans.z, 1));
+		trans.Neg();
+		m_matView.SetTranslation(trans.GetVec3());
 	}
 
 	void Camera::_BuildProjMatrix()

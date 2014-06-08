@@ -6,6 +6,10 @@
 #include "D3D11Texture.h"
 #include "SceneManager.h"
 #include "SSAO.h"
+#include "Entity.h"
+#include "Mesh.h"
+
+using namespace Neo;
 
 
 #define ADD_TEST_SCENE($setupFunc, $enterFunc)						\
@@ -18,24 +22,20 @@
 
 void SetupTestScene1(Scene* scene)
 {
-	Neo::RenderObject* obj=  g_env.pSceneMgr->LoadMesh(GetResPath("skull.mesh"));
+	Entity* pEntity =  g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
 
-	scene->AddRenderObject(obj);
+	QUATERNION quat(VEC3::UNIT_Y, 90);
+	pEntity->SetRotation(quat);
 
-	// Use ssao
-	D3D_SHADER_MACRO macro[] = { "SSAO", "", 0, 0 };
+	Neo::Material* pMaterial = new Material;
 
-	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), false, macro);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->SetTexture(1, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
+	pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableSSAO);
 
+	pEntity->SetMaterial(0, pMaterial);
+	SAFE_RELEASE(pMaterial);
 
-	obj->SetMaterial(pMaterial);
-
-	MAT44 mat;
-	mat.FromAxisAngle(VEC3::UNIT_Y, 90);
-	obj->SetWorldMatrix(mat);
+	scene->AddEntity(pEntity);
 }
 
 void EnterTestScene1(Scene* scene)
@@ -45,234 +45,49 @@ void EnterTestScene1(Scene* scene)
 	g_env.pSceneMgr->GetCamera()->SetDirection(VEC3::UNIT_Z);
 
 	g_env.pSceneMgr->EnableDebugRT(eDebugRT_SSAO);
-}
-
-
-static Neo::RenderObject*	CreateCube(const VEC3& minPt, const VEC3& maxPt)
-{
-	Neo::RenderObject* pCube =  new Neo::RenderObject;
-
-	Neo::SVertex vert[24];
-
-	// front side
-	vert[0].pos.Set(minPt.x, minPt.y, maxPt.z);
-	vert[0].uv.Set(0, 1);
-	vert[1].pos.Set(maxPt.x, minPt.y, maxPt.z);
-	vert[1].uv.Set(1, 1);
-	vert[2].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-	vert[2].uv.Set(1, 0);
-	vert[3].pos.Set(minPt.x, maxPt.y, maxPt.z);
-	vert[3].uv.Set(0, 0);
-
-	// back side
-	vert[4].pos.Set(maxPt.x, minPt.y, minPt.z);
-	vert[4].uv.Set(0, 1);
-	vert[5].pos.Set(minPt.x, minPt.y, minPt.z);
-	vert[5].uv.Set(1, 1);
-	vert[6].pos.Set(minPt.x, maxPt.y, minPt.z);
-	vert[6].uv.Set(1, 0);
-	vert[7].pos.Set(maxPt.x, maxPt.y, minPt.z);
-	vert[7].uv.Set(0, 0);
-
-	// left side
-	vert[8].pos.Set(minPt.x, minPt.y, minPt.z);
-	vert[9].pos.Set(minPt.x, minPt.y, maxPt.z);
-	vert[10].pos.Set(minPt.x, maxPt.y, maxPt.z);
-	vert[11].pos.Set(minPt.x, maxPt.y, minPt.z);
-	vert[8].uv.Set(0, 1);
-	vert[9].uv.Set(1, 1);
-	vert[10].uv.Set(1, 0);
-	vert[11].uv.Set(0, 0);
-
-	// right side
-	vert[12].pos.Set(maxPt.x, minPt.y, maxPt.z);
-	vert[13].pos.Set(maxPt.x, minPt.y, minPt.z);
-	vert[14].pos.Set(maxPt.x, maxPt.y, minPt.z);
-	vert[15].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-	vert[12].uv.Set(0, 1);
-	vert[13].uv.Set(1, 1);
-	vert[14].uv.Set(1, 0);
-	vert[15].uv.Set(0, 0);
-
-	// up side
-	vert[16].pos.Set(minPt.x, maxPt.y, maxPt.z);
-	vert[17].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-	vert[18].pos.Set(maxPt.x, maxPt.y, minPt.z);
-	vert[19].pos.Set(minPt.x, maxPt.y, minPt.z);
-	vert[16].uv.Set(0, 1);
-	vert[17].uv.Set(1, 1);
-	vert[18].uv.Set(1, 0);
-	vert[19].uv.Set(0, 0);
-
-	// down side
-	vert[20].pos.Set(minPt.x, minPt.y, minPt.z);
-	vert[21].pos.Set(maxPt.x, minPt.y, minPt.z);
-	vert[22].pos.Set(maxPt.x, minPt.y, maxPt.z);
-	vert[23].pos.Set(minPt.x, minPt.y, maxPt.z);
-	vert[20].uv.Set(0, 1);
-	vert[21].uv.Set(1, 1);
-	vert[22].uv.Set(1, 0);
-	vert[23].uv.Set(0, 0);
-
-	DWORD faces[6*2*3] = {
-		// front
-		0,1,2,
-		0,2,3,
-
-		// back
-		4,5,6,
-		4,6,7,
-
-		// left
-		8,9,10,
-		8,10,11,
-
-		// right
-		12,13,14,
-		12,14,15,
-
-		// up
-		16,17,18,
-		16,18,19,
-
-		// down
-		20,21,22,
-		20,22,23
-	};
-
-	pCube->CreateVertexBuffer(vert, 24, true);
-	pCube->CreateIndexBuffer(faces, 6*2*3, true);
-
-	return pCube;
-}
-
-static Neo::RenderObject*	CreateFrustum(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop)
-{
-	Neo::RenderObject* pFrustum =  new Neo::RenderObject;
-
-	Neo::SVertex vert[24];
-
-	// front side
-	vert[0].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
-	vert[0].uv.Set(0, 1);
-	vert[1].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
-	vert[1].uv.Set(1, 1);
-	vert[2].pos.Set(maxTop.x, minTop.y, maxTop.z);
-	vert[2].uv.Set(1, 0);
-	vert[3].pos.Set(minTop.x, minTop.y, maxTop.z);
-	vert[3].uv.Set(0, 0);
-
-	// back side
-	vert[4].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
-	vert[4].uv.Set(0, 1);
-	vert[5].pos.Set(minBottom.x, minBottom.y, minBottom.z);
-	vert[5].uv.Set(1, 1);
-	vert[6].pos.Set(minTop.x, minTop.y, minTop.z);
-	vert[6].uv.Set(1, 0);
-	vert[7].pos.Set(maxTop.x, minTop.y, minTop.z);
-	vert[7].uv.Set(0, 0);
-
-	// left side
-	vert[8].pos.Set(minBottom.x, minBottom.y, minBottom.z);
-	vert[9].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
-	vert[10].pos.Set(minTop.x, minTop.y, maxTop.z);
-	vert[11].pos.Set(minTop.x, minTop.y, minTop.z);
-	vert[8].uv.Set(0, 1);
-	vert[9].uv.Set(1, 1);
-	vert[10].uv.Set(1, 0);
-	vert[11].uv.Set(0, 0);
-
-	// right side
-	vert[12].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
-	vert[13].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
-	vert[14].pos.Set(maxTop.x, minTop.y, minTop.z);
-	vert[15].pos.Set(maxTop.x, minTop.y, maxTop.z);
-	vert[12].uv.Set(0, 1);
-	vert[13].uv.Set(1, 1);
-	vert[14].uv.Set(1, 0);
-	vert[15].uv.Set(0, 0);
-
-	// up side
-	vert[16].pos.Set(minTop.x, minTop.y, maxTop.z);
-	vert[17].pos.Set(maxTop.x, minTop.y, maxTop.z);
-	vert[18].pos.Set(maxTop.x, minTop.y, minTop.z);
-	vert[19].pos.Set(minTop.x, minTop.y, minTop.z);
-	vert[16].uv.Set(0, 1);
-	vert[17].uv.Set(1, 1);
-	vert[18].uv.Set(1, 0);
-	vert[19].uv.Set(0, 0);
-
-	// down side
-	vert[20].pos.Set(minBottom.x, minBottom.y, minBottom.z);
-	vert[21].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
-	vert[22].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
-	vert[23].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
-	vert[20].uv.Set(0, 1);
-	vert[21].uv.Set(1, 1);
-	vert[22].uv.Set(1, 0);
-	vert[23].uv.Set(0, 0);
-
-	DWORD faces[6*2*3] = {
-		// front
-		0,1,2,
-		0,2,3,
-
-		// back
-		4,5,6,
-		4,6,7,
-
-		// left
-		8,9,10,
-		8,10,11,
-
-		// right
-		12,13,14,
-		12,14,15,
-
-		// up
-		16,17,18,
-		16,18,19,
-
-		// down
-		20,21,22,
-		20,22,23
-	};
-
-	pFrustum->CreateVertexBuffer(vert, 24, true);
-	pFrustum->CreateIndexBuffer(faces, 6*2*3, true);
-
-	return pFrustum;
+	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All);
 }
 
 void SetupTestScene2(Scene* scene)
 {
-	/// Create a cube to observe reflection
-	Neo::RenderObject* pCube =  CreateCube(VEC3(-100,100,-100), VEC3(100,300,100));
-
-	scene->AddRenderObject(pCube);
-
 	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), true);
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("lion.bmp")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableClipPlane);
 
-	pCube->SetMaterial(pMaterial);
+	/// Create a cube to observe reflection
+	{
+		Neo::Mesh* pCube =  SceneManager::CreateCubeMesh(VEC3(-100,100,-100), VEC3(100,300,100));
+
+		Neo::Entity* pEntity = new Neo::Entity(pCube);
+
+		scene->AddEntity(pEntity);
+
+		pEntity->SetMaterial(0, pMaterial);
+		pEntity->SetCastShadow(false);
+		pEntity->SetReceiveShadow(false);
+	}
 
 	/// Create another geometry to observe refraction
-	Neo::RenderObject* pGeometry =  CreateFrustum(VEC3(-500,-100,-500), VEC3(500,100,500), VEC3(-100,300,-100), VEC3(100,300,100));
-	pGeometry->SetMaterial(pMaterial);
-	scene->AddRenderObject(pGeometry);
+	{
+		Neo::Mesh* pMesh =  SceneManager::CreateFrustumMesh(VEC3(-500,-100,-500), VEC3(500,100,500), VEC3(-100,300,-100), VEC3(100,300,100));
 
-	MAT44 matWorld;
-	matWorld.SetTranslation(VEC4(2000, 0, 0, 1));
-	pGeometry->SetWorldMatrix(matWorld);
+		Neo::Entity* pEntity = new Neo::Entity(pMesh);
+
+		scene->AddEntity(pEntity);
+
+		pEntity->SetMaterial(0, pMaterial);
+		pEntity->SetCastShadow(false);
+		pEntity->SetReceiveShadow(false);
+		pEntity->SetPosition(VEC3(2000, 0, 0));
+	}
 
 	pMaterial->Release();
 }
 
 void EnterTestScene2(Scene* scene)
 {
-	g_env.pSceneMgr->CreateSky();
-	g_env.pSceneMgr->CreateWater();
+ 	g_env.pSceneMgr->CreateSky();
+ 	g_env.pSceneMgr->CreateWater();
 
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 100, 0));
@@ -280,6 +95,8 @@ void EnterTestScene2(Scene* scene)
 	pCamera->SetFarClip(100000.0f);
 	pCamera->SetMoveSpeed(2.0f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
+
+	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
 }
 
 
@@ -289,17 +106,81 @@ void SetupTestScene3(Scene* scene)
 
 void EnterTestScene3(Scene* scene)
 {
+	g_env.pSceneMgr->CreateSky();
 	g_env.pSceneMgr->CreateTerrain();
-	//g_env.pSceneMgr->CreateWater(5.0f);
+	g_env.pSceneMgr->CreateWater(5.0f);
 
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 100, 0));
 	pCamera->SetNearClip(1);
-	pCamera->SetFarClip(30000.0f);
+	pCamera->SetFarClip(1000.0f);
 	pCamera->SetMoveSpeed(0.5f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 
 	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
+	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
+}
+
+void SetupTestScene4(Scene* scene)
+{
+	// Shadow receiver
+	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(200.0f, 200.0f);
+	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+
+	scene->AddEntity(pEntity);
+	pEntity->SetCastShadow(false);
+
+	Neo::Material* pMaterial = new Neo::Material;
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableShadowReceive);
+	pEntity->SetMaterial(0, pMaterial);
+	pMaterial->Release();
+
+
+	// Shadow caster
+	Neo::Entity* pCaster =  g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
+
+	scene->AddEntity(pCaster);
+
+	pMaterial = new Neo::Material;
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"));
+
+	pCaster->SetMaterial(0, pMaterial);
+	pCaster->SetReceiveShadow(false);
+	pMaterial->Release();
+}
+
+void EnterTestScene4(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(0, 10, 0));
+	pCamera->SetNearClip(1);
+	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.5f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+
+	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
+	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
+}
+
+void SetupTestScene5(Scene* scene)
+{
+	Neo::Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_Tree, GetResPath("Tree\\FanPalm_RT.mesh"));
+
+	scene->AddEntity(pEntity);
+}
+
+void EnterTestScene5(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(0, 10, 0));
+	pCamera->SetNearClip(1);
+	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+
+	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO & ~eRenderPhase_ShadowMap);
 }
 
 namespace Neo
@@ -307,13 +188,19 @@ namespace Neo
 	void SceneManager::_InitAllScene()
 	{
 		//// Test Scene 1: mesh, SSAO post effect
-// 		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
+//		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
 // 
 // 		//// Test Scene 2: Sky, Water
 // 		ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
+// 
+// 		//// Test Scene 3: Terrain
+// 		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+// 
+// 		//// Test Scene 4: Shadow testing
+// 		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
-		//// Test Scene 3: Terrain
-		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		//// Test Scene 5: Vegetation
+		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 	}
 }
 

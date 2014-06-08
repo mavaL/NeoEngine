@@ -33,7 +33,9 @@ namespace Neo
 		void		_InitMesh();
 		// Init material
 		void		_InitMaterial();
-		
+		// Init constant buffer
+		void		_InitConstantBuf();
+
 		void		_SmoothHeightMap(std::vector<float>& vecData);
 
 		// Patch y-bounds for GPU frustum culling
@@ -63,11 +65,11 @@ namespace Neo
 
 			VEC2	invTexSize;
 			float	terrainCellSpace;
-			float	shadowMapTexelSize;
 		};
 
 		D3D11RenderSystem*	m_pRenderSystem;
-		RenderObject*		m_pMesh;
+		Mesh*				m_pMesh;
+		Entity*				m_pEntity;
 		AABB				m_terrainAABB;
 		D3D11Texture*		m_pHeightMap;
 		D3D11Texture*		m_pLayerTexArray;

@@ -83,7 +83,8 @@ namespace Neo
 		Material*			m_pWaterDepthMaterial;
 		Material*			m_pFinalComposeMaterial;
 
-		RenderObject*		m_waterMesh;
+		Mesh*				m_waterMesh;
+		Entity*				m_pEntity;
 		Common::Plane		m_waterPlane;
 	};
 }

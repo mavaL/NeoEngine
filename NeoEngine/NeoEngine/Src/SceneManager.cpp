@@ -4,7 +4,6 @@
 #include "Water.h"
 #include "Sky.h"
 #include "Terrain.h"
-#include "RenderObject.h"
 #include "Scene.h"
 #include "MeshLoader.h"
 #include "D3D11RenderTarget.h"
@@ -13,6 +12,8 @@
 #include "Material.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
+#include "Tree.h"
+#include "Mesh.h"
 
 
 namespace Neo
@@ -20,7 +21,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
 	:m_pRenderSystem(g_env.pRenderSystem)
-	,m_camera(new Camera)
+	,m_camera(nullptr)
 	,m_pCurScene(nullptr)
 	,m_pTerrain(nullptr)
 	,m_pWater(nullptr)
@@ -28,20 +29,25 @@ namespace Neo
 	,m_pMeshLoader(new MeshLoader)
 	,m_debugRT(eDebugRT_None)
 	,m_pShadowMap(new ShadowMap)
+	,m_renderFlag(eRenderPhase_All)
 	{
 		
 	}
 	//------------------------------------------------------------------------------------
 	bool SceneManager::Init()
 	{
+		m_camera = new Camera;
+		m_camera->SetAspectRatio(m_pRenderSystem->GetWndWidth() / (float)m_pRenderSystem->GetWndHeight());
+
 		m_sunLight.lightDir.Set(1, -1, 2);
 		m_sunLight.lightDir.Normalize();
-		m_sunLight.lightColor.Set(0.6f, 0.6f, 0.6f);
+		m_sunLight.lightColor.Set(0.8f, 0.8f, 0.8f);
 
 		m_pSSAO = new SSAO;
 
 		{
-			m_pDebugRTMesh = new RenderObject;
+			m_pDebugRTMesh = new Mesh;
+			SubMesh* pSubMesh = new SubMesh;
 
 			SVertex v[4] = 
 			{
@@ -52,13 +58,15 @@ namespace Neo
 			};
 			DWORD index[6] = { 0,1,2, 1,3,2 };
 
-			m_pDebugRTMesh->CreateVertexBuffer(v, ARRAYSIZE(v), true);
-			m_pDebugRTMesh->CreateIndexBuffer(index, ARRAYSIZE(index), true);
+			pSubMesh->InitVertData(eVertexType_General, v, ARRAYSIZE(v), true);
+			pSubMesh->InitIndexData(index, ARRAYSIZE(index), true);
+
+			m_pDebugRTMesh->AddSubMesh(pSubMesh);
 
 			m_pDebugRTMaterial = new Material;
-			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), false);
+			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"));
 
-			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
+			pSubMesh->SetMaterial(m_pDebugRTMaterial);
 		}
 
 		_InitAllScene();
@@ -95,8 +103,23 @@ namespace Neo
 	{
 		m_pWater = new Water(waterHeight);
 	}
+	//-------------------------------------------------------------------------------
+	void SceneManager::Update()
+	{
+		if(m_pShadowMap)
+			m_pShadowMap->Update();
+
+		if (m_pWater)
+			m_pWater->Update();
+
+		if (m_pSky)
+			m_pSky->Update();
+
+		if(m_pCurScene)
+			m_pCurScene->Update();
+	}
 	//------------------------------------------------------------------------------------
-	void SceneManager::Render(uint32 phaseFlag, Material* pMaterial)
+	void SceneManager::Render(Material* pMaterial)
 	{
 		// Render shadow map
 		if (m_pShadowMap)
@@ -104,7 +127,7 @@ namespace Neo
 			m_pShadowMap->Render();
 		}
 
-		RenderPipline(phaseFlag, pMaterial);
+		RenderPipline(m_renderFlag, pMaterial);
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::RenderPipline(uint32 phaseFlag, Material* pMaterial)
@@ -122,7 +145,7 @@ namespace Neo
 		//================================================================================
 		if (m_pTerrain && phaseFlag&eRenderPhase_Terrain)
 		{
-			m_pTerrain->Render();
+			m_pTerrain->Render(pMaterial);
 		}
 		else if (m_pTerrain && phaseFlag&eRenderPhase_ShadowMap)
 		{
@@ -144,20 +167,24 @@ namespace Neo
 		}
 
 		//================================================================================
-		/// Render solids
+		/// Render entities
 		//================================================================================
+		Scene::EntityList& lstEntity = m_pCurScene->GetEntityList();
+
 		if (phaseFlag & eRenderPhase_Solid)
 		{
-			for (size_t i=0; i<m_renderList_Solid.size(); ++i)
+			for (size_t i=0; i<lstEntity.size(); ++i)
 			{
-				m_renderList_Solid[i]->Render(pMaterial);
+				lstEntity[i]->Render(pMaterial);
 			}
 		}
 		else if (phaseFlag & eRenderPhase_ShadowMap)
 		{
-			for (size_t i=0; i<m_renderList_Solid.size(); ++i)
+			for (size_t i=0; i<lstEntity.size(); ++i)
 			{
-				m_renderList_Solid[i]->Render();
+				Entity* ent = lstEntity[i];
+				if(ent->GetCastShadow())
+					ent->Render();
 			}
 		}
 
@@ -194,28 +221,10 @@ namespace Neo
 			// Debug RT
 			if (m_debugRT == eDebugRT_SSAO)
 			{
-				MAT44 matWorld = MAT44::IDENTITY;
-
-				m_pDebugRTMesh->SetWorldMatrix(matWorld);
-				m_pDebugRTMaterial->SetTexture(0, m_pSSAO->GetSSAOMap());
-				m_pDebugRTMesh->Render();
-
-				matWorld.SetTranslation(VEC4(0,-0.66f,0,1));
-				m_pDebugRTMesh->SetWorldMatrix(matWorld);
-				m_pDebugRTMaterial->SetTexture(0, m_pSSAO->GetBlurHMap());
-				m_pDebugRTMesh->Render();
-
-				matWorld.SetTranslation(VEC4(0,-0.66f*2,0,1));
-				m_pDebugRTMesh->SetWorldMatrix(matWorld);
-				m_pDebugRTMaterial->SetTexture(0, m_pSSAO->GetBlurVMap());
 				m_pDebugRTMesh->Render();
 			}
 			else if (m_debugRT == eDebugRT_ShadowMap)
 			{
-				MAT44 matWorld = MAT44::IDENTITY;
-
-				m_pDebugRTMesh->SetWorldMatrix(matWorld);
-				m_pDebugRTMaterial->SetTexture(0, m_pShadowMap->GetShadowTexture());
 				m_pDebugRTMesh->Render();
 			}
 
@@ -224,41 +233,60 @@ namespace Neo
 			m_pRenderSystem->SetDepthStencelState(depthDesc);
 		}
 	}
-	//-------------------------------------------------------------------------------
-	void SceneManager::Update()
-	{
-		if(m_pShadowMap)
-			m_pShadowMap->Update();
-
-		if (m_pWater)
-			m_pWater->Update();
-
-		if (m_pSky)
-			m_pSky->Update();
-
-		for (size_t i=0; i<m_renderList_Solid.size(); ++i)
-		{
-			m_renderList_Solid[i]->OnFrameMove();
-		}
-	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()
 	{
 		SAFE_DELETE(m_pTerrain);
 		SAFE_DELETE(m_pWater);
 		SAFE_DELETE(m_pSky);
-
-		m_renderList_Solid.clear();
 	}
 	//------------------------------------------------------------------------------------
-	RenderObject* SceneManager::LoadMesh( const STRING& filename )
+	Entity* SceneManager::CreateEntity(eEntity type, const STRING& meshname)
 	{
-		return MeshLoader::LoadMesh(filename);
+		auto iter = m_meshes.find(meshname);
+
+		if (iter == m_meshes.end())
+		{
+			Mesh* mesh = MeshLoader::LoadMesh(meshname);
+			iter = m_meshes.insert(std::make_pair(meshname, mesh)).first;
+		}
+		
+		Mesh* mesh = iter->second;
+		assert(mesh);
+
+		Entity* pEntity = nullptr;
+
+		switch (type)
+		{
+		case eEntity_StaticModel:	pEntity = new Entity(mesh); break;
+		case eEntity_Tree:			pEntity = new Tree(mesh); break;
+		default: assert(0); return nullptr;
+		}
+
+		return pEntity;
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::EnableDebugRT( eDebugRT type )
 	{
 		m_debugRT = type;
+
+		switch (type)
+		{
+		case eDebugRT_ShadowMap:
+			m_pDebugRTMaterial->SetTexture(0, m_pShadowMap->GetShadowTexture());
+			break;
+
+		case eDebugRT_SSAO:
+			m_pDebugRTMaterial->SetTexture(0, m_pSSAO->GetSSAOMap());
+			break;
+
+		case eDebugRT_None:
+			m_pDebugRTMaterial->SetTexture(0, nullptr);
+			break;
+
+		default: assert(0); break;
+		}
+		
 	}
 	//----------------------------------------------------------------------------------------
 	void SceneManager::ToggleScene()
@@ -278,5 +306,245 @@ namespace Neo
 	{
 		m_sunLight.lightDir = dir;
 		m_sunLight.lightColor = color;
+	}
+	//------------------------------------------------------------------------------------
+	Mesh* SceneManager::CreateCubeMesh( const VEC3& minPt, const VEC3& maxPt )
+	{
+		SVertex vert[24];
+
+		// front side
+		vert[0].pos.Set(minPt.x, minPt.y, maxPt.z);
+		vert[0].uv.Set(0, 1);
+		vert[1].pos.Set(maxPt.x, minPt.y, maxPt.z);
+		vert[1].uv.Set(1, 1);
+		vert[2].pos.Set(maxPt.x, maxPt.y, maxPt.z);
+		vert[2].uv.Set(1, 0);
+		vert[3].pos.Set(minPt.x, maxPt.y, maxPt.z);
+		vert[3].uv.Set(0, 0);
+
+		vert[0].normal = vert[1].normal = vert[2].normal = vert[3].normal = VEC3::UNIT_Z;
+
+		// back side
+		vert[4].pos.Set(maxPt.x, minPt.y, minPt.z);
+		vert[4].uv.Set(0, 1);
+		vert[5].pos.Set(minPt.x, minPt.y, minPt.z);
+		vert[5].uv.Set(1, 1);
+		vert[6].pos.Set(minPt.x, maxPt.y, minPt.z);
+		vert[6].uv.Set(1, 0);
+		vert[7].pos.Set(maxPt.x, maxPt.y, minPt.z);
+		vert[7].uv.Set(0, 0);
+
+		vert[4].normal = vert[5].normal = vert[6].normal = vert[7].normal = VEC3::NEG_UNIT_Z;
+
+		// left side
+		vert[8].pos.Set(minPt.x, minPt.y, minPt.z);
+		vert[9].pos.Set(minPt.x, minPt.y, maxPt.z);
+		vert[10].pos.Set(minPt.x, maxPt.y, maxPt.z);
+		vert[11].pos.Set(minPt.x, maxPt.y, minPt.z);
+		vert[8].uv.Set(0, 1);
+		vert[9].uv.Set(1, 1);
+		vert[10].uv.Set(1, 0);
+		vert[11].uv.Set(0, 0);
+
+		vert[8].normal = vert[9].normal = vert[10].normal = vert[11].normal = VEC3::NEG_UNIT_X;
+
+		// right side
+		vert[12].pos.Set(maxPt.x, minPt.y, maxPt.z);
+		vert[13].pos.Set(maxPt.x, minPt.y, minPt.z);
+		vert[14].pos.Set(maxPt.x, maxPt.y, minPt.z);
+		vert[15].pos.Set(maxPt.x, maxPt.y, maxPt.z);
+		vert[12].uv.Set(0, 1);
+		vert[13].uv.Set(1, 1);
+		vert[14].uv.Set(1, 0);
+		vert[15].uv.Set(0, 0);
+
+		vert[12].normal = vert[13].normal = vert[14].normal = vert[15].normal = VEC3::UNIT_X;
+
+		// up side
+		vert[16].pos.Set(minPt.x, maxPt.y, maxPt.z);
+		vert[17].pos.Set(maxPt.x, maxPt.y, maxPt.z);
+		vert[18].pos.Set(maxPt.x, maxPt.y, minPt.z);
+		vert[19].pos.Set(minPt.x, maxPt.y, minPt.z);
+		vert[16].uv.Set(0, 1);
+		vert[17].uv.Set(1, 1);
+		vert[18].uv.Set(1, 0);
+		vert[19].uv.Set(0, 0);
+
+		vert[16].normal = vert[17].normal = vert[18].normal = vert[19].normal = VEC3::UNIT_Y;
+
+		// down side
+		vert[20].pos.Set(minPt.x, minPt.y, minPt.z);
+		vert[21].pos.Set(maxPt.x, minPt.y, minPt.z);
+		vert[22].pos.Set(maxPt.x, minPt.y, maxPt.z);
+		vert[23].pos.Set(minPt.x, minPt.y, maxPt.z);
+		vert[20].uv.Set(0, 1);
+		vert[21].uv.Set(1, 1);
+		vert[22].uv.Set(1, 0);
+		vert[23].uv.Set(0, 0);
+
+		vert[20].normal = vert[21].normal = vert[22].normal = vert[23].normal = VEC3::NEG_UNIT_Y;
+
+		DWORD faces[6*2*3] = {
+			// front
+			0,1,2,
+			0,2,3,
+
+			// back
+			4,5,6,
+			4,6,7,
+
+			// left
+			8,9,10,
+			8,10,11,
+
+			// right
+			12,13,14,
+			12,14,15,
+
+			// up
+			16,17,18,
+			16,18,19,
+
+			// down
+			20,21,22,
+			20,22,23
+		};
+
+		Mesh* pCube =  new Mesh;
+		SubMesh* pSubmesh = new SubMesh;
+
+		pSubmesh->InitVertData(eVertexType_General, vert, 24, true);
+		pSubmesh->InitIndexData(faces, 6*2*3, true);
+
+		pCube->AddSubMesh(pSubmesh);
+
+		return pCube;
+	}
+	//------------------------------------------------------------------------------------
+	Mesh* SceneManager::CreateFrustumMesh( const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop )
+	{
+		Neo::SVertex vert[24];
+
+		// front side
+		vert[0].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
+		vert[0].uv.Set(0, 1);
+		vert[1].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
+		vert[1].uv.Set(1, 1);
+		vert[2].pos.Set(maxTop.x, minTop.y, maxTop.z);
+		vert[2].uv.Set(1, 0);
+		vert[3].pos.Set(minTop.x, minTop.y, maxTop.z);
+		vert[3].uv.Set(0, 0);
+
+		// back side
+		vert[4].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
+		vert[4].uv.Set(0, 1);
+		vert[5].pos.Set(minBottom.x, minBottom.y, minBottom.z);
+		vert[5].uv.Set(1, 1);
+		vert[6].pos.Set(minTop.x, minTop.y, minTop.z);
+		vert[6].uv.Set(1, 0);
+		vert[7].pos.Set(maxTop.x, minTop.y, minTop.z);
+		vert[7].uv.Set(0, 0);
+
+		// left side
+		vert[8].pos.Set(minBottom.x, minBottom.y, minBottom.z);
+		vert[9].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
+		vert[10].pos.Set(minTop.x, minTop.y, maxTop.z);
+		vert[11].pos.Set(minTop.x, minTop.y, minTop.z);
+		vert[8].uv.Set(0, 1);
+		vert[9].uv.Set(1, 1);
+		vert[10].uv.Set(1, 0);
+		vert[11].uv.Set(0, 0);
+
+		// right side
+		vert[12].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
+		vert[13].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
+		vert[14].pos.Set(maxTop.x, minTop.y, minTop.z);
+		vert[15].pos.Set(maxTop.x, minTop.y, maxTop.z);
+		vert[12].uv.Set(0, 1);
+		vert[13].uv.Set(1, 1);
+		vert[14].uv.Set(1, 0);
+		vert[15].uv.Set(0, 0);
+
+		// up side
+		vert[16].pos.Set(minTop.x, minTop.y, maxTop.z);
+		vert[17].pos.Set(maxTop.x, minTop.y, maxTop.z);
+		vert[18].pos.Set(maxTop.x, minTop.y, minTop.z);
+		vert[19].pos.Set(minTop.x, minTop.y, minTop.z);
+		vert[16].uv.Set(0, 1);
+		vert[17].uv.Set(1, 1);
+		vert[18].uv.Set(1, 0);
+		vert[19].uv.Set(0, 0);
+
+		// down side
+		vert[20].pos.Set(minBottom.x, minBottom.y, minBottom.z);
+		vert[21].pos.Set(maxBottom.x, minBottom.y, minBottom.z);
+		vert[22].pos.Set(maxBottom.x, minBottom.y, maxBottom.z);
+		vert[23].pos.Set(minBottom.x, minBottom.y, maxBottom.z);
+		vert[20].uv.Set(0, 1);
+		vert[21].uv.Set(1, 1);
+		vert[22].uv.Set(1, 0);
+		vert[23].uv.Set(0, 0);
+
+		DWORD faces[6*2*3] = {
+			// front
+			0,1,2,
+			0,2,3,
+
+			// back
+			4,5,6,
+			4,6,7,
+
+			// left
+			8,9,10,
+			8,10,11,
+
+			// right
+			12,13,14,
+			12,14,15,
+
+			// up
+			16,17,18,
+			16,18,19,
+
+			// down
+			20,21,22,
+			20,22,23
+		};
+
+		Mesh* pMesh =  new Mesh;
+		SubMesh* pSubmesh = new SubMesh;
+
+		pSubmesh->InitVertData(eVertexType_General, vert, 24, true);
+		pSubmesh->InitIndexData(faces, 6*2*3, true);
+
+		pMesh->AddSubMesh(pSubmesh);
+
+		return pMesh;
+	}
+	//------------------------------------------------------------------------------------
+	Mesh* SceneManager::CreatePlaneMesh( float w, float h )
+	{
+		float halfW = w / 2;
+		float halfH = h / 2;
+
+		SVertex vert[4] =
+		{
+			SVertex(VEC3(-w,0,+h), VEC2(0,0), VEC3::UNIT_Y),
+			SVertex(VEC3(+w,0,+h), VEC2(1,0), VEC3::UNIT_Y),
+			SVertex(VEC3(+w,0,-h), VEC2(1,1), VEC3::UNIT_Y),
+			SVertex(VEC3(-w,0,-h), VEC2(0,1), VEC3::UNIT_Y),
+		};
+
+		DWORD dwIndex[6] = {0,1,3,1,2,3};
+
+		Mesh* pMesh =  new Mesh;
+		SubMesh* pSubmesh = new SubMesh;
+
+		pSubmesh->InitVertData(eVertexType_General, vert, 4, true);
+		pSubmesh->InitIndexData(dwIndex, 6, true);
+
+		pMesh->AddSubMesh(pSubmesh);
+
+		return pMesh;
 	}
 }

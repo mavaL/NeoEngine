@@ -2,27 +2,27 @@
 #include "Sky.h"
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
-#include "RenderObject.h"
 #include "Material.h"
 #include "Camera.h"
 #include "SceneManager.h"
-
+#include "Mesh.h"
+#include "Entity.h"
 
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	Sky::Sky()
-	:m_pSkyBox(new RenderObject)
-	,m_pMaterial(nullptr)
+	:m_pMesh(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
+	,m_pEntity(nullptr)
 	{
 		_InitMesh();
 	}
 	//------------------------------------------------------------------------------------
 	Sky::~Sky()
 	{
-		SAFE_RELEASE(m_pMaterial);
-		SAFE_DELETE(m_pSkyBox);
+		SAFE_DELETE(m_pMesh);
+		SAFE_DELETE(m_pEntity);
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::_InitMesh()
@@ -55,17 +55,22 @@ namespace Neo
 		pIndices[30] = 2; pIndices[31] = 5; pIndices[32] = 1;
 		pIndices[33] = 2; pIndices[34] = 6; pIndices[35] = 5;
 
-		m_pSkyBox->CreateVertexBuffer(vert, 8, true);
-		m_pSkyBox->CreateIndexBuffer(pIndices, 6*2*3, true);
+		m_pMesh = new Mesh;
+		SubMesh* pSubMesh = new SubMesh;
+
+		pSubMesh->InitVertData(eVertexType_General, vert, 8, true);
+		pSubMesh->InitIndexData(pIndices, 6*2*3, true);
+
+		m_pMesh->AddSubMesh(pSubMesh);
 
 		SAFE_DELETE_ARRAY(vert);
 		SAFE_DELETE_ARRAY(pIndices);
 
 		Neo::Material* pMaterial = new Neo::Material;
-		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), false);
 		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
+		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShaderFlag_EnableClipPlane);
 
-		m_pSkyBox->SetMaterial(pMaterial);
+		pSubMesh->SetMaterial(pMaterial);
 		pMaterial->Release();
 
 		D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
@@ -73,6 +78,11 @@ namespace Neo
 		sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 		
 		pMaterial->SetSamplerStateDesc(0, sampler);
+
+		m_pEntity = new Entity(m_pMesh);
+
+		m_pEntity->SetCastShadow(false);
+		m_pEntity->SetReceiveShadow(false);
 	}
 	//-------------------------------------------------------------------------------
 	void Sky::Update()
@@ -81,11 +91,8 @@ namespace Neo
 		Camera* pCamera = g_env.pSceneMgr->GetCamera();
 		float scale = (pCamera->GetFarClip() - pCamera->GetNearClip()) / 2;
 
-		MAT44 matWorld;
-		matWorld.SetScale(VEC3(scale,scale,scale));
-		matWorld.SetTranslation(VEC4(pCamera->GetPos(), 1.0f));
-
-		m_pSkyBox->SetWorldMatrix(matWorld);
+		m_pEntity->SetScale(scale);
+		m_pEntity->SetPosition(pCamera->GetPos());
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::Render()
@@ -98,7 +105,7 @@ namespace Neo
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
 
 		// Render
-		m_pSkyBox->Render();
+		m_pEntity->Render();
 
 		// Restore render state
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;

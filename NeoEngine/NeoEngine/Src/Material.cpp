@@ -4,7 +4,8 @@
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
 #include "SceneManager.h"
-
+#include "SSAO.h"
+#include "ShadowMap.h"
 
 namespace Neo
 {
@@ -16,7 +17,7 @@ namespace Neo
 	SColor SColor::NICE_BLUE =	SColor(0.0f, 0.125f, 0.3f);
 
 	//-------------------------------------------------------------------------------
-	Material::Material()
+	Material::Material(eVertexType type)
 	:m_pRenderSystem(g_env.pRenderSystem)
 	,ambient(SColor::WHITE)
 	,diffuse(SColor::WHITE)
@@ -28,6 +29,9 @@ namespace Neo
 	,m_pDomainShader(nullptr)
 	,m_pVS_WithClipPlane(nullptr)
 	,m_pInputLayout(nullptr)
+	,m_shaderFlag(0)
+	,m_cullMode(D3D11_CULL_BACK)
+	,m_vertType(type)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
@@ -60,15 +64,19 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, bool bHasClipPlaneShader, const D3D_SHADER_MACRO* pMacro )
+	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro )
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
 		ID3DBlob* pPSBlob = NULL;
 
+		m_shaderFlag = shaderFalg;
+
+		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
+
 		// Compile
-		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", pMacro, &pVSBlob ));
-		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", pMacro, &pPSBlob ));
+		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", vecMacro, &pVSBlob ));
+		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", vecMacro, &pPSBlob ));
 
 		// Create shader
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
@@ -81,10 +89,9 @@ namespace Neo
 		pPSBlob->Release();
 
 		// Create clip plane shader
-		m_bHasClipPlaneShader = bHasClipPlaneShader;
-		if (m_bHasClipPlaneShader)
+		if (m_shaderFlag & eShaderFlag_EnableClipPlane)
 		{
-			V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", nullptr, &pVSBlob ));
+			V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", vecMacro, &pVSBlob ));
 
 			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane ));
 
@@ -97,14 +104,18 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	bool Material::InitTessellationShader( const STRING& filename, const D3D_SHADER_MACRO* pMacro )
+	bool Material::InitTessellationShader( const STRING& filename, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro )
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pHSBlob = NULL;
 		ID3DBlob* pDSBlob = NULL;
 
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", pMacro, &pHSBlob ));
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", pMacro, &pDSBlob ));
+		m_shaderFlag = shaderFalg;
+
+		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
+
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", vecMacro, &pHSBlob ));
+		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", vecMacro, &pDSBlob ));
 
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateHullShader( pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), NULL, &m_pHullShader ));
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateDomainShader( pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), NULL, &m_pDomainShader ));
@@ -116,9 +127,11 @@ namespace Neo
 	}
 	//-------------------------------------------------------------------------------
 	bool Material::_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-		const D3D_SHADER_MACRO* pMacro, ID3DBlob** ppBlobOut )
+		const std::vector<D3D_SHADER_MACRO>& vecMacro, ID3DBlob** ppBlobOut )
 	{
 		HRESULT hr = S_OK;
+
+		const D3D_SHADER_MACRO* pMacro = vecMacro.size() == 1 ? nullptr : &vecMacro[0];
 
 		DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined( DEBUG ) || defined( _DEBUG )
@@ -144,31 +157,84 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Material::_CreateVertexLayout()
 	{
-		D3D11_INPUT_ELEMENT_DESC layout[] =
+		switch (m_vertType)
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		};
+		case eVertexType_General:
+			{
+				D3D11_INPUT_ELEMENT_DESC layout[] =
+				{
+					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				};
 
-		SAFE_RELEASE(m_pInputLayout);
+				SAFE_RELEASE(m_pInputLayout);
 
-		HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
-			layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
+				HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
+					layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
 
-		assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
+				assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
+			}
+			break;
+
+		case eVertexType_TreeLeaf:
+			{
+				D3D11_INPUT_ELEMENT_DESC layout[] =
+				{
+					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 3, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },					
+				};
+
+				SAFE_RELEASE(m_pInputLayout);
+
+				HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
+					layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
+
+				assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
+			}
+			break;
+
+		default: assert(0); break;
+		}
 	}
 	//-------------------------------------------------------------------------------
 	void Material::Activate()
 	{
 		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
 
+		// Cull mode
+		const D3D11_CULL_MODE curCullMode = m_pRenderSystem->GetRasterizeDesc().CullMode;
+		D3D11_RASTERIZER_DESC& desc = m_pRenderSystem->GetRasterizeDesc();
+
+		if (m_pRenderSystem->IsClipPlaneEnabled())
+		{
+			switch (m_cullMode)
+			{
+			case D3D11_CULL_FRONT: desc.CullMode = D3D11_CULL_BACK; break;
+			case D3D11_CULL_BACK: desc.CullMode = D3D11_CULL_FRONT; break;
+			default: break;
+			}
+			
+			m_pRenderSystem->SetRasterizeDesc(desc);
+		}
+		else if (m_cullMode != curCullMode)
+		{
+			desc.CullMode = m_cullMode;
+			m_pRenderSystem->SetRasterizeDesc(desc);
+		}
+
+		// Clip plane
 		if (m_pRenderSystem->IsClipPlaneEnabled() && m_pVS_WithClipPlane)
 			pDeviceContext->VSSetShader( m_pVS_WithClipPlane, NULL, 0 );
 		else			
 			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
 
+		// VS PS HS DS
 		pDeviceContext->PSSetShader( m_pPixelShader, NULL, 0 );
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
@@ -186,6 +252,7 @@ namespace Neo
 			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		}
 
+		// Texture stage
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
 			m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
@@ -220,6 +287,65 @@ namespace Neo
 
 		pDeviceContext->HSSetShader(nullptr, nullptr, 0);
 		pDeviceContext->DSSetShader(nullptr, nullptr, 0);
+	}
+	//------------------------------------------------------------------------------------
+	std::vector<D3D_SHADER_MACRO> Material::_InternelInitShader( const D3D_SHADER_MACRO* pMacro )
+	{
+		std::vector<D3D_SHADER_MACRO> retMacros;
+
+		if (pMacro)
+		{
+			for (int i=0; i<sizeof(pMacro)/sizeof(pMacro[0]); ++i)
+			{
+				retMacros.push_back(pMacro[i]);
+			}
+		}
+
+		if (m_shaderFlag & eShaderFlag_EnableSSAO)
+		{
+			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
+			{
+				if (m_pTexture[i] == nullptr)
+				{
+					SetTexture(i, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
+
+					D3D_SHADER_MACRO macro = { "SSAO", "" };
+					retMacros.push_back(macro);
+
+					break;
+				}
+			}
+		}
+
+		if (m_shaderFlag & eShaderFlag_EnableShadowReceive)
+		{
+			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
+			{
+				if (m_pTexture[i] == nullptr)
+				{
+					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
+
+					D3D11_SAMPLER_DESC& samDesc = GetSamplerStateDesc(i);
+					samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+					samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+					samDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+					samDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+					samDesc.BorderColor[0] = samDesc.BorderColor[1] = samDesc.BorderColor[2] = samDesc.BorderColor[3] = 1;
+
+					SetSamplerStateDesc(i, samDesc);
+
+					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
+					retMacros.push_back(macro);
+
+					break;
+				}
+			}
+		}
+
+		D3D_SHADER_MACRO macro = { 0, 0 };
+		retMacros.push_back(macro);
+
+		return std::move(retMacros);
 	}
 }
 

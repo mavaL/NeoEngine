@@ -1,3 +1,4 @@
+#include "Common.h"
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
@@ -18,6 +19,7 @@ cbuffer cbufferGlobal : register( b0 )
 	float3	camPos;
 	float	time;
 	float	nearZ, farZ;
+	float	shadowMapTexelSize;
 };
 
 
@@ -33,6 +35,7 @@ struct VS_INPUT
 struct VS_OUTPUT
 {
     float4 Pos		: SV_POSITION;
+	float3 PosW		: POSITION;
 	float2 uv		: TEXCOORD0;
 	float3 normal	: TEXCOORD1;
 #ifdef SSAO
@@ -50,6 +53,7 @@ VS_OUTPUT VS( VS_INPUT input )
 	float4 posH = mul(input.Pos, WVP);
     output.Pos = posH;
 
+	output.PosW = mul(input.Pos, World).xyz;
 	output.uv = input.uv;
 	output.normal = mul(input.normal, (float3x3)WorldIT);
 
@@ -65,19 +69,38 @@ VS_OUTPUT VS( VS_INPUT input )
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-Texture2D texDiffuse : register(t0);
-SamplerState samDiffuse : register(s0);
+Texture2D		texDiffuse		: register(t0);
+SamplerState	samDiffuse		: register(s0);
 
 #ifdef SSAO
-Texture2D texSSAO : register(t1);
-SamplerState samSSAO : register(s1);
+Texture2D texSSAO		: register(t1);
+SamplerState samSSAO	: register(s1);
+#endif
+
+#ifdef SHADOW_RECEIVER
+#ifdef SSAO
+Texture2D				gShadowMap		: register(t2);
+SamplerComparisonState	samShadowMap	: register(s2);
+#else
+Texture2D				gShadowMap		: register(t1);
+SamplerComparisonState	samShadowMap	: register(s1);
+#endif
 #endif
 
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
-	float3 N = normalize(input.normal);
-	float4 cLight = max(0, dot(N, -lightDirection)) * lightColor;
+#ifdef SHADOW_RECEIVER
+	// Do shadowing
+	float fLitFactor = ComputeShdow(input.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
+#else
+	float fLitFactor = 1.0f;
+#endif
 
+	// Do lighting
+	float3 N = normalize(input.normal);
+	float4 cLight = max(0, dot(N, -lightDirection)) * lightColor * fLitFactor;
+
+	// SSAO
 #ifdef SSAO
 	input.projUV /= input.projUV.w;
 

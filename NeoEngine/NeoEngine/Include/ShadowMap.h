@@ -26,6 +26,7 @@ namespace Neo
 		void			Render();
 		D3D11Texture*	GetShadowTexture();
 		const MAT44&	GetShadowTransform() const { return m_matShadowTransform; }
+		void			SetDepthBias(int bias);
 
 	private:
 		D3D11RenderTarget*	m_pRT_ShadowMap;

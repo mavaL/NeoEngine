@@ -9,31 +9,42 @@
 #define Scene_h__
 
 #include "Prerequiestity.h"
-#include "RenderObject.h"
+#include "AABB.h"
 
-class Scene
+namespace Neo
 {
-public:
-	typedef std::function<void(Scene*)>	StrategyFunc;
+	class Scene
+	{
+	public:
+		typedef std::function<void(Scene*)>	StrategyFunc;
+		typedef std::vector<Entity*>	EntityList;
 
-public:
-	Scene(StrategyFunc& setupFunc, StrategyFunc& enterFunc);
-	~Scene();
+	public:
+		Scene(StrategyFunc& setupFunc, StrategyFunc& enterFunc);
+		~Scene();
 
-public:
-	void	Enter();
-	void	Render();
+	public:
+		void	Enter();
+		void	Update();
+		void	Render();
 
-	void				AddRenderObject(Neo::RenderObject* obj);
-	Neo::RenderList&	GetRenderList() { return m_renderList; }
-	const AABB&			GetSceneAABB() const { return m_sceneAABB; }
+		void				AddEntity(Entity* pEntity);
+		EntityList&			GetEntityList() { return m_lstEntity; }
 
-private:
-	StrategyFunc	m_setupFunc;
-	StrategyFunc	m_enterFunc;
-	bool			m_bSetup;
-	Neo::RenderList		m_renderList;	//场景中所有渲染物体
-	AABB			m_sceneAABB;		// AABB of the whole scene
-};
+		const AABB&			GetSceneAABB() const { return m_sceneAABB; }
+		const AABB&			GetSceneShadowCasterAABB() const { return m_sceneShadowCasterAABB; }
+		const AABB&			GetSceneShadowReceiverAABB() const { return m_sceneShadowReceiverAABB; }
+
+	private:
+		StrategyFunc	m_setupFunc;
+		StrategyFunc	m_enterFunc;
+		bool			m_bSetup;
+		EntityList		m_lstEntity;
+		AABB			m_sceneAABB;		// AABB of the whole scene
+		AABB			m_sceneShadowCasterAABB;	// AABB of all shadow casters
+		AABB			m_sceneShadowReceiverAABB;	// AABB of all shadow receivers
+	};
+}
+
 
 #endif // Scene_h__

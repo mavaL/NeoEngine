@@ -52,7 +52,8 @@ namespace Neo
 		D3D11Texture*				m_pRenderTexture;
 		D3D11Texture*				m_pDepthStencil;
 
-		static RenderObject*		m_pQuadMesh;
+		static Mesh*	m_pQuadMesh;
+		static Entity*	m_pQuadEntity;
 
 		VEC2			m_sizeRatio;		// ratio to screen size
 		bool			m_bClearColor;

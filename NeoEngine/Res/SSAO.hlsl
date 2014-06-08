@@ -18,6 +18,7 @@ cbuffer cbufferGlobal : register( b0 )
 	float3	camPos;
 	float	time;
 	float	nearZ, farZ;
+	float	shadowMapTexelSize;
 };
 
 static float4	g_vecOffset[14] =

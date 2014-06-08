@@ -3,7 +3,8 @@
 #include "D3D11RenderSystem.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderTarget.h"
-#include "RenderObject.h"
+#include "Mesh.h"
+#include "Entity.h"
 #include "Material.h"
 #include "Camera.h"
 #include "SceneManager.h"
@@ -13,7 +14,8 @@ namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	Water::Water(float waterHeight)
-	:m_waterMesh(new RenderObject)
+	:m_waterMesh(nullptr)
+	,m_pEntity(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
 	,m_pCB_VS(nullptr)
 	,m_pCB_PS(nullptr)
@@ -42,6 +44,7 @@ namespace Neo
 		SAFE_RELEASE(m_pRT_Reflection);
 		SAFE_RELEASE(m_pRT_Depth);
 		SAFE_DELETE(m_waterMesh);
+		SAFE_DELETE(m_pEntity);
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_InitMaterial()
@@ -62,18 +65,18 @@ namespace Neo
 		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_Depth->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
 
-		// TODO: Only terrain get water-shore transition
-		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid/* | eRenderPhase_Terrain*/);
+		// TODO: terrain gets water-shore transition
+		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid /*| eRenderPhase_Terrain*/);
 
 		// Create material
 		m_pRefracMaterial = new Material;
-		m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"), false);
+		m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"));
 
 		m_pWaterDepthMaterial = new Material;
-		m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"), false);
+		m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"));
 
 		m_pFinalComposeMaterial = new Material;
-		m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"), false);
+		m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"));
 
 		// Noise map
 		m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
@@ -145,11 +148,21 @@ namespace Neo
 			}
 		}
 
-		m_waterMesh->CreateVertexBuffer(vert, nVerts, true);
-		m_waterMesh->CreateIndexBuffer(pIndices, nIndex, true);
+		m_waterMesh = new Mesh;
+		SubMesh* pSubMesh = new SubMesh;
+
+		m_waterMesh->AddSubMesh(pSubMesh);
+
+		pSubMesh->InitVertData(eVertexType_General, vert, nVerts, true);
+		pSubMesh->InitIndexData(pIndices, nIndex, true);
 
 		SAFE_DELETE_ARRAY(vert);
 		SAFE_DELETE_ARRAY(pIndices);
+
+		m_pEntity = new Entity(m_waterMesh);
+
+		m_pEntity->SetCastShadow(false);
+		m_pEntity->SetReceiveShadow(false);
 	}
 	//-------------------------------------------------------------------------------
 	void Water::_InitConstantBuffer()
@@ -193,7 +206,7 @@ namespace Neo
 	void Water::Update()
 	{
 		// Camera pos in object space
-		MAT44 invWorld = m_waterMesh->GetWorldMatrix().Inverse();
+		MAT44 invWorld = m_pEntity->GetWorldMatrix().Inverse();
 
 		m_constantBufVS.viewPt = g_env.pSceneMgr->GetCamera()->GetPos();
 		Common::Transform_Vec3_By_Mat44(m_constantBufVS.viewPt, invWorld, true);
@@ -223,8 +236,8 @@ namespace Neo
 		m_pRenderSystem->SetBlendStateDesc(blendDesc);
 
 		// Render
-		m_waterMesh->SetMaterial(m_pRefracMaterial);
-		m_waterMesh->Render();
+		m_waterMesh->GetSubMesh(0)->SetMaterial(m_pRefracMaterial);
+		m_pEntity->Render();
 
 		m_pRenderSystem->CopyFrameBufferToTexture(m_pTexSceneWithRefracMask);
 
@@ -239,10 +252,6 @@ namespace Neo
 	void Water::_RenderReflection()
 	{
 		// Reflect view matrix
-		D3D11_RASTERIZER_DESC& desc = m_pRenderSystem->GetRasterizeDesc();
-		desc.CullMode = D3D11_CULL_FRONT;
-		m_pRenderSystem->SetRasterizeDesc(desc);
-
 		const MAT44 matView = g_env.pSceneMgr->GetCamera()->GetViewMatrix();
 		const MAT44 matReflecView = Common::BuildReflectMatrix(m_waterPlane) * matView;
 		m_pRenderSystem->SetTransform(eTransform_View, matReflecView, true);
@@ -256,9 +265,6 @@ namespace Neo
 		// Restore render state
 		m_pRenderSystem->SetTransform(eTransform_View, matView, true);
 		m_pRenderSystem->EnableClipPlane(false, nullptr);
-
-		desc.CullMode = D3D11_CULL_BACK;
-		m_pRenderSystem->SetRasterizeDesc(desc);
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_RenderWaterDepth()
@@ -282,7 +288,7 @@ namespace Neo
 		pContext->UpdateSubresource( m_pCB_PS, 0, NULL, &m_constantBufPS, 0, 0 );
 		pContext->PSSetConstantBuffers( 2, 1, &m_pCB_PS );
 
-		m_waterMesh->SetMaterial(m_pFinalComposeMaterial);
-		m_waterMesh->Render();
+		m_waterMesh->GetSubMesh(0)->SetMaterial(m_pFinalComposeMaterial);
+		m_pEntity->Render();
 	}
 }

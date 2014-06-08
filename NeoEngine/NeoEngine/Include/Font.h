@@ -26,7 +26,8 @@ namespace Neo
 		void			_InitMaterial();
 
 		D3D11RenderSystem* m_pRenderSystem;
-		RenderObject*	m_pMesh;
+		Mesh*			m_pMesh;
+		Entity*			m_pEntity;
 		Material*		m_pMaterial;
 	};
 }
