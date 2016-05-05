@@ -13,6 +13,8 @@
 
 namespace Neo
 {
+	class PointListBody;
+
 	class ShadowMap
 	{
 	public:
@@ -27,6 +29,10 @@ namespace Neo
 		D3D11Texture*	GetShadowTexture();
 		const MAT44&	GetShadowTransform() const { return m_matShadowTransform; }
 		void			SetDepthBias(int bias);
+
+	private:
+		VEC3			_GetLightSpaceViewDir(const MAT44& matLS, const PointListBody& bodyLVS);
+		VEC3			_GetNearestCameraPoint_ws(const MAT44& matView, const PointListBody& bodyLVS);
 
 	private:
 		D3D11RenderTarget*	m_pRT_ShadowMap;

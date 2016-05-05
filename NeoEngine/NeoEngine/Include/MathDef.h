@@ -16,6 +16,8 @@ const float		TWO_PI		=	6.28318f;
 
 namespace Common
 {
+	bool		Equal(float a, float b);
+
 	/////////////////////////////////////////////////////////////
 	//////// Integer point
 	class iPoint
@@ -56,6 +58,29 @@ namespace Common
 				z == other.z;
 		}
 
+		inline bool operator < (const Vector3& rhs) const
+		{
+			if (x < rhs.x && y < rhs.y && z < rhs.z)
+				return true;
+			return false;
+		}
+
+		inline Vector3 operator + (const Vector3& rhs) const
+		{
+			return Vector3(
+				x + rhs.x,
+				y + rhs.y,
+				z + rhs.z);
+		}
+
+		inline Vector3 operator - (const Vector3& rhs) const
+		{
+			return Vector3(
+				x - rhs.x,
+				y - rhs.y,
+				z - rhs.z);
+		}
+
 		void Set(float _x, float _y, float _z) { x=_x; y=_y; z=_z; }
 
 		bool	IsZeroLength() const
@@ -63,6 +88,18 @@ namespace Common
 			float sqlen = (x * x) + (y * y) + (z * z);
 			return (sqlen < (1e-06 * 1e-06));
 		}
+
+		float	GetLength() const
+		{
+			return sqrt(x*x + y*y + z*z);
+		}
+
+		bool	PositionEqual(const Vector3& rhs) const
+		{
+			return Equal(x, rhs.x) && Equal(y, rhs.y) && Equal(z, rhs.z);
+		}
+
+		bool	DirectionEqual(const Vector3& dir, float fToleraceRadian) const;
 
 		float	Normalize();
 		//求负
@@ -186,14 +223,48 @@ namespace Common
 	{
 	public:
 		Plane() {}
-		Plane(const Vector3& _n, float _d):n(_n),d(_d) {}
+		Plane(const Vector3& _n, float _d) :n(_n), d(_d) {}
+		Plane(const Vector3& p1, const Vector3& p2, const Vector3& p3) { Redefine(p1, p2, p3); }
+
+		/** The "positive side" of the plane is the half space to which the
+		plane normal points. The "negative side" is the other half
+		space. The flag "no side" indicates the plane itself.
+		*/
+		enum Side
+		{
+			NO_SIDE,
+			POSITIVE_SIDE,
+			NEGATIVE_SIDE,
+			BOTH_SIDE
+		};
 
 		void	Set(const Vector3& _n, float _d) { n = _n; d = _d; }
 		void	Normalize();
+		void	Redefine(const Vector3& _n, const Vector3& _p);
+		void	Redefine(const Vector3& p1, const Vector3& p2, const Vector3& p3);
+		Side	GetSide(const Vector3& p) const;
 
 		Vector3	n;
 		float	d;
 	};
+
+	/////////////////////////////////////////////////////////////
+	//////// Ray
+	class Ray
+	{
+	public:
+		Ray() :m_origin(Vector3::ZERO), m_dir(Vector3::ZERO) {}
+		Ray(const Vector3& origin, const Vector3& dir): m_origin(origin), m_dir(dir) {}
+
+		Vector3	m_origin;
+		Vector3	m_dir;
+
+		Vector3	GetPoint(float t) const;
+
+		std::pair<bool, float>	Intersects(const Vector3& p1, const Vector3& p2, const Vector3& p3) const;
+		std::pair<bool, float>	Intersects(const Plane& plane) const;
+	};
+
 
 
 	//////// 以4x4矩阵变换4d坐标
@@ -220,6 +291,8 @@ namespace Common
 	Vector2		Multiply_Vec2_By_Vec2(const Vector2& v1, const Vector2& v2);
 	float		Angle_To_Radian(float angle);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
+	bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3);
+
 
 	//建构关于平面的反射矩阵
 	Matrix44	BuildReflectMatrix(const Plane& p);

@@ -129,6 +129,7 @@ namespace Common
 	class AxisAlignBBox;
 	class iPoint;
 	class Quaternion;
+	class Ray;
 }
 
 typedef std::string			STRING;
@@ -144,6 +145,7 @@ typedef Common::AxisAlignBBox	AABB;
 typedef Common::Plane			PLANE;
 typedef Common::iPoint			IPOINT;
 typedef Common::Quaternion		QUATERNION;
+typedef Common::Ray				RAY;
 
 namespace Neo
 {
@@ -172,6 +174,7 @@ namespace Neo
 	class	Entity;
 	class	SubMesh;
 	class	Mesh;
+	class	ConvexBody;
 }
 
 

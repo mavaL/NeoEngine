@@ -107,17 +107,17 @@ namespace Neo
 			// Fix: In case of AABB become a plane [2/10/2014 mavaL]
 			const float fDist = 0.5f;
 
-			if (Equal(aabb.m_minCorner.x, aabb.m_maxCorner.x))
+			if (Common::Equal(aabb.m_minCorner.x, aabb.m_maxCorner.x))
 			{
 				aabb.m_minCorner.x -= fDist;
 				aabb.m_maxCorner.x += fDist;
 			}
-			if (Equal(aabb.m_minCorner.y, aabb.m_maxCorner.y))
+			if (Common::Equal(aabb.m_minCorner.y, aabb.m_maxCorner.y))
 			{
 				aabb.m_minCorner.y -= fDist;
 				aabb.m_maxCorner.y += fDist;
 			}
-			if (Equal(aabb.m_minCorner.z, aabb.m_maxCorner.z))
+			if (Common::Equal(aabb.m_minCorner.z, aabb.m_maxCorner.z))
 			{
 				aabb.m_minCorner.z -= fDist;
 				aabb.m_maxCorner.z += fDist;

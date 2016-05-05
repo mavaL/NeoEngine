@@ -198,6 +198,44 @@ namespace Common
 		z = axis.z * sinf(fHalfRadin);
 		w = cosf(fHalfRadin);
 	}
+
+	void Plane::Redefine(const Vector3& _n, const Vector3& _p)
+	{
+		n = _n;
+		d = -Common::DotProduct_Vec3_By_Vec3(_n, _p);
+	}
+
+	void Plane::Redefine(const Vector3& p1, const Vector3& p2, const Vector3& p3)
+	{
+		const Vector3 v1 = p2 - p1;
+		const Vector3 v2 = p3 - p1;
+		Vector3 vNormal = Common::CrossProduct_Vec3_By_Vec3(v1, v2);
+		vNormal.Normalize();
+		d = -Common::DotProduct_Vec3_By_Vec3(p1, vNormal);
+	}
+
+	Plane::Side Plane::GetSide(const Vector3& p) const
+	{
+		float result = Common::DotProduct_Vec3_By_Vec3(p, n) + d;
+
+		if (result < 0.0)
+			return NEGATIVE_SIDE;
+
+		if (result > 0.0)
+			return POSITIVE_SIDE;
+
+		return NO_SIDE;
+	}
+
+
+	bool Vector3::DirectionEqual(const Vector3& dir, float fToleraceRadian) const
+	{
+		float fDot = DotProduct_Vec3_By_Vec3(*this, dir);
+		float fRadian = acosf(fDot);
+
+		return fabsf(fRadian) <= fToleraceRadian;
+	}
+
 }
 
 

@@ -28,6 +28,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 //D3D
 #include <d3d11.h>

@@ -36,17 +36,21 @@ namespace Neo
 		const VEC3&		GetPos() const		{ return m_viewPt;	}
 		VEC3			GetDirection() const;
 		VEC3			GetRight() const;
-		float	GetNearClip() const	{ return m_nearClip; }
-		float	GetFarClip() const	{ return m_farClip; }
-		float	GetFov() const		{ return m_fov; }
-		float	GetAspectRatio() const	{ return m_aspectRatio; }
-		void	GetFarCorner(VEC4 v[4]);
+		float			GetNearClip() const	{ return m_nearClip; }
+		float			GetFarClip() const	{ return m_farClip; }
+		float			GetFov() const		{ return m_fov; }
+		float			GetAspectRatio() const	{ return m_aspectRatio; }
+		const VEC3*		GetWorldSpaceFrustumCorners() const;
+		const PLANE&	GetFrustumPlane(int i) const;
+		void			GetFarCorner(VEC4 v[4]);
 
 		const MAT44&	GetViewMatrix() const	{ return m_matView; }
 		const MAT44&	GetProjMatrix() const	{ return m_matProj; }
 
 		void	_BuildViewMatrix();
 		void	_BuildProjMatrix();
+		void	_UpdateFrustumCorners() const;
+		void	_UpdateFrustumPlanes() const;
 
 	private:
 		VEC3	m_viewPt;
@@ -55,7 +59,12 @@ namespace Neo
 		float	m_farClip;
 		float	m_fov;			//xz面视野角(弧度值)
 		float	m_aspectRatio;
-		VEC4	m_farCorner[4];
+		VEC4	m_farCorners[4];	// In view-space
+
+		mutable VEC3	m_frustumCorners[8];	// In world-space.
+		mutable PLANE	m_frustumPlanes[6];
+		mutable bool	m_bFrustumPlanesDirty;
+		mutable bool	m_bFrustumCornersDirty;
 
 		bool	m_fixYawAxis;	//固定yaw轴为y轴,一般漫游相机这样就够了.飞行模拟类型的不fix,因为需要roll.
 		float	m_moveSpeed;

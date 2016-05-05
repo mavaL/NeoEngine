@@ -111,6 +111,15 @@
     <ClInclude Include="Include\VertexData.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ConvexBody.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Polygon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ShadowMapLispPSM.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -203,6 +212,15 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\VertexData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Polygon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ConvexBody.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ShadowMapLispPSM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

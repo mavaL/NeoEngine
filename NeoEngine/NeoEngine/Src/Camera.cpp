@@ -11,6 +11,8 @@ namespace Neo
 		,m_fixYawAxis(true)
 		,m_moveSpeed(1.0f)
 		,m_bActive(false)
+		,m_bFrustumPlanesDirty(true)
+		,m_bFrustumCornersDirty(true)
 	{
 		m_fov = Common::Angle_To_Radian(45);
 	}
@@ -92,6 +94,9 @@ namespace Neo
 		trans = Common::Transform_Vec3_By_Mat44(m_viewPt, m_matView, true);
 		trans.Neg();
 		m_matView.SetTranslation(trans.GetVec3());
+
+		m_bFrustumCornersDirty = true;
+		m_bFrustumPlanesDirty = true;
 	}
 
 	void Camera::_BuildProjMatrix()
@@ -139,14 +144,17 @@ namespace Neo
 		m_matProj.m32 = -m_farClip*m_nearClip/(m_farClip-m_nearClip);
 		m_matProj.m33 = 0;
 
-		// Extract far corners
-		float halfWidth = m_farClip * tanf( 0.5f*m_fov );
-		float halfHeight  = halfWidth / m_aspectRatio;
+		m_bFrustumCornersDirty = true;
+		m_bFrustumPlanesDirty = true;
 
-		m_farCorner[0].Set(-halfWidth, +halfHeight, m_farClip, 0.0f);
-		m_farCorner[1].Set(+halfWidth, +halfHeight, m_farClip, 0.0f);
-		m_farCorner[2].Set(-halfWidth, -halfHeight, m_farClip, 0.0f);
-		m_farCorner[3].Set(+halfWidth, -halfHeight, m_farClip, 0.0f);
+		// Extract far corners
+		float halfWidth = m_farClip * tanf(0.5f*m_fov);
+		float halfHeight = halfWidth / m_aspectRatio;
+
+		m_farCorners[0].Set(-halfWidth, +halfHeight, m_farClip, 0.0f);
+		m_farCorners[1].Set(+halfWidth, +halfHeight, m_farClip, 0.0f);
+		m_farCorners[2].Set(-halfWidth, -halfHeight, m_farClip, 0.0f);
+		m_farCorners[3].Set(+halfWidth, -halfHeight, m_farClip, 0.0f);
 	}
 
 	VEC3 Camera::GetDirection() const
@@ -191,10 +199,110 @@ namespace Neo
 		_BuildProjMatrix();
 	}
 
-	void Camera::GetFarCorner( VEC4 v[4] )
+	const VEC3* Camera::GetWorldSpaceFrustumCorners() const
 	{
-		memcpy(v, m_farCorner, sizeof(VEC4)*4);
+		if (m_bFrustumCornersDirty)
+		{
+			_UpdateFrustumCorners();
+			m_bFrustumCornersDirty = false;
+		}
+
+		return m_frustumCorners;
 	}
+
+	void Camera::_UpdateFrustumCorners() const
+	{
+		assert(m_aspectRatio != 0);
+		assert(m_farClip != 0);
+
+		float nf = m_nearClip / m_farClip;
+		float halfWidthFar = m_farClip * tanf(0.5f*m_fov);
+		float halfHeightFar = halfWidthFar / m_aspectRatio;
+		float halfWidthNear = halfWidthFar * nf;
+		float halfHeightNear = halfWidthNear / m_aspectRatio;
+
+		m_frustumCorners[0].Set(+halfWidthNear, +halfHeightNear, m_nearClip);
+		m_frustumCorners[1].Set(-halfWidthNear, +halfHeightNear, m_nearClip);
+		m_frustumCorners[2].Set(-halfWidthNear, -halfHeightNear, m_nearClip);
+		m_frustumCorners[3].Set(+halfWidthNear, -halfHeightNear, m_nearClip);
+
+		m_frustumCorners[4].Set(+halfWidthFar, +halfHeightFar, m_farClip);
+		m_frustumCorners[5].Set(-halfWidthFar, +halfHeightFar, m_farClip);
+		m_frustumCorners[6].Set(-halfWidthFar, -halfHeightFar, m_farClip);
+		m_frustumCorners[7].Set(+halfWidthFar, -halfHeightFar, m_farClip);
+
+		MAT44 matInvView = m_matView.Inverse();
+
+		for (uint32 i = 0; i < 8; ++i)
+		{
+			m_frustumCorners[i] = Common::Transform_Vec3_By_Mat44(m_frustumCorners[i], matInvView, true).GetVec3();
+		}
+	}
+
+	void Camera::_UpdateFrustumPlanes() const
+	{
+		MAT44 matCombo = m_matView * m_matProj;
+
+		// Left clipping plane
+		m_frustumPlanes[0].n.x = matCombo.m03 + matCombo.m00;
+		m_frustumPlanes[0].n.y = matCombo.m13 + matCombo.m10;
+		m_frustumPlanes[0].n.z = matCombo.m23 + matCombo.m20;
+		m_frustumPlanes[0].d = matCombo.m33 + matCombo.m30;
+
+		// Right clipping plane
+		m_frustumPlanes[1].n.x = matCombo.m03 - matCombo.m00;
+		m_frustumPlanes[1].n.y = matCombo.m13 - matCombo.m10;
+		m_frustumPlanes[1].n.z = matCombo.m23 - matCombo.m20;
+		m_frustumPlanes[1].d = matCombo.m33 - matCombo.m30;
+
+		// Top clipping plane
+		m_frustumPlanes[2].n.x = matCombo.m03 - matCombo.m01;
+		m_frustumPlanes[2].n.y = matCombo.m13 - matCombo.m11;
+		m_frustumPlanes[2].n.z = matCombo.m23 - matCombo.m21;
+		m_frustumPlanes[2].d = matCombo.m33 - matCombo.m31;
+
+		// Bottom clipping plane
+		m_frustumPlanes[3].n.x = matCombo.m03 + matCombo.m01;
+		m_frustumPlanes[3].n.y = matCombo.m13 + matCombo.m11;
+		m_frustumPlanes[3].n.z = matCombo.m23 + matCombo.m21;
+		m_frustumPlanes[3].d = matCombo.m33 + matCombo.m31;
+
+		// Near clipping plane
+		m_frustumPlanes[4].n.x = matCombo.m02;
+		m_frustumPlanes[4].n.y = matCombo.m12;
+		m_frustumPlanes[4].n.z = matCombo.m22;
+		m_frustumPlanes[4].d = matCombo.m32;
+
+		// Far clipping plane
+		m_frustumPlanes[5].n.x = matCombo.m03 - matCombo.m02;
+		m_frustumPlanes[5].n.y = matCombo.m13 - matCombo.m12;
+		m_frustumPlanes[5].n.z = matCombo.m23 - matCombo.m22;
+		m_frustumPlanes[5].d = matCombo.m33 - matCombo.m32;
+
+		// Normalize planes
+		for (int i = 0; i < 6; ++i)
+		{
+			float fLen = m_frustumPlanes[i].n.Normalize();
+			m_frustumPlanes[i].d /= fLen;
+		}
+	}
+
+	const PLANE& Camera::GetFrustumPlane(int i) const
+	{
+		if (m_bFrustumPlanesDirty)
+		{
+			_UpdateFrustumPlanes();
+			m_bFrustumPlanesDirty = false;
+		}
+		
+		return m_frustumPlanes[i];
+	}
+
+	void Camera::GetFarCorner(VEC4 v[4])
+	{
+		memcpy(v, m_farCorners, sizeof(v));
+	}
+
 }
 
 

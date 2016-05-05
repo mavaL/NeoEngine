@@ -188,16 +188,16 @@ namespace Neo
 	void SceneManager::_InitAllScene()
 	{
 		//// Test Scene 1: mesh, SSAO post effect
-//		ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
-// 
-// 		//// Test Scene 2: Sky, Water
-// 		ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
-// 
-// 		//// Test Scene 3: Terrain
-// 		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
-// 
-// 		//// Test Scene 4: Shadow testing
-// 		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		//ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
+
+		////// Test Scene 2: Sky, Water
+		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
+
+		////// Test Scene 3: Terrain
+		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+
+		//// Test Scene 4: Shadow testing
+		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
 		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);

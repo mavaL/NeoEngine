@@ -18,11 +18,6 @@ inline std::string	GetResPath(const std::string& filename)
 	return std::move(filepath);
 }
 
-inline bool Equal(float a, float b)
-{
-	return fabs(a - b) < 1e-03;
-}
-
 
 template<class T>
 inline void Swap(T& t1, T& t2)

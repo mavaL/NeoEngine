@@ -357,6 +357,11 @@ namespace Common
 		return sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
+	__forceinline bool		Equal(float a, float b)
+	{
+		return fabs(a - b) < 1e-03;
+	}
+
 	__forceinline Vector4	Transform_Vec3_By_Mat44(const Vector3& pt, const Matrix44& mat, bool bPosOrDir)
 	{
 		return Transform_Vec4_By_Mat44(Vector4(pt, bPosOrDir ? 1.0f : 0.0f), mat);
@@ -471,6 +476,74 @@ namespace Common
 		d /= normalLen;
 	}
 
+	//------------------------------------------------------------------------------------
+	__forceinline Vector3 Ray::GetPoint(float t) const
+	{
+		return Add_Vec3_By_Vec3(m_origin, Common::Multiply_Vec3_By_K(m_dir, t));
+	}
+	//------------------------------------------------------------------------------------
+	__forceinline std::pair<bool, float> Ray::Intersects(const Plane& plane) const
+	{
+		// p = o + vt
+		// p * n = d
+		// t = (d - (o * n)) / (n * v)
+
+		float dot = Common::DotProduct_Vec3_By_Vec3(plane.n, m_dir);
+		if (Equal(dot, 0.0f))
+			return std::pair<bool, float>(false, 0.0f);
+
+		float t = (plane.d - Common::DotProduct_Vec3_By_Vec3(m_origin, plane.n)) / dot;
+		if (t < 0 ||
+			t < 1e-03)	// Avoid self-shadowing cause by imprecision problem!
+			return std::pair<bool, float>(false, 0.0f);
+
+		return std::pair<bool, float>(true, t);
+	}
+	//------------------------------------------------------------------------------------
+	__forceinline std::pair<bool, float> Ray::Intersects(const Vector3& p1, const Vector3& p2, const Vector3& p3) const
+	{
+		// First check ray-plane intersection
+		Plane plane(p1, p2, p3);
+
+		std::pair<bool, float> hitResult = Intersects(plane);
+		if (!hitResult.first)
+			return std::pair<bool, float>(false, 0.0f);
+
+		// Then check whether intersection point is inside triangle
+		if (!IsPointInTriangle(GetPoint(hitResult.second), p1, p2, p3))
+			return std::pair<bool, float>(false, 0.0f);
+
+		return hitResult;
+	}
+	//------------------------------------------------------------------------------------
+	__forceinline bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3)
+	{
+		// First check whether point is on the plane
+		Plane plane(p1, p2, p3);
+		float d1 = Common::DotProduct_Vec3_By_Vec3(plane.n, pt);
+
+		if (!Equal(d1, plane.d))
+			return false;
+
+		// for triangle: p = w1p1 + w2p2 + w3p3, w1 + w2 + w3 = 1
+		const Vector3 v1 = Common::Sub_Vec3_By_Vec3(p2, p1);
+		const Vector3 v2 = Common::Sub_Vec3_By_Vec3(p3, p1);
+		const Vector3 R = Common::Sub_Vec3_By_Vec3(pt, p1);
+		float dot = Common::DotProduct_Vec3_By_Vec3(v1, v2);
+		float a = Common::DotProduct_Vec3_By_Vec3(v1, v1);
+		float b = Common::DotProduct_Vec3_By_Vec3(v2, v2);
+		float e = Common::DotProduct_Vec3_By_Vec3(R, v1);
+		float f = Common::DotProduct_Vec3_By_Vec3(R, v2);
+		float denom = 1.0f / (a * b - dot * dot);
+
+		float w1 = (b * e + f * -dot) * denom;
+		float w2 = (-dot * e + a * f) * denom;
+
+		if (w1 < 0 || w2 < 0 || (w1 + w2)>1)
+			return false;
+
+		return true;
+	}
 }
 
 #endif // MathDef_inl__

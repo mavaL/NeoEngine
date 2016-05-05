@@ -24,6 +24,7 @@ namespace Common
 		void	Merge(const VEC3& pt);
 		void	Merge(const AABB& aabb);
 		VEC3	GetSize() const;
+		bool	IsFinite() const { return m_boundingRadius != -1; }
 		//变换AABB,from ogre. NB: 变换后需要保持轴对齐
 		void	Transform(const MAT44& matrix);
 
