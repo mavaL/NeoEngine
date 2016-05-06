@@ -167,6 +167,11 @@ namespace Neo
 		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_X, m_matRot, false).GetVec3();
 	}
 
+	VEC3 Camera::GetUp() const
+	{
+		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Y, m_matRot, false).GetVec3();
+	}
+
 	void Camera::Yaw( float angle )
 	{
 		MAT44 rot;

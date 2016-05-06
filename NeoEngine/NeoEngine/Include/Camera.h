@@ -36,6 +36,7 @@ namespace Neo
 		const VEC3&		GetPos() const		{ return m_viewPt;	}
 		VEC3			GetDirection() const;
 		VEC3			GetRight() const;
+		VEC3			GetUp() const;
 		float			GetNearClip() const	{ return m_nearClip; }
 		float			GetFarClip() const	{ return m_farClip; }
 		float			GetFov() const		{ return m_fov; }

@@ -75,7 +75,7 @@ namespace Neo
 		vInvLightDir.Neg();
 		VEC3 vLookAt = Common::Add_Vec3_By_Vec3(cam->GetPos(), vInvLightDir);
 
-		m_matLightView = Common::BuildViewMatrix(cam->GetPos(), vLookAt, cam->GetDirection());
+		m_matLightView = Common::BuildViewMatrix(cam->GetPos(), vLookAt, cam->GetUp());
 
 		// Transform to light space: y -> -z, z -> y
 		const MAT44 matToLightSpace(
@@ -84,7 +84,7 @@ namespace Neo
 			0, -1, 0, 0,
 			0, 0, 0, 1);
 
-		MAT44 matLS= m_matLightView * matToLightSpace;
+		MAT44 matLS= matToLightSpace;
 
 		////////// Calc intersection body B
 		PointListBody bodyB;
@@ -111,7 +111,26 @@ namespace Neo
 		bodyLVS.build(convexBodyLVS);
 
 		////////// Get view direction in light space
-		const VEC3 vViewDirLS = _GetLightSpaceViewDir(matLS, bodyLVS);
+		VEC3 vViewDirLS = _GetLightSpaceViewDir(m_matLightView * matLS, bodyLVS);
+
+		////////// Add view dir to light space transform
+		matLS = matLS * Common::BuildViewMatrix(VEC3::ZERO, vViewDirLS, VEC3::UNIT_Y);
+
+		////////// Calc light space proj matrix
+		matLS = matLS * _CalcLispPSMProjMatrix(bodyB, bodyLVS, m_matLightView * matLS);
+
+		matLS = matLS * _TransformToUnitCube(m_matLightView * matLS, bodyB);
+
+		// Transform from light space to normal: y -> z, z -> -y
+		const MAT44 matLightSpaceToNormal(
+			1,  0,  0,  0,	
+			0,  0, -1,  0,	
+			0,	1,  0,  0,	
+			0,  0,  0,  1);	
+
+		matLS = matLS * matLightSpaceToNormal;
+
+		m_matLightProj = matLS;
 
 #else
 
@@ -140,15 +159,16 @@ namespace Neo
 
 		m_matLightProj = Common::BuildOthroMatrix(l, r, b, t, n, f);
 
+#endif
+
 		MAT44 T(
 			0.5f, 0.0f, 0.0f, 0.0f,
 			0.0f, -0.5f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.5f, 0.5f, 0.0f, 1.0f);
 
-		m_matShadowTransform = Common::Multiply_Mat44_By_Mat44(m_matLightView, m_matLightProj);
-		m_matShadowTransform = Common::Multiply_Mat44_By_Mat44(m_matShadowTransform, T);
-#endif
+		m_matShadowTransform = m_matLightView * m_matLightProj;
+		m_matShadowTransform = m_matShadowTransform * T;
 	}
 	//------------------------------------------------------------------------------------
 	VEC3 ShadowMap::_GetLightSpaceViewDir(const MAT44& matLS, const PointListBody& bodyLVS)
@@ -195,6 +215,95 @@ namespace Neo
 		}
 
 		return nearWorld;
+	}
+	//------------------------------------------------------------------------------------
+	MAT44 ShadowMap::_CalcLispPSMProjMatrix(const PointListBody& bodyB, const PointListBody& bodyLVS, const MAT44& matLS)
+	{
+		// BodyB in light space
+		AABB bodyB_ls;
+		for (size_t i = 0; i < bodyB.getPointCount(); ++i)
+		{
+			VEC3 pt_ls = Common::Transform_Vec3_By_Mat44(bodyB.getPoint(i), matLS, true).GetVec3();
+			bodyB_ls.Merge(pt_ls);
+		}
+
+		// Camera nearest point int light space
+		Camera* cam = g_env.pSceneMgr->GetCamera();
+		VEC3 vStart_ws = _GetNearestCameraPoint_ws(cam->GetViewMatrix(), bodyLVS);
+		VEC3 vStart_ls = Common::Transform_Vec3_By_Mat44(vStart_ws, matLS, true).GetVec3();
+		vStart_ls.z = bodyB_ls.m_minCorner.z;
+
+		// Calculate the optimal distance between origin and near plane
+		float n_opt;
+		const float fOptimalAdjustFactor = 0.1f;	// Controls perspetive warping effect, the factor smaller, the warping effect stronger.
+
+		VEC3 vStart_es = Common::Transform_Vec3_By_Mat44(vStart_ws, cam->GetViewMatrix(), true).GetVec3();
+		n_opt = (vStart_es.z + sqrtf(cam->GetNearClip() * cam->GetFarClip())) * fOptimalAdjustFactor;
+		assert(n_opt > 0);
+
+		// Calc projection center
+		VEC3 vProjCenter = vStart_ls - n_opt * VEC3::UNIT_Z;
+
+		// Transform light frustum to projection center
+		MAT44 matTrans;
+		matTrans.MakeIdentity();
+		matTrans.SetTranslation(-vProjCenter);
+
+		// Build projection transform P
+		float d = fabsf(bodyB_ls.m_maxCorner.z - bodyB_ls.m_minCorner.z);
+
+		MAT44 P = _BuildFrustumProjection(-1, 1, 1, -1, n_opt, n_opt + d);
+
+		return matTrans * P;
+	}
+	//------------------------------------------------------------------------------------
+	MAT44 ShadowMap::_BuildFrustumProjection(float left, float right, float top, float bottom, float fNear, float fFar)
+	{
+		float a = fFar / (fFar - fNear);
+		float b = -(fNear * fFar) / (fFar - fNear);
+
+		MAT44 mat;
+		mat.MakeIdentity();
+
+		mat.m00 = 2 * fNear / (right - left);
+		mat.m11 = 2 * fNear / (top - bottom);
+		mat.m20 = (left + right) / (left - right);
+		mat.m21 = (bottom + top) / (bottom - top);
+		mat.m22 = a;
+		mat.m23 = 1;
+		mat.m32 = b;
+		mat.m33 = 0;
+
+		return mat;
+	}
+	//------------------------------------------------------------------------------------
+	MAT44 ShadowMap::_TransformToUnitCube(const MAT44& matLS, const PointListBody& bodyB)
+	{
+		// BodyB in light space
+		AABB bodyB_ls;
+		for (size_t i = 0; i < bodyB.getPointCount(); ++i)
+		{
+			VEC3 pt_ls = Common::Transform_Vec3_By_Mat44(bodyB.getPoint(i), matLS, true).GetVec3();
+			bodyB_ls.Merge(pt_ls);
+		}
+
+		VEC3 vMin = bodyB_ls.m_minCorner;
+		VEC3 vMax = bodyB_ls.m_maxCorner;
+
+		VEC3 trans(-(vMax.x + vMin.x) / (vMax.x - vMin.x),
+			-(vMax.y + vMin.y) / (vMax.y - vMin.y),
+			-(vMax.z + vMin.z) / (vMax.z - vMin.z));
+
+		VEC3 scale(2 / (vMax.x - vMin.x),
+			2 / (vMax.y - vMin.y),
+			2 / (vMax.z - vMin.z));
+
+		MAT44 mOut;
+		mOut.MakeIdentity();
+		mOut.SetTranslation(trans);
+		mOut.SetScale(scale);
+
+		return mOut;
 	}
 
 }

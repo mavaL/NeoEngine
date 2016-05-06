@@ -81,6 +81,24 @@ namespace Common
 				z - rhs.z);
 		}
 
+		inline Vector3 operator - () const
+		{
+			return Vector3(-x, -y, -z);
+		}
+
+		inline Vector3 operator * (float k) const
+		{
+			return Vector3(x * k, y * k, z * k);
+		}
+
+		inline friend Vector3 operator * (const float k, const Vector3& v)
+		{
+			return Vector3(
+				k * v.x,
+				k * v.y,
+				k * v.z);
+		}
+
 		void Set(float _x, float _y, float _z) { x=_x; y=_y; z=_z; }
 
 		bool	IsZeroLength() const

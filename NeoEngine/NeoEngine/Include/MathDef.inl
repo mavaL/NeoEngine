@@ -485,14 +485,14 @@ namespace Common
 	__forceinline std::pair<bool, float> Ray::Intersects(const Plane& plane) const
 	{
 		// p = o + vt
-		// p * n = d
+		// p * n = -d
 		// t = (d - (o * n)) / (n * v)
 
 		float dot = Common::DotProduct_Vec3_By_Vec3(plane.n, m_dir);
 		if (Equal(dot, 0.0f))
 			return std::pair<bool, float>(false, 0.0f);
 
-		float t = (plane.d - Common::DotProduct_Vec3_By_Vec3(m_origin, plane.n)) / dot;
+		float t = (-plane.d - Common::DotProduct_Vec3_By_Vec3(m_origin, plane.n)) / dot;
 		if (t < 0 ||
 			t < 1e-03)	// Avoid self-shadowing cause by imprecision problem!
 			return std::pair<bool, float>(false, 0.0f);

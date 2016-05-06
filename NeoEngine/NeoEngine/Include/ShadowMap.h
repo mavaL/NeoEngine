@@ -33,6 +33,9 @@ namespace Neo
 	private:
 		VEC3			_GetLightSpaceViewDir(const MAT44& matLS, const PointListBody& bodyLVS);
 		VEC3			_GetNearestCameraPoint_ws(const MAT44& matView, const PointListBody& bodyLVS);
+		MAT44			_CalcLispPSMProjMatrix(const PointListBody& bodyB, const PointListBody& bodyLVS, const MAT44& matLS);
+		MAT44			_BuildFrustumProjection(float left, float right, float top, float bottom, float fNear, float fFar);
+		MAT44			_TransformToUnitCube(const MAT44& matLS, const PointListBody& bodyB);
 
 	private:
 		D3D11RenderTarget*	m_pRT_ShadowMap;
