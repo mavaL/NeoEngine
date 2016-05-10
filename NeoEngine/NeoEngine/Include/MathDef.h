@@ -290,6 +290,7 @@ namespace Common
 	Vector4	Transform_Vec4_By_Mat44(const Vector4& pt, const Matrix44& mat);
 
 	Vector4		Transform_Vec3_By_Mat44(const Vector3& pt, const Matrix44& mat, bool bPosOrDir);
+	Plane		Transform_Plane_By_Mat44(const Plane& plane, const Matrix44& mat);
 	Matrix44	Multiply_Mat44_By_Mat44(const Matrix44& mat1, const Matrix44& mat2);
 	Vector4		Multiply_Vec4_By_K(const Vector4& v, float k);
 	void		Multiply_Vec4_By_K(Vector4& result, const Vector4& v, float k);

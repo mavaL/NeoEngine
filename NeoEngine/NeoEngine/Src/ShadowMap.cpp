@@ -71,11 +71,13 @@ namespace Neo
 #if USE_LISPPSM
 
 		Camera* cam = g_env.pSceneMgr->GetCamera();
-		VEC3 vInvLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
+		VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
+		vLightDir.Normalize();
+		VEC3 vInvLightDir = vLightDir;
 		vInvLightDir.Neg();
-		VEC3 vLookAt = Common::Add_Vec3_By_Vec3(cam->GetPos(), vInvLightDir);
+		VEC3 vLookAt = Common::Add_Vec3_By_Vec3(cam->GetPos(), vLightDir);
 
-		m_matLightView = Common::BuildViewMatrix(cam->GetPos(), vLookAt, cam->GetUp());
+		m_matLightView = Common::BuildViewMatrix(cam->GetPos(), vLookAt, cam->GetDirection());
 
 		// Transform to light space: y -> -z, z -> y
 		const MAT44 matToLightSpace(
@@ -99,7 +101,8 @@ namespace Neo
 		convexBodyB.clip(abab);
 
 		// At last merge it with the light frustum
-		bodyB.buildAndIncludeDirection(convexBodyB, cam->GetNearClip() * 3000, vInvLightDir);
+		const float fMaxShadowDist = 1000;
+		bodyB.buildAndIncludeDirection(convexBodyB, cam->GetNearClip() * fMaxShadowDist, vInvLightDir);
 		assert(bodyB.getPointCount() != 0);
 
 		////////// Calc LVS volume which is: viewer frustum clipped by scene aabb, the result points are all in front of the camera.
@@ -129,6 +132,13 @@ namespace Neo
 			0,  0,  0,  1);	
 
 		matLS = matLS * matLightSpaceToNormal;
+
+		MAT44 matD3D;
+		// GL NDC z: [-1, 1] -> D3D NDC z: [0, 1]
+		matD3D.MakeIdentity();
+		matD3D.m22 = 0.5f;
+		matD3D.m32 = 0.5f;
+		matLS = matLS * matD3D;
 
 		m_matLightProj = matLS;
 
@@ -233,13 +243,13 @@ namespace Neo
 		VEC3 vStart_ls = Common::Transform_Vec3_By_Mat44(vStart_ws, matLS, true).GetVec3();
 		vStart_ls.z = bodyB_ls.m_minCorner.z;
 
-		// Calculate the optimal distance between origin and near plane
-		float n_opt;
-		const float fOptimalAdjustFactor = 0.1f;	// Controls perspetive warping effect, the factor smaller, the warping effect stronger.
-
-		VEC3 vStart_es = Common::Transform_Vec3_By_Mat44(vStart_ws, cam->GetViewMatrix(), true).GetVec3();
-		n_opt = (vStart_es.z + sqrtf(cam->GetNearClip() * cam->GetFarClip())) * fOptimalAdjustFactor;
-		assert(n_opt > 0);
+		// Calculate the optimal distance between projection center and near plane
+		float n_opt = _CalcNOpt(bodyB_ls, bodyLVS, matLS);
+		
+		if (n_opt <= 0.0)
+		{
+			return MAT44::IDENTITY;
+		}
 
 		// Calc projection center
 		VEC3 vProjCenter = vStart_ls - n_opt * VEC3::UNIT_Z;
@@ -292,7 +302,7 @@ namespace Neo
 
 		VEC3 trans(-(vMax.x + vMin.x) / (vMax.x - vMin.x),
 			-(vMax.y + vMin.y) / (vMax.y - vMin.y),
-			-(vMax.z + vMin.z) / (vMax.z - vMin.z));
+			-vMin.z / (vMax.z - vMin.z));
 
 		VEC3 scale(2 / (vMax.x - vMin.x),
 			2 / (vMax.y - vMin.y),
@@ -304,6 +314,92 @@ namespace Neo
 		mOut.SetScale(scale);
 
 		return mOut;
+	}
+	//------------------------------------------------------------------------------------
+	float ShadowMap::_CalcNOpt(const AABB& bodyB_ls, const PointListBody& bodyLVS, const MAT44& matLS)
+	{
+		Camera* cam = g_env.pSceneMgr->GetCamera();
+		const float fOptimalAdjustFactor = 0.1f;	// Controls perspetive warping effect, the factor smaller, the warping effect stronger.
+
+		// get inverse light space matrix
+		MAT44 invLightSpace = matLS;
+		invLightSpace.Inverse();
+
+		// get view matrix
+		const MAT44& viewMatrix = cam->GetViewMatrix();
+
+		// calculate z0_ls
+		const VEC3 e_ws = _GetNearestCameraPoint_ws(viewMatrix, bodyLVS);
+		const VEC3 z0_ls = _CalculateZ0_ls(matLS, e_ws, bodyB_ls.m_minCorner.z);
+
+		// z1_ls has the same x and y values as z0_ls and the minimum z values of bodyABB_ls
+		const VEC3 z1_ls = VEC3(z0_ls.x, z0_ls.y, bodyB_ls.m_maxCorner.z);
+
+		// world
+		const VEC3 z0_ws = Common::Transform_Vec3_By_Mat44(z0_ls, invLightSpace, true).GetVec3();
+		const VEC3 z1_ws = Common::Transform_Vec3_By_Mat44(z1_ls, invLightSpace, true).GetVec3();
+
+		// eye
+		const VEC3 z0_es = Common::Transform_Vec3_By_Mat44(z0_ws, viewMatrix, true).GetVec3();
+		const VEC3 z1_es = Common::Transform_Vec3_By_Mat44(z1_ws, viewMatrix, true).GetVec3();
+
+		const float z0 = z0_es.z;
+		const float z1 = z1_es.z;
+
+		// check if we have to do uniform shadow mapping
+		if ((z0 > 0 && z1 < 0) ||
+			(z1 > 0 && z0 < 0))
+		{
+			// apply uniform shadow mapping
+			return 0.0;
+		}
+		return cam->GetNearClip() + sqrtf(z0 * z1) * fOptimalAdjustFactor;
+	}
+	//------------------------------------------------------------------------------------
+	VEC3 ShadowMap::_CalculateZ0_ls(const MAT44& matLS, const VEC3& e, float bodyB_zMax_ls)
+	{
+		// z0_ls lies on the intersection point between the planes 'bodyB_ls near plane 
+		// (z = bodyB_zNear_ls)' and plane with normal UNIT_X where e_ls lies upon (x = e_ls_x) 
+		// and the camera's near clipping plane (ls). We are looking towards the negative 
+		// z-direction, so bodyB_zNear_ls equals bodyB_zMax_ls.
+
+		Camera* cam = g_env.pSceneMgr->GetCamera();
+		const VEC3& camDir = cam->GetDirection();
+		const VEC3 e_ls = Common::Transform_Vec3_By_Mat44(e, matLS, true).GetVec3();
+
+		// set up a plane with the camera direction as normal and e as a point on the plane
+		PLANE plane;
+		plane.Redefine(camDir, e);
+
+		plane = Common::Transform_Plane_By_Mat44(plane, matLS);
+
+		// try to intersect plane with a ray from origin V3(e_ls_x, 0.0, bodyB_zNear_ls)T
+		// and direction +/- UNIT_Y
+		RAY ray(VEC3(e_ls.x, 0.0, bodyB_zMax_ls), VEC3::UNIT_Y);
+		std::pair< bool, float > intersect = ray.Intersects(plane);
+
+		// we got an intersection point
+		if (intersect.first == true)
+		{
+			return ray.GetPoint(intersect.second);
+		}
+		else
+		{
+			// try the other direction
+			ray = RAY(VEC3(e_ls.x, 0.0, bodyB_zMax_ls), VEC3::NEG_UNIT_Y);
+			intersect = ray.Intersects(plane);
+
+			// we got an intersection point
+			if (intersect.first == true)
+			{
+				return ray.GetPoint(intersect.second);
+			}
+			else
+			{
+				// failure!
+				return VEC3::ZERO;
+			}
+		}
 	}
 
 }
