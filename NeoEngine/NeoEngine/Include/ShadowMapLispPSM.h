@@ -3,8 +3,8 @@
 	filename	ShadowMapLispPSM.h
 	author:		maval
 
-	purpose:	Light space perspective shadow map. 
-				Most reference OGRE.
+	purpose:	Shadow geometry calculation.
+				From OGRE.
 *********************************************************************/
 #ifndef ShadowMapLispPSM_h__
 #define ShadowMapLispPSM_h__

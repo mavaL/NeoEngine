@@ -138,16 +138,23 @@ void SetupTestScene4(Scene* scene)
 
 
 	// Shadow caster
-	Neo::Entity* pCaster =  g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
-
-	scene->AddEntity(pCaster);
-
 	pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"));
 
-	pCaster->SetMaterial(0, pMaterial);
-	pCaster->SetReceiveShadow(false);
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 5; ++j)
+		{
+			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
+
+			scene->AddEntity(pCaster);
+			pCaster->SetMaterial(0, pMaterial);
+			pCaster->SetReceiveShadow(false);
+			pCaster->SetPosition(VEC3(-100 + i * 40, 0, -100 + j * 40));
+		}
+	}
+
 	pMaterial->Release();
 }
 
