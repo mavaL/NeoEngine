@@ -120,6 +120,9 @@
     <ClInclude Include="Include\ShadowMapLispPSM.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ShadowMapCSM.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -221,6 +224,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\ShadowMapLispPSM.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ShadowMapCSM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

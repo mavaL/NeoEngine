@@ -8,6 +8,7 @@
 #include "SceneManager.h"
 #include "Material.h"
 #include "ShadowMap.h"
+#include "ShadowMapCSM.h"
 
 namespace Neo
 {
@@ -461,7 +462,15 @@ namespace Neo
 		
 		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 
+#if USE_CSM
+		ShadowMapCSM* pCSM = g_env.pSceneMgr->GetShadowMap()->GetCSM();
+
+		SetTransform(eTransform_Shadow, pCSM->GetShadowTransform(0), false);
+		SetTransform(eTransform_Shadow2, pCSM->GetShadowTransform(1), false);
+		SetTransform(eTransform_Shadow3, pCSM->GetShadowTransform(2), false);
+#else
 		SetTransform(eTransform_Shadow, g_env.pSceneMgr->GetShadowMap()->GetShadowTransform(), false);
+#endif
 		SetTransform(eTransform_World, MAT44::IDENTITY, false);
 		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
 		SetTransform(eTransform_View, matView, false);

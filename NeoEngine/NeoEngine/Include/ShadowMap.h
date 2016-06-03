@@ -27,18 +27,15 @@ namespace Neo
 		void			Update();
 		void			Render();
 		D3D11Texture*	GetShadowTexture();
+		ShadowMapCSM*	GetCSM() { return m_pCSM; }
 		const MAT44&	GetShadowTransform() const { return m_matShadowTransform; }
-		void			SetDepthBias(int bias);
-
-	private:
-		VEC3			_GetNearestCameraPoint_ws(const MAT44& matView, const PointListBody& body);
 
 	private:
 		D3D11RenderTarget*	m_pRT_ShadowMap;
 		MAT44				m_matLightView;
 		MAT44				m_matLightProj;
 		MAT44				m_matShadowTransform;
-		D3D11_RASTERIZER_DESC	m_depthBiasRasterDesc;
+		ShadowMapCSM*		m_pCSM;
 	};
 }
 

@@ -1,4 +1,3 @@
-#include "Common.h"
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
@@ -11,6 +10,8 @@ cbuffer cbufferGlobal : register( b0 )
 	matrix	WVP;
 	matrix	WorldIT;
 	matrix	ShadowTransform;
+	matrix	ShadowTransform2;
+	matrix	ShadowTransform3;
 	float4	clipPlane;
 	float4	frustumFarCorner[4];
 	float4	ambientColor;
@@ -80,21 +81,31 @@ SamplerState samSSAO	: register(s1);
 #ifdef SHADOW_RECEIVER
 #ifdef SSAO
 Texture2D				gShadowMap		: register(t2);
+Texture2D				gShadowMap2		: register(t3);
+Texture2D				gShadowMap3		: register(t4);
 SamplerComparisonState	samShadowMap	: register(s2);
 #else
 Texture2D				gShadowMap		: register(t1);
+Texture2D				gShadowMap2		: register(t2);
+Texture2D				gShadowMap3		: register(t3);
 SamplerComparisonState	samShadowMap	: register(s1);
 #endif
 #endif
+
+#include "Common.h"
 
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
 #ifdef SHADOW_RECEIVER
 	// Do shadowing
-	float fLitFactor = ComputeShdow(input.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
+	float4 fLitFactor = ComputeShdow(input.PosW, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadowMap, gShadowMap, gShadowMap2, gShadowMap3);
 #else
-	float fLitFactor = 1.0f;
+	float4 fLitFactor = 1.0f;
 #endif
+
+//#ifdef SHADOW_RECEIVER	// Debug CSM
+//	return fLitFactor;
+//#endif
 
 	// Do lighting
 	float3 N = normalize(input.normal);

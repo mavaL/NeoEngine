@@ -242,8 +242,7 @@ namespace Common
 
 		// To transform normal, we can not use the matrix directly
 		// See: http://www.songho.ca/opengl/gl_normaltransform.html
-		Matrix44 matInvTranspose = mat;
-		matInvTranspose.Inverse();
+		Matrix44 matInvTranspose = mat.Inverse();
 		matInvTranspose.Transpose();
 
 		v = Common::Transform_Vec4_By_Mat44(v, matInvTranspose);

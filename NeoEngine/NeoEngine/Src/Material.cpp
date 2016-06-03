@@ -6,6 +6,7 @@
 #include "SceneManager.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
+#include "ShadowMapCSM.h"
 
 namespace Neo
 {
@@ -323,7 +324,8 @@ namespace Neo
 			{
 				if (m_pTexture[i] == nullptr)
 				{
-					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
+					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
+					retMacros.push_back(macro);
 
 					D3D11_SAMPLER_DESC& samDesc = GetSamplerStateDesc(i);
 					samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
@@ -334,8 +336,17 @@ namespace Neo
 
 					SetSamplerStateDesc(i, samDesc);
 
-					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
-					retMacros.push_back(macro);
+#if USE_CSM
+					D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
+					retMacros.push_back(macroCSM);
+
+					for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
+					{
+						SetTexture(i + iCascade, g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(iCascade));
+					}
+#else
+					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
+#endif
 
 					break;
 				}

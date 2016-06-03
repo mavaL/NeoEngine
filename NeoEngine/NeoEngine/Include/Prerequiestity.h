@@ -16,6 +16,9 @@ const int	MAX_TEXTURE_STAGE	=	8;
 
 
 #define USE_SIMD				0			//ÊÇ·ñÊ¹ÓÃSIMD
+#define USE_LISPPSM				0			// Light space perspective shadow mapping
+#define USE_CSM					1			// Cascade shadow mapping
+#define	CSM_CASCADE_NUM			3			// Cascade level
 
 
 enum eTextureType
@@ -108,6 +111,8 @@ enum eTransform
 	eTransform_WVP,
 	eTransform_WorldIT,
 	eTransform_Shadow,		// World space -> sun light NDC space -> texture space
+	eTransform_Shadow2,
+	eTransform_Shadow3,
 	eTransform_Count
 };
 
@@ -175,6 +180,7 @@ namespace Neo
 	class	SubMesh;
 	class	Mesh;
 	class	ConvexBody;
+	class	ShadowMapCSM;
 }
 
 

@@ -101,6 +101,7 @@
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
     <ClInclude Include="Include\ShadowMap.h" />
+    <ClInclude Include="Include\ShadowMapCSM.h" />
     <ClInclude Include="Include\ShadowMapLispPSM.h" />
     <ClInclude Include="Include\Singleton.h" />
     <ClInclude Include="Include\Sky.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
     <ClCompile Include="Src\ShadowMap.cpp" />
+    <ClCompile Include="Src\ShadowMapCSM.cpp" />
     <ClCompile Include="Src\ShadowMapLispPSM.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
     <ClCompile Include="Src\SSAO.cpp" />

@@ -146,12 +146,13 @@ void SetupTestScene4(Scene* scene)
 	{
 		for (int j = 0; j < 5; ++j)
 		{
-			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
+			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("athene.mesh"));
 
 			scene->AddEntity(pCaster);
 			pCaster->SetMaterial(0, pMaterial);
 			pCaster->SetReceiveShadow(false);
-			pCaster->SetPosition(VEC3(-100 + i * 40, 0, -100 + j * 40));
+			pCaster->SetScale(0.1f);
+			pCaster->SetPosition(VEC3(-100 + i * 40.f, 8, -100 + j * 40.f));
 		}
 	}
 
@@ -161,10 +162,10 @@ void SetupTestScene4(Scene* scene)
 void EnterTestScene4(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0, 10, 0));
-	pCamera->SetNearClip(1);
+	pCamera->SetPosition(VEC3(0, 5, 0));
+	pCamera->SetNearClip(0.05f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.5f);
+	pCamera->SetMoveSpeed(0.25f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 
 	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
