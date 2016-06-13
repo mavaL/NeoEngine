@@ -8,6 +8,8 @@
 #include "SSAO.h"
 #include "Entity.h"
 #include "Mesh.h"
+#include "ShadowMap.h"
+#include "ShadowMapCSM.h"
 
 using namespace Neo;
 
@@ -170,6 +172,8 @@ void EnterTestScene4(Scene* scene)
 
 	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
 	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
+
+	g_env.pSceneMgr->GetShadowMap()->GetCSM()->SetCascadePadding(25.0f);
 }
 
 void SetupTestScene5(Scene* scene)

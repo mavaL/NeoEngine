@@ -26,12 +26,14 @@ namespace Neo
 		void				Render();
 		D3D11Texture*		GetShadowTexture(int i);
 		const MAT44&		GetShadowTransform(int i) { return m_matShadowTransform[i]; }
+		void				SetCascadePadding(float f) { m_fCascadePadding = f; }
 
 	private:
 		MAT44				m_matLightView;
 		MAT44				m_matLightProj[CSM_CASCADE_NUM];
 		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
 		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];
+		float				m_fCascadePadding;
 	};
 }
 

@@ -17,6 +17,7 @@ namespace Neo
 	};
 	//------------------------------------------------------------------------------------
 	ShadowMapCSM::ShadowMapCSM()
+		:m_fCascadePadding(1.0f)
 	{
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
@@ -68,6 +69,16 @@ namespace Neo
 			float fNearRight = fCascadeBegin * fTan;
 			float fFarTop = fFarRight / cam.GetAspectRatio();
 			float fNearTop = fNearRight / cam.GetAspectRatio();
+
+			// Overlap each cascade to avoid crack artifacts
+			if (iCascade > 0)
+			{
+				fCascadeBegin -= m_fCascadePadding;
+			} 
+			else if (iCascade < CSM_CASCADE_NUM - 1)
+			{
+				fCascadeEnd += m_fCascadePadding;
+			}
 
 			vCorners[0].Set(-fNearRight, -fNearTop, fCascadeBegin);
 			vCorners[1].Set(-fNearRight, fNearTop, fCascadeBegin);
