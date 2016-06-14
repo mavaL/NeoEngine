@@ -22,8 +22,7 @@ namespace Neo
 		~Terrain();
 
 	public:
-		void		Render(Material* pMaterial = nullptr);
-		Material*	GetShadowMaterial() { return m_pShadowMaterial; }
+		void		Render();
 		const AABB&	GetTerrainAABB() const { return m_terrainAABB; }
 
 	private:
@@ -79,7 +78,6 @@ namespace Neo
 		ID3D11Buffer*		m_pCB;
 		std::vector<float>	m_heightData;
 		std::vector<VEC2>	m_patchBoundY;
-		Material*			m_pShadowMaterial;
 	};
 }
 

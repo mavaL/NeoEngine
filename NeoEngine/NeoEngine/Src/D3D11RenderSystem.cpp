@@ -310,50 +310,38 @@ namespace Neo
 		return pRT;
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetRenderTarget( D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor )
+	void D3D11RenderSystem::SetRenderTarget(D3D11RenderTarget** pRTs, ID3D11DepthStencilView* pDSV, uint32 nRenderTarget, 
+		bool bClearColor, bool bClearZ, const SColor& clearClr)
 	{
-		ID3D11RenderTargetView* rtView = nullptr;
-		ID3D11DepthStencilView* dsView = nullptr;
-		bool bNoFrameBuffer = false;
+		assert(pDSV);
 
-		if (pRT)
+		ID3D11RenderTargetView* pRTVs[8] = {0};
+
+		if (pRTs)
 		{
-			if (pRT->IsNoFrameBuffer()) 
+			for (uint32 i = 0; i < nRenderTarget; ++i)
 			{
-				bNoFrameBuffer = true;
+				pRTVs[i] = pRTs[i]->GetRTV();
 			}
-			else
+		}
+		else	// Recover device FBO
+		{
+			pRTVs[0] = m_pRenderTargetView;
+		}
+
+		m_pDeviceContext->OMSetRenderTargets(nRenderTarget, pRTVs, pDSV);
+
+		if (bClearColor)
+		{
+			for (uint32 i = 0; i < nRenderTarget; ++i)
 			{
-				rtView = pRT->GetRenderTexture()->GetRTView();
+				m_pDeviceContext->ClearRenderTargetView(pRTVs[i], (float*)&clearClr);
 			}
-			dsView = pRT->GetDSView();
-		}
-		else	// Recover back frame buffer
-		{
-			rtView = m_pRenderTargetView;
-			dsView = m_pDepthStencilView;
-		}
-
-		if (bNoFrameBuffer)
-		{
-			m_pDeviceContext->OMSetRenderTargets(0, nullptr, dsView);
-		}
-		else
-		{
-			m_pDeviceContext->OMSetRenderTargets(1, &rtView, dsView);
-		}
-
-		if (bClearColor && !bNoFrameBuffer)
-		{
-			assert(pClearColor);
-			SColor dxColor = pClearColor->GetAsDx();
-
-			m_pDeviceContext->ClearRenderTargetView( rtView, (float*)&dxColor );
 		}
 		
-		if (bClearZBuffer)
+		if (bClearZ)
 		{
-			m_pDeviceContext->ClearDepthStencilView( dsView, D3D11_CLEAR_DEPTH, 1.0f, 0 );
+			m_pDeviceContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		}
 	}
 	//------------------------------------------------------------------------------------

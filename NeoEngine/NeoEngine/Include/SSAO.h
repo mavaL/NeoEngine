@@ -33,9 +33,6 @@ namespace Neo
 		};
 
 		D3D11RenderSystem*	m_pRenderSystem;
-		D3D11RenderTarget*	m_pRT_NormalDepth;	// View space scene n&z, use for SSAO
-		D3D11Texture*		m_pTexNormalDepth;		
-		Material*			m_pNormalDepthMaterial;
 
 		D3D11RenderTarget*	m_pRT_ssao;
 		D3D11Texture*		m_pTexSsao;

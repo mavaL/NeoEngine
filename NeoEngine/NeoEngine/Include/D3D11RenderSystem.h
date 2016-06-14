@@ -60,7 +60,7 @@ namespace Neo
 
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
-		ID3D11DepthStencilView*		GetDSView()				{ return m_pDepthStencilView; }
+		ID3D11DepthStencilView*		GetDSV()				{ return m_pDepthStencilView; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -82,7 +82,7 @@ namespace Neo
 		// Create a RT
 		D3D11RenderTarget* CreateRenderTarget();
 		// Set RT to device
-		void		SetRenderTarget(D3D11RenderTarget* pRT, bool bClearColor, bool bClearZBuffer, const SColor* pClearColor = nullptr);
+		void		SetRenderTarget(D3D11RenderTarget** pRTs, ID3D11DepthStencilView* pDSV, uint32 nRenderTarget, bool bClearColor = true, bool bClearZ = true, const SColor& clearClr = SColor::BLACK);
 
 		// Enable/Disable clipping plane
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);

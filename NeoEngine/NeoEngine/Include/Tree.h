@@ -21,7 +21,7 @@ namespace Neo
 
 	public:
 		virtual void	Update();
-		virtual void	Render(Material* pMaterial = nullptr);
+		virtual void	Render();
 
 	private:
 		void			_InitMaterial();

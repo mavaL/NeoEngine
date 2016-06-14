@@ -34,7 +34,7 @@ namespace Neo
 		bool								SaveToFile(const char* filename);
 		ID3D11ShaderResourceView* const*	GetSRV() const { return &m_pSRV; }
 		ID3D11DepthStencilView*				GetDSV() const { return m_pDSV; }
-		ID3D11RenderTargetView*				GetRTView() { return m_rtView; }
+		ID3D11RenderTargetView*				GetRTV() { return m_rtView; }
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }
 		void								CreateSRV();
 		void								CreateDSV();

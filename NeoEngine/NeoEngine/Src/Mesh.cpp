@@ -17,11 +17,11 @@ namespace Neo
 		m_submeshes.push_back(submesh);
 	}
 	//------------------------------------------------------------------------------------
-	void Mesh::Render( Material* pMaterial )
+	void Mesh::Render()
 	{
 		for (size_t i=0; i<m_submeshes.size(); ++i)
 		{
-			m_submeshes[i]->Render(pMaterial);
+			m_submeshes[i]->Render();
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -125,12 +125,12 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	void SubMesh::Render( Material* pMaterial )
+	void SubMesh::Render()
 	{
-		if (pMaterial)
-			pMaterial->Activate();
-		else
+		if (m_pMaterial)
+		{
 			m_pMaterial->Activate();
+		}
 
 		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
 

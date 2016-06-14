@@ -124,7 +124,7 @@ namespace Neo
 			g_env.pRenderSystem->SetTransform(eTransform_View, m_matLightView, false);
 			g_env.pRenderSystem->SetTransform(eTransform_Proj, m_matLightProj[iCascade], true);
 
-			m_shadowMapCascades[iCascade]->Update();
+//			m_shadowMapCascades[iCascade]->Update();
 		}
 	}
 	//------------------------------------------------------------------------------------

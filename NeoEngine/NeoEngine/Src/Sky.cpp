@@ -68,7 +68,7 @@ namespace Neo
 
 		Neo::Material* pMaterial = new Neo::Material;
 		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
-		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShaderFlag_EnableClipPlane);
+		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
 		pSubMesh->SetMaterial(pMaterial);
 		pMaterial->Release();

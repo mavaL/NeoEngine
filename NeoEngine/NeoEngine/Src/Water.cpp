@@ -53,30 +53,30 @@ namespace Neo
 		const uint32 screenH = m_pRenderSystem->GetWndHeight();
 
 		// Reflection map
-		m_pRT_Reflection = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Reflection->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
-		m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
+		//m_pRT_Reflection = m_pRenderSystem->CreateRenderTarget();
+		//m_pRT_Reflection->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
+		//m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
 
-		// Scene map (alpha channel uses for refraction mask)
-		m_pTexSceneWithRefracMask = new D3D11Texture(screenW, screenH, nullptr, ePF_A8B8G8R8, 
-			eTextureUsage_WriteOnly | eTextureUsage_RecreateOnWndResized, false);
+		//// Scene map (alpha channel uses for refraction mask)
+		//m_pTexSceneWithRefracMask = new D3D11Texture(screenW, screenH, nullptr, ePF_A8B8G8R8, 
+		//	eTextureUsage_WriteOnly | eTextureUsage_RecreateOnWndResized, false);
 
-		// Water depth map
-		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Depth->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
+		//// Water depth map
+		//m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
+		//m_pRT_Depth->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
 
-		// TODO: terrain gets water-shore transition
-		m_pRT_Depth->SetRenderPhase(eRenderPhase_Solid /*| eRenderPhase_Terrain*/);
+		//// TODO: terrain gets water-shore transition
+		//m_pRT_Depth->SetRenderPhase(eRenderPhase_Opaque /*| eRenderPhase_Terrain*/);
 
 		// Create material
 		m_pRefracMaterial = new Material;
-		m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"));
+		m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"), eShader_Transparent);
 
 		m_pWaterDepthMaterial = new Material;
-		m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"));
+		m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"), eShader_Transparent);
 
 		m_pFinalComposeMaterial = new Material;
-		m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"));
+		m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"), eShader_Transparent);
 
 		// Noise map
 		m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
@@ -260,7 +260,7 @@ namespace Neo
 		m_pRenderSystem->EnableClipPlane(true, &m_waterPlane);
 
 		// Render
-		m_pRT_Reflection->Update();
+//		m_pRT_Reflection->Update();
 
 		// Restore render state
 		m_pRenderSystem->SetTransform(eTransform_View, matView, true);
@@ -275,7 +275,7 @@ namespace Neo
 		pContext->VSSetConstantBuffers( 1, 1, &m_pCB_Depth );
 		pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Depth );
 
-		m_pRT_Depth->Update(m_pWaterDepthMaterial);
+//		m_pRT_Depth->Update(m_pWaterDepthMaterial);
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_FinalCompose()

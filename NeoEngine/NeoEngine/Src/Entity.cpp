@@ -16,8 +16,10 @@ namespace Neo
 		,m_bReceiveShadow(true)
 		,m_bUpdateAABB(bUpdateAABB)
 	{
-		if(m_bUpdateAABB)
+		if (m_bUpdateAABB)
+		{
 			_ComputeAABB();
+		}
 	}
 	//------------------------------------------------------------------------------------
 	Entity::~Entity()
@@ -128,12 +130,12 @@ namespace Neo
 		SetLocalAABB(aabb);
 	}
 	//------------------------------------------------------------------------------------
-	void Entity::Render( Material* pMaterial /*= nullptr*/ )
+	void Entity::Render()
 	{
 		g_env.pRenderSystem->SetTransform(eTransform_World, GetWorldMatrix(), false);
 		g_env.pRenderSystem->SetTransform(eTransform_WorldIT, GetWorldITMatrix(), true);
 
-		m_pMesh->Render(pMaterial);
+		m_pMesh->Render();
 	}
 	//------------------------------------------------------------------------------------
 	void Entity::SetMaterial( uint32 iSubMesh, Material* pMaterial )

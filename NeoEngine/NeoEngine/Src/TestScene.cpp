@@ -32,7 +32,7 @@ void SetupTestScene1(Scene* scene)
 	Neo::Material* pMaterial = new Material;
 
 	pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableSSAO);
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableSSAO);
 
 	pEntity->SetMaterial(0, pMaterial);
 	SAFE_RELEASE(pMaterial);
@@ -54,7 +54,7 @@ void SetupTestScene2(Scene* scene)
 {
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("lion.bmp")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableClipPlane);
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
 	/// Create a cube to observe reflection
 	{
@@ -134,7 +134,7 @@ void SetupTestScene4(Scene* scene)
 
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShaderFlag_EnableShadowReceive);
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableShadowReceive);
 	pEntity->SetMaterial(0, pMaterial);
 	pMaterial->Release();
 
@@ -142,7 +142,7 @@ void SetupTestScene4(Scene* scene)
 	// Shadow caster
 	pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 
 	for (int i = 0; i < 5; ++i)
 	{

@@ -30,7 +30,7 @@ namespace Neo
 
 		const VertexData&	GetVertData() const { return m_vertData; }
 
-		void		Render(Material* pMaterial);		
+		void		Render();		
 
 		void		SetMaterial(Material* pMaterial);
 		Material*	GetMaterial()	{ return m_pMaterial; }
@@ -60,7 +60,7 @@ namespace Neo
 		SubMesh*	GetSubMesh(uint32 i);
 		uint32		GetSubMeshCount() const;
 
-		void		Render(Material* pMaterial = nullptr);
+		void		Render();
 
 	private:
 		SubMeshes	m_submeshes;

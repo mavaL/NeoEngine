@@ -17,28 +17,14 @@ namespace Neo
 		const uint32 halfW = screenW / 2;
 		const uint32 halfH = screenH / 2;
 
-		// Init ssao RT & material
-		m_pRT_NormalDepth = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_NormalDepth->Init(screenW, screenH, ePF_A16B16G16R16F, false);
-		m_pRT_NormalDepth->SetRenderPhase(eRenderPhase_Solid);
-		m_pRT_NormalDepth->SetClearEveryFrame(true, false);
-
-		m_pTexNormalDepth = m_pRT_NormalDepth->GetRenderTexture();
-		m_pTexNormalDepth->AddRef();
-
-		m_pNormalDepthMaterial = new Material;
-		m_pNormalDepthMaterial->InitShader(GetResPath("ViewSpaceNormalDepth.hlsl"), GetResPath("ViewSpaceNormalDepth.hlsl"));
-
 		m_pRT_ssao = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_ssao->Init(halfW, halfH, ePF_R16F);
-		m_pRT_ssao->SetClearEveryFrame(false, false);
 
 		m_pTexSsao = m_pRT_ssao->GetRenderTexture();
 		m_pTexSsao->AddRef();
 
 		m_pSsaoMaterial = new Material;
-		m_pSsaoMaterial->InitShader(GetResPath("SSAO.hlsl"), GetResPath("SSAO.hlsl"));
-		m_pSsaoMaterial->SetTexture(0, m_pTexNormalDepth);
+		m_pSsaoMaterial->InitShader(GetResPath("SSAO.hlsl"), GetResPath("SSAO.hlsl"), eShader_PostProcess);
 
 		D3D11_SAMPLER_DESC& samDesc = m_pSsaoMaterial->GetSamplerStateDesc(0);
 		samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
@@ -63,15 +49,10 @@ namespace Neo
 		m_pTexBlurV = m_pRT_BlurV->GetRenderTexture();
 		m_pTexBlurV->AddRef();
 
-		m_pRT_BlurH->SetClearEveryFrame(true, false);
-		m_pRT_BlurV->SetClearEveryFrame(true, false);
-
 		m_pBlurHMaterial = new Material;
 		m_pBlurVMaterial = new Material;
-		m_pBlurHMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"));
-		m_pBlurVMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"));
-		m_pBlurHMaterial->SetTexture(0, m_pTexNormalDepth);
-		m_pBlurVMaterial->SetTexture(0, m_pTexNormalDepth);
+		m_pBlurHMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), eShader_PostProcess);
+		m_pBlurVMaterial->InitShader(GetResPath("BilateralBlur.hlsl"), GetResPath("BilateralBlur.hlsl"), eShader_PostProcess);
 
 		// Clamp in case of out of border
 		D3D11_SAMPLER_DESC& sampler = m_pBlurHMaterial->GetSamplerStateDesc(0);
@@ -98,9 +79,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	SSAO::~SSAO()
 	{
-		SAFE_RELEASE(m_pNormalDepthMaterial);
-		SAFE_RELEASE(m_pTexNormalDepth);
-		SAFE_RELEASE(m_pRT_NormalDepth);
 		SAFE_RELEASE(m_pSsaoMaterial);
 		SAFE_RELEASE(m_pBlurHMaterial);
 		SAFE_RELEASE(m_pBlurVMaterial);
@@ -115,11 +93,8 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void SSAO::Update()
 	{
-		// Save solid object's normal & depth
-		m_pRT_NormalDepth->Update(m_pNormalDepthMaterial);
-
 		// Calc ssao map
-		m_pRT_ssao->RenderScreenQuad(m_pSsaoMaterial);
+//		m_pRT_ssao->RenderScreenQuad(m_pSsaoMaterial);
 
 		ID3D11DeviceContext* pContext = m_pRenderSystem->GetDeviceContext();
 		float fInvTexW = 1.0f / m_pTexSsao->GetWidth();
@@ -135,7 +110,7 @@ namespace Neo
 		pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 
 		m_pBlurHMaterial->SetTexture(1, m_pTexSsao);
-		m_pRT_BlurH->RenderScreenQuad(m_pBlurHMaterial);
+//		m_pRT_BlurH->RenderScreenQuad(m_pBlurHMaterial);
 
 		// BlurV
 		for(int i=-blurRadius; i<=blurRadius; ++i)
@@ -146,6 +121,6 @@ namespace Neo
 		pContext->PSSetConstantBuffers( 1, 1, &m_pCB_Blur );
 
 		m_pBlurVMaterial->SetTexture(1, m_pTexBlurH);
-		m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
+//		m_pRT_BlurV->RenderScreenQuad(m_pBlurVMaterial);
 	}
 }

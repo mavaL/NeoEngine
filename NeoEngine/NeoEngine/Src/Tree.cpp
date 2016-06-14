@@ -22,14 +22,14 @@ namespace Neo
 			s_pLeafMaterial = new Material(eVertexType_TreeLeaf);
 
 			s_pBranchMaterial->SetTexture(0, new D3D11Texture(GetResPath("Tree\\FanPalmBark.dds")));
-			s_pBranchMaterial->InitShader(GetResPath("Tree\\Branch.hlsl"), GetResPath("Tree\\Branch.hlsl"));
+			s_pBranchMaterial->InitShader(GetResPath("Tree\\Branch.hlsl"), GetResPath("Tree\\Branch.hlsl"), eShader_Opaque);
 
 			s_pFrondMaterial->SetTexture(0, new D3D11Texture(GetResPath("Tree\\CompositeMap_Diffuse.dds")));
-			s_pFrondMaterial->InitShader(GetResPath("Tree\\Frond.hlsl"), GetResPath("Tree\\Frond.hlsl"));
+			s_pFrondMaterial->InitShader(GetResPath("Tree\\Frond.hlsl"), GetResPath("Tree\\Frond.hlsl"), eShader_Opaque);
 			s_pFrondMaterial->SetCullMode(D3D11_CULL_NONE);
 
 			s_pLeafMaterial->SetTexture(0, new D3D11Texture(GetResPath("Tree\\CompositeMap_Diffuse.dds")));
-			s_pLeafMaterial->InitShader(GetResPath("Tree\\Leaf.hlsl"), GetResPath("Tree\\Leaf.hlsl"));
+			s_pLeafMaterial->InitShader(GetResPath("Tree\\Leaf.hlsl"), GetResPath("Tree\\Leaf.hlsl"), eShader_Opaque);
 			s_pLeafMaterial->SetCullMode(D3D11_CULL_NONE);
 
 			bInitMaterial = true;
@@ -67,9 +67,9 @@ namespace Neo
 		Entity::Update();
 	}
 	//------------------------------------------------------------------------------------
-	void Tree::Render( Material* pMaterial /*= nullptr*/ )
+	void Tree::Render()
 	{
-		Entity::Render(pMaterial);
+		Entity::Render();
 	}
 }
 

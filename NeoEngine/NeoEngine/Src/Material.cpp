@@ -28,6 +28,8 @@ namespace Neo
 	,m_pPixelShader(nullptr)
 	,m_pHullShader(nullptr)
 	,m_pDomainShader(nullptr)
+	,m_pVS_GBuffer(nullptr)
+	,m_pPS_GBuffer(nullptr)
 	,m_pVS_WithClipPlane(nullptr)
 	,m_pInputLayout(nullptr)
 	,m_shaderFlag(0)
@@ -65,13 +67,14 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader( const STRING& vsFileName, const STRING& psFileName, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro )
+	bool Material::InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro)
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
 		ID3DBlob* pPSBlob = NULL;
 
 		m_shaderFlag = shaderFalg;
+		m_shaderType = shaderType;
 
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
 
@@ -101,6 +104,13 @@ namespace Neo
 
 		// Create vertex layout
 		_CreateVertexLayout();
+
+		if (m_shaderType == eShader_Opaque)
+		{
+			V_RETURN(_CompileShaderFromFile(psFileName.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
+			pPSBlob->Release();
+		}
 
 		return true;
 	}
@@ -235,8 +245,6 @@ namespace Neo
 		else			
 			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
 
-		// VS PS HS DS
-		pDeviceContext->PSSetShader( m_pPixelShader, NULL, 0 );
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
 		if (m_pHullShader && m_pDomainShader)
@@ -253,10 +261,22 @@ namespace Neo
 			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
 		}
 
+		const uint32 curPhase = g_env.pSceneMgr->GetCurRenderPhase();
+
+		switch (curPhase)
+		{
+		case eRenderPhase_GBuffer: pDeviceContext->PSSetShader(m_pPS_GBuffer, NULL, 0); break;
+		default: pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0); break;
+		}
+		
+
 		// Texture stage
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
-			m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
+			if (m_pTexture[i])
+			{
+				m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
+			}
 		}
 	}
 	//------------------------------------------------------------------------------------

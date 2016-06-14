@@ -17,13 +17,9 @@ namespace Neo
 	D3D11RenderTarget::D3D11RenderTarget()
 	:m_pRenderSystem(g_env.pRenderSystem)
 	,m_pRenderTexture(nullptr)
-	,m_clearColor(SColor::BLACK)
-	,m_bClearColor(true)
-	,m_bClearZBuffer(true)
 	,m_bHasDepthBuffer(false)
-	,m_bNoFrameBuffer(false)
 	,m_bUpdateRatioAspect(true)
-	,m_phaseFlag(eRenderPhase_Geometry)
+	,m_phaseFlag(eRenderPhase_All)
 	,m_pDepthStencil(nullptr)
 	,m_sizeRatio(0, 0)
 	{
@@ -68,7 +64,7 @@ namespace Neo
 		Destroy();
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::Init( uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer /*= true*/, bool bUpdateRatioAspect, bool bNoFrameBuffer )
+	void D3D11RenderTarget::Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer /*= true*/, bool bUpdateRatioAspect, bool bNoColorBuffer)
 	{
 		// Setup the viewport
 		m_viewport.Width = (float)width;
@@ -84,11 +80,13 @@ namespace Neo
 		m_sizeRatio.Set(width / (float)screenW, height / (float)screenH);
 
 		m_bHasDepthBuffer = bOwnDepthBuffer;
-		m_bNoFrameBuffer = bNoFrameBuffer;
 		m_bUpdateRatioAspect = bUpdateRatioAspect;
 
 		// Create render texture
-		m_pRenderTexture = new D3D11Texture(width, height, nullptr, format, eTextureUsage_RenderTarget, false);
+		if (!bNoColorBuffer)
+		{
+			m_pRenderTexture = new D3D11Texture(width, height, nullptr, format, eTextureUsage_RenderTarget, false);
+		}
 
 		// Create depth stencil buffer
 		if (m_bHasDepthBuffer)
@@ -106,7 +104,7 @@ namespace Neo
 		m_pDepthStencil = new D3D11Texture(width, height, nullptr, ePF_Unknown, eTextureUsage_Depth, false);	
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::_BeforeRender()
+	void D3D11RenderTarget::_BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
 	{
 		// Update aspect ratio and viewport
 		if (m_bUpdateRatioAspect)
@@ -116,7 +114,10 @@ namespace Neo
 		}		
 
 		m_pRenderSystem->SetViewport(m_viewport);
-		m_pRenderSystem->SetRenderTarget(this, m_bClearColor, m_bClearZBuffer, &m_clearColor);
+		
+		D3D11RenderTarget* pRT = this;
+
+		m_pRenderSystem->SetRenderTarget(&pRT, GetDSV(), 1, bClearColor, bClearZ, clearColor);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::_AfterRender()
@@ -129,37 +130,36 @@ namespace Neo
 		}		
 
 		m_pRenderSystem->RestoreViewport();
-		m_pRenderSystem->SetRenderTarget(nullptr, false, false);
+		m_pRenderSystem->SetRenderTarget(nullptr, GetDSV(), 1, false, false);
 	}
 	//----------------------------------------------------------------------------------------
-	void D3D11RenderTarget::Update(Material* pMaterial)
-	{
-		_BeforeRender();
+	//void D3D11RenderTarget::Update(Material* pMaterial)
+	//{
+	//	_BeforeRender();
 
-		g_env.pSceneMgr->RenderPipline(m_phaseFlag, pMaterial);
+	//	g_env.pSceneMgr->RenderPipline(m_phaseFlag, pMaterial);
 
-		_AfterRender();
-	}
-	//----------------------------------------------------------------------------------------
-	void D3D11RenderTarget::SetClearColor( const SColor& color )
+	//	_AfterRender();
+	//}
+	//------------------------------------------------------------------------------------
+	ID3D11DepthStencilView* D3D11RenderTarget::GetDSV()
 	{
-		m_clearColor = color;
-	}
-	//----------------------------------------------------------------------------------------
-	void D3D11RenderTarget::SetClearEveryFrame( bool bColor, bool bZBuffer )
-	{
-		m_bClearColor = bColor;
-		m_bClearZBuffer = bZBuffer;
+		return m_pDepthStencil ? m_pDepthStencil->GetDSV() : m_pRenderSystem->GetDSV();
 	}
 	//------------------------------------------------------------------------------------
-	ID3D11DepthStencilView* D3D11RenderTarget::GetDSView()
+	ID3D11RenderTargetView* D3D11RenderTarget::GetRTV()
 	{
-		return m_pDepthStencil ? m_pDepthStencil->GetDSV() : m_pRenderSystem->GetDSView();
+		return m_pRenderTexture ? m_pRenderTexture->GetRTV() : nullptr;
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::RenderScreenQuad( Material* pMaterial )
+	ID3D11ShaderResourceView* D3D11RenderTarget::GetSRV()
 	{
-		_BeforeRender();
+		return nullptr;
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
+	{
+		_BeforeRender(bClearColor, bClearZ, clearColor, fz);
 
 		// Turn off z buffer
 		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
@@ -167,7 +167,8 @@ namespace Neo
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
 
-		m_pQuadEntity->Render(pMaterial);	
+		pMaterial->Activate();
+		m_pQuadEntity->Render();	
 
 		_AfterRender();
 

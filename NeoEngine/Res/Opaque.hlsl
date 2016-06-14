@@ -71,41 +71,22 @@ VS_OUTPUT VS( VS_INPUT input )
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 Texture2D		texDiffuse		: register(t0);
-SamplerState	samDiffuse		: register(s0);
+Texture2D		texNormal		: register(t1);
+Texture2D		texSpec			: register(t2);
+Texture2D		gShadowMap		: register(t3);
+Texture2D		gShadowMap2		: register(t4);
+Texture2D		gShadowMap3		: register(t5);
 
-#ifdef SSAO
-Texture2D texSSAO		: register(t1);
-SamplerState samSSAO	: register(s1);
-#endif
-
-#ifdef SHADOW_RECEIVER
-#ifdef SSAO
-Texture2D				gShadowMap		: register(t2);
-Texture2D				gShadowMap2		: register(t3);
-Texture2D				gShadowMap3		: register(t4);
-SamplerComparisonState	samShadowMap	: register(s2);
-#else
-Texture2D				gShadowMap		: register(t1);
-Texture2D				gShadowMap2		: register(t2);
-Texture2D				gShadowMap3		: register(t3);
+SamplerState	samLinear		: register(s0);
 SamplerComparisonState	samShadowMap	: register(s1);
-#endif
-#endif
+
 
 #include "Common.h"
 
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
-#ifdef SHADOW_RECEIVER
 	// Do shadowing
 	float4 fLitFactor = ComputeShdow(input.PosW, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadowMap, gShadowMap, gShadowMap2, gShadowMap3);
-#else
-	float4 fLitFactor = 1.0f;
-#endif
-
-//#ifdef SHADOW_RECEIVER	// Debug CSM
-//	return fLitFactor;
-//#endif
 
 	// Do lighting
 	float3 N = normalize(input.normal);
@@ -123,9 +104,31 @@ float4 PS( VS_OUTPUT input ) : SV_Target
 #endif
 
 	cLight = saturate(cLight);
-	float4 oColor = texDiffuse.Sample(samDiffuse, input.uv) * cLight;
+	float4 oColor = texDiffuse.Sample(samLinear, input.uv) * cLight;
 
 	return float4(oColor.rgb, 1.0);
 }
+
+
+
+
+struct gbuffer_output
+{
+	float4	oNormal	:	SV_Target0;
+	float4	oAlbedo	:	SV_Target1;
+	float4	oSpec	:	SV_Target2;
+};
+
+gbuffer_output PS_GBuffer(VS_OUTPUT input)
+{
+	gbuffer_output output = (gbuffer_output)0;
+
+	output.oNormal = texNormal.Sample(samLinear, input.uv);
+	output.oAlbedo = texDiffuse.Sample(samLinear, input.uv);
+	output.oSpec = texSpec.Sample(samLinear, input.uv);
+
+	return output;
+}
+
 
 #include "ClipPlaneWrapper.hlsl"

@@ -471,10 +471,9 @@ namespace Neo
 
 		switch(dxformat)
 		{
-		case DXGI_FORMAT_B8G8R8A8_UNORM:	format = ePF_A8R8G8B8 ;break;
-		case DXGI_FORMAT_R8G8B8A8_UNORM:	format = ePF_A8B8G8R8; break;
+		case DXGI_FORMAT_R8G8B8A8_UNORM:	format = ePF_A8R8G8B8; break;
 		case DXGI_FORMAT_R16_UNORM:			format = ePF_L16; break;
-		case DXGI_FORMAT_R16G16B16A16_FLOAT: format = ePF_A16B16G16R16F; break;
+		case DXGI_FORMAT_R16G16B16A16_FLOAT: format = ePF_A16R16G16B16F; break;
 		case DXGI_FORMAT_R8_UNORM:			format = ePF_L8; break;
 		case DXGI_FORMAT_R16_FLOAT:			format = ePF_R16F; break;
 		case DXGI_FORMAT_R32_FLOAT:			format = ePF_R32F; break;
@@ -486,7 +485,7 @@ namespace Neo
 		case DXGI_FORMAT_BC5_UNORM: format = ePF_DXT5; break;
 
 		default:
-			assert(true);	// Not support yet...
+			assert(0);	// Not support yet...
 			break;
 		}
 
@@ -499,11 +498,10 @@ namespace Neo
 
 		switch(format)
 		{
-		case ePF_A8R8G8B8:	dxformat = DXGI_FORMAT_B8G8R8A8_UNORM ;break;
-		case ePF_A8B8G8R8:	dxformat = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+		case ePF_A8R8G8B8:	dxformat = DXGI_FORMAT_R8G8B8A8_UNORM ;break;
 		case ePF_L16:		dxformat = DXGI_FORMAT_R16_UNORM; break;
-		case ePF_R8G8B8:	dxformat = DXGI_FORMAT_B8G8R8A8_UNORM; break;
-		case ePF_A16B16G16R16F: dxformat = DXGI_FORMAT_R16G16B16A16_FLOAT; break;
+		case ePF_R8G8B8:	dxformat = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+		case ePF_A16R16G16B16F: dxformat = DXGI_FORMAT_R16G16B16A16_FLOAT; break;
 		case ePF_L8:		dxformat = DXGI_FORMAT_R8_UNORM; break;
 		case ePF_R16F:		dxformat = DXGI_FORMAT_R16_FLOAT; break;
 		case ePF_R32F:		dxformat = DXGI_FORMAT_R32_FLOAT; break;
@@ -515,7 +513,7 @@ namespace Neo
 		case ePF_DXT5: dxformat = DXGI_FORMAT_BC5_UNORM; break;
 
 		default:
-			assert(true);	// Not support yet...
+			//assert(0);	// Not support yet...
 			break;
 		}
 
@@ -529,11 +527,10 @@ namespace Neo
 		switch(format)
 		{
 		case ePF_A8R8G8B8:
-		case ePF_A8B8G8R8:
 		case ePF_R32F:		
 		case ePF_R8G8B8:	bytesPerPixel = 4; break;
 		case ePF_L16:		bytesPerPixel = 2; break;
-		case ePF_A16B16G16R16F: bytesPerPixel = 8; break;
+		case ePF_A16R16G16B16F: bytesPerPixel = 8; break;
 		case ePF_L8:		bytesPerPixel = 1; break;
 		case ePF_R16F:		bytesPerPixel = 2; break;
 
@@ -544,7 +541,7 @@ namespace Neo
 		case ePF_DXT5: bytesPerPixel = 4; break;
 
 		default:
-			assert(true);	// Not support yet...
+			//assert(true);	// Not support yet...
 			break;
 		}
 

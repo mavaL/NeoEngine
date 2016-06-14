@@ -23,8 +23,7 @@ namespace Neo
 	public:
 		// Update
 		virtual void	Update();
-		// Render. If pMaterial not null, then use it instead of own.
-		virtual void	Render(Material* pMaterial = nullptr);
+		virtual void	Render();
 		// Set material
 		void			SetMaterial(uint32 iSubMesh, Material* pMaterial);
 		void			SetMaterial(Material* pMaterial);

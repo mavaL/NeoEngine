@@ -68,7 +68,6 @@ namespace Neo
 		startPos.y = 1.0f - startPos.y * 2.0f;
 
 		// Init text mesh
-		const SColor dxColor = color.GetAsDx();
 		const uint32 nChar = text.length();
 		SVertex* pVert = new SVertex[nChar * 2 * 3];	// Each character has two triangles, each triangle has three vertices.
 
@@ -90,38 +89,38 @@ namespace Neo
 			// First tri
 			pVert[iVert].pos.Set(left, top, 0);
 			pVert[iVert].uv.Set(uvLeft, uvTop);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
 			pVert[iVert].pos.Set(right, top, 0);
 			pVert[iVert].uv.Set(uvRight, uvTop);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
 			pVert[iVert].pos.Set(left, bottom, 0);
 			pVert[iVert].uv.Set(uvLeft, uvBottom);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
 			// Second tri
 			pVert[iVert].pos.Set(right, top, 0);
 			pVert[iVert].uv.Set(uvRight, uvTop);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
 			pVert[iVert].pos.Set(right, bottom, 0);
 			pVert[iVert].uv.Set(uvRight, uvBottom);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
 			pVert[iVert].pos.Set(left, bottom, 0);
 			pVert[iVert].uv.Set(uvLeft, uvBottom);
-			pVert[iVert].color = dxColor;
+			pVert[iVert].color = color;
 
 			++iVert;
 
@@ -150,7 +149,7 @@ namespace Neo
 	{
 		m_pMaterial = new Material;
 		m_pMaterial->SetTexture(0, new D3D11Texture(GetResPath("Font.dds")));
-		m_pMaterial->InitShader(GetResPath("Font.hlsl"), GetResPath("Font.hlsl"));
+		m_pMaterial->InitShader(GetResPath("Font.hlsl"), GetResPath("Font.hlsl"), eShader_UI);
 	}
 }
 

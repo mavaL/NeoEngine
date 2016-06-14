@@ -252,9 +252,6 @@
     <CustomBuild Include="..\Res\Terrain.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\Res\ViewSpaceNormalDepth.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\Res\Water_Depth.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
@@ -279,5 +276,13 @@
     <CustomBuild Include="..\Res\Tree\Leaf.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Res\DeferredShading.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\HDR.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

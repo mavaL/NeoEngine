@@ -12,7 +12,7 @@
 #include "Common.h"
 
 
-const int	MAX_TEXTURE_STAGE	=	8;
+const int	MAX_TEXTURE_STAGE	=	16;
 
 
 #define USE_SIMD				0			// «∑Ò π”√SIMD
@@ -43,7 +43,7 @@ enum eTextureUsage
 enum eEntity
 {
 	eEntity_StaticModel,
-	eEntity_Tree
+	eEntity_Tree,
 };
 
 enum eVertexType
@@ -55,24 +55,24 @@ enum eVertexType
 // Use for render target to control which part to render
 enum eRenderPhase
 {
-	eRenderPhase_Sky		= 1 << 0,
-	eRenderPhase_Terrain	= 1 << 1,
+	eRenderPhase_ShadowMap	= 1 << 0,
+	eRenderPhase_GBuffer	= 1 << 1,
 	eRenderPhase_SSAO		= 1 << 2,
-	eRenderPhase_Solid		= 1 << 3,
+	eRenderPhase_Compose	= 1 << 3,
 	eRenderPhase_Water		= 1 << 4,
-	eRenderPhase_UI			= 1 << 5,
-	eRenderPhase_ShadowMap	= 1 << 6,
+	eRenderPhase_FinalScene	= 1 << 5,
+	eRenderPhase_UI			= 1 << 6,
 
-	eRenderPhase_Geometry	= eRenderPhase_Sky | eRenderPhase_Terrain | eRenderPhase_Solid | eRenderPhase_Water,
-
-	eRenderPhase_All = eRenderPhase_Geometry | eRenderPhase_UI | eRenderPhase_SSAO
+	eRenderPhase_All = eRenderPhase_GBuffer | eRenderPhase_Water | eRenderPhase_UI | eRenderPhase_SSAO
 };
 
-enum eRenderQueue
+enum eShader
 {
-	eRenderQueue_Entity		=	0,
-	eRenderQueue_UI,
-	eRenderQueue_Count
+	eShader_Terrain,
+	eShader_Opaque,
+	eShader_Transparent,
+	eShader_PostProcess,
+	eShader_UI,
 };
 
 enum eShaderFlag
@@ -86,13 +86,12 @@ enum ePixelFormat
 {
 	ePF_R8G8B8 = 0,
 	ePF_A8R8G8B8,
-	ePF_A8B8G8R8,
 	ePF_R16F,
 	ePF_G16R16F,
-	ePF_A16B16G16R16F,
+	ePF_A16R16G16B16F,
 	ePF_R32F,
 	ePF_G32R32F,
-	ePF_A32B32G32R32F,
+	ePF_A32R32G32B32F,
 	ePF_L8,
 	ePF_L16,
 	ePF_DXT1,

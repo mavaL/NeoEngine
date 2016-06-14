@@ -30,14 +30,28 @@ namespace Neo
 	,m_debugRT(eDebugRT_None)
 	,m_pShadowMap(new ShadowMap)
 	,m_renderFlag(eRenderPhase_All)
+	,m_pRT_Compose(nullptr)
 	{
 		
 	}
 	//------------------------------------------------------------------------------------
 	bool SceneManager::Init()
 	{
+		const uint32 nScreenWidth = m_pRenderSystem->GetWndWidth();
+		const uint32 nScreenHeight = m_pRenderSystem->GetWndHeight();
+
+		m_pRT_Normal = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Albedo = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Specular = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Compose = m_pRenderSystem->CreateRenderTarget();
+
+		m_pRT_Normal->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
+		m_pRT_Albedo->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
+		m_pRT_Specular->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
+		m_pRT_Compose->Init(nScreenWidth, nScreenHeight, ePF_A16R16G16B16F, false);
+
 		m_camera = new Camera;
-		m_camera->SetAspectRatio(m_pRenderSystem->GetWndWidth() / (float)m_pRenderSystem->GetWndHeight());
+		m_camera->SetAspectRatio(nScreenWidth / (float)nScreenHeight);
 
 		m_sunLight.lightDir.Set(1, -1, 2);
 		m_sunLight.lightDir.Normalize();
@@ -64,7 +78,7 @@ namespace Neo
 			m_pDebugRTMesh->AddSubMesh(pSubMesh);
 
 			m_pDebugRTMaterial = new Material;
-			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"));
+			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), eShader_UI);
 
 			pSubMesh->SetMaterial(m_pDebugRTMaterial);
 		}
@@ -86,6 +100,10 @@ namespace Neo
 		SAFE_DELETE(m_pDebugRTMesh);
 		SAFE_DELETE(m_pMeshLoader);
 		SAFE_DELETE(m_pSSAO);
+		SAFE_RELEASE(m_pRT_Normal);
+		SAFE_RELEASE(m_pRT_Albedo);
+		SAFE_RELEASE(m_pRT_Specular);
+		SAFE_RELEASE(m_pRT_Compose);
 		SAFE_RELEASE(m_pDebugRTMaterial);
 	}
 	//-------------------------------------------------------------------------------
@@ -121,36 +139,23 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SceneManager::Render(Material* pMaterial)
 	{
-		// Render shadow map
-		if (m_pShadowMap)
-		{
-			m_pShadowMap->Render();
-		}
-
 		RenderPipline(m_renderFlag, pMaterial);
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::RenderPipline(uint32 phaseFlag, Material* pMaterial)
 	{
 		//================================================================================
-		/// Render sky
+		/// Shadow map phase
 		//================================================================================
-		if (m_pSky && phaseFlag&eRenderPhase_Sky)
+		if (phaseFlag & eRenderPhase_ShadowMap)
 		{
-			m_pSky->Render();
+			m_pShadowMap->Render();
 		}
 
 		//================================================================================
-		/// Render terrain
+		/// GBuffer phase
 		//================================================================================
-		if (m_pTerrain && phaseFlag&eRenderPhase_Terrain)
-		{
-			m_pTerrain->Render(pMaterial);
-		}
-		else if (m_pTerrain && phaseFlag&eRenderPhase_ShadowMap)
-		{
-			m_pTerrain->Render(m_pTerrain->GetShadowMaterial());
-		}
+		_RenderGBuffer(phaseFlag);
 
 		//================================================================================
 		/// Render SSAO map
@@ -166,35 +171,18 @@ namespace Neo
 			m_pRenderSystem->SetDepthStencelState(depthDesc);
 		}
 
-		//================================================================================
-		/// Render entities
-		//================================================================================
-		Scene::EntityList& lstEntity = m_pCurScene->GetEntityList();
-
-		if (phaseFlag & eRenderPhase_Solid)
-		{
-			for (size_t i=0; i<lstEntity.size(); ++i)
-			{
-				lstEntity[i]->Render(pMaterial);
-			}
-		}
-		else if (phaseFlag & eRenderPhase_ShadowMap)
-		{
-			for (size_t i=0; i<lstEntity.size(); ++i)
-			{
-				Entity* ent = lstEntity[i];
-				if(ent->GetCastShadow())
-					ent->Render();
-			}
-		}
-
 		if (phaseFlag & eRenderPhase_SSAO)
 		{
 			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
 			depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 			m_pRenderSystem->SetDepthStencelState(depthDesc);
-		}	
+		}
+
+		//================================================================================
+		/// GBuffer composition phase
+		//================================================================================
+		_CompositionPass();
 		
 		//================================================================================
 		/// Render water
@@ -203,6 +191,11 @@ namespace Neo
 		{
 			m_pWater->Render();
 		}
+
+		//================================================================================
+		/// HDR final scene phase
+		//================================================================================
+		_HDRFinalScenePass();
 
 		//================================================================================
 		/// Render UI
@@ -232,6 +225,94 @@ namespace Neo
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 			m_pRenderSystem->SetDepthStencelState(depthDesc);
 		}
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::_RenderGBuffer(uint32 phaseFlag)
+	{
+		m_curRenderPhase = eRenderPhase_GBuffer;
+
+		D3D11RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
+
+		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDSV(), 3);
+
+		// Terrain
+		if (m_pTerrain)
+		{
+			m_pTerrain->Render();
+		}
+
+		// Opaques
+		Scene::EntityList& lstEntity = m_pCurScene->GetEntityList();
+
+		for (size_t i = 0; i < lstEntity.size(); ++i)
+		{
+			lstEntity[i]->Render();
+		}
+
+		// Sky
+		if (m_pSky)
+		{
+			m_pSky->Render();
+		}
+
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDSV(), 3, false, false);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::_CompositionPass()
+	{
+		m_curRenderPhase = eRenderPhase_Compose;
+
+		static Material* pMtlCompose = nullptr;
+
+		if (!pMtlCompose)
+		{
+			pMtlCompose = new Material;
+
+			pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
+			pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
+			pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			pMtlCompose->SetSamplerStateDesc(0, samPoint);
+
+			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess);
+		}	
+
+		m_pRT_Compose->RenderScreenQuad(pMtlCompose, false, false);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::_HDRFinalScenePass()
+	{
+		m_curRenderPhase = eRenderPhase_FinalScene;
+
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDSV(), 1, false, false);
+
+		static Material* pMtlFinalScene = nullptr;
+
+		if (!pMtlFinalScene)
+		{
+			pMtlFinalScene = new Material;
+
+			pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
+
+			pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess);
+		}
+
+		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
+		Camera* pCam = g_env.pSceneMgr->GetCamera();
+
+		pCam->SetAspectRatio(vp.Width / vp.Height);
+		m_pRenderSystem->SetTransform(eTransform_Proj, pCam->GetProjMatrix(), true);
+		m_pRenderSystem->SetViewport(vp);
+
+		pMtlFinalScene->Activate();
+
+		D3D11RenderTarget::m_pQuadEntity->Render();
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()

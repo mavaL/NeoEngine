@@ -29,6 +29,7 @@ namespace Neo
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }
 		void		ClearScene();
+		uint32		GetCurRenderPhase() const { return m_curRenderPhase; }
 
 		// Create entity from loaded mesh
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
@@ -53,13 +54,22 @@ namespace Neo
 		static Mesh*	CreateFrustumMesh(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop);
 
 	private:
-		void		_InitAllScene();	
+		void		_InitAllScene();
+		void		_RenderGBuffer(uint32 phaseFlag);
+		void		_CompositionPass();
+		void		_HDRFinalScenePass();
 
 		std::vector<Scene*>		m_scenes;	
 		Scene*					m_pCurScene;
 
-		D3D11RenderSystem* m_pRenderSystem;
+		D3D11RenderSystem*		m_pRenderSystem;
+		D3D11RenderTarget*		m_pRT_Normal;
+		D3D11RenderTarget*		m_pRT_Albedo;
+		D3D11RenderTarget*		m_pRT_Specular;
+		D3D11RenderTarget*		m_pRT_Compose;
+
 		uint32			m_renderFlag;	// Render phase control flag
+		eRenderPhase	m_curRenderPhase;
 		Camera*			m_camera;
 		SDirectionLight	m_sunLight;
 		Terrain*		m_pTerrain;
@@ -67,7 +77,6 @@ namespace Neo
 		Sky*			m_pSky;
 		ShadowMap*		m_pShadowMap;
 		SSAO*			m_pSSAO;
-		
 
 		MeshLoader*		m_pMeshLoader;
 		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;

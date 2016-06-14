@@ -22,7 +22,6 @@ namespace Neo
 	:m_pMesh(nullptr)
 	,m_pEntity(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
-	,m_pShadowMaterial(nullptr)
 	{
 		_InitHeightMap(heightmapName, HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE);
 		_CreateDensityMap();
@@ -40,7 +39,6 @@ namespace Neo
 		SAFE_RELEASE(m_pLayerTexArray);
 		SAFE_RELEASE(m_pBlendMap);
 		SAFE_RELEASE(m_pDensityMap);
-		SAFE_RELEASE(m_pShadowMaterial);
 		SAFE_DELETE(m_pMesh);
 		SAFE_DELETE(m_pEntity);
 	}
@@ -200,17 +198,11 @@ namespace Neo
 		// Turn GPU frustum clipping on
 		D3D_SHADER_MACRO macro[] = { "GPU_FRUSTUM_CLIP", "" };
 
-		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), 
+		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), eShader_Terrain,
 			eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
 		pMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"), 
 			eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
 
-		// Init shadow material
-		m_pShadowMaterial = new Material;
-		m_pShadowMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain_Depth.hlsl"));
-		m_pShadowMaterial->SetCullMode(D3D11_CULL_NONE);
-		// Turn GPU frustum clipping off
-		m_pShadowMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"));
 
 		{
 			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
@@ -236,7 +228,7 @@ namespace Neo
 		pMaterial->Release();
 	}
 	//------------------------------------------------------------------------------------
-	void Terrain::Render(Material* pMaterial)
+	void Terrain::Render()
 	{
 		ID3D11DeviceContext* pContext = m_pRenderSystem->GetDeviceContext();
 
@@ -255,7 +247,7 @@ namespace Neo
 		pContext->HSSetConstantBuffers( 1, 1, &m_pCB );
 		pContext->DSSetConstantBuffers( 1, 1, &m_pCB );
 
-		m_pEntity->Render(pMaterial);
+		m_pEntity->Render();
 
 		m_pMesh->GetSubMesh(0)->GetMaterial()->TurnOffTessellation();
 	}
