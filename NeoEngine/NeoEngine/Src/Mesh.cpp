@@ -6,10 +6,18 @@
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
+	Mesh::Mesh()
+		:m_pMaterial(nullptr)
+	{
+
+	}
+	//------------------------------------------------------------------------------------
 	Mesh::~Mesh()
 	{
 		std::for_each(m_submeshes.begin(), m_submeshes.end(), std::default_delete<SubMesh>());
 		m_submeshes.clear();
+
+		SAFE_RELEASE(m_pMaterial);
 	}
 	//------------------------------------------------------------------------------------
 	void Mesh::AddSubMesh( SubMesh* submesh )
@@ -21,6 +29,10 @@ namespace Neo
 	{
 		for (size_t i=0; i<m_submeshes.size(); ++i)
 		{
+			if (m_pMaterial)
+			{
+				m_pMaterial->Activate(i);
+			}
 			m_submeshes[i]->Render();
 		}
 	}
@@ -35,11 +47,16 @@ namespace Neo
 	{
 		return m_submeshes.size();
 	}
-
+	//------------------------------------------------------------------------------------
+	void Mesh::SetMaterial(Material* pMaterial)
+	{
+		SAFE_RELEASE(m_pMaterial);
+		m_pMaterial = pMaterial;
+		pMaterial->AddRef();
+	}
 	//------------------------------------------------------------------------------------
 	SubMesh::SubMesh()
-		:m_pMaterial(nullptr)
-		,m_pVertexBuf(nullptr)
+		:m_pVertexBuf(nullptr)
 		,m_pIndexBuf(nullptr)
 		,m_nIndexCnt(0)
 		,m_pIndexData(nullptr)
@@ -49,7 +66,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	SubMesh::~SubMesh()
 	{
-		SAFE_RELEASE(m_pMaterial);
 		SAFE_RELEASE(m_pVertexBuf);
 		SAFE_RELEASE(m_pIndexBuf);
 		SAFE_DELETE(m_pIndexData);
@@ -127,11 +143,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SubMesh::Render()
 	{
-		if (m_pMaterial)
-		{
-			m_pMaterial->Activate();
-		}
-
 		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
 
 		const UINT stride = m_vertData.GetVertexStride();
@@ -150,11 +161,9 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void SubMesh::SetMaterial( Material* pMaterial )
+	void SubMesh::BuildTangentVectors()
 	{
-		SAFE_RELEASE(m_pMaterial);
-		m_pMaterial = pMaterial;
-		pMaterial->AddRef();
+
 	}
 }
 

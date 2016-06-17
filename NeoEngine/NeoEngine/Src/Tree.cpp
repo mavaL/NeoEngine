@@ -47,19 +47,19 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Tree::_InitMaterial()
 	{
-		for (uint32 i=0; i<m_pMesh->GetSubMeshCount(); ++i)
-		{
-			const STRING& name = m_pMesh->GetSubMesh(i)->GetName();
-			if (name == "branch")
-				SetMaterial(i, s_pBranchMaterial);
-			else if (name == "frond")
-				SetMaterial(i, s_pFrondMaterial);
-			else if (name == "leaf")
-				SetMaterial(i, s_pLeafMaterial);
-			else
-				{ assert(0); }
+		//for (uint32 i=0; i<m_pMesh->GetSubMeshCount(); ++i)
+		//{
+		//	const STRING& name = m_pMesh->GetSubMesh(i)->GetName();
+		//	if (name == "branch")
+		//		SetMaterial(i, s_pBranchMaterial);
+		//	else if (name == "frond")
+		//		SetMaterial(i, s_pFrondMaterial);
+		//	else if (name == "leaf")
+		//		SetMaterial(i, s_pLeafMaterial);
+		//	else
+		//		{ assert(0); }
 
-		}
+		//}
 	}
 	//------------------------------------------------------------------------------------
 	void Tree::Update()

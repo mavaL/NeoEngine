@@ -62,6 +62,7 @@ enum eRenderPhase
 	eRenderPhase_Water		= 1 << 4,
 	eRenderPhase_FinalScene	= 1 << 5,
 	eRenderPhase_UI			= 1 << 6,
+	eRenderPhase_None		= 1 << 7,
 
 	eRenderPhase_All = eRenderPhase_GBuffer | eRenderPhase_Water | eRenderPhase_UI | eRenderPhase_SSAO
 };

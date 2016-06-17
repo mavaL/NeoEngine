@@ -56,6 +56,7 @@ namespace Neo
 	private:
 		void		_InitAllScene();
 		void		_RenderGBuffer(uint32 phaseFlag);
+		void		_LinearizeDepth();
 		void		_CompositionPass();
 		void		_HDRFinalScenePass();
 
@@ -67,6 +68,7 @@ namespace Neo
 		D3D11RenderTarget*		m_pRT_Albedo;
 		D3D11RenderTarget*		m_pRT_Specular;
 		D3D11RenderTarget*		m_pRT_Compose;
+		D3D11RenderTarget*		m_pRT_Depth;
 
 		uint32			m_renderFlag;	// Render phase control flag
 		eRenderPhase	m_curRenderPhase;

@@ -6,17 +6,17 @@ namespace Neo
 {
 	//--------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture(const STRING& filename, eTextureType type, uint32 usage)
-	:m_pTexture2D(nullptr)
-	,m_pTexture3D(nullptr)
-	,m_pRenderSystem(g_env.pRenderSystem)
-	,m_rtView(nullptr)
-	,m_pSRV(nullptr)
-	,m_pDSV(nullptr)
-	,m_usage(usage)
-	,m_texType(type)
-	,m_width(0)
-	,m_height(0)
-	,m_bMipMap(true)
+	: m_pTexture2D(nullptr)
+	, m_pTexture3D(nullptr)
+	, m_pRenderSystem(g_env.pRenderSystem)
+	, m_pRTV(nullptr)
+	, m_pSRV(nullptr)
+	, m_pDSV(nullptr)
+	, m_usage(usage)
+	, m_texType(type)
+	, m_width(0)
+	, m_height(0)
+	, m_bMipMap(true)
 	{
 		m_pd3dDevice = m_pRenderSystem->GetDevice();
 		if (m_pd3dDevice)
@@ -94,7 +94,7 @@ namespace Neo
 	:m_pTexture2D(nullptr)
 	,m_pTexture3D(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
-	,m_rtView(nullptr)
+	,m_pRTV(nullptr)
 	,m_pSRV(nullptr)
 	,m_pDSV(nullptr)
 	,m_width(width)
@@ -118,7 +118,7 @@ namespace Neo
 	:m_pTexture2D(nullptr)
 	,m_pTexture3D(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
-	,m_rtView(nullptr)
+	, m_pRTV(nullptr)
 	,m_pSRV(nullptr)
 	,m_pDSV(nullptr)
 	,m_usage(0)
@@ -203,6 +203,17 @@ namespace Neo
 		for(size_t i=0; i<vecTexs.size(); ++i)
 			vecTexs[i]->Release();
 	}
+	//------------------------------------------------------------------------------------
+	D3D11Texture::D3D11Texture(ID3D11ShaderResourceView* pSRV, ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV)
+		: m_pTexture2D(nullptr)
+		, m_pTexture3D(nullptr)
+		, m_pRenderSystem(g_env.pRenderSystem)
+		, m_pRTV(pRTV)
+		, m_pSRV(pSRV)
+		, m_pDSV(pDSV)
+	{
+
+	}
 	//-------------------------------------------------------------------------------
 	D3D11Texture::~D3D11Texture()
 	{
@@ -216,7 +227,7 @@ namespace Neo
 		SAFE_RELEASE(m_pTexture3D);
 		SAFE_RELEASE(m_pSRV);
 		SAFE_RELEASE(m_pDSV);
-		SAFE_RELEASE(m_rtView);
+		SAFE_RELEASE(m_pRTV);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11Texture::_CreateManual(const char* pTexData)
@@ -329,7 +340,7 @@ namespace Neo
 		// Bind RT view
 		if (m_usage & eTextureUsage_RenderTarget)
 		{
-			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_rtView ));
+			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_pRTV ));
 		}
 	}
 	//-------------------------------------------------------------------------------

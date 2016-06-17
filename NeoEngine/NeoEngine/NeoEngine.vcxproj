@@ -95,6 +95,7 @@
     <ClInclude Include="Include\MathDef.h" />
     <ClInclude Include="Include\Mesh.h" />
     <ClInclude Include="Include\MeshLoader.h" />
+    <ClInclude Include="Include\ObjMeshLoader.h" />
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Polygon.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
@@ -221,6 +222,7 @@
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\Mesh.cpp" />
     <ClCompile Include="Src\MeshLoader.cpp" />
+    <ClCompile Include="Src\ObjMeshLoader.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />
     <ClCompile Include="Src\Polygon.cpp" />
     <ClCompile Include="Src\Scene.cpp" />

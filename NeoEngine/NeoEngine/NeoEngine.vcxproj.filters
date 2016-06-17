@@ -123,6 +123,9 @@
     <ClInclude Include="Include\ShadowMapCSM.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ObjMeshLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -227,6 +230,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\ShadowMapCSM.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ObjMeshLoader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

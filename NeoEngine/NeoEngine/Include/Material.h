@@ -20,26 +20,41 @@ namespace Neo
 		SColor	lightColor;
 	};
 	//------------------------------------------------------------------------------------
+	// For now sub-material only support own textures.
+	class SubMaterial
+	{
+	public:
+		SubMaterial();
+		~SubMaterial();
+
+		void		Activate();
+		void		SetTexture(int stage, D3D11Texture* pTexture);
+
+		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
+	};
+	//------------------------------------------------------------------------------------
 	class Material : public IRefCount
 	{
 	public:
-		Material(eVertexType type = eVertexType_General);
+		Material(eVertexType type = eVertexType_General, uint32 nSubMtl = 1);
 		~Material();
 
 	public:
 		SColor		ambient, diffuse, specular;
 		float		shiness;
 
-		void		Activate();
+		void		Activate(uint32 iSubMtl = 0);
 		void		TurnOffTessellation();
+		void		SetTexture(int stage, D3D11Texture* pTexture);
 		// NB: Should be called after all texture stages have been setup
-		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
+		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 
+			uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, const char* szVSEntryFunc = "VS", const char* szPSEntryFunc = "PS");
 		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
 
-		void					SetTexture(int stage, D3D11Texture* pTexture);
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
+		SubMaterial&			GetSubMaterial(uint32 i);
 
 	private:
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
@@ -69,9 +84,9 @@ namespace Neo
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
 
-		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
-		D3D11_SAMPLER_DESC	m_samplerStateDesc[MAX_TEXTURE_STAGE];
-		ID3D11SamplerState*	m_pSamplerState[MAX_TEXTURE_STAGE];
+		std::vector<SubMaterial>	m_vecSubMtls;
+		D3D11_SAMPLER_DESC			m_samplerStateDesc[MAX_TEXTURE_STAGE];
+		ID3D11SamplerState*			m_pSamplerState[MAX_TEXTURE_STAGE];
 	};
 }
 

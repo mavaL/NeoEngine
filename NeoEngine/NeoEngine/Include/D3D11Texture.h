@@ -23,6 +23,8 @@ namespace Neo
 		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0);
 		// Create as manual
 		D3D11Texture(uint32 width, uint32 height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
+		// Create from exist resource views
+		D3D11Texture(ID3D11ShaderResourceView* pSRV, ID3D11RenderTargetView* pRTV, ID3D11DepthStencilView* pDSV);
 		// Create as texture array
 		D3D11Texture(const StringVector& vecTexNames);
 
@@ -34,7 +36,7 @@ namespace Neo
 		bool								SaveToFile(const char* filename);
 		ID3D11ShaderResourceView* const*	GetSRV() const { return &m_pSRV; }
 		ID3D11DepthStencilView*				GetDSV() const { return m_pDSV; }
-		ID3D11RenderTargetView*				GetRTV() { return m_rtView; }
+		ID3D11RenderTargetView*				GetRTV() const { return m_pRTV; }
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }
 		void								CreateSRV();
 		void								CreateDSV();
@@ -60,7 +62,7 @@ namespace Neo
 		D3D11RenderSystem*	m_pRenderSystem;
 		ID3D11ShaderResourceView*	m_pSRV;
 		ID3D11DepthStencilView*		m_pDSV;
-		ID3D11RenderTargetView*		m_rtView;
+		ID3D11RenderTargetView*		m_pRTV;
 
 		eTextureType		m_texType;
 		int					m_usage;

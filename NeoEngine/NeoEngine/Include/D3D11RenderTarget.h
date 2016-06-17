@@ -36,7 +36,6 @@ namespace Neo
 		// Render for a post effect
 		void			RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
 
-		ID3D11DepthStencilView*		GetDSV();
 		ID3D11RenderTargetView*		GetRTV();
 		ID3D11ShaderResourceView*	GetSRV();
 

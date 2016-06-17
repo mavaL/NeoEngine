@@ -20,7 +20,7 @@ namespace Neo
 		SubMesh* pSubMesh = new SubMesh;
 
 		m_pMesh->AddSubMesh(pSubMesh);
-		pSubMesh->SetMaterial(m_pMaterial);
+		m_pMesh->SetMaterial(m_pMaterial);
 
 		m_pEntity = new Entity(m_pMesh, false);
 

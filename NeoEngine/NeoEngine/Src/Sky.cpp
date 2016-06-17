@@ -70,7 +70,7 @@ namespace Neo
 		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
 		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
-		pSubMesh->SetMaterial(pMaterial);
+		m_pMesh->SetMaterial(pMaterial);
 		pMaterial->Release();
 
 		D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);

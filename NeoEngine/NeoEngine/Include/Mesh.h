@@ -24,6 +24,7 @@ namespace Neo
 	public:
 		bool		InitVertData(eVertexType type, const void* pVerts, int nVert, bool bStatic);
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
+		void		BuildTangentVectors();
 
 		void			SetName(const STRING& name) { m_name = name; }
 		const STRING&	GetName() const { return m_name; }
@@ -32,12 +33,8 @@ namespace Neo
 
 		void		Render();		
 
-		void		SetMaterial(Material* pMaterial);
-		Material*	GetMaterial()	{ return m_pMaterial; }
-
 	private:
 		STRING			m_name;
-		Material*		m_pMaterial;
 
 		ID3D11Buffer*	m_pVertexBuf;
 		VertexData		m_vertData;
@@ -52,18 +49,21 @@ namespace Neo
 	class Mesh
 	{
 	public:
-		Mesh() {}
+		Mesh();
 		~Mesh();
 
 	public:
 		void		AddSubMesh(SubMesh* submesh);
 		SubMesh*	GetSubMesh(uint32 i);
 		uint32		GetSubMeshCount() const;
+		void		SetMaterial(Material* pMaterial);
+		Material*	GetMaterial()	{ return m_pMaterial; }
 
 		void		Render();
 
 	private:
 		SubMeshes	m_submeshes;
+		Material*	m_pMaterial;
 	};
 }
 

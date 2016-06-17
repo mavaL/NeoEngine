@@ -18,7 +18,7 @@ namespace Neo
 	SColor SColor::NICE_BLUE =	SColor(0.0f, 0.125f, 0.3f);
 
 	//-------------------------------------------------------------------------------
-	Material::Material(eVertexType type)
+	Material::Material(eVertexType type, uint32 nSubMtl)
 	:m_pRenderSystem(g_env.pRenderSystem)
 	,ambient(SColor::WHITE)
 	,diffuse(SColor::WHITE)
@@ -38,7 +38,6 @@ namespace Neo
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
-			m_pTexture[i] = nullptr;
 			m_pSamplerState[i] = nullptr;
 
 			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
@@ -46,9 +45,9 @@ namespace Neo
 			m_samplerStateDesc[i].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 			m_samplerStateDesc[i].AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 			m_samplerStateDesc[i].AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-
-			SetSamplerStateDesc(i, m_samplerStateDesc[i]);
 		}
+
+		m_vecSubMtls.resize(nSubMtl);
 	}
 	//-------------------------------------------------------------------------------
 	Material::~Material()
@@ -62,12 +61,12 @@ namespace Neo
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
-			SAFE_RELEASE(m_pTexture[i]);
 			SAFE_RELEASE(m_pSamplerState[i]);
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro)
+	bool Material::InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 
+		uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro, const char* szVSEntryFunc, const char* szPSEntryFunc)
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
@@ -79,8 +78,8 @@ namespace Neo
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
 
 		// Compile
-		V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS", "vs_4_0", vecMacro, &pVSBlob ));
-		V_RETURN(_CompileShaderFromFile( psFileName.c_str(), "PS", "ps_4_0", vecMacro, &pPSBlob ));
+		V_RETURN(_CompileShaderFromFile(vsFileName.c_str(), szVSEntryFunc, "vs_4_0", vecMacro, &pVSBlob));
+		V_RETURN(_CompileShaderFromFile(psFileName.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
 
 		// Create shader
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
@@ -214,7 +213,7 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	void Material::Activate()
+	void Material::Activate(uint32 iSubMtl)
 	{
 		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
 
@@ -268,27 +267,16 @@ namespace Neo
 		case eRenderPhase_GBuffer: pDeviceContext->PSSetShader(m_pPS_GBuffer, NULL, 0); break;
 		default: pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0); break;
 		}
-		
 
-		// Texture stage
-		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
+		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
 		{
-			if (m_pTexture[i])
+			if (m_pSamplerState[i])
 			{
-				m_pRenderSystem->SetActiveTexture(i, m_pTexture[i], m_pSamplerState[i]);
+				g_env.pRenderSystem->SetActiveSamplerState(i, m_pSamplerState[i]);
 			}
 		}
-	}
-	//------------------------------------------------------------------------------------
-	void Material::SetTexture( int stage, D3D11Texture* pTexture )
-	{
-		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
-
-		SAFE_RELEASE(m_pTexture[stage]);
-		m_pTexture[stage] = pTexture;
-
-		if(pTexture)
-			pTexture->AddRef();
+		
+		m_vecSubMtls[iSubMtl].Activate();
 	}
 	//------------------------------------------------------------------------------------
 	void Material::SetSamplerStateDesc( int stage, const D3D11_SAMPLER_DESC& desc )
@@ -322,61 +310,117 @@ namespace Neo
 			}
 		}
 
-		if (m_shaderFlag & eShaderFlag_EnableSSAO)
-		{
-			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
-			{
-				if (m_pTexture[i] == nullptr)
-				{
-					SetTexture(i, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
-
-					D3D_SHADER_MACRO macro = { "SSAO", "" };
-					retMacros.push_back(macro);
-
-					break;
-				}
-			}
-		}
-
-		if (m_shaderFlag & eShaderFlag_EnableShadowReceive)
-		{
-			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
-			{
-				if (m_pTexture[i] == nullptr)
-				{
-					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
-					retMacros.push_back(macro);
-
-					D3D11_SAMPLER_DESC& samDesc = GetSamplerStateDesc(i);
-					samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-					samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-					samDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-					samDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-					samDesc.BorderColor[0] = samDesc.BorderColor[1] = samDesc.BorderColor[2] = samDesc.BorderColor[3] = 1;
-
-					SetSamplerStateDesc(i, samDesc);
-
-#if USE_CSM
-					D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
-					retMacros.push_back(macroCSM);
-
-					for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
-					{
-						SetTexture(i + iCascade, g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(iCascade));
-					}
-#else
-					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
-#endif
-
-					break;
-				}
-			}
-		}
+//		if (m_shaderFlag & eShaderFlag_EnableSSAO)
+//		{
+//			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
+//			{
+//				if (m_pTexture[i] == nullptr)
+//				{
+//					SetTexture(i, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
+//
+//					D3D_SHADER_MACRO macro = { "SSAO", "" };
+//					retMacros.push_back(macro);
+//
+//					break;
+//				}
+//			}
+//		}
+//
+//		if (m_shaderFlag & eShaderFlag_EnableShadowReceive)
+//		{
+//			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
+//			{
+//				if (m_pTexture[i] == nullptr)
+//				{
+//					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
+//					retMacros.push_back(macro);
+//
+//					D3D11_SAMPLER_DESC& samDesc = GetSamplerStateDesc(i);
+//					samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+//					samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+//					samDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+//					samDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+//					samDesc.BorderColor[0] = samDesc.BorderColor[1] = samDesc.BorderColor[2] = samDesc.BorderColor[3] = 1;
+//
+//					SetSamplerStateDesc(i, samDesc);
+//
+//#if USE_CSM
+//					D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
+//					retMacros.push_back(macroCSM);
+//
+//					for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
+//					{
+//						SetTexture(i + iCascade, g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(iCascade));
+//					}
+//#else
+//					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
+//#endif
+//
+//					break;
+//				}
+//			}
+//		}
 
 		D3D_SHADER_MACRO macro = { 0, 0 };
 		retMacros.push_back(macro);
 
 		return std::move(retMacros);
+	}
+	//------------------------------------------------------------------------------------
+	SubMaterial& Material::GetSubMaterial(uint32 i)
+	{
+		assert(i >= 0 && i < m_vecSubMtls.size());
+		return m_vecSubMtls[i];
+	}
+	//------------------------------------------------------------------------------------
+	void Material::SetTexture(int stage, D3D11Texture* pTexture)
+	{
+		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+
+		for (uint32 i = 0; i < m_vecSubMtls.size(); ++i)
+		{
+			m_vecSubMtls[i].SetTexture(stage, pTexture);
+		}
+	}
+
+	//------------------------------------------------------------------------------------
+	SubMaterial::SubMaterial()
+	{
+		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
+		{
+			m_pTexture[i] = nullptr;
+		}
+	}
+	//------------------------------------------------------------------------------------
+	SubMaterial::~SubMaterial()
+	{
+		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
+		{
+			SAFE_RELEASE(m_pTexture[i]);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void SubMaterial::Activate()
+	{
+		// Apply textures
+		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
+		{
+			if (m_pTexture[i])
+			{
+				g_env.pRenderSystem->SetActiveTexture(i, m_pTexture[i]);
+			}
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void SubMaterial::SetTexture(int stage, D3D11Texture* pTexture)
+	{
+		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+
+		SAFE_RELEASE(m_pTexture[stage]);
+		m_pTexture[stage] = pTexture;
+
+		if (pTexture)
+			pTexture->AddRef();
 	}
 }
 

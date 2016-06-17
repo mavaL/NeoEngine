@@ -224,7 +224,7 @@ namespace Neo
 			pMaterial->SetSamplerStateDesc(3, samDesc);
 		}
 
-		m_pMesh->GetSubMesh(0)->SetMaterial(pMaterial);
+		m_pMesh->SetMaterial(pMaterial);
 		pMaterial->Release();
 	}
 	//------------------------------------------------------------------------------------
@@ -249,7 +249,7 @@ namespace Neo
 
 		m_pEntity->Render();
 
-		m_pMesh->GetSubMesh(0)->GetMaterial()->TurnOffTessellation();
+		m_pMesh->GetMaterial()->TurnOffTessellation();
 	}
 	//------------------------------------------------------------------------------------
 	static float Average(std::vector<float>& vecData, int i, int j)

@@ -14,19 +14,18 @@ namespace Neo
 {
 	//----------------------------------------------------------------------------------------
 	D3D11RenderSystem::D3D11RenderSystem()
-	:m_pd3dDevice(nullptr)
-	,m_wndWidth(0)
-	,m_wndHeight(0)
-	,m_pDeviceContext(nullptr)
-	,m_pSwapChain(nullptr)
-	,m_pRenderTargetView(nullptr)
-	,m_pDepthStencil(nullptr)
-	,m_pDepthStencilView(nullptr)
-	,m_rasterState(nullptr)
-	,m_blendState(nullptr)
-	,m_depthState(nullptr)
-	,m_pGlobalCBuf(nullptr)
-	,m_bClipPlaneEnabled(false)
+	: m_pd3dDevice(nullptr)
+	, m_wndWidth(0)
+	, m_wndHeight(0)
+	, m_pDeviceContext(nullptr)
+	, m_pSwapChain(nullptr)
+	, m_pRenderTargetView(nullptr)
+	, m_pTexDepthStencil(nullptr)
+	, m_rasterState(nullptr)
+	, m_blendState(nullptr)
+	, m_depthState(nullptr)
+	, m_pGlobalCBuf(nullptr)
+	, m_bClipPlaneEnabled(false)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 			m_pTexture[i] = nullptr;
@@ -164,32 +163,53 @@ namespace Neo
 		pBackBuffer->GetDesc( &BBDesc );
 
 		// Create depth stencil texture
+		ID3D11Texture2D* pTexDepth;
 		D3D11_TEXTURE2D_DESC descDepth;
+
 		ZeroMemory( &descDepth, sizeof(D3D11_TEXTURE2D_DESC) );
 		descDepth.Width = BBDesc.Width;
 		descDepth.Height = BBDesc.Height;
 		descDepth.MipLevels = 1;
 		descDepth.ArraySize = 1;
-		descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDepth.Format = DXGI_FORMAT_R24G8_TYPELESS;
 		descDepth.SampleDesc.Count = 1;
 		descDepth.SampleDesc.Quality = 0;
 		descDepth.Usage = D3D11_USAGE_DEFAULT;
-		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 		descDepth.CPUAccessFlags = 0;
 		descDepth.MiscFlags = 0;
-		V(m_pd3dDevice->CreateTexture2D( &descDepth, NULL, &m_pDepthStencil ));
 
-		// Create the depth stencil view
+		V(m_pd3dDevice->CreateTexture2D(&descDepth, NULL, &pTexDepth));
+
+		// Create DSV of the depth buffer
+		ID3D11DepthStencilView* pDSV = nullptr;
 		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+
 		ZeroMemory( &descDSV, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC) );
-		descDSV.Format = descDepth.Format;
+		descDSV.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+		descDSV.Flags = 0;
 		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 		descDSV.Texture2D.MipSlice = 0;
-		V(m_pd3dDevice->CreateDepthStencilView( m_pDepthStencil, &descDSV, &m_pDepthStencilView ));
+		V(m_pd3dDevice->CreateDepthStencilView(pTexDepth, &descDSV, &pDSV));
 
-		m_pDeviceContext->OMSetRenderTargets( 1, &m_pRenderTargetView, m_pDepthStencilView );
+		// Create SRV of the depth buffer
+		ID3D11ShaderResourceView* pSRV = nullptr;
+		D3D11_SHADER_RESOURCE_VIEW_DESC SRVDesc;
+
+		ZeroMemory(&SRVDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+		SRVDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+		SRVDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		SRVDesc.Texture2D.MipLevels = 1;
+		SRVDesc.Texture2D.MostDetailedMip = 0;
+
+		V(m_pd3dDevice->CreateShaderResourceView(pTexDepth, &SRVDesc, &pSRV));
+
+		m_pTexDepthStencil = new D3D11Texture(pSRV, nullptr, pDSV);
+
+		m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, pDSV);
 
 		pBackBuffer->Release();
+		pTexDepth->Release();
 
 		return hr;
 	}
@@ -199,8 +219,7 @@ namespace Neo
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pRenderTargetView);
-		SAFE_RELEASE(m_pDepthStencilView);
-		SAFE_RELEASE(m_pDepthStencil);
+		SAFE_RELEASE(m_pTexDepthStencil);
 		SAFE_RELEASE(m_rasterState);
 		SAFE_RELEASE(m_blendState);
 		SAFE_RELEASE(m_depthState);
@@ -233,9 +252,7 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::BeginScene()
 	{
-		float c[4] = {0.0f, 0.125f, 0.3f, 1};
-		m_pDeviceContext->ClearRenderTargetView( m_pRenderTargetView, c );
-		m_pDeviceContext->ClearDepthStencilView( m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0 );
+
 	}
 	//----------------------------------------------------------------------------------------
 	void D3D11RenderSystem::EndScene()
@@ -269,11 +286,11 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetActiveTexture( int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler)
+	void D3D11RenderSystem::SetActiveTexture( int stage, D3D11Texture* pTexture)
 	{
 		assert(stage >=0 && stage < MAX_TEXTURE_STAGE);
 
-		if(m_pTexture[stage] == pTexture)
+		if (m_pTexture[stage] == pTexture)
 			return;
 
 		SAFE_RELEASE(m_pTexture[stage]);
@@ -286,18 +303,23 @@ namespace Neo
 			if (pTexture->GetUsage() & eTextureUsage_DomainShader)
 			{
 				m_pDeviceContext->DSSetShaderResources(stage, 1, pTexture->GetSRV());
-				m_pDeviceContext->DSSetSamplers(stage, 1, &sampler);
 			}
 
 			if (pTexture->GetUsage() & eTextureUsage_HullShader)
 			{
 				m_pDeviceContext->HSSetShaderResources(stage, 1, pTexture->GetSRV());
-				m_pDeviceContext->HSSetSamplers(stage, 1, &sampler);
 			}
 
 			m_pDeviceContext->PSSetShaderResources(stage, 1, pTexture->GetSRV());
-			m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
 		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetActiveSamplerState(int stage, ID3D11SamplerState* sampler)
+	{
+		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+
+		m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
+
 	}
 	//------------------------------------------------------------------------------------
 	D3D11RenderTarget* D3D11RenderSystem::CreateRenderTarget()
@@ -310,11 +332,9 @@ namespace Neo
 		return pRT;
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetRenderTarget(D3D11RenderTarget** pRTs, ID3D11DepthStencilView* pDSV, uint32 nRenderTarget, 
+	void D3D11RenderSystem::SetRenderTarget(D3D11RenderTarget** pRTs, D3D11Texture* pTexDepth, uint32 nRenderTarget,
 		bool bClearColor, bool bClearZ, const SColor& clearClr)
 	{
-		assert(pDSV);
-
 		ID3D11RenderTargetView* pRTVs[8] = {0};
 
 		if (pRTs)
@@ -329,6 +349,12 @@ namespace Neo
 			pRTVs[0] = m_pRenderTargetView;
 		}
 
+		ID3D11DepthStencilView* pDSV = nullptr;
+		if (pTexDepth)
+		{
+			pDSV = pTexDepth->GetDSV();
+		}
+
 		m_pDeviceContext->OMSetRenderTargets(nRenderTarget, pRTVs, pDSV);
 
 		if (bClearColor)
@@ -341,6 +367,7 @@ namespace Neo
 		
 		if (bClearZ)
 		{
+			assert(pDSV);
 			m_pDeviceContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		}
 	}
@@ -526,8 +553,7 @@ namespace Neo
 		m_pDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
 
 		SAFE_RELEASE(m_pRenderTargetView);
-		SAFE_RELEASE(m_pDepthStencilView);
-		SAFE_RELEASE(m_pDepthStencil);
+		SAFE_RELEASE(m_pTexDepthStencil);
 
 		V(m_pSwapChain->ResizeBuffers(m_swapChainDesc.BufferCount, width, height, m_swapChainDesc.BufferDesc.Format, Flags));
 
@@ -602,6 +628,20 @@ namespace Neo
 		oPlanes[3].Normalize();
 		oPlanes[4].Normalize();
 		oPlanes[5].Normalize();
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::UnbindTexture(D3D11Texture* tex)
+	{
+		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
+		{
+			if (m_pTexture[i] == tex)
+			{
+				SAFE_RELEASE(m_pTexture[i]);
+
+				ID3D11ShaderResourceView* pSRV = nullptr;
+				m_pDeviceContext->PSSetShaderResources(i, 1, &pSRV);
+			}
+		}
 	}
 }
 

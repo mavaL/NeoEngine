@@ -117,7 +117,8 @@ namespace Neo
 		
 		D3D11RenderTarget* pRT = this;
 
-		m_pRenderSystem->SetRenderTarget(&pRT, GetDSV(), 1, bClearColor, bClearZ, clearColor);
+		m_pRenderSystem->UnbindTexture(m_pRenderTexture);
+		m_pRenderSystem->SetRenderTarget(&pRT, m_pDepthStencil, 1, bClearColor, bClearZ, clearColor);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::_AfterRender()
@@ -130,7 +131,6 @@ namespace Neo
 		}		
 
 		m_pRenderSystem->RestoreViewport();
-		m_pRenderSystem->SetRenderTarget(nullptr, GetDSV(), 1, false, false);
 	}
 	//----------------------------------------------------------------------------------------
 	//void D3D11RenderTarget::Update(Material* pMaterial)
@@ -141,11 +141,6 @@ namespace Neo
 
 	//	_AfterRender();
 	//}
-	//------------------------------------------------------------------------------------
-	ID3D11DepthStencilView* D3D11RenderTarget::GetDSV()
-	{
-		return m_pDepthStencil ? m_pDepthStencil->GetDSV() : m_pRenderSystem->GetDSV();
-	}
 	//------------------------------------------------------------------------------------
 	ID3D11RenderTargetView* D3D11RenderTarget::GetRTV()
 	{

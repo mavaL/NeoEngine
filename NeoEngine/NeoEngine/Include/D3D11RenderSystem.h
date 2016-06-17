@@ -60,7 +60,7 @@ namespace Neo
 
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
-		ID3D11DepthStencilView*		GetDSV()				{ return m_pDepthStencilView; }
+		D3D11Texture*				GetDepthTexture()		{ return m_pTexDepthStencil; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -75,14 +75,17 @@ namespace Neo
 		// Get a material from MatLib
 		Material*	GetMaterial(const STRING& name);
 		// Set texture to device
-		void		SetActiveTexture(int stage, D3D11Texture* pTexture, ID3D11SamplerState* sampler);
+		void		SetActiveTexture(int stage, D3D11Texture* pTexture);
+		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler);
 		// This texture will be recreated after window resized.
 		void		AddResizableTexture(D3D11Texture* pTexture);
 
 		// Create a RT
 		D3D11RenderTarget* CreateRenderTarget();
 		// Set RT to device
-		void		SetRenderTarget(D3D11RenderTarget** pRTs, ID3D11DepthStencilView* pDSV, uint32 nRenderTarget, bool bClearColor = true, bool bClearZ = true, const SColor& clearClr = SColor::BLACK);
+		void		SetRenderTarget(D3D11RenderTarget** pRTs, D3D11Texture* pTexDepth, uint32 nRenderTarget, bool bClearColor = true, bool bClearZ = true, const SColor& clearClr = SColor::BLACK);
+		// Before SetRT, unbind the SRV.
+		void		UnbindTexture(D3D11Texture* tex);
 
 		// Enable/Disable clipping plane
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
@@ -119,8 +122,7 @@ namespace Neo
 		D3D11_DEPTH_STENCIL_DESC	m_depthStencilDesc;
 		ID3D11DepthStencilState*	m_depthState;
 		ID3D11RenderTargetView*		m_pRenderTargetView;	// Frame buffer RT
-		ID3D11DepthStencilView*		m_pDepthStencilView;
-		ID3D11Texture2D*			m_pDepthStencil;
+		D3D11Texture*				m_pTexDepthStencil;
 		D3D11Texture*				m_pTexture[MAX_TEXTURE_STAGE];
 		Font*						m_pFont;
 

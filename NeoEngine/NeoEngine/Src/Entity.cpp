@@ -138,17 +138,9 @@ namespace Neo
 		m_pMesh->Render();
 	}
 	//------------------------------------------------------------------------------------
-	void Entity::SetMaterial( uint32 iSubMesh, Material* pMaterial )
-	{
-		m_pMesh->GetSubMesh(iSubMesh)->SetMaterial(pMaterial);
-	}
-	//------------------------------------------------------------------------------------
 	void Entity::SetMaterial( Material* pMaterial )
 	{
-		for (uint32 i=0; i<m_pMesh->GetSubMeshCount(); ++i)
-		{
-			m_pMesh->GetSubMesh(i)->SetMaterial(pMaterial);
-		}
+		m_pMesh->SetMaterial(pMaterial);
 	}
 }
 

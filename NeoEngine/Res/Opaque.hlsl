@@ -1,27 +1,4 @@
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-cbuffer cbufferGlobal : register( b0 )
-{
-    matrix	World;
-	matrix	View;
-	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
-	matrix	ShadowTransform;
-	matrix	ShadowTransform2;
-	matrix	ShadowTransform3;
-	float4	clipPlane;
-	float4	frustumFarCorner[4];
-	float4	ambientColor;
-	float4	lightColor;
-	float3	lightDirection;
-	float3	camPos;
-	float	time;
-	float	nearZ, farZ;
-	float	shadowMapTexelSize;
-};
+#include "Common.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -80,9 +57,6 @@ Texture2D		gShadowMap3		: register(t5);
 SamplerState	samLinear		: register(s0);
 SamplerComparisonState	samShadowMap	: register(s1);
 
-
-#include "Common.h"
-
 float4 PS( VS_OUTPUT input ) : SV_Target
 {
 	// Do shadowing
@@ -123,7 +97,9 @@ gbuffer_output PS_GBuffer(VS_OUTPUT input)
 {
 	gbuffer_output output = (gbuffer_output)0;
 
-	output.oNormal = texNormal.Sample(samLinear, input.uv);
+	float3 vWorldNormal = mul(float4(input.normal, 0), WorldIT).xyz;
+	output.oNormal = float4(vWorldNormal * 0.5f + 0.5f, 1.0f);
+
 	output.oAlbedo = texDiffuse.Sample(samLinear, input.uv);
 	output.oSpec = texSpec.Sample(samLinear, input.uv);
 

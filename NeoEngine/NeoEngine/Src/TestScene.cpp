@@ -34,7 +34,7 @@ void SetupTestScene1(Scene* scene)
 	pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableSSAO);
 
-	pEntity->SetMaterial(0, pMaterial);
+	pEntity->SetMaterial(pMaterial);
 	SAFE_RELEASE(pMaterial);
 
 	scene->AddEntity(pEntity);
@@ -64,7 +64,7 @@ void SetupTestScene2(Scene* scene)
 
 		scene->AddEntity(pEntity);
 
-		pEntity->SetMaterial(0, pMaterial);
+		pEntity->SetMaterial(pMaterial);
 		pEntity->SetCastShadow(false);
 		pEntity->SetReceiveShadow(false);
 	}
@@ -77,7 +77,7 @@ void SetupTestScene2(Scene* scene)
 
 		scene->AddEntity(pEntity);
 
-		pEntity->SetMaterial(0, pMaterial);
+		pEntity->SetMaterial(pMaterial);
 		pEntity->SetCastShadow(false);
 		pEntity->SetReceiveShadow(false);
 		pEntity->SetPosition(VEC3(2000, 0, 0));
@@ -135,7 +135,7 @@ void SetupTestScene4(Scene* scene)
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableShadowReceive);
-	pEntity->SetMaterial(0, pMaterial);
+	pEntity->SetMaterial(pMaterial);
 	pMaterial->Release();
 
 
@@ -151,7 +151,7 @@ void SetupTestScene4(Scene* scene)
 			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("athene.mesh"));
 
 			scene->AddEntity(pCaster);
-			pCaster->SetMaterial(0, pMaterial);
+			pCaster->SetMaterial(pMaterial);
 			pCaster->SetReceiveShadow(false);
 			pCaster->SetScale(0.1f);
 			pCaster->SetPosition(VEC3(-100 + i * 40.f, 8, -100 + j * 40.f));
@@ -195,6 +195,56 @@ void EnterTestScene5(Scene* scene)
 	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO & ~eRenderPhase_ShadowMap);
 }
 
+
+void SetupTestScene6(Scene* scene)
+{
+	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(200.0f, 200.0f);
+	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+
+	scene->AddEntity(pEntity);
+
+	Neo::Material* pMaterial = new Neo::Material;
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+	pEntity->SetMaterial(pMaterial);
+	pMaterial->Release();
+
+	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("tractor_out.obj"));
+	scene->AddEntity(pEntity);
+	pEntity->SetPosition(VEC3(0, 5, 0));
+
+	pMaterial = new Neo::Material(eVertexType_General, 7);
+
+	pMaterial->GetSubMaterial(0).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(0).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\big_wheels_nor.dds")));
+	pMaterial->GetSubMaterial(1).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(1).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\engine_nor.dds")));
+	pMaterial->GetSubMaterial(2).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(2).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\hull_nor.dds")));
+	pMaterial->GetSubMaterial(3).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(3).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\misc_nor.dds")));
+	pMaterial->GetSubMaterial(4).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(4).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\mud_guard_nor.dds")));
+	pMaterial->GetSubMaterial(5).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(5).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\roof_nor.dds")));
+	pMaterial->GetSubMaterial(6).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(6).SetTexture(0, new Neo::D3D11Texture(GetResPath("Textures\\small_wheels_nor.dds")));
+
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+	pEntity->SetMaterial(pMaterial);
+	pMaterial->Release();
+}
+
+void EnterTestScene6(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(0, 5, 0));
+	pCamera->SetNearClip(0.05f);
+	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+}
+
 namespace Neo
 {
 	void SceneManager::_InitAllScene()
@@ -209,10 +259,13 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
-		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+
+		//// Test Scene 6: Full HDR and physically-based deferred shading
+		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 	}
 }
 

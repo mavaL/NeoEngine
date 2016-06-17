@@ -6,6 +6,7 @@
 #include "Terrain.h"
 #include "Scene.h"
 #include "MeshLoader.h"
+#include "ObjMeshLoader.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderSystem.h"
@@ -20,17 +21,18 @@ namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
-	:m_pRenderSystem(g_env.pRenderSystem)
-	,m_camera(nullptr)
-	,m_pCurScene(nullptr)
-	,m_pTerrain(nullptr)
-	,m_pWater(nullptr)
-	,m_pSky(nullptr)
-	,m_pMeshLoader(new MeshLoader)
-	,m_debugRT(eDebugRT_None)
-	,m_pShadowMap(new ShadowMap)
-	,m_renderFlag(eRenderPhase_All)
-	,m_pRT_Compose(nullptr)
+	: m_pRenderSystem(g_env.pRenderSystem)
+	, m_camera(nullptr)
+	, m_pCurScene(nullptr)
+	, m_pTerrain(nullptr)
+	, m_pWater(nullptr)
+	, m_pSky(nullptr)
+	, m_pMeshLoader(new MeshLoader)
+	, m_debugRT(eDebugRT_None)
+	, m_pShadowMap(new ShadowMap)
+	, m_renderFlag(eRenderPhase_All)
+	, m_pRT_Compose(nullptr)
+	, m_pRT_Depth(nullptr)
 	{
 		
 	}
@@ -44,11 +46,13 @@ namespace Neo
 		m_pRT_Albedo = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_Specular = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_Compose = m_pRenderSystem->CreateRenderTarget();
+		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
 
 		m_pRT_Normal->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
 		m_pRT_Albedo->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
 		m_pRT_Specular->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
 		m_pRT_Compose->Init(nScreenWidth, nScreenHeight, ePF_A16R16G16B16F, false);
+		m_pRT_Depth->Init(nScreenWidth, nScreenHeight, ePF_R32F, false);
 
 		m_camera = new Camera;
 		m_camera->SetAspectRatio(nScreenWidth / (float)nScreenHeight);
@@ -80,7 +84,7 @@ namespace Neo
 			m_pDebugRTMaterial = new Material;
 			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), eShader_UI);
 
-			pSubMesh->SetMaterial(m_pDebugRTMaterial);
+			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
 		}
 
 		_InitAllScene();
@@ -104,6 +108,7 @@ namespace Neo
 		SAFE_RELEASE(m_pRT_Albedo);
 		SAFE_RELEASE(m_pRT_Specular);
 		SAFE_RELEASE(m_pRT_Compose);
+		SAFE_RELEASE(m_pRT_Depth);
 		SAFE_RELEASE(m_pDebugRTMaterial);
 	}
 	//-------------------------------------------------------------------------------
@@ -160,24 +165,29 @@ namespace Neo
 		//================================================================================
 		/// Render SSAO map
 		//================================================================================
-		if (phaseFlag & eRenderPhase_SSAO)
-		{
-			m_pSSAO->Update();
+		//if (phaseFlag & eRenderPhase_SSAO)
+		//{
+		//	m_pSSAO->Update();
 
-			// Make use of early-Z
-			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-			depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
-			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			m_pRenderSystem->SetDepthStencelState(depthDesc);
-		}
+		//	// Make use of early-Z
+		//	D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+		//	depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+		//	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		//	m_pRenderSystem->SetDepthStencelState(depthDesc);
+		//}
 
-		if (phaseFlag & eRenderPhase_SSAO)
-		{
-			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-			depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
-			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-			m_pRenderSystem->SetDepthStencelState(depthDesc);
-		}
+		//if (phaseFlag & eRenderPhase_SSAO)
+		//{
+		//	D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+		//	depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+		//	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		//	m_pRenderSystem->SetDepthStencelState(depthDesc);
+		//}
+
+		//================================================================================
+		/// Linearize depth pass
+		//================================================================================
+		_LinearizeDepth();
 
 		//================================================================================
 		/// GBuffer composition phase
@@ -231,9 +241,12 @@ namespace Neo
 	{
 		m_curRenderPhase = eRenderPhase_GBuffer;
 
-		D3D11RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
+		m_pRenderSystem->UnbindTexture(m_pRT_Normal->GetRenderTexture());
+		m_pRenderSystem->UnbindTexture(m_pRT_Albedo->GetRenderTexture());
+		m_pRenderSystem->UnbindTexture(m_pRT_Specular->GetRenderTexture());
 
-		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDSV(), 3);
+		D3D11RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
+		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDepthTexture(), 3);
 
 		// Terrain
 		if (m_pTerrain)
@@ -255,7 +268,30 @@ namespace Neo
 			m_pSky->Render();
 		}
 
-		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDSV(), 3, false, false);
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthTexture(), 3, false, false);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::_LinearizeDepth()
+	{
+		m_curRenderPhase = eRenderPhase_None;
+
+		static Material* pMtl = nullptr;
+
+		if (!pMtl)
+		{
+			pMtl = new Material;
+
+			pMtl->SetTexture(0, m_pRenderSystem->GetDepthTexture());
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			pMtl->SetSamplerStateDesc(0, samPoint);
+
+			pMtl->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
+				0, 0, "VS", "LinearizeDepthPS");
+		}
+
+		m_pRT_Depth->RenderScreenQuad(pMtl, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_CompositionPass()
@@ -271,12 +307,14 @@ namespace Neo
 			pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
 			pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
 			pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
+			pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			pMtlCompose->SetSamplerStateDesc(0, samPoint);
 
-			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess);
+			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
+				0, 0, "VS", "ComposePS");
 		}	
 
 		m_pRT_Compose->RenderScreenQuad(pMtlCompose, false, false);
@@ -286,7 +324,7 @@ namespace Neo
 	{
 		m_curRenderPhase = eRenderPhase_FinalScene;
 
-		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDSV(), 1, false, false);
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthTexture(), 1, false, false);
 
 		static Material* pMtlFinalScene = nullptr;
 
@@ -328,7 +366,17 @@ namespace Neo
 
 		if (iter == m_meshes.end())
 		{
-			Mesh* mesh = MeshLoader::LoadMesh(meshname);
+			Mesh* mesh = nullptr;
+
+			if (meshname.find(".obj") != STRING::npos)
+			{
+				mesh = ObjMeshLoader::LoadMesh(meshname, true);
+			}
+			else
+			{
+				mesh = MeshLoader::LoadMesh(meshname);
+			}
+
 			iter = m_meshes.insert(std::make_pair(meshname, mesh)).first;
 		}
 		

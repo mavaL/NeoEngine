@@ -1,3 +1,42 @@
+#define PI 3.1415926
+
+//--------------------------------------------------------------------------------------
+// Constant Buffer Variables
+//--------------------------------------------------------------------------------------
+cbuffer cbufferGlobal : register(b0)
+{
+	matrix	World;
+	matrix	View;
+	matrix	Projection;
+	matrix	WVP;
+	matrix	WorldIT;
+	matrix	ShadowTransform;
+	matrix	ShadowTransform2;
+	matrix	ShadowTransform3;
+	float4	clipPlane;
+	float4	frustumFarCorner[4];
+	float4	ambientColor;
+	float4	lightColor;
+	float3	lightDirection;
+	float3	camPos;
+	float	time;
+	float	nearZ, farZ;
+	float	shadowMapTexelSize;
+};
+
+
+float3 Expand(float3 v)
+{
+	// [0, 1] -> [-1, 1]
+	return v * 2.0f - 1.0f;
+}
+
+float3 ReconstructWorldPos(float3 rayV, Texture2D texDepth, SamplerState samp, float2 uv)
+{
+	float fLinearDepth = texDepth.Sample(samp, uv).x;
+	return rayV * fLinearDepth + camPos;
+}
+
 
 float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 posW, float shadowMapTexelSize, float4x4 matShadow)
 {

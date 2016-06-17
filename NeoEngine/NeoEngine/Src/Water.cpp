@@ -236,7 +236,7 @@ namespace Neo
 		m_pRenderSystem->SetBlendStateDesc(blendDesc);
 
 		// Render
-		m_waterMesh->GetSubMesh(0)->SetMaterial(m_pRefracMaterial);
+		m_waterMesh->SetMaterial(m_pRefracMaterial);
 		m_pEntity->Render();
 
 		m_pRenderSystem->CopyFrameBufferToTexture(m_pTexSceneWithRefracMask);
@@ -288,7 +288,7 @@ namespace Neo
 		pContext->UpdateSubresource( m_pCB_PS, 0, NULL, &m_constantBufPS, 0, 0 );
 		pContext->PSSetConstantBuffers( 2, 1, &m_pCB_PS );
 
-		m_waterMesh->GetSubMesh(0)->SetMaterial(m_pFinalComposeMaterial);
+		m_waterMesh->SetMaterial(m_pFinalComposeMaterial);
 		m_pEntity->Render();
 	}
 }

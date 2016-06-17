@@ -24,8 +24,6 @@ namespace Neo
 		// Update
 		virtual void	Update();
 		virtual void	Render();
-		// Set material
-		void			SetMaterial(uint32 iSubMesh, Material* pMaterial);
 		void			SetMaterial(Material* pMaterial);
 
 		void			SetPosition(const VEC3& pos);
