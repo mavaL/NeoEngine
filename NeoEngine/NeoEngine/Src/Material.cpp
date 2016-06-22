@@ -167,6 +167,8 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Material::_CreateVertexLayout()
 	{
+		HRESULT hr;
+
 		switch (m_vertType)
 		{
 		case eVertexType_General:
@@ -181,31 +183,23 @@ namespace Neo
 
 				SAFE_RELEASE(m_pInputLayout);
 
-				HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
-					layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
-
-				assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
+				V(m_pRenderSystem->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout));
 			}
 			break;
 
-		case eVertexType_TreeLeaf:
+		case eVertexType_NormalMap:
 			{
 				D3D11_INPUT_ELEMENT_DESC layout[] =
 				{
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 1, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 2, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 3, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },					
+					{ "TANGENT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },				
 				};
 
 				SAFE_RELEASE(m_pInputLayout);
 
-				HRESULT hr = m_pRenderSystem->GetDevice()->CreateInputLayout( 
-					layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout );
-
-				assert(SUCCEEDED( hr ) && "Create vertex input layout failed!");
+				V(m_pRenderSystem->GetDevice()->CreateInputLayout( layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout ));
 			}
 			break;
 
@@ -308,6 +302,12 @@ namespace Neo
 			{
 				retMacros.push_back(pMacro[i]);
 			}
+		}
+
+		if (m_vertType == eVertexType_NormalMap)
+		{
+			D3D_SHADER_MACRO macro = { "NORMAL_MAP", "" };
+			retMacros.push_back(macro);
 		}
 
 //		if (m_shaderFlag & eShaderFlag_EnableSSAO)

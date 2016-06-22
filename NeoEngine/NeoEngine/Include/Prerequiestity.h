@@ -49,7 +49,7 @@ enum eEntity
 enum eVertexType
 {
 	eVertexType_General,		// SVertex
-	eVertexType_TreeLeaf		// Svertex_TreeLeaf
+	eVertexType_NormalMap,		// SVertex_NormalMap
 };
 
 // Use for render target to control which part to render
@@ -159,7 +159,7 @@ namespace Neo
 	class	PixelBox;
 	struct	SColor;
 	struct	SVertex;
-	struct	STreeLeafVertex;
+	struct	SVertex_NormalMap;
 	struct	SFrameStat;
 	struct	SDirectionLight;
 	class	VertexData;

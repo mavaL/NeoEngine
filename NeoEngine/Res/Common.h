@@ -17,7 +17,7 @@ cbuffer cbufferGlobal : register(b0)
 	float4	frustumFarCorner[4];
 	float4	ambientColor;
 	float4	lightColor;
-	float3	lightDirection;
+	float3	lightDirection;			// Already negated
 	float3	camPos;
 	float	time;
 	float	nearZ, farZ;

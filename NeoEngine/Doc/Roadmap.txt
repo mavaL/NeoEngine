@@ -24,4 +24,4 @@ Did nothing on NeoEngine this month..
 2. Render states management (study DXSDK "StateManager" sample).	[0%]
 
 <2016.6>
-Starting to change render pipeline to physically-based deferred shading.	[0%]
+Changing rendering pipeline to full HDR tile-based deferred shading and PBR.	[WIP]

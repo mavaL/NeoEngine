@@ -305,7 +305,7 @@ namespace Neo
 
 	void Camera::GetFarCorner(VEC4 v[4])
 	{
-		memcpy(v, m_farCorners, sizeof(v));
+		memcpy(v, m_farCorners, sizeof(VEC4) * 4);
 	}
 
 }

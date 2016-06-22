@@ -24,7 +24,6 @@ namespace Neo
 	public:
 		bool		InitVertData(eVertexType type, const void* pVerts, int nVert, bool bStatic);
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
-		void		BuildTangentVectors();
 
 		void			SetName(const STRING& name) { m_name = name; }
 		const STRING&	GetName() const { return m_name; }
@@ -60,6 +59,11 @@ namespace Neo
 		Material*	GetMaterial()	{ return m_pMaterial; }
 
 		void		Render();
+
+		static void	BuildTangentVectors(std::vector<SVertex_NormalMap>& vecVerts, const std::vector<DWORD>& vecIndex);
+		static void	CalcTangentSpace(VEC3& oNormal, VEC4& oTangent, VEC3& oBinormal,
+			const VEC3& vt1, const VEC3& vt2, const VEC3& vt3,
+			const VEC2& tc1, const VEC2& tc2, const VEC2& tc3);
 
 	private:
 		SubMeshes	m_submeshes;

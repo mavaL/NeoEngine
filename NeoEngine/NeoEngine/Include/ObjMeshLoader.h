@@ -25,11 +25,11 @@ namespace Neo
 			int idxPos, idxUv, idxNormal;
 		};
 
-		static Mesh*	LoadMesh(const STRING& filename, bool bFlipYZ);
+		static Mesh*	LoadMesh(const STRING& filename, bool bFlipYZ, bool bNormalMap);
 
 	private:
 		static void	_PreReadObject(std::ifstream& file, DWORD& nVert, DWORD& nUv, DWORD& nNormal, DWORD& nFace);
-		static void	_DefineVertex(const SVertex& vert, const SVertCompare& comp, std::vector<SVertex>& vecVtx, DWORD& retIdx);
+		static bool	_DefineVertex(const SVertCompare& comp, DWORD& retIdx);
 
 		static std::vector<SVertCompare>	m_vecComp;
 	};

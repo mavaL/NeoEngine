@@ -41,16 +41,12 @@ namespace Neo
 		SColor	color;
 	};
 	//------------------------------------------------------------------------------------
-	struct STreeLeafVertex
+	struct SVertex_NormalMap
 	{
-		STreeLeafVertex()
-			:normal(VEC3::ZERO)
-			,uv(-1,-1), uv2(-1,-1,-1),uv3(-1,-1,-1),uv4(-1,-1,-1) {}
-
 		VEC3	pos;
-		VEC3	normal;
+		VEC4	tangent;
+		VEC3	binormal;
 		VEC2	uv;
-		VEC3	uv2, uv3, uv4;
 	};
 	//------------------------------------------------------------------------------------
 	class VertexData
@@ -62,17 +58,13 @@ namespace Neo
 		typedef std::vector<VEC3>	PosData;
 
 	public:
-		void			Init_General(const SVertex* pVert, uint32 nVert);
-		void			Init_Leaf(const STreeLeafVertex* pVert, uint32 nVert);
-		void*			GetVertexData();
+		void			Init(const void* pVert, uint32 nVert, eVertexType type);
 		uint32			GetVertexStride() const;
 		const PosData&	GetPosData() const	{ return m_vecPos; }
 		uint32			GetVertCount() const { return m_nVerts; }
 
 	private:
 		eVertexType		m_type;
-		SVertex*		m_pGenerl;
-		STreeLeafVertex*m_pLeaf;
 		uint32			m_nVerts;
 		PosData			m_vecPos;
 	};

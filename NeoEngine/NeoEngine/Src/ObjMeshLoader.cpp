@@ -9,7 +9,7 @@ namespace Neo
 	std::vector<ObjMeshLoader::SVertCompare> ObjMeshLoader::m_vecComp;
 
 
-	Mesh* ObjMeshLoader::LoadMesh(const STRING& filename, bool bFlipYZ)
+	Mesh* ObjMeshLoader::LoadMesh(const STRING& filename, bool bFlipYZ, bool bNormalMap)
 	{
 		std::ifstream file(filename.c_str());
 		if(file.fail())
@@ -37,6 +37,7 @@ namespace Neo
 			vector<VEC2> vecUv(nUv);
 			vector<VEC3> vecNormal(nNormal);
 
+			vector<SVertex_NormalMap> vecVertexWithN;
 			vector<SVertex> vecVertex;
 			vector<DWORD> vecIndex(nFace * 3);
 			vecVertex.reserve(nFace * 3);
@@ -119,14 +120,28 @@ namespace Neo
 						idxNormal[i] -= nTotalNormalCount;
 
 						SVertex vertex;
-						vertex.pos		= vecPos[idxPos[i]];
-						vertex.uv		= vecUv[idxUv[i]];
-						vertex.normal	= vecNormal[idxNormal[i]];
+						SVertex_NormalMap vertexN;
+						vertexN.pos = vertex.pos = vecPos[idxPos[i]];
+						vertexN.uv = vertex.uv = vecUv[idxUv[i]];
+						vertex.normal = vecNormal[idxNormal[i]];
 
 						SVertCompare comp = { idxPos[i], idxUv[i], idxNormal[i] };
 
 						DWORD idxVert;
-						_DefineVertex(vertex, comp, vecVertex, idxVert);
+						if (_DefineVertex(comp, idxVert))
+						{
+							if (bNormalMap)
+							{
+								vecVertexWithN.push_back(vertexN);
+								idxVert = vecVertexWithN.size() - 1;
+							} 
+							else
+							{
+								vecVertex.push_back(vertex);
+								idxVert = vecVertex.size() - 1;
+							}
+						}
+						
 						vecIndex.push_back(idxVert);
 					}
 				}
@@ -139,9 +154,17 @@ namespace Neo
 				file.ignore(1000, '\n');
 			}
 
-			pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], vecVertex.size(), true);
+			if (bNormalMap)
+			{
+				Mesh::BuildTangentVectors(vecVertexWithN, vecIndex);
+				pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
+			}
+			else
+			{
+				pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], vecVertex.size(), true);
+			}
+
 			pSubMesh->InitIndexData(&vecIndex[0], vecIndex.size(), true);
-			pSubMesh->BuildTangentVectors();
 
 			nTotalPosCount += nPos;
 			nTotalUvCount += nUv;
@@ -201,7 +224,7 @@ namespace Neo
 		}
 	}
 
-	void ObjMeshLoader::_DefineVertex(const SVertex& vert, const SVertCompare& comp, std::vector<SVertex>& vecVtx, DWORD& retIdx)
+	bool ObjMeshLoader::_DefineVertex(const SVertCompare& comp, DWORD& retIdx)
 	{
 		//.obj这种面的定义不是直接给顶点索引,而是各成分都可自由组合.所以构建m_verts要麻烦些.
 		//1. 在当前顶点列表中查找,是否有相同顶点
@@ -211,13 +234,13 @@ namespace Neo
 		{
 			//2. 如果有,则可重复利用
 			retIdx = std::distance(m_vecComp.begin(), iter);
+			return false;
 		}
 		else
 		{
 			//3. 如果没有,则插入新顶点到末尾
-			vecVtx.push_back(vert);
 			m_vecComp.push_back(comp);
-			retIdx = vecVtx.size() - 1;
+			return true;
 		}
 	}
 }

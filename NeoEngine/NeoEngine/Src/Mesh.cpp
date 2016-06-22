@@ -77,12 +77,7 @@ namespace Neo
 
 		SAFE_RELEASE(m_pVertexBuf);
 
-		switch (type)
-		{
-		case eVertexType_General: m_vertData.Init_General((SVertex*)pVerts, nVert); break;
-		case eVertexType_TreeLeaf: m_vertData.Init_Leaf((STreeLeafVertex*)pVerts, nVert); break;
-		default: assert(0); break;
-		}
+		m_vertData.Init(pVerts, nVert, type);
 
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory( &bd, sizeof(bd) );
@@ -161,9 +156,136 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void SubMesh::BuildTangentVectors()
+	static inline VEC3 GetAngleWeight(const VEC3& v1, const VEC3& v2, const VEC3& v3)
 	{
+		// Calculate this triangle's weight for each of its three vertices
+		// start by calculating the lengths of its sides
+		const float a = Common::Vec3_Distance(v2, v3);
+		const float asqrt = sqrtf(a);
+		const float b = Common::Vec3_Distance(v1, v3);
+		const float bsqrt = sqrtf(b);
+		const float c = Common::Vec3_Distance(v1, v2);
+		const float csqrt = sqrtf(c);
 
+		// use them to find the angle at each vertex
+		return VEC3(
+			acosf((b + c - a) / (2.f * bsqrt * csqrt)),
+			acosf((-b + c + a) / (2.f * asqrt * csqrt)),
+			acosf((b - c + a) / (2.f * bsqrt * asqrt)));
+	}
+	//------------------------------------------------------------------------------------
+	void Mesh::BuildTangentVectors(std::vector<SVertex_NormalMap>& vecVerts, const std::vector<DWORD>& vecIndex)
+	{
+		/////Ogre,鬼火都是这个算法:根据顶点所在的面来计算切空间,然后加权起来
+
+		//Each vertex gets the sum of the tangents and binormals from the faces around it
+		for (size_t i = 0; i < vecVerts.size(); ++i)
+		{
+			vecVerts[i].tangent = VEC4::ZERO;
+			vecVerts[i].binormal = VEC3::ZERO;
+		}
+
+		for (size_t i = 0; i < vecIndex.size(); i+=3)
+		{
+			//fetch vertexs
+			const DWORD idx1 = vecIndex[i + 0];
+			const DWORD idx2 = vecIndex[i + 1];
+			const DWORD idx3 = vecIndex[i + 2];
+
+			const VEC2& tc1 = vecVerts[idx1].uv;
+			const VEC2& tc2 = vecVerts[idx2].uv;
+			const VEC2& tc3 = vecVerts[idx3].uv;
+
+			const VEC3& vt1 = vecVerts[idx1].pos;
+			const VEC3& vt2 = vecVerts[idx2].pos;
+			const VEC3& vt3 = vecVerts[idx3].pos;
+
+			// if this triangle is degenerate, skip it!
+			if (vt1 == vt2 ||
+				vt2 == vt3 ||
+				vt3 == vt1)
+				continue;
+
+			//Angle-weighted normals look better, but are slightly more CPU intensive to calculate
+			VEC3 weight = GetAngleWeight(vt1, vt2, vt3);	// writing irr::scene:: necessary for borland
+
+			VEC3 localNormal;
+			VEC4 localTangent;
+			VEC3 localBinormal;
+
+			CalcTangentSpace(localNormal, localTangent, localBinormal,
+				vt1, vt2, vt3,
+				tc1, tc2, tc3);
+
+			vecVerts[idx1].tangent.w = localTangent.w;
+			localTangent *= weight.x;
+			localBinormal *= weight.x;
+			vecVerts[idx1].tangent += localTangent;
+			vecVerts[idx1].binormal += localBinormal;
+
+			CalcTangentSpace(localNormal, localTangent, localBinormal,
+				vt2, vt3, vt1,
+				tc2, tc3, tc1);
+
+			vecVerts[idx2].tangent.w = localTangent.w;
+			localTangent *= weight.y;
+			localBinormal *= weight.y;
+			vecVerts[idx2].tangent += localTangent;
+			vecVerts[idx2].binormal += localBinormal;
+
+			CalcTangentSpace(localNormal, localTangent, localBinormal,
+				vt3, vt1, vt2,
+				tc3, tc1, tc2);
+
+			vecVerts[idx3].tangent.w = localTangent.w;
+			localTangent *= weight.z;
+			localBinormal *= weight.z;
+			vecVerts[idx3].tangent += localTangent;
+			vecVerts[idx3].binormal += localBinormal;
+		}
+
+		for (size_t i = 0; i < vecVerts.size(); ++i)
+		{
+			vecVerts[i].tangent.vec3.Normalize();
+			vecVerts[i].binormal.Normalize();
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void Mesh::CalcTangentSpace(VEC3& oNormal, VEC4& oTangent, VEC3& oBinormal, const VEC3& vt1, const VEC3& vt2, const VEC3& vt3, const VEC2& tc1, const VEC2& tc2, const VEC2& tc3)
+	{
+		VEC3 v1 = Common::Sub_Vec3_By_Vec3(vt1, vt2);
+		VEC3 v2 = Common::Sub_Vec3_By_Vec3(vt3, vt1);
+
+		oNormal = Common::CrossProduct_Vec3_By_Vec3(v2, v1);
+		oNormal.Normalize();
+
+		VEC3 tmp1, tmp2;
+		// binormal
+		float deltaX1 = tc1.x - tc2.x;
+		float deltaX2 = tc3.x - tc1.x;
+		Common::Multiply_Vec3_By_K(tmp1, v1, deltaX2);
+		Common::Multiply_Vec3_By_K(tmp2, v2, deltaX1);
+		oBinormal = Common::Sub_Vec3_By_Vec3(tmp1, tmp2);
+		oBinormal.Normalize();
+
+		// tangent
+		float deltaY1 = tc1.y - tc2.y;
+		float deltaY2 = tc3.y - tc1.y;
+		Common::Multiply_Vec3_By_K(tmp1, v1, deltaY2);
+		Common::Multiply_Vec3_By_K(tmp2, v2, deltaY1);
+		oTangent.vec3 = Common::Sub_Vec3_By_Vec3(tmp1, tmp2);
+		oTangent.vec3.Normalize();
+
+		// adjust
+		VEC3 txb = Common::CrossProduct_Vec3_By_Vec3(oTangent.vec3, oBinormal);
+		if (Common::DotProduct_Vec3_By_Vec3(txb, oNormal) >= 0.0f)
+		{
+			oTangent.w = -1.0f;
+		}
+		else
+		{
+			oTangent.w = 1.0f;
+		}
 	}
 }
 

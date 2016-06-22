@@ -209,26 +209,21 @@ void SetupTestScene6(Scene* scene)
 	pEntity->SetMaterial(pMaterial);
 	pMaterial->Release();
 
-	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("tractor_out.obj"));
+	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
 	scene->AddEntity(pEntity);
-	pEntity->SetPosition(VEC3(0, 5, 0));
 
-	pMaterial = new Neo::Material(eVertexType_General, 7);
+	pMaterial = new Neo::Material(eVertexType_General, 10);
 
 	pMaterial->GetSubMaterial(0).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(0).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\big_wheels_nor.dds")));
 	pMaterial->GetSubMaterial(1).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(1).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\engine_nor.dds")));
 	pMaterial->GetSubMaterial(2).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(2).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\hull_nor.dds")));
 	pMaterial->GetSubMaterial(3).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(3).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\misc_nor.dds")));
 	pMaterial->GetSubMaterial(4).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(4).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\mud_guard_nor.dds")));
 	pMaterial->GetSubMaterial(5).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(5).SetTexture(1, new Neo::D3D11Texture(GetResPath("Textures\\roof_nor.dds")));
 	pMaterial->GetSubMaterial(6).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(6).SetTexture(0, new Neo::D3D11Texture(GetResPath("Textures\\small_wheels_nor.dds")));
+	pMaterial->GetSubMaterial(7).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(8).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(9).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);

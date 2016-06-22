@@ -19,7 +19,6 @@ namespace Neo
 
 	private:
 		static void		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);
-		static void		_LoadVertex_Leaf(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);
 	};
 }
 

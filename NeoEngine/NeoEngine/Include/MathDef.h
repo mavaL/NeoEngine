@@ -91,6 +91,22 @@ namespace Common
 			return Vector3(x * k, y * k, z * k);
 		}
 
+		inline Vector3& operator *= (float k)
+		{
+			x *= k;
+			y *= k;
+			z *= k;
+			return *this;
+		}
+
+		inline Vector3& operator += (const Vector3& rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+			return *this;
+		}
+
 		inline friend Vector3 operator * (const float k, const Vector3& v)
 		{
 			return Vector3(
@@ -147,6 +163,24 @@ namespace Common
 		const Vector3& GetVec3() const	{ return vec3; }
 		//Çó¸º
 		void	Neg() { x = -x; y = -y; z = -z; w = -w; }
+
+		inline Vector4& operator *= (float k)
+		{
+			x *= k;
+			y *= k;
+			z *= k;
+			w *= k;
+			return *this;
+		}
+
+		inline Vector4& operator += (const Vector4& rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+			w += rhs.w;
+			return *this;
+		}
 
 		union
 		{

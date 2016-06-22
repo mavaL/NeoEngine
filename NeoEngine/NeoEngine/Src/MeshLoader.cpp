@@ -69,10 +69,7 @@ namespace Neo
 
 				const char* szVertType = submeshNode->Attribute("vertextype");
 
-				if (szVertType && !strcmp(szVertType, "treeleaf"))
-					_LoadVertex_Leaf(vertNode, nVert, pSubMesh);
-				else
-					_LoadVertex_General(vertNode, nVert, pSubMesh);
+				_LoadVertex_General(vertNode, nVert, pSubMesh);
 			}
 
 			submeshNode = submeshNode->NextSiblingElement("submesh");
@@ -128,78 +125,6 @@ namespace Neo
 		}
 
 		pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], nVert, true);
-	}
-	//------------------------------------------------------------------------------------
-	void MeshLoader::_LoadVertex_Leaf( TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh )
-	{
-		int idx = 0;
-		std::vector<STreeLeafVertex> vecVertex(nVert);
-
-		while (vertNode)
-		{
-			//position
-			TiXmlElement* posNode = vertNode->FirstChildElement("position");
-			assert(posNode);
-
-			double x, y, z;
-			posNode->Attribute("x", &x);
-			posNode->Attribute("y", &y);
-			posNode->Attribute("z", &z);
-
-			//normal
-			TiXmlElement* normalNode = vertNode->FirstChildElement("normal");
-			assert(normalNode);
-
-			double nx, ny, nz;
-			normalNode->Attribute("x", &nx);
-			normalNode->Attribute("y", &ny);
-			normalNode->Attribute("z", &nz);
-
-			//uv
-			TiXmlElement* uvNode = vertNode->FirstChildElement("texcoord");
-			assert(uvNode);
-
-			double texu, texv, texw;
-			uvNode->Attribute("u", &texu);
-			uvNode->Attribute("v", &texv);
-
-			STreeLeafVertex& vert = vecVertex[idx++];
-			vert.pos.Set(x,y,z);
-			vert.normal.Set(nx,ny,nz);
-			vert.normal.Normalize();
-			vert.uv.Set(texu, texv);
-
-			uvNode = uvNode->NextSiblingElement("texcoord");
-			assert(uvNode);
-
-			uvNode->Attribute("u", &texu);
-			uvNode->Attribute("v", &texv);
-			uvNode->Attribute("w", &texw);
-
-			vert.uv2.Set(texu, texv, texw);
-
-			uvNode = uvNode->NextSiblingElement("texcoord");
-			assert(uvNode);
-
-			uvNode->Attribute("u", &texu);
-			uvNode->Attribute("v", &texv);
-			uvNode->Attribute("w", &texw);
-
-			vert.uv3.Set(texu, texv, texw);
-
-			uvNode = uvNode->NextSiblingElement("texcoord");
-			assert(uvNode);
-
-			uvNode->Attribute("u", &texu);
-			uvNode->Attribute("v", &texv);
-			uvNode->Attribute("w", &texw);
-
-			vert.uv4.Set(texu, texv, texw);
-
-			vertNode = vertNode->NextSiblingElement("vertex");
-		}
-
-		pSubMesh->InitVertData(eVertexType_TreeLeaf, &vecVertex[0], nVert, true);
 	}
 }
 

@@ -370,7 +370,7 @@ namespace Neo
 
 			if (meshname.find(".obj") != STRING::npos)
 			{
-				mesh = ObjMeshLoader::LoadMesh(meshname, true);
+				mesh = ObjMeshLoader::LoadMesh(meshname, true, false);
 			}
 			else
 			{

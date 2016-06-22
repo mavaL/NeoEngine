@@ -468,7 +468,12 @@ namespace Neo
 		const MAT44& matProj = cam->GetProjMatrix();
 
 		m_cBufferGlobal.camPos = cam->GetPos();
-		m_cBufferGlobal.lightDirection = g_env.pSceneMgr->GetSunLight().lightDir;
+
+		VEC3 vNegLight = g_env.pSceneMgr->GetSunLight().lightDir;
+		vNegLight.Neg();
+		vNegLight.Normalize();
+		m_cBufferGlobal.lightDirection = vNegLight;
+
 		m_cBufferGlobal.lightColor = g_env.pSceneMgr->GetSunLight().lightColor;
 		m_cBufferGlobal.ambientColor.Set(0.2f, 0.2f, 0.2f);
 		m_cBufferGlobal.nearZ = cam->GetNearClip();

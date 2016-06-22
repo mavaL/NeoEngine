@@ -6,8 +6,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	VertexData::VertexData()
 		:m_type((eVertexType)-1)
-		,m_pGenerl(nullptr)
-		,m_pLeaf(nullptr)
 		,m_nVerts(0)
 	{
 
@@ -15,47 +13,24 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	VertexData::~VertexData()
 	{
-		SAFE_DELETE_ARRAY(m_pGenerl);
-		SAFE_DELETE_ARRAY(m_pLeaf);
+
 	}
 	//------------------------------------------------------------------------------------
-	void VertexData::Init_General( const SVertex* pVert, uint32 nVert )
+	void VertexData::Init(const void* pVert, uint32 nVert, eVertexType type)
 	{
-		SAFE_DELETE_ARRAY(m_pGenerl);
-
-		m_pGenerl = new SVertex[nVert];
-
-		CopyMemory(m_pGenerl, pVert, sizeof(SVertex) * nVert);
 		m_nVerts = nVert;
-		m_type = eVertexType_General;
+		m_type = type;
 
 		m_vecPos.resize(nVert);
-		for(uint32 i=0; i<nVert; ++i)
-			m_vecPos[i] = pVert[i].pos;
-	}
-	//------------------------------------------------------------------------------------
-	void VertexData::Init_Leaf( const STreeLeafVertex* pVert, uint32 nVert )
-	{
-		SAFE_DELETE_ARRAY(m_pLeaf);
 
-		m_pLeaf = new STreeLeafVertex[nVert];
-
-		CopyMemory(m_pLeaf, pVert, sizeof(STreeLeafVertex) * nVert);
-		m_nVerts = nVert;
-		m_type = eVertexType_TreeLeaf;
-
-		m_vecPos.resize(nVert);
-		for(uint32 i=0; i<nVert; ++i)
-			m_vecPos[i] = pVert[i].pos;
-	}
-	//------------------------------------------------------------------------------------
-	void* VertexData::GetVertexData()
-	{
-		switch (m_type)
+		for (uint32 i = 0; i < nVert; ++i)
 		{
-		case eVertexType_General: return m_pGenerl;
-		case eVertexType_TreeLeaf: return m_pLeaf;
-		default: assert(0); return nullptr;
+			switch (type)
+			{
+			case eVertexType_General: m_vecPos[i] = ((SVertex*)pVert)[i].pos; break;
+			case eVertexType_NormalMap: m_vecPos[i] = ((SVertex_NormalMap*)pVert)[i].pos; break;
+			default: assert(0);
+			}
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -64,7 +39,7 @@ namespace Neo
 		switch (m_type)
 		{
 		case eVertexType_General: return sizeof(SVertex);
-		case eVertexType_TreeLeaf: return sizeof(STreeLeafVertex);
+		case eVertexType_NormalMap: return sizeof(SVertex_NormalMap);
 		default: assert(0); return 0;
 		}
 	}
