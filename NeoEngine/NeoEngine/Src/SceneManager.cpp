@@ -15,10 +15,14 @@
 #include "ShadowMap.h"
 #include "Tree.h"
 #include "Mesh.h"
+#include "TiledRenderer.h"
+#include "StructuredBuffer.h"
 
 
 namespace Neo
 {
+	bool g_bTiled = true;
+
 	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
 	: m_pRenderSystem(g_env.pRenderSystem)
@@ -33,6 +37,7 @@ namespace Neo
 	, m_renderFlag(eRenderPhase_All)
 	, m_pRT_Compose(nullptr)
 	, m_pRT_Depth(nullptr)
+	, m_pTBDR(nullptr)
 	{
 		
 	}
@@ -62,6 +67,7 @@ namespace Neo
 		m_sunLight.lightColor.Set(0.8f, 0.8f, 0.8f);
 
 		m_pSSAO = new SSAO;
+		m_pTBDR = new TileBasedDeferredRenderer;
 
 		{
 			m_pDebugRTMesh = new Mesh;
@@ -104,6 +110,7 @@ namespace Neo
 		SAFE_DELETE(m_pDebugRTMesh);
 		SAFE_DELETE(m_pMeshLoader);
 		SAFE_DELETE(m_pSSAO);
+		SAFE_DELETE(m_pTBDR);
 		SAFE_RELEASE(m_pRT_Normal);
 		SAFE_RELEASE(m_pRT_Albedo);
 		SAFE_RELEASE(m_pRT_Specular);
@@ -192,12 +199,21 @@ namespace Neo
 		//================================================================================
 		/// GBuffer composition phase
 		//================================================================================
-		_CompositionPass();
+		if (g_bTiled)
+		{
+			m_curRenderPhase = eRenderPhase_TiledCS;
+
+			m_pTBDR->Render();
+		} 
+		else
+		{
+			_CompositionPass();
+		}
 		
 		//================================================================================
 		/// Render water
 		//================================================================================
-		if (m_pWater && phaseFlag&eRenderPhase_Water)
+		if (m_pWater)
 		{
 			m_pWater->Render();
 		}
@@ -318,13 +334,15 @@ namespace Neo
 		}	
 
 		m_pRT_Compose->RenderScreenQuad(pMtlCompose, false, false);
+
+		m_pRenderSystem->SetActiveTexture(3, nullptr);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_HDRFinalScenePass()
 	{
 		m_curRenderPhase = eRenderPhase_FinalScene;
 
-		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthTexture(), 1, false, false);
+		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 1, false, false);
 
 		static Material* pMtlFinalScene = nullptr;
 
@@ -338,7 +356,8 @@ namespace Neo
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
 
-			pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess);
+			D3D_SHADER_MACRO mac = {"TBDR", ""};
+			pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
 		}
 
 		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
@@ -350,7 +369,21 @@ namespace Neo
 
 		pMtlFinalScene->Activate();
 
+		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
+		if (g_bTiled)
+		{
+			ID3D11ShaderResourceView* pLitBufferSRV = m_pTBDR->GetLitBuffer()->GetShaderResource();
+
+			pDeviceContext->PSSetShaderResources(0, 1, &pLitBufferSRV);
+		}
+
 		D3D11RenderTarget::m_pQuadEntity->Render();
+
+		if (g_bTiled)
+		{
+			ID3D11ShaderResourceView* pNull = nullptr;
+			pDeviceContext->PSSetShaderResources(0, 1, &pNull);
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()

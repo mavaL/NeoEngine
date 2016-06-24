@@ -147,11 +147,6 @@ namespace Neo
 		return m_pRenderTexture ? m_pRenderTexture->GetRTV() : nullptr;
 	}
 	//------------------------------------------------------------------------------------
-	ID3D11ShaderResourceView* D3D11RenderTarget::GetSRV()
-	{
-		return nullptr;
-	}
-	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
 	{
 		_BeforeRender(bClearColor, bClearZ, clearColor, fz);

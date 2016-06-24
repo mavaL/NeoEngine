@@ -45,11 +45,13 @@ namespace Neo
 
 		void		Activate(uint32 iSubMtl = 0);
 		void		TurnOffTessellation();
+		void		TurnOffComputeShader();
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		// NB: Should be called after all texture stages have been setup
 		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 
 			uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, const char* szVSEntryFunc = "VS", const char* szPSEntryFunc = "PS");
 		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
+		bool		InitComputeShader(const STRING& filename);
 
 		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
@@ -60,12 +62,13 @@ namespace Neo
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
 			const std::vector<D3D_SHADER_MACRO>& vecMacro, ID3DBlob** ppBlobOut );		
 		void		_CreateVertexLayout();
-		std::vector<D3D_SHADER_MACRO> _InternelInitShader(const D3D_SHADER_MACRO* pMacro);
+		std::vector<D3D_SHADER_MACRO> _InternelInitShader(const D3D_SHADER_MACRO* pMacro, uint32 nMacro);
 
 		D3D11RenderSystem*			m_pRenderSystem;
 	
 		ID3D11HullShader*			m_pHullShader;
 		ID3D11DomainShader*			m_pDomainShader;
+		ID3D11ComputeShader*		m_pComputeShader;
 		ID3D11VertexShader*			m_pVS_WithClipPlane;
 		ID3D11InputLayout*			m_pInputLayout;			// Why keep it here? Because it's depend on m_vsCode
 

@@ -1,26 +1,4 @@
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-cbuffer cbufferGlobal : register( b0 )
-{
-    matrix	World;
-	matrix	View;
-	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
-	matrix	ShadowTransform;
-	float4	clipPlane;
-	float4	frustumFarCorner[4];
-	float4	ambientColor;
-	float4	lightColor;
-	float3	lightDirection;
-	float3	camPos;
-	float	time;
-	float	nearZ, farZ;
-	float	shadowMapTexelSize;
-};
-
+#include "Common.h"
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
@@ -44,7 +22,7 @@ VS_OUTPUT VS( VS_INPUT IN )
 {
     VS_OUTPUT OUT = (VS_OUTPUT)0;
 
-    OUT.Pos = sign(IN.Pos);
+	OUT.Pos = sign(IN.Pos);
 	OUT.uv = IN.uv;
 	OUT.rayV = frustumFarCorner[IN.toFarCornerIndex.x].xyz;
     
@@ -55,11 +33,26 @@ VS_OUTPUT VS( VS_INPUT IN )
 //--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
-Texture2D texScene : register(t0);
+#ifdef TBDR
+	StructuredBuffer<uint2> gLitTextureFlat : register(t0);
+#else
+	Texture2D texScene : register(t0);
+#endif
 SamplerState samPoint : register( s0 );
+
+
+float4 UnpackRGBA16(uint2 e)
+{
+	return float4(f16tof32(e), f16tof32(e >> 16));
+}
 
 
 float4 PS( VS_OUTPUT IN ) : SV_Target
 {
+#ifdef TBDR
+	uint2 index = IN.uv * frameBufferSize.xy;
+	return UnpackRGBA16(gLitTextureFlat[index.y * frameBufferSize.x + index.x]);
+#else
 	return texScene.Sample(samPoint, IN.uv);
+#endif
 }

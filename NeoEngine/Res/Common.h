@@ -17,6 +17,7 @@ cbuffer cbufferGlobal : register(b0)
 	float4	frustumFarCorner[4];
 	float4	ambientColor;
 	float4	lightColor;
+	uint4	frameBufferSize;
 	float3	lightDirection;			// Already negated
 	float3	camPos;
 	float	time;
@@ -33,8 +34,20 @@ float3 Expand(float3 v)
 
 float3 ReconstructWorldPos(float3 rayV, Texture2D texDepth, SamplerState samp, float2 uv)
 {
-	float fLinearDepth = texDepth.Sample(samp, uv).x;
+	float fLinearDepth = texDepth.SampleLevel(samp, uv, 0.0f).x;
 	return rayV * fLinearDepth + camPos;
+}
+
+float3 ComputeWorldPosFromViewSpaceZ(float2 positionScreen, float viewSpaceZ)
+{
+	float2 screenSpaceRay = float2(positionScreen.x / Projection._11, positionScreen.y / Projection._22);
+
+	float3 positionView;
+	positionView.z = viewSpaceZ;
+	// Solve the two projection equations
+	positionView.xy = screenSpaceRay.xy * positionView.z;
+
+	return positionView + camPos;
 }
 
 
@@ -81,4 +94,47 @@ float4	ComputeShdow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float4
 	return Shadow_Sample(texShdow1, sam, posW, shadowMapTexelSize, matShadow);
 #endif
 
+}
+
+half DiffuseBRDF(half3 N, half3 V, half3 L, half Gloss, half NdotL)
+{
+	// TODO: Merge with Specular BRDF to save a few instructions
+
+	half m = pow((1.0 - Gloss * 0.7), 6);
+
+	// Approximation of the full quality Oren-Nayar model
+	half s = dot(L, V) - dot(N, L) * dot(N, V);
+	half t = s <= 0 ? 1 : max(max(dot(N, L), dot(N, V)), 1e-6);
+	half A = 1.0f / (1.0f + (0.5f - 2.0f / (3.0f * PI)) * m);
+	half B = m * A;
+
+	return NdotL * max(A + B * (s / t), 0);
+}
+
+half3 PhysicalBRDF(half3 N, half3 V, half3 L, half Gloss, half3 SpecCol)
+{
+	half3 H = normalize(V + L);
+
+	// Compute perceptually linear roughness parameter (squared)
+	half m = pow((1.0 - Gloss * 0.7), 6);
+	half m2 = m * m;
+
+	// Prevent highlights from getting too tiny since we don't have real area lights yet
+	m2 = max(m2, 0.00001);
+
+	// GGX NDF
+	half NdotH = saturate(dot(N, H));
+	half spec = (NdotH * NdotH) * (m2 - 1) + 1;
+	spec = m2 / (spec * spec);
+
+	// Schlick-Smith Visibility Term
+	half k = (0.8 + m * 0.5) * (0.8 + m * 0.5) / 2;
+	half Gv = saturate(dot(N, V)) * (1 - k) + k;
+	half Gl = saturate(dot(N, L)) * (1 - k) + k;
+	spec /= max(Gv * Gl, 1e-6);
+
+	// Schlick approximation for Fresnel
+	half3 fresnel = lerp(SpecCol, 1.0h, pow(1 - dot(L, H), 5));
+
+	return (fresnel * spec) / 4.0h;
 }

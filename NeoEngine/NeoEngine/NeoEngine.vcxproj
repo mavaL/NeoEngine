@@ -108,7 +108,9 @@
     <ClInclude Include="Include\Sky.h" />
     <ClInclude Include="Include\SSAO.h" />
     <ClInclude Include="Include\stdafx.h" />
+    <ClInclude Include="Include\StructuredBuffer.h" />
     <ClInclude Include="Include\Terrain.h" />
+    <ClInclude Include="Include\TiledRenderer.h" />
     <ClInclude Include="Include\Tree.h" />
     <ClInclude Include="Include\VertexData.h" />
     <ClInclude Include="Include\Water.h" />
@@ -237,6 +239,7 @@
     </ClCompile>
     <ClCompile Include="Src\Terrain.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
+    <ClCompile Include="Src\TiledRenderer.cpp" />
     <ClCompile Include="Src\Tree.cpp" />
     <ClCompile Include="Src\VertexData.cpp" />
     <ClCompile Include="Src\Water.cpp" />
@@ -253,6 +256,11 @@
       </EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\Res\TiledCS.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

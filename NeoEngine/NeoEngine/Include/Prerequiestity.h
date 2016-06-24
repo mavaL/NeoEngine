@@ -57,12 +57,13 @@ enum eRenderPhase
 {
 	eRenderPhase_ShadowMap	= 1 << 0,
 	eRenderPhase_GBuffer	= 1 << 1,
-	eRenderPhase_SSAO		= 1 << 2,
-	eRenderPhase_Compose	= 1 << 3,
-	eRenderPhase_Water		= 1 << 4,
-	eRenderPhase_FinalScene	= 1 << 5,
-	eRenderPhase_UI			= 1 << 6,
-	eRenderPhase_None		= 1 << 7,
+	eRenderPhase_TiledCS	= 1	<< 2,
+	eRenderPhase_SSAO		= 1 << 3,
+	eRenderPhase_Compose	= 1 << 4,
+	eRenderPhase_Water		= 1 << 5,
+	eRenderPhase_FinalScene	= 1 << 6,
+	eRenderPhase_UI			= 1 << 7,
+	eRenderPhase_None		= 1 << 8,
 
 	eRenderPhase_All = eRenderPhase_GBuffer | eRenderPhase_Water | eRenderPhase_UI | eRenderPhase_SSAO
 };
@@ -181,6 +182,8 @@ namespace Neo
 	class	Mesh;
 	class	ConvexBody;
 	class	ShadowMapCSM;
+	class	TileBasedDeferredRenderer;
+	template<typename t>class	StructuredBuffer;
 }
 
 

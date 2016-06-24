@@ -300,17 +300,13 @@ namespace Neo
 		{
 			pTexture->AddRef();
 
-			if (pTexture->GetUsage() & eTextureUsage_DomainShader)
-			{
-				m_pDeviceContext->DSSetShaderResources(stage, 1, pTexture->GetSRV());
-			}
-
-			if (pTexture->GetUsage() & eTextureUsage_HullShader)
-			{
-				m_pDeviceContext->HSSetShaderResources(stage, 1, pTexture->GetSRV());
-			}
-
-			m_pDeviceContext->PSSetShaderResources(stage, 1, pTexture->GetSRV());
+			ID3D11ShaderResourceView* pSRV = pTexture->GetSRV();
+			m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
+		}
+		else
+		{
+			ID3D11ShaderResourceView* pNullSRV = nullptr;
+			m_pDeviceContext->PSSetShaderResources(stage, 1, &pNullSRV);
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -479,6 +475,9 @@ namespace Neo
 		m_cBufferGlobal.nearZ = cam->GetNearClip();
 		m_cBufferGlobal.farZ = cam->GetFarClip();
 		m_cBufferGlobal.shadowMapTexelSize = 1.0f / ShadowMap::SHADOW_MAP_SIZE;
+		m_cBufferGlobal.frameBufferSize[0] = m_wndWidth;
+		m_cBufferGlobal.frameBufferSize[1] = m_wndHeight;
+		m_cBufferGlobal.frameBufferSize[2] = m_cBufferGlobal.frameBufferSize[3] = 0;
 		
 		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 
@@ -513,7 +512,7 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::UpdateGlobalCBuffer(bool bTessellate)
+	void D3D11RenderSystem::UpdateGlobalCBuffer(bool bTessellate, bool bComputeShader)
 	{
 		m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
 		m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
@@ -523,6 +522,11 @@ namespace Neo
 		{
 			m_pDeviceContext->HSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 			m_pDeviceContext->DSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
+		}
+
+		if (bComputeShader)
+		{
+			m_pDeviceContext->CSSetConstantBuffers(0, 1, &m_pGlobalCBuf);
 		}
 	}
 	//-------------------------------------------------------------------------------

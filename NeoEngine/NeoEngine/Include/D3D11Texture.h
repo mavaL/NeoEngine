@@ -34,7 +34,7 @@ namespace Neo
 		void								Destroy();
 		eTextureType						GetTextureType() const { return m_texType; }
 		bool								SaveToFile(const char* filename);
-		ID3D11ShaderResourceView* const*	GetSRV() const { return &m_pSRV; }
+		ID3D11ShaderResourceView*			GetSRV() const { return m_pSRV; }
 		ID3D11DepthStencilView*				GetDSV() const { return m_pDSV; }
 		ID3D11RenderTargetView*				GetRTV() const { return m_pRTV; }
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }

@@ -19,22 +19,23 @@ namespace Neo
 
 	//-------------------------------------------------------------------------------
 	Material::Material(eVertexType type, uint32 nSubMtl)
-	:m_pRenderSystem(g_env.pRenderSystem)
-	,ambient(SColor::WHITE)
-	,diffuse(SColor::WHITE)
-	,specular(SColor::WHITE)
-	,shiness(20)
-	,m_pVertexShader(nullptr)
-	,m_pPixelShader(nullptr)
-	,m_pHullShader(nullptr)
-	,m_pDomainShader(nullptr)
-	,m_pVS_GBuffer(nullptr)
-	,m_pPS_GBuffer(nullptr)
-	,m_pVS_WithClipPlane(nullptr)
-	,m_pInputLayout(nullptr)
-	,m_shaderFlag(0)
-	,m_cullMode(D3D11_CULL_BACK)
-	,m_vertType(type)
+	: m_pRenderSystem(g_env.pRenderSystem)
+	, ambient(SColor::WHITE)
+	, diffuse(SColor::WHITE)
+	, specular(SColor::WHITE)
+	, shiness(20)
+	, m_pVertexShader(nullptr)
+	, m_pPixelShader(nullptr)
+	, m_pHullShader(nullptr)
+	, m_pDomainShader(nullptr)
+	, m_pComputeShader(nullptr)
+	, m_pVS_GBuffer(nullptr)
+	, m_pPS_GBuffer(nullptr)
+	, m_pVS_WithClipPlane(nullptr)
+	, m_pInputLayout(nullptr)
+	, m_shaderFlag(0)
+	, m_cullMode(D3D11_CULL_BACK)
+	, m_vertType(type)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
@@ -57,6 +58,7 @@ namespace Neo
 		SAFE_RELEASE(m_pPixelShader);
 		SAFE_RELEASE(m_pHullShader);
 		SAFE_RELEASE(m_pDomainShader);
+		SAFE_RELEASE(m_pComputeShader);
 		SAFE_RELEASE(m_pVS_WithClipPlane);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
@@ -75,7 +77,7 @@ namespace Neo
 		m_shaderFlag = shaderFalg;
 		m_shaderType = shaderType;
 
-		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
+		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro, 1);
 
 		// Compile
 		V_RETURN(_CompileShaderFromFile(vsFileName.c_str(), szVSEntryFunc, "vs_4_0", vecMacro, &pVSBlob));
@@ -122,7 +124,7 @@ namespace Neo
 
 		m_shaderFlag = shaderFalg;
 
-		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro);
+		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
 		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", vecMacro, &pHSBlob ));
 		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", vecMacro, &pDSBlob ));
@@ -132,6 +134,22 @@ namespace Neo
 
 		pHSBlob->Release();
 		pDSBlob->Release();
+
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool Material::InitComputeShader(const STRING& filename)
+	{
+		HRESULT hr = S_OK;
+		ID3DBlob* pCSBlob = NULL;
+
+		std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
+
+		V_RETURN(_CompileShaderFromFile(filename.c_str(), "CS", "cs_5_0", vecMacro, &pCSBlob));
+
+		V_RETURN(m_pRenderSystem->GetDevice()->CreateComputeShader(pCSBlob->GetBufferPointer(), pCSBlob->GetBufferSize(), NULL, &m_pComputeShader));
+
+		pCSBlob->Release();
 
 		return true;
 	}
@@ -239,13 +257,12 @@ namespace Neo
 			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
+		m_pRenderSystem->UpdateGlobalCBuffer(m_pHullShader!=nullptr, m_pComputeShader!=nullptr);
 
 		if (m_pHullShader && m_pDomainShader)
 		{
 			pDeviceContext->HSSetShader(m_pHullShader, nullptr, 0);
 			pDeviceContext->DSSetShader(m_pDomainShader, nullptr, 0);
-
-			m_pRenderSystem->UpdateGlobalCBuffer(true);
 
 			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST );
 		}
@@ -258,7 +275,8 @@ namespace Neo
 
 		switch (curPhase)
 		{
-		case eRenderPhase_GBuffer: pDeviceContext->PSSetShader(m_pPS_GBuffer, NULL, 0); break;
+		case eRenderPhase_GBuffer: pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0); break;
+		case eRenderPhase_TiledCS: pDeviceContext->CSSetShader(m_pComputeShader, nullptr, 0); break;
 		default: pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0); break;
 		}
 
@@ -291,14 +309,19 @@ namespace Neo
 		pDeviceContext->HSSetShader(nullptr, nullptr, 0);
 		pDeviceContext->DSSetShader(nullptr, nullptr, 0);
 	}
+	//-------------------------------------------------------------------------------
+	void Material::TurnOffComputeShader()
+	{
+		m_pRenderSystem->GetDeviceContext()->CSSetShader(nullptr, nullptr, 0);
+	}
 	//------------------------------------------------------------------------------------
-	std::vector<D3D_SHADER_MACRO> Material::_InternelInitShader( const D3D_SHADER_MACRO* pMacro )
+	std::vector<D3D_SHADER_MACRO> Material::_InternelInitShader(const D3D_SHADER_MACRO* pMacro, uint32 nMacro)
 	{
 		std::vector<D3D_SHADER_MACRO> retMacros;
 
 		if (pMacro)
 		{
-			for (int i=0; i<sizeof(pMacro)/sizeof(pMacro[0]); ++i)
+			for (uint32 i = 0; i<nMacro; ++i)
 			{
 				retMacros.push_back(pMacro[i]);
 			}

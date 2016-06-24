@@ -37,6 +37,7 @@ namespace Neo
 			VEC4	frustumFarCorner[4];				// LT, RT, LB, RB
 			SColor	ambientColor;
 			SColor	lightColor;
+			uint32	frameBufferSize[4];					// zw unuesd
 			VEC3	lightDirection;
 			float	padding;
 			VEC3	camPos;
@@ -91,7 +92,7 @@ namespace Neo
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
 		// Update global constant buffer to device
-		void		UpdateGlobalCBuffer(bool bTessellate = false);
+		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bComputeShader = false);
 		// Extract frustum planes in world space from view projection matrix
 		void		ExtractFrustumWorldPlanes(PLANE oPlanes[6], const MAT44& matViewProj);
 		

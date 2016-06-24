@@ -43,6 +43,10 @@ namespace Neo
 		void		CreateWater(float waterHeight = 0.0f);
 
 		const SDirectionLight& GetSunLight() const { return m_sunLight; }
+		D3D11RenderTarget*	GetNormalRT() { return m_pRT_Normal; }
+		D3D11RenderTarget*	GetAlbedoRT() { return m_pRT_Albedo; }
+		D3D11RenderTarget*	GetSpecRT() { return m_pRT_Specular; }
+		D3D11RenderTarget*	GetDepthRT() { return m_pRT_Depth; }
 		SSAO*		GetSSAO()		{ return m_pSSAO; }
 		Terrain*	GetTerrain()	{ return m_pTerrain; }
 		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
@@ -79,6 +83,7 @@ namespace Neo
 		Sky*			m_pSky;
 		ShadowMap*		m_pShadowMap;
 		SSAO*			m_pSSAO;
+		TileBasedDeferredRenderer*	m_pTBDR;
 
 		MeshLoader*		m_pMeshLoader;
 		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;
