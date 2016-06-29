@@ -20,31 +20,42 @@ namespace Neo
 
 		float lastFPS;
 	};
+	//------------------------------------------------------------------------------------
+	// Per-frame constant buffer: (b0)
+	__declspec(align(16))
+	struct cBufferGlobal
+	{
+		MAT44	matView;
+		MAT44	matProj;
+		MAT44	matViewProj;
+		MAT44	matInvView;
+		MAT44	matShadow[3];
+		PLANE	clipPlane;							// Clipping plane, for water reflection rendering
+		VEC4	frustumFarCorner[4];				// LT, RT, LB, RB
+		SColor	ambientColor;
+		SColor	lightColor;
+		uint32	frameBufferSize[4];					// zw unuesd
+		VEC3	lightDirection;
+		float	padding;
+		VEC3	camPos;
+		float	time;
+		float	nearZ, farZ;
+		float	shadowMapTexelSize;
+	};
+	// Per-SubMaterial constant buffer: (b0)
+	__declspec(align(16))
+	struct cBufferMaterial
+	{
+		MAT44	matWorld;
+		MAT44	matWorldIT;
+		VEC4	specularGloss;
+	};
 	//----------------------------------------------------------------------------------------
 	class D3D11RenderSystem
 	{
 	public:
 		D3D11RenderSystem();
 		~D3D11RenderSystem() {}
-
-		// Global GPU shader params
-		// Update per frame
-		__declspec(align(16))
-		struct cBufferGlobal
-		{
-			MAT44	matTransform[eTransform_Count];		// TODO: Maybe world matrix should be separate for efficiency
-			PLANE	clipPlane;							// Clipping plane, for water reflection rendering
-			VEC4	frustumFarCorner[4];				// LT, RT, LB, RB
-			SColor	ambientColor;
-			SColor	lightColor;
-			uint32	frameBufferSize[4];					// zw unuesd
-			VEC3	lightDirection;
-			float	padding;
-			VEC3	camPos;
-			float	time;
-			float	nearZ, farZ;
-			float	shadowMapTexelSize;
-		};
 
 	public:
 		bool		Init(uint32 wndWidth, uint32 wndHeight, HWND hwnd);
@@ -62,6 +73,8 @@ namespace Neo
 		ID3D11Device*				GetDevice()				{ return m_pd3dDevice; }
 		ID3D11DeviceContext*		GetDeviceContext()		{ return m_pDeviceContext; }
 		D3D11Texture*				GetDepthTexture()		{ return m_pTexDepthStencil; }
+		cBufferMaterial&			GetMaterialCB()			{ return m_cBufferMaterial; }
+		cBufferGlobal&				GetGlobalCB()			{ return m_cBufferGlobal; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -91,8 +104,9 @@ namespace Neo
 		// Enable/Disable clipping plane
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
-		// Update global constant buffer to device
+		// Update constant buffer to device
 		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bComputeShader = false);
+		void		UpdateMaterialCBuffer(bool bTessellate = false, bool bComputeShader = false);
 		// Extract frustum planes in world space from view projection matrix
 		void		ExtractFrustumWorldPlanes(PLANE oPlanes[6], const MAT44& matViewProj);
 		
@@ -102,7 +116,6 @@ namespace Neo
 		*/
 		void		CopyFrameBufferToTexture(D3D11Texture* pTexture);
 
-		void		SetTransform(eTransform type, const MAT44& matrix, bool bUpdateCBuffer);
 		void		DrawText(const STRING& text, const IPOINT& pos, const SColor& color);
 
 	private:
@@ -130,7 +143,9 @@ namespace Neo
 		uint32						m_wndWidth, m_wndHeight;
 
 		cBufferGlobal				m_cBufferGlobal;
+		cBufferMaterial				m_cBufferMaterial;
 		ID3D11Buffer*				m_pGlobalCBuf;
+		ID3D11Buffer*				m_pMaterialCB;
 		bool						m_bClipPlaneEnabled;
 
 		typedef std::unordered_map<STRING, Material*>	MaterialLib;

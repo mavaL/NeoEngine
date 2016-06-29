@@ -36,7 +36,9 @@ VS_OUTPUT VS( VS_INPUT input )
 {
     VS_OUTPUT output = (VS_OUTPUT)0;
 
-	float4 posH = mul(input.Pos, WVP);
+	float4 vWorldPos = mul(input.Pos, World);
+	float4 posH = mul(vWorldPos, ViewProj);
+
     output.Pos = posH;
 	output.uv = input.uv;
 
@@ -89,7 +91,7 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	output.oNormal.w = 1.0f;
 
 	output.oAlbedo = texDiffuse.Sample(samLinear, IN.uv);
-	output.oSpec = texSpec.Sample(samLinear, IN.uv);
+	output.oSpec = specularGloss;
 
 	return output;
 }

@@ -25,6 +25,7 @@ namespace Neo
 	, m_blendState(nullptr)
 	, m_depthState(nullptr)
 	, m_pGlobalCBuf(nullptr)
+	, m_pMaterialCB(nullptr)
 	, m_bClipPlaneEnabled(false)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
@@ -147,6 +148,9 @@ namespace Neo
 
 		V_RETURN(m_pd3dDevice->CreateBuffer( &bd, NULL, &m_pGlobalCBuf ));
 
+		bd.ByteWidth = sizeof(cBufferMaterial);
+		V_RETURN(m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pMaterialCB));
+
 		return true;
 	}
 	//------------------------------------------------------------------------------------
@@ -218,6 +222,7 @@ namespace Neo
 	{
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
 		SAFE_RELEASE(m_pGlobalCBuf);
+		SAFE_RELEASE(m_pMaterialCB);
 		SAFE_RELEASE(m_pRenderTargetView);
 		SAFE_RELEASE(m_pTexDepthStencil);
 		SAFE_RELEASE(m_rasterState);
@@ -421,22 +426,6 @@ namespace Neo
 
 		pTexture->CreateSRV();
 	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetTransform(eTransform type, const MAT44& matrix, bool bUpdateCBuffer)
-	{
-		// D3D11 wants column major by default
-		m_cBufferGlobal.matTransform[type] = matrix.Transpose();
-
-		if (bUpdateCBuffer)
-		{
-			m_cBufferGlobal.matTransform[eTransform_WVP] = (
-				m_cBufferGlobal.matTransform[eTransform_Proj]*
-				m_cBufferGlobal.matTransform[eTransform_View]*
-				m_cBufferGlobal.matTransform[eTransform_World]);
-
-			UpdateGlobalCBuffer();
-		}
-	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::Update()
 	{
@@ -484,16 +473,18 @@ namespace Neo
 #if USE_CSM
 		ShadowMapCSM* pCSM = g_env.pSceneMgr->GetShadowMap()->GetCSM();
 
-		SetTransform(eTransform_Shadow, pCSM->GetShadowTransform(0), false);
-		SetTransform(eTransform_Shadow2, pCSM->GetShadowTransform(1), false);
-		SetTransform(eTransform_Shadow3, pCSM->GetShadowTransform(2), false);
+		m_cBufferGlobal.matShadow[0] = pCSM->GetShadowTransform(0).Transpose();
+		m_cBufferGlobal.matShadow[1] = pCSM->GetShadowTransform(1).Transpose();
+		m_cBufferGlobal.matShadow[2] = pCSM->GetShadowTransform(2).Transpose();
 #else
-		SetTransform(eTransform_Shadow, g_env.pSceneMgr->GetShadowMap()->GetShadowTransform(), false);
+		m_cBufferGlobal.matShadow[0] = g_env.pSceneMgr->GetShadowMap()->GetShadowTransform().Transpose();
 #endif
-		SetTransform(eTransform_World, MAT44::IDENTITY, false);
-		SetTransform(eTransform_WorldIT, MAT44::IDENTITY, false);
-		SetTransform(eTransform_View, matView, false);
-		SetTransform(eTransform_Proj, matProj, true);	
+		m_cBufferGlobal.matView = matView.Transpose();
+		m_cBufferGlobal.matProj = matProj.Transpose();
+		m_cBufferGlobal.matInvView = matView.Inverse().Transpose();
+		m_cBufferGlobal.matViewProj = m_cBufferGlobal.matProj * m_cBufferGlobal.matView;
+
+		UpdateGlobalCBuffer();
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetViewport( const D3D11_VIEWPORT& vp )
@@ -527,6 +518,24 @@ namespace Neo
 		if (bComputeShader)
 		{
 			m_pDeviceContext->CSSetConstantBuffers(0, 1, &m_pGlobalCBuf);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::UpdateMaterialCBuffer(bool bTessellate, bool bComputeShader)
+	{
+		m_pDeviceContext->UpdateSubresource(m_pMaterialCB, 0, NULL, &m_cBufferMaterial, 0, 0);
+		m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pMaterialCB);
+		m_pDeviceContext->PSSetConstantBuffers(1, 1, &m_pMaterialCB);
+
+		if (bTessellate)
+		{
+			m_pDeviceContext->HSSetConstantBuffers(1, 1, &m_pMaterialCB);
+			m_pDeviceContext->DSSetConstantBuffers(1, 1, &m_pMaterialCB);
+		}
+
+		if (bComputeShader)
+		{
+			m_pDeviceContext->CSSetConstantBuffers(1, 1, &m_pMaterialCB);
 		}
 	}
 	//-------------------------------------------------------------------------------
@@ -573,7 +582,9 @@ namespace Neo
 		SetViewport(m_viewport);
 
 		g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_viewport.Width / m_viewport.Height);
-		SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);
+
+		m_cBufferGlobal.matProj = g_env.pSceneMgr->GetCamera()->GetProjMatrix().Transpose();
+		UpdateGlobalCBuffer();
 
 		// Recreate RT resources
 		for(size_t i=0; i<m_vecRT.size(); ++i)

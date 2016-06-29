@@ -198,6 +198,24 @@ void EnterTestScene5(Scene* scene)
 
 void SetupTestScene6(Scene* scene)
 {
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.6f, 0.6f, 0.6f));
+
+	// Add 100 point lights to scene
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			Neo::SPointLight light;
+			light.color.Set(RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5));
+			light.fRadius = RandomRange(3.0f, 8.0f, 100);
+			light.vPos.Set(-100+20*i, 1, -100+20*j);
+			light.fAtten = RandomRange(2.0f, 7.0f, 100);
+
+			g_env.pSceneMgr->AddPointLight(light);
+		}
+	}
+
 	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(200.0f, 200.0f);
 	Neo::Entity* pEntity = new Neo::Entity(pMesh);
 
@@ -206,6 +224,7 @@ void SetupTestScene6(Scene* scene)
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+
 	pEntity->SetMaterial(pMaterial);
 	pMaterial->Release();
 
@@ -214,16 +233,12 @@ void SetupTestScene6(Scene* scene)
 
 	pMaterial = new Neo::Material(eVertexType_General, 10);
 
-	pMaterial->GetSubMaterial(0).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(1).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(2).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(3).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(4).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(5).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(6).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(7).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(8).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->GetSubMaterial(9).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	for (int i = 0; i < 10; ++i)
+	{
+		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
+		pMaterial->GetSubMaterial(i).specular.Set(1,1,1);
+	}
 
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);

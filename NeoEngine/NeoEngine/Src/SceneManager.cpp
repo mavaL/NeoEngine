@@ -62,10 +62,6 @@ namespace Neo
 		m_camera = new Camera;
 		m_camera->SetAspectRatio(nScreenWidth / (float)nScreenHeight);
 
-		m_sunLight.lightDir.Set(1, -1, 2);
-		m_sunLight.lightDir.Normalize();
-		m_sunLight.lightColor.Set(0.8f, 0.8f, 0.8f);
-
 		m_pSSAO = new SSAO;
 		m_pTBDR = new TileBasedDeferredRenderer;
 
@@ -361,11 +357,13 @@ namespace Neo
 		}
 
 		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
-		Camera* pCam = g_env.pSceneMgr->GetCamera();
-
-		pCam->SetAspectRatio(vp.Width / vp.Height);
-		m_pRenderSystem->SetTransform(eTransform_Proj, pCam->GetProjMatrix(), true);
 		m_pRenderSystem->SetViewport(vp);
+
+		Camera* pCam = g_env.pSceneMgr->GetCamera();
+		pCam->SetAspectRatio(vp.Width / vp.Height);
+
+		m_pRenderSystem->GetGlobalCB().matProj = pCam->GetProjMatrix().Transpose();
+		m_pRenderSystem->UpdateGlobalCBuffer();
 
 		pMtlFinalScene->Activate();
 
@@ -708,5 +706,10 @@ namespace Neo
 		pMesh->AddSubMesh(pSubmesh);
 
 		return pMesh;
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::AddPointLight(const SPointLight& light)
+	{
+		m_vecPointLights.push_back(light);
 	}
 }

@@ -5,11 +5,10 @@
 //--------------------------------------------------------------------------------------
 cbuffer cbufferGlobal : register(b0)
 {
-	matrix	World;
 	matrix	View;
 	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
+	matrix	ViewProj;
+	matrix	InvView;
 	matrix	ShadowTransform;
 	matrix	ShadowTransform2;
 	matrix	ShadowTransform3;
@@ -25,6 +24,21 @@ cbuffer cbufferGlobal : register(b0)
 	float	shadowMapTexelSize;
 };
 
+cbuffer cbufferMaterial : register(b1)
+{
+	matrix	World;
+	matrix	WorldIT;
+	float4	specularGloss;
+};
+
+struct PointLight 
+{
+	float3 position;
+	float attenuationBegin;
+	float3 color;
+	float attenuationEnd;
+};
+
 
 float3 Expand(float3 v)
 {
@@ -38,7 +52,7 @@ float3 ReconstructWorldPos(float3 rayV, Texture2D texDepth, SamplerState samp, f
 	return rayV * fLinearDepth + camPos;
 }
 
-float3 ComputeWorldPosFromViewSpaceZ(float2 positionScreen, float viewSpaceZ)
+float3 ComputeViewSpacePos(float2 positionScreen, float viewSpaceZ)
 {
 	float2 screenSpaceRay = float2(positionScreen.x / Projection._11, positionScreen.y / Projection._22);
 
@@ -47,7 +61,7 @@ float3 ComputeWorldPosFromViewSpaceZ(float2 positionScreen, float viewSpaceZ)
 	// Solve the two projection equations
 	positionView.xy = screenSpaceRay.xy * positionView.z;
 
-	return positionView + camPos;
+	return positionView;
 }
 
 

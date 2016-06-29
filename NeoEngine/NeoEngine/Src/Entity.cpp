@@ -132,8 +132,8 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Entity::Render()
 	{
-		g_env.pRenderSystem->SetTransform(eTransform_World, GetWorldMatrix(), false);
-		g_env.pRenderSystem->SetTransform(eTransform_WorldIT, GetWorldITMatrix(), true);
+		g_env.pRenderSystem->GetMaterialCB().matWorld = GetWorldMatrix().Transpose();
+		g_env.pRenderSystem->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
 
 		m_pMesh->Render();
 	}

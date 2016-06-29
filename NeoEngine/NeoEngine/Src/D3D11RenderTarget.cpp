@@ -6,7 +6,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "Entity.h"
-
+#include "Material.h"
 
 namespace Neo
 {
@@ -110,7 +110,8 @@ namespace Neo
 		if (m_bUpdateRatioAspect)
 		{
 			g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_viewport.Width / m_viewport.Height);
-			m_pRenderSystem->SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);
+			m_pRenderSystem->GetGlobalCB().matProj = g_env.pSceneMgr->GetCamera()->GetProjMatrix().Transpose();
+			m_pRenderSystem->UpdateGlobalCBuffer();
 		}		
 
 		m_pRenderSystem->SetViewport(m_viewport);
@@ -127,7 +128,8 @@ namespace Neo
 		if (m_bUpdateRatioAspect)
 		{
 			g_env.pSceneMgr->GetCamera()->SetAspectRatio(m_pRenderSystem->GetWndWidth() / (float)m_pRenderSystem->GetWndHeight());
-			m_pRenderSystem->SetTransform(eTransform_Proj, g_env.pSceneMgr->GetCamera()->GetProjMatrix(), true);
+			m_pRenderSystem->GetGlobalCB().matProj = g_env.pSceneMgr->GetCamera()->GetProjMatrix().Transpose();
+			m_pRenderSystem->UpdateGlobalCBuffer();
 		}		
 
 		m_pRenderSystem->RestoreViewport();

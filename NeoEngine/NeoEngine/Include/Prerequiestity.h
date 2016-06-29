@@ -109,8 +109,9 @@ enum eTransform
 	eTransform_World,
 	eTransform_View,
 	eTransform_Proj,
-	eTransform_WVP,
+	eTransform_ViewProj,
 	eTransform_WorldIT,
+	eTransform_InvView,
 	eTransform_Shadow,		// World space -> sun light NDC space -> texture space
 	eTransform_Shadow2,
 	eTransform_Shadow3,
@@ -184,8 +185,10 @@ namespace Neo
 	class	ShadowMapCSM;
 	class	TileBasedDeferredRenderer;
 	template<typename t>class	StructuredBuffer;
-}
+	struct	SPointLight;
 
+	typedef std::vector<SPointLight>	PointLightVector;
+}
 
 
 struct SGlobalEnv 

@@ -9,8 +9,8 @@
 #define TiledRenderer_h__
 
 
-
 #include "Prerequiestity.h"
+#include "Light.h"
 
 namespace Neo
 {
@@ -27,13 +27,20 @@ namespace Neo
 		TileBasedDeferredRenderer();
 		~TileBasedDeferredRenderer();
 
+		const static int	MAX_POINT_LIGHT = 1000;
+
 	public:
 		void		Render();
 		StructuredBuffer<FramebufferFlatElement>*		GetLitBuffer() { return m_pLitBuffer; }
 
 	private:
-		Material*	m_pMtlTiledCS;
+		ID3D11ShaderResourceView*	_SetupLight();
+
+	private:
+		ID3D11DeviceContext*	m_pDeviceContext;
+		Material*				m_pMtlTiledCS;
 		StructuredBuffer<FramebufferFlatElement>* m_pLitBuffer;
+		StructuredBuffer<SPointLightCS>*		m_pLightParamBuffer;
 		ID3D11SamplerState*	m_pSamp;
 	};
 }

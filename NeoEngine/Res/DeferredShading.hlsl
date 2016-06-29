@@ -49,7 +49,9 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	float3 vView = normalize(camPos - vPosW);
 
 	float4 cDiffuse = saturate(dot(vNormal, lightDirection)) * lightColor;
-	float3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, 0.7f, float3(0.7f, 0.7f, 0.7f));
+
+	float4 specGloss = tex2.Sample(samPoint, IN.uv);
+	float3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, specGloss.w, specGloss.xyz);
 
 	float4 oColor = tex0.Sample(samPoint, IN.uv) * cDiffuse;
 	oColor.xyz += cSpecular;

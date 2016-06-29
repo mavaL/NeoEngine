@@ -9,7 +9,7 @@
 #ifndef Common_h__
 #define Common_h__
 
-
+#include <random>
 
 inline std::string	GetResPath(const std::string& filename)
 {
@@ -18,6 +18,19 @@ inline std::string	GetResPath(const std::string& filename)
 	return std::move(filepath);
 }
 
+// Return a random number in [0, 1]
+inline float RandomFloat(int range)
+{
+	std::random_device rd;
+	return (rd() % (range + 1)) / (float)range;
+}
+
+// Return a random float in [fMin, fMax]
+inline float RandomRange(float fMin, float fMax, int range)
+{
+	std::random_device rd;
+	return fMin + (fMax - fMin) * RandomFloat(range);
+}
 
 template<class T>
 inline void Swap(T& t1, T& t2)

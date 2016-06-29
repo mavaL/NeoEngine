@@ -36,20 +36,29 @@ namespace Neo
 	void ShadowMap::Render()
 	{
 		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
+		cBufferGlobal& cb = pRenderSystem->GetGlobalCB();
 
 #if USE_CSM
 		m_pCSM->Render();
 #else
 		// Set light space transform
-		pRenderSystem->SetTransform(eTransform_View, m_matLightView, false);
-		pRenderSystem->SetTransform(eTransform_Proj, m_matLightProj, true);
+		cb.matView = m_matLightView.Transpose();
+		cb.matProj = m_matLightProj.Transpose();
+		cb.matViewProj = cb.matProj * cb.matView;
+		
+		pRenderSystem->UpdateGlobalCBuffer();
+
 		m_pRT_ShadowMap->Update();
 #endif
 
 		// Restore render states
 		Camera* cam = g_env.pSceneMgr->GetCamera();
-		pRenderSystem->SetTransform(eTransform_View, cam->GetViewMatrix(), false);
-		pRenderSystem->SetTransform(eTransform_Proj, cam->GetProjMatrix(), true);
+		
+		cb.matView = cam->GetViewMatrix().Transpose();
+		cb.matProj = cam->GetProjMatrix().Transpose();
+		cb.matViewProj = cb.matProj * cb.matView;
+
+		pRenderSystem->UpdateGlobalCBuffer();
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture* ShadowMap::GetShadowTexture()

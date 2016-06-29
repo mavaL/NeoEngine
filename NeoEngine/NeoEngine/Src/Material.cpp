@@ -20,10 +20,6 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	Material::Material(eVertexType type, uint32 nSubMtl)
 	: m_pRenderSystem(g_env.pRenderSystem)
-	, ambient(SColor::WHITE)
-	, diffuse(SColor::WHITE)
-	, specular(SColor::WHITE)
-	, shiness(20)
 	, m_pVertexShader(nullptr)
 	, m_pPixelShader(nullptr)
 	, m_pHullShader(nullptr)
@@ -257,7 +253,6 @@ namespace Neo
 			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
-		m_pRenderSystem->UpdateGlobalCBuffer(m_pHullShader!=nullptr, m_pComputeShader!=nullptr);
 
 		if (m_pHullShader && m_pDomainShader)
 		{
@@ -408,6 +403,8 @@ namespace Neo
 
 	//------------------------------------------------------------------------------------
 	SubMaterial::SubMaterial()
+		: specular(0.05f, 0.05f, 0.05f)
+		, glossiness(0)
 	{
 		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
 		{
@@ -433,6 +430,9 @@ namespace Neo
 				g_env.pRenderSystem->SetActiveTexture(i, m_pTexture[i]);
 			}
 		}
+
+		g_env.pRenderSystem->GetMaterialCB().specularGloss = VEC4(specular, glossiness);
+		g_env.pRenderSystem->UpdateMaterialCBuffer();
 	}
 	//------------------------------------------------------------------------------------
 	void SubMaterial::SetTexture(int stage, D3D11Texture* pTexture)

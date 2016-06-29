@@ -118,14 +118,17 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void ShadowMapCSM::Render()
 	{
+		cBufferGlobal& cb = g_env.pRenderSystem->GetGlobalCB();
+
 		// Render for each cascade
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
-			g_env.pRenderSystem->SetTransform(eTransform_View, m_matLightView, false);
-			g_env.pRenderSystem->SetTransform(eTransform_Proj, m_matLightProj[iCascade], true);
-
-//			m_shadowMapCascades[iCascade]->Update();
+			cb.matView = m_matLightView.Transpose();
+			cb.matProj = m_matLightProj[iCascade].Transpose();
+			cb.matViewProj = cb.matProj * cb.matView;
 		}
+
+		g_env.pRenderSystem->UpdateGlobalCBuffer();
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture* ShadowMapCSM::GetShadowTexture(int i)

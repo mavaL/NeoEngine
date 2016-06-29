@@ -9,7 +9,7 @@
 #define SceneManager_h__
 
 #include "Prerequiestity.h"
-#include "Material.h"
+#include "Light.h"
 
 namespace Neo
 {
@@ -36,8 +36,10 @@ namespace Neo
 
 		void		SetRenderFlag(uint32 flag) { m_renderFlag = flag; }
 		uint32		GetRenderFlag() const	{ return m_renderFlag; }
+		void		EnableDebugRT(eDebugRT type);
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
+		void		AddPointLight(const SPointLight& light);
 		void		CreateSky();
 		void		CreateTerrain();
 		void		CreateWater(float waterHeight = 0.0f);
@@ -50,7 +52,7 @@ namespace Neo
 		SSAO*		GetSSAO()		{ return m_pSSAO; }
 		Terrain*	GetTerrain()	{ return m_pTerrain; }
 		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
-		void		EnableDebugRT(eDebugRT type);
+		const PointLightVector& GetPointLights() const { return m_vecPointLights; }
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h);
@@ -77,7 +79,8 @@ namespace Neo
 		uint32			m_renderFlag;	// Render phase control flag
 		eRenderPhase	m_curRenderPhase;
 		Camera*			m_camera;
-		SDirectionLight	m_sunLight;
+		SDirectionLight	m_sunLight;				// Sun light
+		PointLightVector	m_vecPointLights;	// Point lights in current scene
 		Terrain*		m_pTerrain;
 		Water*			m_pWater;
 		Sky*			m_pSky;

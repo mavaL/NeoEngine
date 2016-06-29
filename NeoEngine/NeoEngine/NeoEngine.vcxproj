@@ -91,6 +91,7 @@
     <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\Font.h" />
     <ClInclude Include="Include\IRefCount.h" />
+    <ClInclude Include="Include\Light.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MathDef.h" />
     <ClInclude Include="Include\Mesh.h" />
@@ -141,11 +142,15 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
     </CustomBuild>
-    <CustomBuild Include="..\Res\Opaque.hlsl">
+    <FxCompile Include="..\Res\Opaque.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-    </CustomBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <CustomBuild Include="..\Res\Sky.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
@@ -220,6 +225,7 @@
     <ClCompile Include="Src\D3D11Texture.cpp" />
     <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
+    <ClCompile Include="Src\Light.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\Mesh.cpp" />

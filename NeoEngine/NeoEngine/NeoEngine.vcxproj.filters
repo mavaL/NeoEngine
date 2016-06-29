@@ -132,6 +132,9 @@
     <ClInclude Include="Include\StructuredBuffer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Light.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -244,6 +247,9 @@
     <ClCompile Include="Src\TiledRenderer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Light.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Res\SSAO.hlsl">
@@ -256,9 +262,6 @@
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\GaussianBlur.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Opaque.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\Sky.hlsl">
@@ -300,6 +303,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\TiledCS.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Opaque.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -252,19 +252,19 @@ namespace Neo
 	void Water::_RenderReflection()
 	{
 		// Reflect view matrix
-		const MAT44 matView = g_env.pSceneMgr->GetCamera()->GetViewMatrix();
-		const MAT44 matReflecView = Common::BuildReflectMatrix(m_waterPlane) * matView;
-		m_pRenderSystem->SetTransform(eTransform_View, matReflecView, true);
+		//const MAT44 matView = g_env.pSceneMgr->GetCamera()->GetViewMatrix();
+		//const MAT44 matReflecView = Common::BuildReflectMatrix(m_waterPlane) * matView;
+		//m_pRenderSystem->SetTransform(eTransform_View, matReflecView, true);
 
-		// Set clip plane
-		m_pRenderSystem->EnableClipPlane(true, &m_waterPlane);
+		//// Set clip plane
+		//m_pRenderSystem->EnableClipPlane(true, &m_waterPlane);
 
-		// Render
-//		m_pRT_Reflection->Update();
+		//// Render
+		//m_pRT_Reflection->Update();
 
-		// Restore render state
-		m_pRenderSystem->SetTransform(eTransform_View, matView, true);
-		m_pRenderSystem->EnableClipPlane(false, nullptr);
+		//// Restore render state
+		//m_pRenderSystem->SetTransform(eTransform_View, matView, true);
+		//m_pRenderSystem->EnableClipPlane(false, nullptr);
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_RenderWaterDepth()

@@ -14,11 +14,6 @@
 
 namespace Neo
 {
-	struct SDirectionLight
-	{
-		VEC3	lightDir;
-		SColor	lightColor;
-	};
 	//------------------------------------------------------------------------------------
 	// For now sub-material only support own textures.
 	class SubMaterial
@@ -31,6 +26,8 @@ namespace Neo
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 
 		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
+		VEC3				specular;
+		float				glossiness;
 	};
 	//------------------------------------------------------------------------------------
 	class Material : public IRefCount
@@ -40,9 +37,6 @@ namespace Neo
 		~Material();
 
 	public:
-		SColor		ambient, diffuse, specular;
-		float		shiness;
-
 		void		Activate(uint32 iSubMtl = 0);
 		void		TurnOffTessellation();
 		void		TurnOffComputeShader();
