@@ -26,12 +26,11 @@ namespace Neo
 		void			Destroy();
 		void			OnWindowResized();
 
+		void			BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
+		void			AfterRender();
 		void			SetRenderPhase(uint32 phaseFlag) { m_phaseFlag = phaseFlag; }
 		D3D11Texture*	GetRenderTexture() { return m_pRenderTexture; }
 		D3D11Texture*	GetDepthTexture() {return m_pDepthStencil; }
-
-		// If pMaterial not null, use it to render all objects of this RT
-		//void			Update(Material* pMaterial = nullptr);
 
 		// Render for a post effect
 		void			RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
@@ -42,8 +41,7 @@ namespace Neo
 
 	private:
 		void			_CreateDepthBuffer(uint32 width, uint32 height);
-		void			_BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
-		void			_AfterRender();
+		
 
 		D3D11RenderSystem*			m_pRenderSystem;
 		D3D11_VIEWPORT				m_viewport;

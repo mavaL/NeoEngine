@@ -55,7 +55,7 @@ namespace Neo
 		const PointLightVector& GetPointLights() const { return m_vecPointLights; }
 
 		// Convenient mesh create function
-		static Mesh*	CreatePlaneMesh(float w, float h);
+		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
 		static Mesh*	CreateCubeMesh(const VEC3& minPt, const VEC3& maxPt);
 		static Mesh*	CreateFrustumMesh(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop);
 

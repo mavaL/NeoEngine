@@ -21,14 +21,13 @@ namespace Neo
 		ShadowMap();
 		~ShadowMap();
 
-		static const int	SHADOW_MAP_SIZE = 2048;
-
 	public:
 		void			Update();
 		void			Render();
 		D3D11Texture*	GetShadowTexture();
 		ShadowMapCSM*	GetCSM() { return m_pCSM; }
 		const MAT44&	GetShadowTransform() const { return m_matShadowTransform; }
+		ID3D11SamplerState*	GetShadowSampler() { return m_pShadowSampler; }
 
 	private:
 		D3D11RenderTarget*	m_pRT_ShadowMap;
@@ -36,6 +35,7 @@ namespace Neo
 		MAT44				m_matLightProj;
 		MAT44				m_matShadowTransform;
 		ShadowMapCSM*		m_pCSM;
+		ID3D11SamplerState*	m_pShadowSampler;
 	};
 }
 

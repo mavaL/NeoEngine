@@ -81,9 +81,12 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	gbuffer_output output = (gbuffer_output)0;
 
 #ifdef NORMAL_MAP
-	float3x3 mTangentToWS = float3x3(IN.tangent.xyz, IN.binormal.xyz, cross(IN.tangent.xyz, IN.binormal.xyz)*IN.tangent.w);
+	float3 vN = normalize(cross(IN.tangent.xyz, IN.binormal.xyz));
+	float3x3 mTangentToWS = float3x3(IN.tangent.xyz, IN.binormal.xyz, vN);
+
 	float3 vNormalTS = Expand(texNormal.Sample(samLinear, IN.uv).xyz);
 	float3 vWorldNormal = normalize(mul(vNormalTS, mTangentToWS));
+
 	output.oNormal.xyz = vWorldNormal * 0.5f + 0.5f;
 #else
 	output.oNormal.xyz = normalize(IN.normal) * 0.5f + 0.5f;

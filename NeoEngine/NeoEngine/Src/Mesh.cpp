@@ -174,31 +174,31 @@ namespace Neo
 			acosf((b - c + a) / (2.f * bsqrt * asqrt)));
 	}
 	//------------------------------------------------------------------------------------
-	void Mesh::BuildTangentVectors(std::vector<SVertex_NormalMap>& vecVerts, const std::vector<DWORD>& vecIndex)
+	void Mesh::BuildTangentVectors(SVertex_NormalMap* pVerts, const DWORD* pIndex, DWORD nIndex)
 	{
 		/////Ogre,鬼火都是这个算法:根据顶点所在的面来计算切空间,然后加权起来
 
 		//Each vertex gets the sum of the tangents and binormals from the faces around it
-		for (size_t i = 0; i < vecVerts.size(); ++i)
+		for (size_t i = 0; i < nIndex/3; ++i)
 		{
-			vecVerts[i].tangent = VEC4::ZERO;
-			vecVerts[i].binormal = VEC3::ZERO;
+			pVerts[i].tangent = VEC4::ZERO;
+			pVerts[i].binormal = VEC3::ZERO;
 		}
 
-		for (size_t i = 0; i < vecIndex.size(); i+=3)
+		for (size_t i = 0; i < nIndex; i += 3)
 		{
 			//fetch vertexs
-			const DWORD idx1 = vecIndex[i + 0];
-			const DWORD idx2 = vecIndex[i + 1];
-			const DWORD idx3 = vecIndex[i + 2];
+			const DWORD idx1 = pIndex[i + 0];
+			const DWORD idx2 = pIndex[i + 1];
+			const DWORD idx3 = pIndex[i + 2];
 
-			const VEC2& tc1 = vecVerts[idx1].uv;
-			const VEC2& tc2 = vecVerts[idx2].uv;
-			const VEC2& tc3 = vecVerts[idx3].uv;
+			const VEC2& tc1 = pVerts[idx1].uv;
+			const VEC2& tc2 = pVerts[idx2].uv;
+			const VEC2& tc3 = pVerts[idx3].uv;
 
-			const VEC3& vt1 = vecVerts[idx1].pos;
-			const VEC3& vt2 = vecVerts[idx2].pos;
-			const VEC3& vt3 = vecVerts[idx3].pos;
+			const VEC3& vt1 = pVerts[idx1].pos;
+			const VEC3& vt2 = pVerts[idx2].pos;
+			const VEC3& vt3 = pVerts[idx3].pos;
 
 			// if this triangle is degenerate, skip it!
 			if (vt1 == vt2 ||
@@ -210,48 +210,45 @@ namespace Neo
 			VEC3 weight = GetAngleWeight(vt1, vt2, vt3);	// writing irr::scene:: necessary for borland
 
 			VEC3 localNormal;
-			VEC4 localTangent;
+			VEC3 localTangent;
 			VEC3 localBinormal;
 
 			CalcTangentSpace(localNormal, localTangent, localBinormal,
 				vt1, vt2, vt3,
 				tc1, tc2, tc3);
 
-			vecVerts[idx1].tangent.w = localTangent.w;
 			localTangent *= weight.x;
 			localBinormal *= weight.x;
-			vecVerts[idx1].tangent += localTangent;
-			vecVerts[idx1].binormal += localBinormal;
+			pVerts[idx1].tangent.vec3 += localTangent;
+			pVerts[idx1].binormal += localBinormal;
 
 			CalcTangentSpace(localNormal, localTangent, localBinormal,
 				vt2, vt3, vt1,
 				tc2, tc3, tc1);
 
-			vecVerts[idx2].tangent.w = localTangent.w;
 			localTangent *= weight.y;
 			localBinormal *= weight.y;
-			vecVerts[idx2].tangent += localTangent;
-			vecVerts[idx2].binormal += localBinormal;
+			pVerts[idx2].tangent.vec3 += localTangent;
+			pVerts[idx2].binormal += localBinormal;
 
 			CalcTangentSpace(localNormal, localTangent, localBinormal,
 				vt3, vt1, vt2,
 				tc3, tc1, tc2);
 
-			vecVerts[idx3].tangent.w = localTangent.w;
 			localTangent *= weight.z;
 			localBinormal *= weight.z;
-			vecVerts[idx3].tangent += localTangent;
-			vecVerts[idx3].binormal += localBinormal;
+			pVerts[idx3].tangent.vec3 += localTangent;
+			pVerts[idx3].binormal += localBinormal;
 		}
 
-		for (size_t i = 0; i < vecVerts.size(); ++i)
+		for (size_t i = 0; i < nIndex/3; ++i)
 		{
-			vecVerts[i].tangent.vec3.Normalize();
-			vecVerts[i].binormal.Normalize();
+			pVerts[i].tangent.vec3.Normalize();
+			pVerts[i].binormal.Normalize();
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void Mesh::CalcTangentSpace(VEC3& oNormal, VEC4& oTangent, VEC3& oBinormal, const VEC3& vt1, const VEC3& vt2, const VEC3& vt3, const VEC2& tc1, const VEC2& tc2, const VEC2& tc3)
+	void Mesh::CalcTangentSpace(VEC3& oNormal, VEC3& oTangent, VEC3& oBinormal, const VEC3& vt1, const VEC3& vt2, const VEC3& vt3, const VEC2& tc1, const VEC2& tc2, const VEC2& tc3)
 	{
 		VEC3 v1 = Common::Sub_Vec3_By_Vec3(vt1, vt2);
 		VEC3 v2 = Common::Sub_Vec3_By_Vec3(vt3, vt1);
@@ -273,18 +270,16 @@ namespace Neo
 		float deltaY2 = tc3.y - tc1.y;
 		Common::Multiply_Vec3_By_K(tmp1, v1, deltaY2);
 		Common::Multiply_Vec3_By_K(tmp2, v2, deltaY1);
-		oTangent.vec3 = Common::Sub_Vec3_By_Vec3(tmp1, tmp2);
-		oTangent.vec3.Normalize();
+		oTangent = Common::Sub_Vec3_By_Vec3(tmp1, tmp2);
+		oTangent.Normalize();
 
 		// adjust
-		VEC3 txb = Common::CrossProduct_Vec3_By_Vec3(oTangent.vec3, oBinormal);
-		if (Common::DotProduct_Vec3_By_Vec3(txb, oNormal) >= 0.0f)
+		VEC3 txb = Common::CrossProduct_Vec3_By_Vec3(oTangent, oBinormal);
+		txb.Normalize();
+
+		if (Common::DotProduct_Vec3_By_Vec3(txb, oNormal) < 0.0f)
 		{
-			oTangent.w = -1.0f;
-		}
-		else
-		{
-			oTangent.w = 1.0f;
+			oTangent *= -1.0f;
 		}
 	}
 }

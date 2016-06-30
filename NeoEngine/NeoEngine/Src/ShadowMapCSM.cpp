@@ -22,7 +22,7 @@ namespace Neo
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
 			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
-			m_shadowMapCascades[iCascade]->Init(1024, 1024, ePF_A8R8G8B8, true, false, true);
+			m_shadowMapCascades[iCascade]->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
 			m_shadowMapCascades[iCascade]->SetRenderPhase(eRenderPhase_ShadowMap);
 		}
 	}
@@ -126,9 +126,13 @@ namespace Neo
 			cb.matView = m_matLightView.Transpose();
 			cb.matProj = m_matLightProj[iCascade].Transpose();
 			cb.matViewProj = cb.matProj * cb.matView;
-		}
 
-		g_env.pRenderSystem->UpdateGlobalCBuffer();
+			g_env.pRenderSystem->UpdateGlobalCBuffer();
+
+			m_shadowMapCascades[iCascade]->BeforeRender(false, true);
+			g_env.pSceneMgr->GetCurScene()->RenderOpaque();
+			m_shadowMapCascades[iCascade]->AfterRender();
+		}
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture* ShadowMapCSM::GetShadowTexture(int i)

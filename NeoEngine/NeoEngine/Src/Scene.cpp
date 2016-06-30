@@ -80,9 +80,12 @@ namespace Neo
 		}
 	}
 	//----------------------------------------------------------------------------------------
-	void Scene::Render()
+	void Scene::RenderOpaque()
 	{
-		g_env.pSceneMgr->Render();
+		for (size_t i = 0; i < m_lstEntity.size(); ++i)
+		{
+			m_lstEntity[i]->Render();
+		}
 	}
 }
 

@@ -156,7 +156,7 @@ namespace Neo
 
 			if (bNormalMap)
 			{
-				Mesh::BuildTangentVectors(vecVertexWithN, vecIndex);
+				Mesh::BuildTangentVectors(&vecVertexWithN[0], &vecIndex[0], vecIndex.size());
 				pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
 			}
 			else

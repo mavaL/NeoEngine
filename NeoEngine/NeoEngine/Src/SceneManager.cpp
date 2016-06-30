@@ -17,11 +17,12 @@
 #include "Mesh.h"
 #include "TiledRenderer.h"
 #include "StructuredBuffer.h"
+#include "ShadowMapCSM.h"
 
 
 namespace Neo
 {
-	bool g_bTiled = true;
+	bool g_bTiled = false;
 
 	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
@@ -155,7 +156,7 @@ namespace Neo
 		//================================================================================
 		/// Shadow map phase
 		//================================================================================
-		if (phaseFlag & eRenderPhase_ShadowMap)
+		if (m_pShadowMap)
 		{
 			m_pShadowMap->Render();
 		}
@@ -266,13 +267,7 @@ namespace Neo
 			m_pTerrain->Render();
 		}
 
-		// Opaques
-		Scene::EntityList& lstEntity = m_pCurScene->GetEntityList();
-
-		for (size_t i = 0; i < lstEntity.size(); ++i)
-		{
-			lstEntity[i]->Render();
-		}
+		m_pCurScene->RenderOpaque();
 
 		// Sky
 		if (m_pSky)
@@ -320,10 +315,17 @@ namespace Neo
 			pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
 			pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
 			pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
+			pMtlCompose->SetTexture(4, m_pShadowMap->GetCSM()->GetShadowTexture(0));
+			pMtlCompose->SetTexture(5, m_pShadowMap->GetCSM()->GetShadowTexture(1));
+			pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			pMtlCompose->SetSamplerStateDesc(0, samPoint);
+
+			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
+			pMtlCompose->SetSamplerStateDesc(1, samPoint);
 
 			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
 				0, 0, "VS", "ComposePS");
@@ -332,6 +334,9 @@ namespace Neo
 		m_pRT_Compose->RenderScreenQuad(pMtlCompose, false, false);
 
 		m_pRenderSystem->SetActiveTexture(3, nullptr);
+		m_pRenderSystem->SetActiveTexture(4, nullptr);
+		m_pRenderSystem->SetActiveTexture(5, nullptr);
+		m_pRenderSystem->SetActiveTexture(6, nullptr);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_HDRFinalScenePass()
@@ -682,17 +687,17 @@ namespace Neo
 		return pMesh;
 	}
 	//------------------------------------------------------------------------------------
-	Mesh* SceneManager::CreatePlaneMesh( float w, float h )
+	Mesh* SceneManager::CreatePlaneMesh(float w, float h, float fUvMultiplier)
 	{
 		float halfW = w / 2;
 		float halfH = h / 2;
 
 		SVertex vert[4] =
 		{
-			SVertex(VEC3(-w,0,+h), VEC2(0,0), VEC3::UNIT_Y),
-			SVertex(VEC3(+w,0,+h), VEC2(1,0), VEC3::UNIT_Y),
-			SVertex(VEC3(+w,0,-h), VEC2(1,1), VEC3::UNIT_Y),
-			SVertex(VEC3(-w,0,-h), VEC2(0,1), VEC3::UNIT_Y),
+			SVertex(VEC3(-halfW	,0, +halfH)	, VEC2(0,0)							, VEC3::UNIT_Y),
+			SVertex(VEC3(+halfW, 0, +halfH)	, VEC2(fUvMultiplier, 0)			, VEC3::UNIT_Y),
+			SVertex(VEC3(+halfW, 0, -halfH)	, VEC2(fUvMultiplier, fUvMultiplier), VEC3::UNIT_Y),
+			SVertex(VEC3(-halfW, 0, -halfH)	, VEC2(0, fUvMultiplier)			, VEC3::UNIT_Y),
 		};
 
 		DWORD dwIndex[6] = {0,1,3,1,2,3};

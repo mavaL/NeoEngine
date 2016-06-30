@@ -125,6 +125,9 @@ void EnterTestScene3(Scene* scene)
 
 void SetupTestScene4(Scene* scene)
 {
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, -2), SColor(0.8f, 0.8f, 0.8f));
+
 	// Shadow receiver
 	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(200.0f, 200.0f);
 	Neo::Entity* pEntity = new Neo::Entity(pMesh);
@@ -134,7 +137,7 @@ void SetupTestScene4(Scene* scene)
 
 	Neo::Material* pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableShadowReceive);
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);
 	pMaterial->Release();
 
@@ -142,6 +145,8 @@ void SetupTestScene4(Scene* scene)
 	// Shadow caster
 	pMaterial = new Neo::Material;
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+	pMaterial->GetSubMaterial(0).specular.Set(0.9f, 0.9f, 0.9f);
+	pMaterial->GetSubMaterial(0).glossiness = 0.9f;
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 
 	for (int i = 0; i < 5; ++i)
@@ -169,9 +174,6 @@ void EnterTestScene4(Scene* scene)
 	pCamera->SetFarClip(500.0f);
 	pCamera->SetMoveSpeed(0.25f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
-	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
 
 	g_env.pSceneMgr->GetShadowMap()->GetCSM()->SetCascadePadding(25.0f);
 }
@@ -216,18 +218,46 @@ void SetupTestScene6(Scene* scene)
 		}
 	}
 
-	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(200.0f, 200.0f);
-	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+	// A plane floor with normal mapping
+	float halfW = 200.0f / 2;
+	float halfH = 200.0f / 2;
 
+	SVertex_NormalMap vert[4] =
+	{
+		SVertex_NormalMap(VEC3(-halfW, 0, +halfH), VEC2(0, 0)),
+		SVertex_NormalMap(VEC3(+halfW, 0, +halfH), VEC2(10, 0)),
+		SVertex_NormalMap(VEC3(+halfW, 0, -halfH), VEC2(10, 10)),
+		SVertex_NormalMap(VEC3(-halfW, 0, -halfH), VEC2(0, 10)),
+	};
+
+	DWORD dwIndex[6] = { 0, 1, 3, 1, 2, 3 };
+
+	Mesh* pMesh = new Mesh;
+	SubMesh* pSubmesh = new SubMesh;
+
+	Mesh::BuildTangentVectors(vert, dwIndex, 6);
+	pSubmesh->InitVertData(eVertexType_NormalMap, vert, 4, true);
+	pSubmesh->InitIndexData(dwIndex, 6, true);
+
+	pMesh->AddSubMesh(pSubmesh);
+
+	Neo::Entity* pEntity = new Neo::Entity(pMesh);
 	scene->AddEntity(pEntity);
 
-	Neo::Material* pMaterial = new Neo::Material;
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+
+	Neo::Material* pMaterial = new Neo::Material(eVertexType_NormalMap);
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("floor_diffuse.png")));
+	pMaterial->SetTexture(1, new Neo::D3D11Texture(GetResPath("floor_bump.png")));
+
+	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
+	pMaterial->SetSamplerStateDesc(0, samDesc);
+
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 
 	pEntity->SetMaterial(pMaterial);
 	pMaterial->Release();
 
+	// Another test sphere entity
 	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
 	scene->AddEntity(pEntity);
 
@@ -269,13 +299,13 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 	}
 }
 

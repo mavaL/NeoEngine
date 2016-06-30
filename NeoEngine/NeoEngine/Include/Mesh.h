@@ -60,8 +60,8 @@ namespace Neo
 
 		void		Render();
 
-		static void	BuildTangentVectors(std::vector<SVertex_NormalMap>& vecVerts, const std::vector<DWORD>& vecIndex);
-		static void	CalcTangentSpace(VEC3& oNormal, VEC4& oTangent, VEC3& oBinormal,
+		static void	BuildTangentVectors(SVertex_NormalMap* pVerts, const DWORD* pIndex, DWORD nIndex);
+		static void	CalcTangentSpace(VEC3& oNormal, VEC3& oTangent, VEC3& oBinormal,
 			const VEC3& vt1, const VEC3& vt2, const VEC3& vt3,
 			const VEC2& tc1, const VEC2& tc2, const VEC2& tc3);
 

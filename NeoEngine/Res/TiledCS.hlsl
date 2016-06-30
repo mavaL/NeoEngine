@@ -15,9 +15,13 @@ Texture2D texAlbedo : register(t0);
 Texture2D texNormal : register(t1);
 Texture2D texSpec : register(t2);
 Texture2D texDepth : register(t3);
-StructuredBuffer<PointLight> gLight : register(t4);
+Texture2D texShadow1 : register(t4);
+Texture2D texShadow2 : register(t5);
+Texture2D texShadow3 : register(t6);
+StructuredBuffer<PointLight> gLight : register(t7);
 
 SamplerState samPoint : register(s0);
+SamplerComparisonState samShadow : register(s1);
 
 // Per-tile shared data
 groupshared uint s_TileMinZ;
@@ -144,12 +148,8 @@ void CS(
 		float3 vNormal = texNormal.SampleLevel(samPoint, texUV, 0.0f).xyz;
 		vNormal = normalize(Expand(vNormal));
 
-		float2 screenPixelOffset = float2(2.0f, -2.0f) / frameBufferSize.xy;
-		float2 positionScreen = (float2(globalCoords) + 0.5f) * screenPixelOffset.xy + float2(-1.0f, 1.0f);
-
 		// Reconstructint world position from view-space z
-		float3 vViewPos = ComputeViewSpacePos(positionScreen, fViewSpaceZ);
-		float3 vWorldPos = mul(float4(vViewPos, 1), InvView).xyz;
+		float3 vWorldPos = ReconstructWorldPos(texDepth, samPoint, texUV);
 		float3 vView = normalize(camPos - vWorldPos);
 
 		float4 cDiffuse = saturate(dot(vNormal, lightDirection)) * lightColor;
@@ -163,7 +163,11 @@ void CS(
 		oColor = ambientColor * albedo;
 
 		// Sun light
+		float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, 
+			shadowMapTexelSize, samShadow, texShadow1, texShadow2, texShadow3);
+
 		oColor.xyz += albedo.xyz * cDiffuse.xyz + cSpecular;
+		oColor *= vShadow;
 
 		// Point lights
 		uint nPointLights = s_TileLightNum;

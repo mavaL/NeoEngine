@@ -19,25 +19,6 @@ static const float2	g_layerTexScale = 50.0;
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-cbuffer cbufferGlobal : register( b0 )
-{
-    matrix	World;
-	matrix	View;
-	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
-	matrix	ShadowTransform;
-	float4	clipPlane;
-	float4	frustumFarCorner[4];
-	float4	ambientColor;
-	float4	lightColor;
-	float3	lightDirection;
-	float3	camPos;
-	float	time;
-	float	nearZ, farZ;
-	float	shadowMapTexelSize;
-};
-
 cbuffer cbufferTerrain : register( b1 )
 {
 	float4	frustumWorldPlanes[4];
@@ -246,7 +227,7 @@ DomainOut DS(PatchTess patchTess,
 	dout.PosW.y = gHeightMap.SampleLevel( samHeightmap, dout.Tex, 0 ).r;
 	
 	// Project to homogeneous clip space.
-	dout.PosH = mul(float4(dout.PosW, 1.0f), WVP);
+	dout.PosH = mul(float4(dout.PosW, 1.0f), ViewProj);
 	
 	return dout;
 }
@@ -302,7 +283,7 @@ float4 PS( DomainOut IN ) : SV_Target
 	N = mul(N, matTBN);
 
 	// Do shadowing
-	float fLitFactor = ComputeShdow(IN.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
+	float fLitFactor = 0;//ComputeShdow(IN.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
 
 	// Do lighting
 	float3 PosToCam = camPos - IN.PosW;

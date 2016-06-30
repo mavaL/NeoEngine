@@ -463,7 +463,7 @@ namespace Neo
 		m_cBufferGlobal.ambientColor.Set(0.2f, 0.2f, 0.2f);
 		m_cBufferGlobal.nearZ = cam->GetNearClip();
 		m_cBufferGlobal.farZ = cam->GetFarClip();
-		m_cBufferGlobal.shadowMapTexelSize = 1.0f / ShadowMap::SHADOW_MAP_SIZE;
+		m_cBufferGlobal.shadowMapTexelSize = 1.0f / SHADOW_MAP_SIZE;
 		m_cBufferGlobal.frameBufferSize[0] = m_wndWidth;
 		m_cBufferGlobal.frameBufferSize[1] = m_wndHeight;
 		m_cBufferGlobal.frameBufferSize[2] = m_cBufferGlobal.frameBufferSize[3] = 0;

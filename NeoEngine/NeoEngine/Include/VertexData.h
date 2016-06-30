@@ -43,6 +43,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	struct SVertex_NormalMap
 	{
+		SVertex_NormalMap() {}
+		SVertex_NormalMap(const VEC3& p, const VEC2& t)
+			: pos(p)
+			, uv(t) {}
+
 		VEC3	pos;
 		VEC4	tangent;
 		VEC3	binormal;

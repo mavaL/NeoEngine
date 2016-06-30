@@ -210,7 +210,7 @@ void Application::Run()
 			pSceneMgr->Update();
 			
 			m_pRenderSystem->BeginScene();
-			pSceneMgr->GetCurScene()->Render();
+			pSceneMgr->Render();
 			m_pRenderSystem->EndScene();
 		}
 	}

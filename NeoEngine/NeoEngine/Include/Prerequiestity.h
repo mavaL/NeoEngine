@@ -13,6 +13,8 @@
 
 
 const int	MAX_TEXTURE_STAGE	=	16;
+const int	SHADOW_MAP_SIZE		=	1024;
+
 
 
 #define USE_SIMD				0			// «∑Ò π”√SIMD

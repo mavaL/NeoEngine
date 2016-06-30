@@ -46,24 +46,22 @@ float3 Expand(float3 v)
 	return v * 2.0f - 1.0f;
 }
 
-float3 ReconstructWorldPos(float3 rayV, Texture2D texDepth, SamplerState samp, float2 uv)
+float3 ReconstructWorldPos(Texture2D texDepth, SamplerState samp, float2 uv)
 {
-	float fLinearDepth = texDepth.SampleLevel(samp, uv, 0.0f).x;
-	return rayV * fLinearDepth + camPos;
-}
+	float2 positionScreen = (uv + 0.5f) * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
+	float fViewSpaceZ = texDepth.SampleLevel(samp, uv, 0.0f).x * farZ;
 
-float3 ComputeViewSpacePos(float2 positionScreen, float viewSpaceZ)
-{
 	float2 screenSpaceRay = float2(positionScreen.x / Projection._11, positionScreen.y / Projection._22);
 
 	float3 positionView;
-	positionView.z = viewSpaceZ;
+	positionView.z = fViewSpaceZ;
 	// Solve the two projection equations
 	positionView.xy = screenSpaceRay.xy * positionView.z;
 
-	return positionView;
-}
+	float3 positionWorld = mul(float4(positionView, 1.0f), InvView).xyz;
 
+	return positionWorld;
+}
 
 float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 posW, float shadowMapTexelSize, float4x4 matShadow)
 {
@@ -80,7 +78,7 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 pos
 	return float4(fLitFactor, fLitFactor, fLitFactor, 1);
 }
 
-float4	ComputeShdow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float4x4 matShadow3, float shadowMapTexelSize,
+float4	ComputeShadow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float4x4 matShadow3, float shadowMapTexelSize,
 	SamplerComparisonState sam, Texture2D texShdow1, Texture2D texShdow2, Texture2D texShdow3)
 {
 #ifdef SHADOW_CSM

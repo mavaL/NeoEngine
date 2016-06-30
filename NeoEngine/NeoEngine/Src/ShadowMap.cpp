@@ -25,11 +25,17 @@ namespace Neo
 		m_pRT_ShadowMap->SetRenderPhase(eRenderPhase_ShadowMap);
 
 		m_pCSM = new ShadowMapCSM;
+
+		D3D11_SAMPLER_DESC samDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+		samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+		samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+		pRenderSystem->GetDevice()->CreateSamplerState(&samDesc, &m_pShadowSampler);
 	}
 	//------------------------------------------------------------------------------------
 	ShadowMap::~ShadowMap()
 	{
 		SAFE_RELEASE(m_pRT_ShadowMap);
+		SAFE_RELEASE(m_pShadowSampler);
 		SAFE_DELETE(m_pCSM);
 	}
 	//------------------------------------------------------------------------------------

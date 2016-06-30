@@ -41,7 +41,7 @@ namespace Neo
 		Material*				m_pMtlTiledCS;
 		StructuredBuffer<FramebufferFlatElement>* m_pLitBuffer;
 		StructuredBuffer<SPointLightCS>*		m_pLightParamBuffer;
-		ID3D11SamplerState*	m_pSamp;
+		ID3D11SamplerState*		m_pSamp;
 	};
 }
 

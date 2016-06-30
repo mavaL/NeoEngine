@@ -362,22 +362,17 @@ namespace Neo
 //
 //					SetSamplerStateDesc(i, samDesc);
 //
-//#if USE_CSM
-//					D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
-//					retMacros.push_back(macroCSM);
-//
-//					for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
-//					{
-//						SetTexture(i + iCascade, g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(iCascade));
-//					}
-//#else
-//					SetTexture(i, g_env.pSceneMgr->GetShadowMap()->GetShadowTexture());
-//#endif
+
 //
 //					break;
 //				}
 //			}
 //		}
+
+#if USE_CSM
+		D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
+		retMacros.push_back(macroCSM);
+#endif
 
 		D3D_SHADER_MACRO macro = { 0, 0 };
 		retMacros.push_back(macro);

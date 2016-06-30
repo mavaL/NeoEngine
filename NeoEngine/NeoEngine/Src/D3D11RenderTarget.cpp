@@ -104,7 +104,7 @@ namespace Neo
 		m_pDepthStencil = new D3D11Texture(width, height, nullptr, ePF_Unknown, eTextureUsage_Depth, false);	
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::_BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
+	void D3D11RenderTarget::BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
 	{
 		// Update aspect ratio and viewport
 		if (m_bUpdateRatioAspect)
@@ -122,7 +122,7 @@ namespace Neo
 		m_pRenderSystem->SetRenderTarget(&pRT, m_pDepthStencil, 1, bClearColor, bClearZ, clearColor);
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::_AfterRender()
+	void D3D11RenderTarget::AfterRender()
 	{
 		// Restore
 		if (m_bUpdateRatioAspect)
@@ -134,15 +134,6 @@ namespace Neo
 
 		m_pRenderSystem->RestoreViewport();
 	}
-	//----------------------------------------------------------------------------------------
-	//void D3D11RenderTarget::Update(Material* pMaterial)
-	//{
-	//	_BeforeRender();
-
-	//	g_env.pSceneMgr->RenderPipline(m_phaseFlag, pMaterial);
-
-	//	_AfterRender();
-	//}
 	//------------------------------------------------------------------------------------
 	ID3D11RenderTargetView* D3D11RenderTarget::GetRTV()
 	{
@@ -151,7 +142,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
 	{
-		_BeforeRender(bClearColor, bClearZ, clearColor, fz);
+		BeforeRender(bClearColor, bClearZ, clearColor, fz);
 
 		// Turn off z buffer
 		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
@@ -162,7 +153,7 @@ namespace Neo
 		pMaterial->Activate();
 		m_pQuadEntity->Render();	
 
-		_AfterRender();
+		AfterRender();
 
 		// Restore render state
 		depthDesc.DepthEnable = TRUE;

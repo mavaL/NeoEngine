@@ -34,19 +34,24 @@ Texture2D tex0 : register(t0);
 Texture2D tex1 : register(t1);
 Texture2D tex2 : register(t2);
 Texture2D tex3 : register(t3);
+Texture2D tex4 : register(t4);
+Texture2D tex5 : register(t5);
+Texture2D tex6 : register(t6);
 SamplerState samPoint : register(s0);
 
 
 //--------------------------------------------------------------------------------------
 /// ComposePS
 //--------------------------------------------------------------------------------------
+SamplerComparisonState samShadow : register(s1);
+
 float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 {
 	float3 vNormal = tex1.Sample(samPoint, IN.uv).xyz;
 	vNormal = normalize(Expand(vNormal));
 
-	float3 vPosW = ReconstructWorldPos(IN.rayV, tex3, samPoint, IN.uv);
-	float3 vView = normalize(camPos - vPosW);
+	float3 vWorldPos = ReconstructWorldPos(tex3, samPoint, IN.uv);
+	float3 vView = normalize(camPos - vWorldPos);
 
 	float4 cDiffuse = saturate(dot(vNormal, lightDirection)) * lightColor;
 
@@ -55,6 +60,9 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 
 	float4 oColor = tex0.Sample(samPoint, IN.uv) * cDiffuse;
 	oColor.xyz += cSpecular;
+
+	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, tex4, tex5, tex6);
+	oColor *= vShadow;
 
 	return oColor;
 }

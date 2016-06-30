@@ -6,6 +6,8 @@
 #include "SceneManager.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11Texture.h"
+#include "ShadowMapCSM.h"
+#include "ShadowMap.h"
 
 namespace Neo
 {
@@ -47,19 +49,21 @@ namespace Neo
 		ID3D11ShaderResourceView* pSRV2 = g_env.pSceneMgr->GetNormalRT()->GetRenderTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV3 = g_env.pSceneMgr->GetSpecRT()->GetRenderTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV4 = g_env.pSceneMgr->GetDepthRT()->GetRenderTexture()->GetSRV();
+		ID3D11ShaderResourceView* pSRV5 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(0)->GetSRV();
+		ID3D11ShaderResourceView* pSRV6 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(1)->GetSRV();
+		ID3D11ShaderResourceView* pSRV7 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(2)->GetSRV();
 
-		m_pDeviceContext->CSSetShaderResources(0, 1, &pSRV1);
-		m_pDeviceContext->CSSetShaderResources(1, 1, &pSRV2);
-		m_pDeviceContext->CSSetShaderResources(2, 1, &pSRV3);
-		m_pDeviceContext->CSSetShaderResources(3, 1, &pSRV4);
-		m_pDeviceContext->CSSetShaderResources(4, 1, &pLightParamSRV);
+		ID3D11ShaderResourceView* pSRVs[] = { pSRV1, pSRV2, pSRV3, pSRV4, pSRV5, pSRV6, pSRV7, pLightParamSRV };
+
+		m_pDeviceContext->CSSetShaderResources(0, 8, pSRVs);
 
 		auto pUAV = m_pLitBuffer->GetUnorderedAccess();
 		m_pDeviceContext->CSSetUnorderedAccessViews(0, 1, &pUAV, 0);
 
 		m_pMtlTiledCS->Activate();
 
-		m_pDeviceContext->CSSetSamplers(0, 1, &m_pSamp);
+		ID3D11SamplerState* pSamplers[] = { m_pSamp, g_env.pSceneMgr->GetShadowMap()->GetShadowSampler() };
+		m_pDeviceContext->CSSetSamplers(0, 2, pSamplers);
 
 		// Dispatch
 		g_env.pRenderSystem->UpdateGlobalCBuffer(false, true);
@@ -68,11 +72,11 @@ namespace Neo
 		unsigned int dispatchHeight = (g_env.pRenderSystem->GetWndHeight() + COMPUTE_SHADER_TILE_GROUP_DIM - 1) / COMPUTE_SHADER_TILE_GROUP_DIM;
 		m_pDeviceContext->Dispatch(dispatchWidth, dispatchHeight, 1);
 
-		ID3D11ShaderResourceView* pNullSRV[5] = {nullptr};
+		ID3D11ShaderResourceView* pNullSRV[8] = {nullptr};
 		ID3D11UnorderedAccessView* pNullUAV = nullptr;
 
 		m_pMtlTiledCS->TurnOffComputeShader();
-		m_pDeviceContext->CSSetShaderResources(0, 5, pNullSRV);
+		m_pDeviceContext->CSSetShaderResources(0, 8, pNullSRV);
 		m_pDeviceContext->CSSetUnorderedAccessViews(0, 1, &pNullUAV, 0);
 	}
 	//------------------------------------------------------------------------------------

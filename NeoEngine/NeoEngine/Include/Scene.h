@@ -26,7 +26,7 @@ namespace Neo
 	public:
 		void	Enter();
 		void	Update();
-		void	Render();
+		void	RenderOpaque();
 
 		void				AddEntity(Entity* pEntity);
 		EntityList&			GetEntityList() { return m_lstEntity; }
