@@ -15,7 +15,12 @@
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
-	// For now sub-material only support own textures.
+	enum eTexSlot
+	{
+		eTexSlot_DiffuseMap = 0,
+		eTexSlot_NormalMap,
+	};
+
 	class SubMaterial
 	{
 	public:
@@ -40,6 +45,8 @@ namespace Neo
 		void		Activate(uint32 iSubMtl = 0);
 		void		TurnOffTessellation();
 		void		TurnOffComputeShader();
+		// NB: Called before InitShader..
+		void		SetVertexType(eVertexType type) { m_vertType = type; }
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		// NB: Should be called after all texture stages have been setup
 		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 

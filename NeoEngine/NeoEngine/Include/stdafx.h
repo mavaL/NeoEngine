@@ -45,4 +45,10 @@
 #include <tinyxml/tinystr.h>
 #include <tinyxml/tinyxml.h>
 
+#ifdef _DEBUG
+	#define _AST(a)		if(!(a)) { __debugbreak(); }
+#else
+	#define _AST(a)		(a)
+#endif
+
 

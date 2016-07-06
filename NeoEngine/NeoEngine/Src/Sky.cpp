@@ -66,23 +66,23 @@ namespace Neo
 		SAFE_DELETE_ARRAY(vert);
 		SAFE_DELETE_ARRAY(pIndices);
 
-		Neo::Material* pMaterial = new Neo::Material;
-		pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
-		pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
+		//Neo::Material* pMaterial = new Neo::Material;
+		//pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
+		//pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
-		m_pMesh->SetMaterial(pMaterial);
-		pMaterial->Release();
+		//m_pMesh->SetMaterial(pMaterial);
+		//pMaterial->Release();
 
-		D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
-		sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		
-		pMaterial->SetSamplerStateDesc(0, sampler);
+		//D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
+		//sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//
+		//pMaterial->SetSamplerStateDesc(0, sampler);
 
-		m_pEntity = new Entity(m_pMesh);
+		//m_pEntity = new Entity(m_pMesh);
 
-		m_pEntity->SetCastShadow(false);
-		m_pEntity->SetReceiveShadow(false);
+		//m_pEntity->SetCastShadow(false);
+		//m_pEntity->SetReceiveShadow(false);
 	}
 	//-------------------------------------------------------------------------------
 	void Sky::Update()

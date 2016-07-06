@@ -8,6 +8,8 @@
 #include "D3D11Texture.h"
 #include "ShadowMapCSM.h"
 #include "ShadowMap.h"
+#include "AmbientCube.h"
+#include "MaterialManager.h"
 
 namespace Neo
 {
@@ -17,7 +19,8 @@ namespace Neo
 	{
 		m_pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
 
-		m_pMtlTiledCS = new Material;
+		m_pMtlTiledCS = MaterialManager::GetSingleton().NewMaterial("Mtl_TileCS");
+		m_pMtlTiledCS->AddRef();
 		m_pMtlTiledCS->InitComputeShader(GetResPath("TiledCS.hlsl"));
 
 		ID3D11Device* pDevice = g_env.pRenderSystem->GetDevice();
@@ -28,12 +31,16 @@ namespace Neo
 
 		D3D11_SAMPLER_DESC samDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 		samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-		g_env.pRenderSystem->GetDevice()->CreateSamplerState(&samDesc, &m_pSamp);
+		g_env.pRenderSystem->GetDevice()->CreateSamplerState(&samDesc, &m_pSampPoint);
+
+		samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		g_env.pRenderSystem->GetDevice()->CreateSamplerState(&samDesc, &m_pSampLinear);
 	}
 	//------------------------------------------------------------------------------------
 	TileBasedDeferredRenderer::~TileBasedDeferredRenderer()
 	{
-		SAFE_RELEASE(m_pSamp);
+		SAFE_RELEASE(m_pSampPoint);
+		SAFE_RELEASE(m_pSampLinear);
 		SAFE_RELEASE(m_pMtlTiledCS);
 		SAFE_RELEASE(m_pLitBuffer);
 		SAFE_RELEASE(m_pLightParamBuffer);
@@ -52,18 +59,21 @@ namespace Neo
 		ID3D11ShaderResourceView* pSRV5 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(0)->GetSRV();
 		ID3D11ShaderResourceView* pSRV6 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(1)->GetSRV();
 		ID3D11ShaderResourceView* pSRV7 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(2)->GetSRV();
+		ID3D11ShaderResourceView* pSRV8 = g_env.pSceneMgr->GetAmbientCube()->GetIrradianceTexture()->GetSRV();
+		ID3D11ShaderResourceView* pSRV9 = g_env.pSceneMgr->GetAmbientCube()->GetRadianceTexture()->GetSRV();
+		ID3D11ShaderResourceView* pSRV10 = g_env.pSceneMgr->GetEnvBRDFTexture()->GetSRV();
 
-		ID3D11ShaderResourceView* pSRVs[] = { pSRV1, pSRV2, pSRV3, pSRV4, pSRV5, pSRV6, pSRV7, pLightParamSRV };
+		ID3D11ShaderResourceView* pSRVs[] = { pSRV1, pSRV2, pSRV3, pSRV4, pSRV5, pSRV6, pSRV7, pLightParamSRV, pSRV8, pSRV9, pSRV10 };
 
-		m_pDeviceContext->CSSetShaderResources(0, 8, pSRVs);
+		m_pDeviceContext->CSSetShaderResources(0, 11, pSRVs);
 
 		auto pUAV = m_pLitBuffer->GetUnorderedAccess();
 		m_pDeviceContext->CSSetUnorderedAccessViews(0, 1, &pUAV, 0);
 
 		m_pMtlTiledCS->Activate();
 
-		ID3D11SamplerState* pSamplers[] = { m_pSamp, g_env.pSceneMgr->GetShadowMap()->GetShadowSampler() };
-		m_pDeviceContext->CSSetSamplers(0, 2, pSamplers);
+		ID3D11SamplerState* pSamplers[] = { m_pSampPoint, g_env.pSceneMgr->GetShadowMap()->GetShadowSampler(), m_pSampLinear };
+		m_pDeviceContext->CSSetSamplers(0, 3, pSamplers);
 
 		// Dispatch
 		g_env.pRenderSystem->UpdateGlobalCBuffer(false, true);
@@ -72,11 +82,11 @@ namespace Neo
 		unsigned int dispatchHeight = (g_env.pRenderSystem->GetWndHeight() + COMPUTE_SHADER_TILE_GROUP_DIM - 1) / COMPUTE_SHADER_TILE_GROUP_DIM;
 		m_pDeviceContext->Dispatch(dispatchWidth, dispatchHeight, 1);
 
-		ID3D11ShaderResourceView* pNullSRV[8] = {nullptr};
+		ID3D11ShaderResourceView* pNullSRV[11] = {nullptr};
 		ID3D11UnorderedAccessView* pNullUAV = nullptr;
 
 		m_pMtlTiledCS->TurnOffComputeShader();
-		m_pDeviceContext->CSSetShaderResources(0, 8, pNullSRV);
+		m_pDeviceContext->CSSetShaderResources(0, 11, pNullSRV);
 		m_pDeviceContext->CSSetUnorderedAccessViews(0, 1, &pNullUAV, 0);
 	}
 	//------------------------------------------------------------------------------------

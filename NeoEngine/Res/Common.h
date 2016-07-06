@@ -22,6 +22,7 @@ cbuffer cbufferGlobal : register(b0)
 	float	time;
 	float	nearZ, farZ;
 	float	shadowMapTexelSize;
+	float	shadowDepthBias;
 };
 
 cbuffer cbufferMaterial : register(b1)
@@ -48,7 +49,7 @@ float3 Expand(float3 v)
 
 float3 ReconstructWorldPos(Texture2D texDepth, SamplerState samp, float2 uv)
 {
-	float2 positionScreen = (uv + 0.5f) * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
+	float2 positionScreen = uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
 	float fViewSpaceZ = texDepth.SampleLevel(samp, uv, 0.0f).x * farZ;
 
 	float2 screenSpaceRay = float2(positionScreen.x / Projection._11, positionScreen.y / Projection._22);
@@ -67,6 +68,7 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 pos
 {
 	float4 shadowPos = mul(float4(posW, 1.0f), matShadow);
 	shadowPos.xyz /= shadowPos.w;
+	shadowPos.z -= shadowDepthBias;
 	float2 shadowTexUV = shadowPos.xy;
 
 	// 2x2 PCF kernel

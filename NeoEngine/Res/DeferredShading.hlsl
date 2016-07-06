@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "DeferredShadingCommon.h"
 
 
 //--------------------------------------------------------------------------------------
@@ -37,13 +38,17 @@ Texture2D tex3 : register(t3);
 Texture2D tex4 : register(t4);
 Texture2D tex5 : register(t5);
 Texture2D tex6 : register(t6);
+Texture2D tex7 : register(t7);
+TextureCube texCube0 : register(t10);
+TextureCube texCube1 : register(t11);
 SamplerState samPoint : register(s0);
 
 
 //--------------------------------------------------------------------------------------
 /// ComposePS
 //--------------------------------------------------------------------------------------
-SamplerComparisonState samShadow : register(s1);
+SamplerState samLinear : register(s1);
+SamplerComparisonState samShadow : register(s2);
 
 float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 {
@@ -53,16 +58,25 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	float3 vWorldPos = ReconstructWorldPos(tex3, samPoint, IN.uv);
 	float3 vView = normalize(camPos - vWorldPos);
 
+	// Sun light
 	float4 cDiffuse = saturate(dot(vNormal, lightDirection)) * lightColor;
 
 	float4 specGloss = tex2.Sample(samPoint, IN.uv);
 	float3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, specGloss.w, specGloss.xyz);
 
-	float4 oColor = tex0.Sample(samPoint, IN.uv) * cDiffuse;
+	float4 albedo = tex0.Sample(samPoint, IN.uv);
+	float4 oColor = albedo * cDiffuse;
 	oColor.xyz += cSpecular;
 
+	// Shadow
 	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, tex4, tex5, tex6);
 	oColor *= vShadow;
+
+	// Ambient
+	float4 vAmbientDiff, vAmbientSpec;
+	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texCube0, texCube1, tex7, samLinear, vView, vNormal, specGloss.xyz, specGloss.w);
+
+	oColor += vAmbientSpec + vAmbientDiff * albedo;
 
 	return oColor;
 }

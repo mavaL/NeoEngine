@@ -25,6 +25,8 @@ namespace Neo
 	__declspec(align(16))
 	struct cBufferGlobal
 	{
+		cBufferGlobal(): shadowDepthBias(0.01f) {}
+
 		MAT44	matView;
 		MAT44	matProj;
 		MAT44	matViewProj;
@@ -41,6 +43,7 @@ namespace Neo
 		float	time;
 		float	nearZ, farZ;
 		float	shadowMapTexelSize;
+		float	shadowDepthBias;					// Improving shadow acne artifacts
 	};
 	// Per-SubMaterial constant buffer: (b0)
 	__declspec(align(16))
@@ -84,10 +87,6 @@ namespace Neo
 		void						SetRasterizeDesc(const D3D11_RASTERIZER_DESC& desc);
 		void						SetBlendStateDesc(const D3D11_BLEND_DESC& desc);
 
-		// Add a new material to MatLib
-		void		AddMaterial(const STRING& name, Material* pMaterial);
-		// Get a material from MatLib
-		Material*	GetMaterial(const STRING& name);
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture);
 		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler);
@@ -147,9 +146,6 @@ namespace Neo
 		ID3D11Buffer*				m_pGlobalCBuf;
 		ID3D11Buffer*				m_pMaterialCB;
 		bool						m_bClipPlaneEnabled;
-
-		typedef std::unordered_map<STRING, Material*>	MaterialLib;
-		MaterialLib					m_matLib;
 
 		// We centralize them here for supporting to resize window.
 		std::vector<D3D11RenderTarget*>			m_vecRT;

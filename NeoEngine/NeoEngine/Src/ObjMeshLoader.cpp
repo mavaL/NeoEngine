@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "ObjMeshLoader.h"
 #include "Mesh.h"
+#include "Material.h"
+#include "MaterialManager.h"
+#include "D3D11Texture.h"
+#include "Entity.h"
+#include "Scene.h"
 
 using namespace std;
 
@@ -39,8 +44,10 @@ namespace Neo
 
 			vector<SVertex_NormalMap> vecVertexWithN;
 			vector<SVertex> vecVertex;
-			vector<DWORD> vecIndex(nFace * 3);
+			vector<DWORD> vecIndex;
+			vecIndex.reserve(nFace * 3);
 			vecVertex.reserve(nFace * 3);
+			vecVertexWithN.reserve(nFace * 3);
 
 			SubMesh* pSubMesh = new SubMesh;
 			pMesh->AddSubMesh(pSubMesh);
@@ -242,5 +249,249 @@ namespace Neo
 			m_vecComp.push_back(comp);
 			return true;
 		}
+	}
+
+	bool ObjMeshLoader::_ReadMtrl(const STRING& filename)
+	{
+		const STRING filepath = GetResPath(filename);
+		ifstream file(filepath);
+		if (file.fail())
+			return false;
+
+		STRING command;
+		Material* pNewMaterial = nullptr;
+		STRING matName;
+
+		//each command
+		for (;;)
+		{
+			if (file.eof())
+				break;
+
+			file >> command;
+
+			if (strcmp(command.c_str(), "newmtl") == 0)
+			{
+				file >> matName;
+				pNewMaterial = MaterialManager::GetSingleton().NewMaterial(matName);
+			}
+			else if (strcmp(command.c_str(), "map_Kd") == 0)
+			{
+				STRING texName;
+				file >> texName;
+				pNewMaterial->SetTexture(eTexSlot_DiffuseMap, new D3D11Texture(GetResPath(texName)));
+
+				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_DiffuseMap);
+				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+
+				pNewMaterial->SetSamplerStateDesc(eTexSlot_DiffuseMap, samDesc);
+			}
+			else if (strcmp(command.c_str(), "bump") == 0)
+			{
+				pNewMaterial->SetVertexType(eVertexType_NormalMap);
+
+				STRING texName;
+				file >> texName;
+				pNewMaterial->SetTexture(eTexSlot_NormalMap, new D3D11Texture(GetResPath(texName)));
+
+				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
+				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+
+				pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
+			}
+			else if (strcmp(command.c_str(), "Ks") == 0)
+			{
+				SubMaterial& subMtl = pNewMaterial->GetSubMaterial(0);
+				file >> subMtl.specular.x >> subMtl.specular.y >> subMtl.specular.z;
+				subMtl.glossiness = 0.5f;
+			}
+
+			//读下一行
+			file.ignore(1000, '\n');
+		}
+
+		return true;
+	}
+
+	bool ObjMeshLoader::LoadSponzaScene(Scene* scene)
+	{
+		std::ifstream file(GetResPath("Sponza\\Sponza.obj"));
+		if (file.fail())
+			return false;
+
+		//.obj格式每个物体的f各索引竟然是从前面所有物体来累加的.
+		//艹,这些变量用来减去累加部分,太麻烦了
+		DWORD nTotalPosCount, nTotalUvCount, nTotalNormalCount;
+		nTotalPosCount = nTotalUvCount = nTotalNormalCount = 0;
+
+		//each object
+		for (;;)
+		{
+			if (file.eof())
+				break;
+
+			//获取数据量,避免反复分配存储空间
+			DWORD nPos, nUv, nNormal, nFace;
+			nPos = nUv = nNormal = nFace = 0;
+			_PreReadObject(file, nPos, nUv, nNormal, nFace);
+
+			Mesh* pMesh = new Mesh;
+
+			vector<VEC3> vecPos(nPos);
+			vector<VEC2> vecUv(nUv);
+			vector<VEC3> vecNormal(nNormal);
+
+			vector<SVertex_NormalMap> vecVertexWithN;
+			vector<SVertex> vecVertex;
+			vector<DWORD> vecIndex;
+			vecIndex.reserve(nFace * 3);
+			vecVertex.reserve(nFace * 3);
+			vecVertexWithN.reserve(nFace * 3);
+
+			m_vecComp.clear();
+			m_vecComp.reserve(nFace * 3);
+
+			//正式读取数据
+			DWORD curVert, curUv, curNormal, curFace;
+			curVert = curUv = curNormal = curFace = 0;
+			STRING command;
+			bool bFlush = false;
+			bool bNormalMap = false;
+
+			//each command
+			for (;;)
+			{
+				if (file.eof())
+					break;
+
+				file >> command;
+
+				if (strcmp(command.c_str(), "v") == 0)
+				{
+					if (bFlush)
+					{
+						//解析下一个物体
+						file.seekg(-1, ios_base::cur);
+						break;
+					}
+
+					VEC3& pos = vecPos[curVert++];
+					file >> pos.x >> pos.y >> pos.z;
+				}
+				else if (strcmp(command.c_str(), "vt") == 0)
+				{
+					VEC2& uv = vecUv[curUv++];
+					file >> uv.x >> uv.y;
+
+					uv.y = 1 - uv.y;
+				}
+				else if (strcmp(command.c_str(), "vn") == 0)
+				{
+					VEC3& normal = vecNormal[curNormal++];
+					file >> normal.x >> normal.y >> normal.z;
+				}
+				else if (strcmp(command.c_str(), "f") == 0)
+				{
+					DWORD idxPos[3] = { 0 };
+					DWORD idxUv[3] = { 0 };
+					DWORD idxNormal[3] = { 0 };
+
+					for (int i = 0; i < 3; ++i)
+					{
+						file >> idxPos[i];
+						file.ignore(10, '/');
+						file >> idxUv[i];
+						file.ignore(10, '/');
+						file >> idxNormal[i];
+
+						//.obj索引是从1开始的
+						idxPos[i] -= 1; idxUv[i] -= 1; idxNormal[i] -= 1;
+						//正如前面所说,减去累加的部分
+						idxPos[i] -= nTotalPosCount;
+						idxUv[i] -= nTotalUvCount;
+						idxNormal[i] -= nTotalNormalCount;
+
+						SVertex vertex;
+						SVertex_NormalMap vertexN;
+						vertexN.pos = vertex.pos = vecPos[idxPos[i]];
+						vertexN.uv = vertex.uv = vecUv[idxUv[i]];
+						vertex.normal = vecNormal[idxNormal[i]];
+
+						SVertCompare comp = { idxPos[i], idxUv[i], idxNormal[i] };
+
+						DWORD idxVert;
+						if (_DefineVertex(comp, idxVert))
+						{
+							vecVertexWithN.push_back(vertexN);
+							idxVert = vecVertexWithN.size() - 1;
+
+							vecVertex.push_back(vertex);
+							idxVert = vecVertex.size() - 1;
+						}
+
+						vecIndex.push_back(idxVert);
+					}
+				}
+				else if (strcmp(command.c_str(), "g") == 0)
+				{
+					bFlush = true;
+				}
+				else if (strcmp(command.c_str(), "mtllib") == 0)
+				{
+					STRING filename;
+					file >> filename;
+					assert(!filename.empty());
+
+					if (!_ReadMtrl(filename))
+						return false;
+				}
+				else if (strcmp(command.c_str(), "usemtl") == 0)
+				{
+					STRING matName;
+					file >> matName;
+
+					Material* pMtl = MaterialManager::GetSingleton().GetMaterial(matName);
+
+					pMtl->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+
+					pMesh->SetMaterial(pMtl);
+
+					if (pMtl->GetSubMaterial(0).m_pTexture[eTexSlot_NormalMap])
+					{
+						bNormalMap = true;
+					}
+				}
+
+				//读下一行
+				file.ignore(1000, '\n');
+			}
+
+			SubMesh* pSubMesh = new SubMesh;
+			pMesh->AddSubMesh(pSubMesh);
+
+			if (bNormalMap)
+			{
+				Mesh::BuildTangentVectors(&vecVertexWithN[0], &vecIndex[0], vecIndex.size());
+				pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
+			}
+			else
+			{
+				pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], vecVertex.size(), true);
+			}
+
+			pSubMesh->InitIndexData(&vecIndex[0], vecIndex.size(), true);
+
+			Entity* pEntity = new Entity(pMesh);
+			pEntity->SetCastShadow(false);
+			scene->AddEntity(pEntity);
+
+			nTotalPosCount += nPos;
+			nTotalUvCount += nUv;
+			nTotalNormalCount += nNormal;
+		}
+
+		return true;
 	}
 }

@@ -10,6 +10,9 @@
 #include "Mesh.h"
 #include "ShadowMap.h"
 #include "ShadowMapCSM.h"
+#include "AmbientCube.h"
+#include "MaterialManager.h"
+#include "ObjMeshLoader.h"
 
 using namespace Neo;
 
@@ -29,13 +32,12 @@ void SetupTestScene1(Scene* scene)
 	QUATERNION quat(VEC3::UNIT_Y, 90);
 	pEntity->SetRotation(quat);
 
-	Neo::Material* pMaterial = new Material;
+	Neo::Material* pMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_01");
 
 	pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableSSAO);
 
 	pEntity->SetMaterial(pMaterial);
-	SAFE_RELEASE(pMaterial);
 
 	scene->AddEntity(pEntity);
 }
@@ -52,7 +54,7 @@ void EnterTestScene1(Scene* scene)
 
 void SetupTestScene2(Scene* scene)
 {
-	Neo::Material* pMaterial = new Neo::Material;
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01");
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("lion.bmp")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
@@ -82,8 +84,6 @@ void SetupTestScene2(Scene* scene)
 		pEntity->SetReceiveShadow(false);
 		pEntity->SetPosition(VEC3(2000, 0, 0));
 	}
-
-	pMaterial->Release();
 }
 
 void EnterTestScene2(Scene* scene)
@@ -135,15 +135,14 @@ void SetupTestScene4(Scene* scene)
 	scene->AddEntity(pEntity);
 	pEntity->SetCastShadow(false);
 
-	Neo::Material* pMaterial = new Neo::Material;
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01");
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);
-	pMaterial->Release();
 
 
 	// Shadow caster
-	pMaterial = new Neo::Material;
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_02");
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->GetSubMaterial(0).specular.Set(0.9f, 0.9f, 0.9f);
 	pMaterial->GetSubMaterial(0).glossiness = 0.9f;
@@ -162,8 +161,6 @@ void SetupTestScene4(Scene* scene)
 			pCaster->SetPosition(VEC3(-100 + i * 40.f, 8, -100 + j * 40.f));
 		}
 	}
-
-	pMaterial->Release();
 }
 
 void EnterTestScene4(Scene* scene)
@@ -202,6 +199,7 @@ void SetupTestScene6(Scene* scene)
 {
 	// Sun light
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.6f, 0.6f, 0.6f));
+	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Add 100 point lights to scene
 	for (int i = 0; i < 10; ++i)
@@ -242,10 +240,11 @@ void SetupTestScene6(Scene* scene)
 	pMesh->AddSubMesh(pSubmesh);
 
 	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+	pEntity->SetCastShadow(false);
 	scene->AddEntity(pEntity);
 
 
-	Neo::Material* pMaterial = new Neo::Material(eVertexType_NormalMap);
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor", eVertexType_NormalMap);
 	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("floor_diffuse.png")));
 	pMaterial->SetTexture(1, new Neo::D3D11Texture(GetResPath("floor_bump.png")));
 
@@ -255,19 +254,78 @@ void SetupTestScene6(Scene* scene)
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 
 	pEntity->SetMaterial(pMaterial);
-	pMaterial->Release();
+
+	// Ambient cube
+	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"));
+	_AST(bOk);
+	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
+		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap), 
+		new Neo::D3D11Texture(GetResPath("ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Another test sphere entity
 	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
+	pEntity->SetPosition(VEC3(0, 2, 0));
 	scene->AddEntity(pEntity);
 
-	pMaterial = new Neo::Material(eVertexType_General, 10);
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sphere", eVertexType_General, 10);
 
 	for (int i = 0; i < 10; ++i)
 	{
-		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("Black1x1.png")));
 		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
 		pMaterial->GetSubMaterial(i).specular.Set(1,1,1);
+	}
+
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+	pEntity->SetMaterial(pMaterial);
+}
+
+void EnterTestScene6(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(0, 5, 0));
+	pCamera->SetNearClip(0.5f);
+	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+}
+
+
+void SetupTestScene7(Scene* scene)
+{
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.6f, 0.6f, 0.6f));
+	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
+
+	// Sponza scene
+	bool bOk = Neo::ObjMeshLoader::LoadSponzaScene(scene);
+	_AST(bOk);
+
+	// Ambient cube
+	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"));
+	_AST(bOk);
+	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
+		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap),
+		new Neo::D3D11Texture(GetResPath("ambientcube_spec.dds"), eTextureType_CubeMap));
+
+	// Another test sphere entity
+	Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
+
+	pEntity->SetScale(0.5f);
+	pEntity->SetPosition(VEC3(0, 2, 0));
+	QUATERNION rot;
+	rot.FromAxisAngle(VEC3::UNIT_Y, 90);
+	pEntity->SetRotation(rot);
+
+	scene->AddEntity(pEntity);
+
+	Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01", eVertexType_General, 10);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("Black1x1.png")));
+		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
+		pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
 	}
 
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
@@ -275,13 +333,13 @@ void SetupTestScene6(Scene* scene)
 	pMaterial->Release();
 }
 
-void EnterTestScene6(Scene* scene)
+void EnterTestScene7(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0, 5, 0));
-	pCamera->SetNearClip(0.05f);
+	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetMoveSpeed(0.5f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 
@@ -299,13 +357,16 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
 		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+
+		//// Test Scene 7: Sponza
+		ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);
 	}
 }
 

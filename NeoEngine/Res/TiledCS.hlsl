@@ -1,4 +1,5 @@
 #include "Common.h"
+#include "DeferredShadingCommon.h"
 
 #define		DEBUG_LIGHT_COUNT				0
 
@@ -19,9 +20,13 @@ Texture2D texShadow1 : register(t4);
 Texture2D texShadow2 : register(t5);
 Texture2D texShadow3 : register(t6);
 StructuredBuffer<PointLight> gLight : register(t7);
+TextureCube texAmbientCubeDiff : register(t8);
+TextureCube texAmbientCubeSpec : register(t9);
+Texture2D texEnvBRDF : register(t10);
 
 SamplerState samPoint : register(s0);
 SamplerComparisonState samShadow : register(s1);
+SamplerState samLinear : register(s2);
 
 // Per-tile shared data
 groupshared uint s_TileMinZ;
@@ -159,15 +164,18 @@ void CS(
 
 		float4 albedo = texAlbedo.SampleLevel(samPoint, texUV, 0.0f);
 
-		// Ambient
-		oColor = ambientColor * albedo;
-
 		// Sun light
 		float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, 
 			shadowMapTexelSize, samShadow, texShadow1, texShadow2, texShadow3);
 
-		oColor.xyz += albedo.xyz * cDiffuse.xyz + cSpecular;
+		oColor.xyz = albedo.xyz * cDiffuse.xyz + cSpecular;
 		oColor *= vShadow;
+
+		// Ambient
+		float4 vAmbientDiff, vAmbientSpec;
+		ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texAmbientCubeDiff, texAmbientCubeSpec, texEnvBRDF, samLinear, vView, vNormal, specGloss.xyz, specGloss.w);
+
+		oColor += vAmbientSpec + vAmbientDiff * albedo;
 
 		// Point lights
 		uint nPointLights = s_TileLightNum;

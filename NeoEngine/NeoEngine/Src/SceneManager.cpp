@@ -18,6 +18,8 @@
 #include "TiledRenderer.h"
 #include "StructuredBuffer.h"
 #include "ShadowMapCSM.h"
+#include "AmbientCube.h"
+#include "MaterialManager.h"
 
 
 namespace Neo
@@ -39,6 +41,8 @@ namespace Neo
 	, m_pRT_Compose(nullptr)
 	, m_pRT_Depth(nullptr)
 	, m_pTBDR(nullptr)
+	, m_pAmbientCube(nullptr)
+	, m_pTexEnvBRDF(nullptr)
 	{
 		
 	}
@@ -47,6 +51,8 @@ namespace Neo
 	{
 		const uint32 nScreenWidth = m_pRenderSystem->GetWndWidth();
 		const uint32 nScreenHeight = m_pRenderSystem->GetWndHeight();
+
+		m_pTexEnvBRDF = new D3D11Texture(GetResPath("EnvironmentBRDF.dds"));
 
 		m_pRT_Normal = m_pRenderSystem->CreateRenderTarget();
 		m_pRT_Albedo = m_pRenderSystem->CreateRenderTarget();
@@ -65,6 +71,7 @@ namespace Neo
 
 		m_pSSAO = new SSAO;
 		m_pTBDR = new TileBasedDeferredRenderer;
+		m_pAmbientCube = new AmbientCube;
 
 		{
 			m_pDebugRTMesh = new Mesh;
@@ -84,7 +91,8 @@ namespace Neo
 
 			m_pDebugRTMesh->AddSubMesh(pSubMesh);
 
-			m_pDebugRTMaterial = new Material;
+			m_pDebugRTMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugRT");
+			m_pDebugRTMaterial->AddRef();
 			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), eShader_UI);
 
 			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
@@ -102,12 +110,14 @@ namespace Neo
 		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
 		m_scenes.clear();
 
+		SAFE_DELETE(m_pAmbientCube);
 		SAFE_DELETE(m_pShadowMap);
 		SAFE_DELETE(m_camera);
 		SAFE_DELETE(m_pDebugRTMesh);
 		SAFE_DELETE(m_pMeshLoader);
 		SAFE_DELETE(m_pSSAO);
 		SAFE_DELETE(m_pTBDR);
+		SAFE_RELEASE(m_pTexEnvBRDF);
 		SAFE_RELEASE(m_pRT_Normal);
 		SAFE_RELEASE(m_pRT_Albedo);
 		SAFE_RELEASE(m_pRT_Specular);
@@ -158,6 +168,7 @@ namespace Neo
 		//================================================================================
 		if (m_pShadowMap)
 		{
+			m_curRenderPhase = eRenderPhase_ShadowMap;
 			m_pShadowMap->Render();
 		}
 
@@ -286,7 +297,7 @@ namespace Neo
 
 		if (!pMtl)
 		{
-			pMtl = new Material;
+			pMtl = MaterialManager::GetSingleton().NewMaterial("Mtl_LinearDepth");
 
 			pMtl->SetTexture(0, m_pRenderSystem->GetDepthTexture());
 
@@ -309,7 +320,7 @@ namespace Neo
 
 		if (!pMtlCompose)
 		{
-			pMtlCompose = new Material;
+			pMtlCompose = MaterialManager::GetSingleton().NewMaterial("Mtl_DeferredShadingCompose");
 
 			pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
 			pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
@@ -318,14 +329,21 @@ namespace Neo
 			pMtlCompose->SetTexture(4, m_pShadowMap->GetCSM()->GetShadowTexture(0));
 			pMtlCompose->SetTexture(5, m_pShadowMap->GetCSM()->GetShadowTexture(1));
 			pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
+			pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
+			pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
+			pMtlCompose->SetTexture(10, m_pAmbientCube->GetIrradianceTexture());
+			pMtlCompose->SetTexture(11, m_pAmbientCube->GetRadianceTexture());
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			pMtlCompose->SetSamplerStateDesc(0, samPoint);
 
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			pMtlCompose->SetSamplerStateDesc(1, samPoint);
+
 			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
-			pMtlCompose->SetSamplerStateDesc(1, samPoint);
+			pMtlCompose->SetSamplerStateDesc(2, samPoint);
 
 			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
 				0, 0, "VS", "ComposePS");
@@ -349,7 +367,7 @@ namespace Neo
 
 		if (!pMtlFinalScene)
 		{
-			pMtlFinalScene = new Material;
+			pMtlFinalScene = MaterialManager::GetSingleton().NewMaterial("Mtl_HDRFinalScene");
 
 			pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
 
@@ -406,7 +424,7 @@ namespace Neo
 
 			if (meshname.find(".obj") != STRING::npos)
 			{
-				mesh = ObjMeshLoader::LoadMesh(meshname, true, false);
+				mesh = ObjMeshLoader::LoadMesh(meshname, false, false);
 			}
 			else
 			{
@@ -716,5 +734,10 @@ namespace Neo
 	void SceneManager::AddPointLight(const SPointLight& light)
 	{
 		m_vecPointLights.push_back(light);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::SetShadowDepthBias(float fBias)
+	{
+		m_pRenderSystem->GetGlobalCB().shadowDepthBias = fBias;
 	}
 }

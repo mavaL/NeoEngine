@@ -80,7 +80,14 @@
     <ClInclude Include="..\Dependency\tinyxml\tinystr.h" />
     <ClInclude Include="..\Dependency\tinyxml\tinyxml.h" />
     <ClInclude Include="..\Res\Common.h" />
+    <FxCompile Include="..\Res\DeferredShadingCommon.h">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
     <ClInclude Include="Include\AABB.h" />
+    <ClInclude Include="Include\AmbientCube.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\Common.h" />
     <ClInclude Include="Include\ConvexBody.h" />
@@ -93,6 +100,7 @@
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Light.h" />
     <ClInclude Include="Include\Material.h" />
+    <ClInclude Include="Include\MaterialManager.h" />
     <ClInclude Include="Include\MathDef.h" />
     <ClInclude Include="Include\Mesh.h" />
     <ClInclude Include="Include\MeshLoader.h" />
@@ -218,6 +226,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\AABB.cpp" />
+    <ClCompile Include="Src\AmbientCube.cpp" />
     <ClCompile Include="Src\Camera.cpp" />
     <ClCompile Include="Src\ConvexBody.cpp" />
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
@@ -227,6 +236,7 @@
     <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\Light.cpp" />
     <ClCompile Include="Src\Material.cpp" />
+    <ClCompile Include="Src\MaterialManager.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\Mesh.cpp" />
     <ClCompile Include="Src\MeshLoader.cpp" />

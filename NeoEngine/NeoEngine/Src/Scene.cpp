@@ -7,7 +7,6 @@
 #include "Terrain.h"
 #include "Entity.h"
 
-
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
@@ -84,7 +83,12 @@ namespace Neo
 	{
 		for (size_t i = 0; i < m_lstEntity.size(); ++i)
 		{
-			m_lstEntity[i]->Render();
+			const eRenderPhase curPhase = g_env.pSceneMgr->GetCurRenderPhase();
+
+			if (curPhase != eRenderPhase_ShadowMap || m_lstEntity[i]->GetCastShadow())
+			{
+				m_lstEntity[i]->Render();
+			}
 		}
 	}
 }

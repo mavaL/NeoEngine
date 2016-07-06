@@ -19,7 +19,6 @@ namespace Neo
 	,m_pRenderTexture(nullptr)
 	,m_bHasDepthBuffer(false)
 	,m_bUpdateRatioAspect(true)
-	,m_phaseFlag(eRenderPhase_All)
 	,m_pDepthStencil(nullptr)
 	,m_sizeRatio(0, 0)
 	{

@@ -49,10 +49,10 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Water::_InitMaterial()
 	{
-		const uint32 screenW = m_pRenderSystem->GetWndWidth();
-		const uint32 screenH = m_pRenderSystem->GetWndHeight();
+		//const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		//const uint32 screenH = m_pRenderSystem->GetWndHeight();
 
-		// Reflection map
+		//// Reflection map
 		//m_pRT_Reflection = m_pRenderSystem->CreateRenderTarget();
 		//m_pRT_Reflection->Init(screenW / 2, screenH / 2, ePF_A8B8G8R8);
 		//m_pRT_Reflection->SetRenderPhase(eRenderPhase_Geometry & ~eRenderPhase_Water);
@@ -68,33 +68,33 @@ namespace Neo
 		//// TODO: terrain gets water-shore transition
 		//m_pRT_Depth->SetRenderPhase(eRenderPhase_Opaque /*| eRenderPhase_Terrain*/);
 
-		// Create material
-		m_pRefracMaterial = new Material;
-		m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"), eShader_Transparent);
+		//// Create material
+		//m_pRefracMaterial = new Material;
+		//m_pRefracMaterial->InitShader(GetResPath("Water_RefractionMask.hlsl"), GetResPath("Water_RefractionMask.hlsl"), eShader_Transparent);
 
-		m_pWaterDepthMaterial = new Material;
-		m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"), eShader_Transparent);
+		//m_pWaterDepthMaterial = new Material;
+		//m_pWaterDepthMaterial->InitShader(GetResPath("Water_Depth.hlsl"), GetResPath("Water_Depth.hlsl"), eShader_Transparent);
 
-		m_pFinalComposeMaterial = new Material;
-		m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"), eShader_Transparent);
+		//m_pFinalComposeMaterial = new Material;
+		//m_pFinalComposeMaterial->InitShader(GetResPath("Water_Final.hlsl"), GetResPath("Water_Final.hlsl"), eShader_Transparent);
 
-		// Noise map
-		m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
-		// Reflection map
-		m_pFinalComposeMaterial->SetTexture(1, m_pRT_Reflection->GetRenderTexture());
-		// Refraction mask map
-		m_pFinalComposeMaterial->SetTexture(2, m_pTexSceneWithRefracMask);
-		// Water depth map
-		m_pFinalComposeMaterial->SetTexture(3, m_pRT_Depth->GetRenderTexture());
+		//// Noise map
+		//m_pFinalComposeMaterial->SetTexture(0, new D3D11Texture(GetResPath("waves2.dds")));
+		//// Reflection map
+		//m_pFinalComposeMaterial->SetTexture(1, m_pRT_Reflection->GetRenderTexture());
+		//// Refraction mask map
+		//m_pFinalComposeMaterial->SetTexture(2, m_pTexSceneWithRefracMask);
+		//// Water depth map
+		//m_pFinalComposeMaterial->SetTexture(3, m_pRT_Depth->GetRenderTexture());
 
-		for (int i=1; i<=3; ++i)
-		{
-			D3D11_SAMPLER_DESC& sampler = m_pFinalComposeMaterial->GetSamplerStateDesc(i);
-			sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//for (int i=1; i<=3; ++i)
+		//{
+		//	D3D11_SAMPLER_DESC& sampler = m_pFinalComposeMaterial->GetSamplerStateDesc(i);
+		//	sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//	sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-			m_pFinalComposeMaterial->SetSamplerStateDesc(i, sampler);
-		}
+		//	m_pFinalComposeMaterial->SetSamplerStateDesc(i, sampler);
+		//}
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_InitWaterMesh(float waterHeight)

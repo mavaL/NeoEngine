@@ -29,7 +29,7 @@ namespace Neo
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }
 		void		ClearScene();
-		uint32		GetCurRenderPhase() const { return m_curRenderPhase; }
+		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
 
 		// Create entity from loaded mesh
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
@@ -37,6 +37,7 @@ namespace Neo
 		void		SetRenderFlag(uint32 flag) { m_renderFlag = flag; }
 		uint32		GetRenderFlag() const	{ return m_renderFlag; }
 		void		EnableDebugRT(eDebugRT type);
+		void		SetShadowDepthBias(float fBias);
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
 		void		AddPointLight(const SPointLight& light);
@@ -52,7 +53,9 @@ namespace Neo
 		SSAO*		GetSSAO()		{ return m_pSSAO; }
 		Terrain*	GetTerrain()	{ return m_pTerrain; }
 		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
+		AmbientCube*	GetAmbientCube() { return m_pAmbientCube; }
 		const PointLightVector& GetPointLights() const { return m_vecPointLights; }
+		D3D11Texture*	GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
@@ -80,6 +83,7 @@ namespace Neo
 		eRenderPhase	m_curRenderPhase;
 		Camera*			m_camera;
 		SDirectionLight	m_sunLight;				// Sun light
+		AmbientCube*	m_pAmbientCube;
 		PointLightVector	m_vecPointLights;	// Point lights in current scene
 		Terrain*		m_pTerrain;
 		Water*			m_pWater;
@@ -87,6 +91,7 @@ namespace Neo
 		ShadowMap*		m_pShadowMap;
 		SSAO*			m_pSSAO;
 		TileBasedDeferredRenderer*	m_pTBDR;
+		D3D11Texture*	m_pTexEnvBRDF;
 
 		MeshLoader*		m_pMeshLoader;
 		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;

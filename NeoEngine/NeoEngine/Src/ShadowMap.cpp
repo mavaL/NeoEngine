@@ -22,7 +22,6 @@ namespace Neo
 		m_pRT_ShadowMap = new D3D11RenderTarget;
 		// FIXME: Shadow map doesn't really need a frame buffer.
 		m_pRT_ShadowMap->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
-		m_pRT_ShadowMap->SetRenderPhase(eRenderPhase_ShadowMap);
 
 		m_pCSM = new ShadowMapCSM;
 

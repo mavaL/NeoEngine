@@ -168,64 +168,63 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Terrain::_InitMaterial()
 	{
-		Material* pMaterial = new Material;
+		//Material* pMaterial = new Material;
 
-		// Create layer texture array
-		StringVector vecTexNames;
-		vecTexNames.push_back(GetResPath("darkdirt.dds"));
-		vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
-		vecTexNames.push_back(GetResPath("lightdirt.dds"));
-		vecTexNames.push_back(GetResPath("grass.dds"));
-		vecTexNames.push_back(GetResPath("Snow.dds"));
+		//// Create layer texture array
+		//StringVector vecTexNames;
+		//vecTexNames.push_back(GetResPath("darkdirt.dds"));
+		//vecTexNames.push_back(GetResPath("dirt_grayrocky.dds"));
+		//vecTexNames.push_back(GetResPath("lightdirt.dds"));
+		//vecTexNames.push_back(GetResPath("grass.dds"));
+		//vecTexNames.push_back(GetResPath("Snow.dds"));
 
-		m_pLayerTexArray = new D3D11Texture(vecTexNames);
+		//m_pLayerTexArray = new D3D11Texture(vecTexNames);
 
-		// Load layer blend map
-		m_pBlendMap = new D3D11Texture(GetResPath("blend.dds"));
+		//// Load layer blend map
+		//m_pBlendMap = new D3D11Texture(GetResPath("blend.dds"));
 
-		// Setup texture stages
-		pMaterial->SetTexture(0, m_pHeightMap);
-		pMaterial->SetTexture(1, m_pLayerTexArray);
-		pMaterial->SetTexture(2, m_pBlendMap);
+		//// Setup texture stages
+		//pMaterial->SetTexture(0, m_pHeightMap);
+		//pMaterial->SetTexture(1, m_pLayerTexArray);
+		//pMaterial->SetTexture(2, m_pBlendMap);
 
-		D3D11Texture* pNormalMap = new D3D11Texture(GetResPath("dirt_grayrocky_ddn.dds"));
-		pMaterial->SetTexture(3, pNormalMap);
-		pNormalMap->Release();
+		//D3D11Texture* pNormalMap = new D3D11Texture(GetResPath("dirt_grayrocky_ddn.dds"));
+		//pMaterial->SetTexture(3, pNormalMap);
+		//pNormalMap->Release();
 
-		// ?????????????????????????????????????????
-		pMaterial->SetCullMode(D3D11_CULL_NONE);
+		//// ?????????????????????????????????????????
+		//pMaterial->SetCullMode(D3D11_CULL_NONE);
 
-		// Turn GPU frustum clipping on
-		D3D_SHADER_MACRO macro[] = { "GPU_FRUSTUM_CLIP", "" };
+		//// Turn GPU frustum clipping on
+		//D3D_SHADER_MACRO macro[] = { "GPU_FRUSTUM_CLIP", "" };
 
-		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), eShader_Terrain,
-			eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
-		pMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"), 
-			eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
+		//pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), eShader_Terrain,
+		//	eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
+		//pMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"), 
+		//	eShaderFlag_EnableShadowReceive | eShaderFlag_EnableClipPlane, macro);
 
 
-		{
-			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
-			samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//{
+		//	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
+		//	samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		//	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		//	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-			pMaterial->SetSamplerStateDesc(0, samDesc);
-		}
-		
-		{
-			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(1);
-			samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		//	pMaterial->SetSamplerStateDesc(0, samDesc);
+		//}
+		//
+		//{
+		//	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(1);
+		//	samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		//	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		//	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 
-			pMaterial->SetSamplerStateDesc(1, samDesc);
-			pMaterial->SetSamplerStateDesc(2, samDesc);
-			pMaterial->SetSamplerStateDesc(3, samDesc);
-		}
+		//	pMaterial->SetSamplerStateDesc(1, samDesc);
+		//	pMaterial->SetSamplerStateDesc(2, samDesc);
+		//	pMaterial->SetSamplerStateDesc(3, samDesc);
+		//}
 
-		m_pMesh->SetMaterial(pMaterial);
-		pMaterial->Release();
+		//m_pMesh->SetMaterial(pMaterial);
 	}
 	//------------------------------------------------------------------------------------
 	void Terrain::Render()

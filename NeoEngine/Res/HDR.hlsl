@@ -51,8 +51,12 @@ float4 PS( VS_OUTPUT IN ) : SV_Target
 {
 #ifdef TBDR
 	uint2 index = IN.uv * frameBufferSize.xy;
-	return UnpackRGBA16(gLitTextureFlat[index.y * frameBufferSize.x + index.x]);
+	float4 sceneColor = UnpackRGBA16(gLitTextureFlat[index.y * frameBufferSize.x + index.x]);
 #else
-	return texScene.Sample(samPoint, IN.uv);
+	float4 sceneColor = texScene.Sample(samPoint, IN.uv);
 #endif
+
+	// sRGB encode
+	//return pow(sceneColor, 1.0f/ 2.2f);
+	return sceneColor;
 }

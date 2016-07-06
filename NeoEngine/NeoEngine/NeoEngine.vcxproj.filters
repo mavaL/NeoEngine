@@ -135,6 +135,12 @@
     <ClInclude Include="Include\Light.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\AmbientCube.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\MaterialManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -250,6 +256,12 @@
     <ClCompile Include="Src\Light.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Src\AmbientCube.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\MaterialManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Res\SSAO.hlsl">
@@ -306,6 +318,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Opaque.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\DeferredShadingCommon.h">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

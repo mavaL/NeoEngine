@@ -265,31 +265,6 @@ namespace Neo
 		HRESULT hr = S_OK;
 		V(m_pSwapChain->Present(0, 0));
 	}
-	//-------------------------------------------------------------------------------
-	void D3D11RenderSystem::AddMaterial( const STRING& name, Material* pMaterial )
-	{
-		auto iter = m_matLib.find(name);
-		if (iter != m_matLib.end())
-		{
-			throw std::exception("Error! There is already a same name material!");
-			return;
-		}
-
-		m_matLib.insert(std::make_pair(name, pMaterial));
-	}
-	//-------------------------------------------------------------------------------
-	Material* D3D11RenderSystem::GetMaterial( const STRING& name )
-	{
-		auto iter = m_matLib.find(name);
-		if (iter == m_matLib.end())
-		{
-			return nullptr;
-		} 
-		else
-		{
-			return iter->second;
-		}
-	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetActiveTexture( int stage, D3D11Texture* pTexture)
 	{

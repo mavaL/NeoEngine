@@ -23,7 +23,6 @@ namespace Neo
 		{
 			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
 			m_shadowMapCascades[iCascade]->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
-			m_shadowMapCascades[iCascade]->SetRenderPhase(eRenderPhase_ShadowMap);
 		}
 	}
 	//------------------------------------------------------------------------------------

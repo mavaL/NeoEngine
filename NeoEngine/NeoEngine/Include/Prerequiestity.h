@@ -188,8 +188,9 @@ namespace Neo
 	class	TileBasedDeferredRenderer;
 	template<typename t>class	StructuredBuffer;
 	struct	SPointLight;
-
 	typedef std::vector<SPointLight>	PointLightVector;
+	class	AmbientCube;
+	class	MaterialManager;
 }
 
 

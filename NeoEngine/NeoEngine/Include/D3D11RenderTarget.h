@@ -28,7 +28,6 @@ namespace Neo
 
 		void			BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
 		void			AfterRender();
-		void			SetRenderPhase(uint32 phaseFlag) { m_phaseFlag = phaseFlag; }
 		D3D11Texture*	GetRenderTexture() { return m_pRenderTexture; }
 		D3D11Texture*	GetDepthTexture() {return m_pDepthStencil; }
 
@@ -53,7 +52,6 @@ namespace Neo
 		VEC2			m_sizeRatio;		// ratio to screen size
 		bool			m_bHasDepthBuffer;
 		bool			m_bUpdateRatioAspect;
-		uint32			m_phaseFlag;
 	};
 }
 

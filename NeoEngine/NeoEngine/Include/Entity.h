@@ -40,6 +40,7 @@ namespace Neo
 		void			SetUpdateAABB(bool b)	{ m_bUpdateAABB = b; }
 		void			SetLocalAABB(const AABB& aabb) { m_localAABB = aabb; }
 		const AABB&		GetWorldAABB() const	{ return m_worldAABB; }
+		Mesh*			GetMesh() { return m_pMesh; }
 
 		void			SetCastShadow(bool bCast) { m_bCastShadow = bCast; }
 		bool			GetCastShadow() const	{ return m_bCastShadow; }
