@@ -15,7 +15,7 @@ namespace Neo
 	class MeshLoader
 	{
 	public:
-		static Mesh*	LoadMesh(const STRING& filename);
+		static Mesh*	LoadMesh(const STRING& filename, bool bMaterial = false);
 
 	private:
 		static void		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);

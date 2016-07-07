@@ -740,4 +740,40 @@ namespace Neo
 	{
 		m_pRenderSystem->GetGlobalCB().shadowDepthBias = fBias;
 	}
+	//------------------------------------------------------------------------------------
+	bool SceneManager::LoadSponzaScene(Scene* pScene)
+	{
+		WIN32_FIND_DATAA f;
+		HANDLE h;
+		BOOL bNext = true;
+
+		// Load materials
+		bool bOk = ObjMeshLoader::LoadMtlFile("sponza\\sponza.mtl");
+
+		if (!bOk)
+		{
+			return false;
+		}
+
+		// Load all .mesh
+		h = ::FindFirstFileA(GetResPath("sponza\\*.mesh").c_str(), &f);
+		while (h != INVALID_HANDLE_VALUE && bNext)
+		{
+			STRING filename("sponza\\");
+			filename +=f.cFileName;
+
+			Mesh* pMesh = MeshLoader::LoadMesh(GetResPath(filename), true);
+			Entity* pEntity = new Entity(pMesh);
+			pEntity->SetCastShadow(false);
+			
+			pScene->AddEntity(pEntity);
+
+			bNext = ::FindNextFileA(h, &f);
+		}
+
+		::FindClose(h);
+
+		return true;
+	}
+
 }

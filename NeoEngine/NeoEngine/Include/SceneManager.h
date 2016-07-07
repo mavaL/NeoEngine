@@ -61,6 +61,7 @@ namespace Neo
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
 		static Mesh*	CreateCubeMesh(const VEC3& minPt, const VEC3& maxPt);
 		static Mesh*	CreateFrustumMesh(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop);
+		bool			LoadSponzaScene(Scene* pScene);
 
 	private:
 		void		_InitAllScene();

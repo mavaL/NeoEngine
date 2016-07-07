@@ -26,12 +26,11 @@ namespace Neo
 		};
 
 		static Mesh*	LoadMesh(const STRING& filename, bool bFlipYZ, bool bNormalMap);
-		static bool		LoadSponzaScene(Scene* scene);
+		static bool		LoadMtlFile(const STRING& filename);
 
 	private:
 		static void	_PreReadObject(std::ifstream& file, DWORD& nVert, DWORD& nUv, DWORD& nNormal, DWORD& nFace);
 		static bool	_DefineVertex(const SVertCompare& comp, DWORD& retIdx);
-		static bool	_ReadMtrl(const STRING& filename);
 
 		static std::vector<SVertCompare>	m_vecComp;
 	};

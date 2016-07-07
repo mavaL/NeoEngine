@@ -298,11 +298,11 @@ void SetupTestScene7(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
-	bool bOk = Neo::ObjMeshLoader::LoadSponzaScene(scene);
+	bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
 	_AST(bOk);
 
 	// Ambient cube
-	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"));
+	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), "tmp_cubemap.dds");
 	_AST(bOk);
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
 		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap),
@@ -311,8 +311,8 @@ void SetupTestScene7(Scene* scene)
 	// Another test sphere entity
 	Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
 
-	pEntity->SetScale(0.5f);
-	pEntity->SetPosition(VEC3(0, 2, 0));
+	pEntity->SetScale(0.3f);
+	pEntity->SetPosition(VEC3(-2, 0.5f, 0));
 	QUATERNION rot;
 	rot.FromAxisAngle(VEC3::UNIT_Y, 90);
 	pEntity->SetRotation(rot);
@@ -330,7 +330,6 @@ void SetupTestScene7(Scene* scene)
 
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);
-	pMaterial->Release();
 }
 
 void EnterTestScene7(Scene* scene)
@@ -339,7 +338,7 @@ void EnterTestScene7(Scene* scene)
 	pCamera->SetPosition(VEC3(0, 5, 0));
 	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.5f);
+	pCamera->SetMoveSpeed(0.1f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 

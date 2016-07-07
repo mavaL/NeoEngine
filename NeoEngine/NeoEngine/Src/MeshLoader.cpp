@@ -1,13 +1,15 @@
 #include "stdafx.h"
 #include "MeshLoader.h"
 #include "Mesh.h"
+#include "MaterialManager.h"
+#include "Material.h"
 
 
 using namespace std;
 
 namespace Neo
 {
-	Mesh* MeshLoader::LoadMesh( const STRING& filename )
+	Mesh* MeshLoader::LoadMesh(const STRING& filename, bool bMaterial)
 	{
 		TiXmlDocument doc;
 		if(!doc.LoadFile(filename.c_str()))
@@ -31,6 +33,15 @@ namespace Neo
 			const char* szName = submeshNode->Attribute("name");
 			if(szName) 
 				pSubMesh->SetName(szName);
+
+			if (bMaterial)
+			{
+				const char* szMtlName = submeshNode->Attribute("material");
+				_AST(szMtlName);
+
+				Material* pMaterial = MaterialManager::GetSingleton().GetMaterial(szMtlName);
+				pMesh->SetMaterial(pMaterial);
+			}
 
 			//读取面信息
 			{
