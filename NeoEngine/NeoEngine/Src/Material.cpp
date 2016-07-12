@@ -80,6 +80,10 @@ namespace Neo
 		V_RETURN(_CompileShaderFromFile(psFileName.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
 
 		// Create shader
+		SAFE_RELEASE(m_pVertexShader);
+		SAFE_RELEASE(m_pPixelShader);
+		SAFE_RELEASE(m_pPS_GBuffer);
+
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
 		V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader ));
 

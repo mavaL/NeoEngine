@@ -43,6 +43,9 @@ namespace Neo
 	, m_pTBDR(nullptr)
 	, m_pAmbientCube(nullptr)
 	, m_pTexEnvBRDF(nullptr)
+	, m_pMtlCompose(nullptr)
+	, m_pMtlLinearizeDepth(nullptr)
+	, m_pMtlFinalScene(nullptr)
 	{
 		
 	}
@@ -98,6 +101,63 @@ namespace Neo
 			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
 		}
 
+		{
+			m_pMtlLinearizeDepth = MaterialManager::GetSingleton().NewMaterial("Mtl_LinearDepth");
+
+			m_pMtlLinearizeDepth->SetTexture(0, m_pRenderSystem->GetDepthTexture());
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			m_pMtlLinearizeDepth->SetSamplerStateDesc(0, samPoint);
+
+			m_pMtlLinearizeDepth->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
+				0, 0, "VS", "LinearizeDepthPS");
+		}
+
+		{
+			m_pMtlCompose = MaterialManager::GetSingleton().NewMaterial("Mtl_DeferredShadingCompose");
+			m_pMtlCompose->AddRef();
+
+			m_pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
+			m_pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
+			m_pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
+			m_pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
+			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetCSM()->GetShadowTexture(0));
+			m_pMtlCompose->SetTexture(5, m_pShadowMap->GetCSM()->GetShadowTexture(1));
+			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
+			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
+			m_pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			m_pMtlCompose->SetSamplerStateDesc(0, samPoint);
+
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
+
+			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
+			m_pMtlCompose->SetSamplerStateDesc(2, samPoint);
+
+			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
+
+			m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
+				0, &macro, "VS", "ComposePS");
+		}
+
+		{
+			m_pMtlFinalScene = MaterialManager::GetSingleton().NewMaterial("Mtl_HDRFinalScene");
+
+			m_pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
+
+			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			m_pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
+
+			D3D_SHADER_MACRO mac = { "TBDR", "" };
+			m_pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
+		}
+
 		_InitAllScene();
 
 		return true;
@@ -124,6 +184,9 @@ namespace Neo
 		SAFE_RELEASE(m_pRT_Compose);
 		SAFE_RELEASE(m_pRT_Depth);
 		SAFE_RELEASE(m_pDebugRTMaterial);
+		SAFE_RELEASE(m_pMtlCompose);
+		SAFE_RELEASE(m_pMtlLinearizeDepth);
+		SAFE_RELEASE(m_pMtlFinalScene);
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::CreateSky()
@@ -293,63 +356,17 @@ namespace Neo
 	{
 		m_curRenderPhase = eRenderPhase_None;
 
-		static Material* pMtl = nullptr;
-
-		if (!pMtl)
-		{
-			pMtl = MaterialManager::GetSingleton().NewMaterial("Mtl_LinearDepth");
-
-			pMtl->SetTexture(0, m_pRenderSystem->GetDepthTexture());
-
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			pMtl->SetSamplerStateDesc(0, samPoint);
-
-			pMtl->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
-				0, 0, "VS", "LinearizeDepthPS");
-		}
-
-		m_pRT_Depth->RenderScreenQuad(pMtl, false, false);
+		m_pRT_Depth->RenderScreenQuad(m_pMtlLinearizeDepth, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_CompositionPass()
 	{
 		m_curRenderPhase = eRenderPhase_Compose;
 
-		static Material* pMtlCompose = nullptr;
+		m_pMtlCompose->SetTexture(10, m_pAmbientCube->GetIrradianceTexture());
+		m_pMtlCompose->SetTexture(11, m_pAmbientCube->GetRadianceTexture());
 
-		if (!pMtlCompose)
-		{
-			pMtlCompose = MaterialManager::GetSingleton().NewMaterial("Mtl_DeferredShadingCompose");
-
-			pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
-			pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
-			pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
-			pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
-			pMtlCompose->SetTexture(4, m_pShadowMap->GetCSM()->GetShadowTexture(0));
-			pMtlCompose->SetTexture(5, m_pShadowMap->GetCSM()->GetShadowTexture(1));
-			pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
-			pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
-			pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
-			pMtlCompose->SetTexture(10, m_pAmbientCube->GetIrradianceTexture());
-			pMtlCompose->SetTexture(11, m_pAmbientCube->GetRadianceTexture());
-
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			pMtlCompose->SetSamplerStateDesc(0, samPoint);
-
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			pMtlCompose->SetSamplerStateDesc(1, samPoint);
-
-			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
-			pMtlCompose->SetSamplerStateDesc(2, samPoint);
-
-			pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
-				0, 0, "VS", "ComposePS");
-		}	
-
-		m_pRT_Compose->RenderScreenQuad(pMtlCompose, false, false);
+		m_pRT_Compose->RenderScreenQuad(m_pMtlCompose, false, false);
 
 		m_pRenderSystem->SetActiveTexture(3, nullptr);
 		m_pRenderSystem->SetActiveTexture(4, nullptr);
@@ -363,22 +380,6 @@ namespace Neo
 
 		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 1, false, false);
 
-		static Material* pMtlFinalScene = nullptr;
-
-		if (!pMtlFinalScene)
-		{
-			pMtlFinalScene = MaterialManager::GetSingleton().NewMaterial("Mtl_HDRFinalScene");
-
-			pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
-
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
-
-			D3D_SHADER_MACRO mac = {"TBDR", ""};
-			pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
-		}
-
 		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
 		m_pRenderSystem->SetViewport(vp);
 
@@ -388,7 +389,7 @@ namespace Neo
 		m_pRenderSystem->GetGlobalCB().matProj = pCam->GetProjMatrix().Transpose();
 		m_pRenderSystem->UpdateGlobalCBuffer();
 
-		pMtlFinalScene->Activate();
+		m_pMtlFinalScene->Activate();
 
 		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
 		if (g_bTiled)
@@ -774,6 +775,14 @@ namespace Neo
 		::FindClose(h);
 
 		return true;
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::SetEnableAmbientCube(bool bEnable)
+	{
+		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
+
+		m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
+			0, bEnable ? &macro : nullptr, "VS", "ComposePS");
 	}
 
 }

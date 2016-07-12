@@ -20,12 +20,13 @@ struct VS_OUTPUT
 {
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
+	float3 WPos		: TEXCOORD1;
 
 #ifdef NORMAL_MAP
-	float4 tangent	: TEXCOORD1;
-	float3 binormal	: TEXCOORD2;
+	float4 tangent	: TEXCOORD2;
+	float3 binormal	: TEXCOORD3;
 #else
-	float3 normal	: TEXCOORD1;
+	float3 normal	: TEXCOORD2;
 #endif
 };
 
@@ -40,6 +41,7 @@ VS_OUTPUT VS( VS_INPUT input )
 	float4 posH = mul(vWorldPos, ViewProj);
 
     output.Pos = posH;
+	output.WPos = vWorldPos.xyz;
 	output.uv = input.uv;
 
 #ifdef NORMAL_MAP
@@ -64,9 +66,28 @@ Texture2D		gShadowMap2		: register(t4);
 Texture2D		gShadowMap3		: register(t5);
 SamplerState	samLinear		: register(s0);
 
-float4 PS(VS_OUTPUT input) : SV_Target
+float4 PS(VS_OUTPUT IN) : SV_Target
 {
-	return 0;
+#ifdef NORMAL_MAP
+	float3 vN = normalize(cross(IN.tangent.xyz, IN.binormal.xyz));
+	float3x3 mTangentToWS = float3x3(IN.tangent.xyz, IN.binormal.xyz, vN);
+
+	float3 vNormalTS = Expand(texNormal.Sample(samLinear, IN.uv).xyz);
+	float3 vWorldNormal = normalize(mul(vNormalTS, mTangentToWS));
+#else
+	float3 vWorldNormal = normalize(IN.normal);
+#endif
+	float3 vView = normalize(camPos - IN.WPos);
+
+	// Sun light
+	float4 cDiffuse = saturate(dot(vWorldNormal, lightDirection)) * lightColor;
+	float3 cSpecular = PhysicalBRDF(vWorldNormal, vView, lightDirection, specularGloss.w, specularGloss.xyz);
+
+	float4 vAmbient = float4(0.2f, 0.2f, 0.2f, 1.0f);	// Forward rendering uses simple ambient lighting
+	float4 oColor = texDiffuse.Sample(samLinear, IN.uv) * (cDiffuse + vAmbient);
+	oColor.xyz += cSpecular;
+
+	return oColor;
 }
 
 struct gbuffer_output

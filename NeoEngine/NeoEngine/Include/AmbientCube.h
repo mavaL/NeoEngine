@@ -26,7 +26,7 @@ namespace Neo
 
 	public:
 		// Generate a base cubemap for later CubeMapGen use.
-		bool			GenerateHDRCubeMap(const VEC3& pos, const STRING& filename);
+		bool			GenerateHDRCubeMap(const VEC3& pos, const STRING& filename, Scene* pScene);
 		// Setup run-time cubemap
 		void			SetupCubeMap(D3D11Texture* pIEM, D3D11Texture* pREM);
 

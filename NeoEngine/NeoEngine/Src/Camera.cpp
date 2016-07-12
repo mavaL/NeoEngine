@@ -1,20 +1,33 @@
 #include "stdafx.h"
 #include "Camera.h"
+#include <D3DX10math.h>
 
 namespace Neo
 {
 	Camera::Camera()
-		:m_viewPt(VEC3::ZERO)
-		,m_nearClip(1)
-		,m_farClip(1000)
-		,m_aspectRatio(0)
-		,m_fixYawAxis(true)
-		,m_moveSpeed(1.0f)
-		,m_bActive(false)
-		,m_bFrustumPlanesDirty(true)
-		,m_bFrustumCornersDirty(true)
+		: m_viewPt(VEC3::ZERO)
+		, m_nearClip(1)
+		, m_farClip(1000)
+		, m_aspectRatio(0)
+		, m_fixYawAxis(true)
+		, m_moveSpeed(1.0f)
+		, m_bActive(false)
+		, m_bFrustumPlanesDirty(true)
+		, m_bFrustumCornersDirty(true)
+		, m_vUp(VEC3::UNIT_Y)
 	{
 		m_fov = Common::Angle_To_Radian(45);
+	}
+
+	Camera::Camera(float fNear, float fFar, float fov, float fAspectRatio, bool bFixYaw)
+		: m_nearClip(fNear)
+		, m_farClip(fFar)
+		, m_aspectRatio(fAspectRatio)
+		, m_fixYawAxis(bFixYaw)
+		, m_vUp(VEC3::UNIT_Y)
+	{
+		m_fov = Common::Angle_To_Radian(fov);
+		_BuildProjMatrix();
 	}
 
 	void Camera::Update()
@@ -71,13 +84,11 @@ namespace Neo
 
 	void Camera::SetDirection( const VEC3& dir )
 	{
-		assert(m_fixYawAxis && "Error! Currently only support fix yaw axis mode..");
-
 		VEC3 zAxis(dir);
 		zAxis.Normalize();
 
 		VEC3 xAxis, yAxis;
-		xAxis = Common::CrossProduct_Vec3_By_Vec3(VEC3::UNIT_Y, zAxis);
+		xAxis = Common::CrossProduct_Vec3_By_Vec3(m_fixYawAxis ? VEC3::UNIT_Y : m_vUp, zAxis);
 		xAxis.Normalize();
 
 		yAxis = Common::CrossProduct_Vec3_By_Vec3(zAxis, xAxis);

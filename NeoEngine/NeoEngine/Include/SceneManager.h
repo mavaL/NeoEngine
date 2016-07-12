@@ -26,10 +26,10 @@ namespace Neo
 		void		RenderPipline(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
 
 		void		ToggleScene();
+		void		SetCamera(Camera* pCam) { m_camera = pCam; }
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }
 		void		ClearScene();
-		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
 
 		// Create entity from loaded mesh
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
@@ -38,6 +38,10 @@ namespace Neo
 		uint32		GetRenderFlag() const	{ return m_renderFlag; }
 		void		EnableDebugRT(eDebugRT type);
 		void		SetShadowDepthBias(float fBias);
+		void		SetEnableAmbientCube(bool bEnable);
+		void		SetCurRenderPhase(eRenderPhase e) { m_curRenderPhase = e; }
+		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
+
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
 		void		AddPointLight(const SPointLight& light);
@@ -93,6 +97,9 @@ namespace Neo
 		SSAO*			m_pSSAO;
 		TileBasedDeferredRenderer*	m_pTBDR;
 		D3D11Texture*	m_pTexEnvBRDF;
+		Material*		m_pMtlCompose;
+		Material*		m_pMtlLinearizeDepth;
+		Material*		m_pMtlFinalScene;
 
 		MeshLoader*		m_pMeshLoader;
 		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;

@@ -17,6 +17,7 @@ namespace Neo
 	{
 	public:
 		Camera();
+		Camera(float fNear, float fFar, float fov, float fAspectRatio, bool bFixYaw);
 
 		bool	m_bActive;
 
@@ -27,6 +28,7 @@ namespace Neo
 		void	SetFarClip(float f);
 		void	SetAspectRatio(float r);
 		void	SetPosition(const VEC3& pos);
+		void	SetUp(const VEC3& v) { m_vUp = v; }
 		void	SetDirection(const VEC3& dir);
 		void	Yaw(float angle);
 		void	SetMoveSpeed(float fSpeed) { m_moveSpeed = fSpeed; }
@@ -68,6 +70,7 @@ namespace Neo
 		mutable bool	m_bFrustumCornersDirty;
 
 		bool	m_fixYawAxis;	//固定yaw轴为y轴,一般漫游相机这样就够了.飞行模拟类型的不fix,因为需要roll.
+		VEC3	m_vUp;
 		float	m_moveSpeed;
 
 		MAT44	m_matView;

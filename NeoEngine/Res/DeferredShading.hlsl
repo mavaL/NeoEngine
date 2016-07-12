@@ -72,11 +72,13 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, tex4, tex5, tex6);
 	oColor *= vShadow;
 
+#ifdef AMBIENT_CUBE
 	// Ambient
 	float4 vAmbientDiff, vAmbientSpec;
 	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texCube0, texCube1, tex7, samLinear, vView, vNormal, specGloss.xyz, specGloss.w);
 
 	oColor += vAmbientSpec + vAmbientDiff * albedo;
+#endif
 
 	return oColor;
 }

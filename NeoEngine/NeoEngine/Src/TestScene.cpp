@@ -256,7 +256,7 @@ void SetupTestScene6(Scene* scene)
 	pEntity->SetMaterial(pMaterial);
 
 	// Ambient cube
-	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"));
+	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"), scene);
 	_AST(bOk);
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
 		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap), 
@@ -294,7 +294,7 @@ void EnterTestScene6(Scene* scene)
 void SetupTestScene7(Scene* scene)
 {
 	// Sun light
-	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.6f, 0.6f, 0.6f));
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.929f, 0.878f, 0.874f));
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
@@ -302,16 +302,17 @@ void SetupTestScene7(Scene* scene)
 	_AST(bOk);
 
 	// Ambient cube
-	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), "tmp_cubemap.dds");
+	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
 	_AST(bOk);
+
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
-		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap),
-		new Neo::D3D11Texture(GetResPath("ambientcube_spec.dds"), eTextureType_CubeMap));
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap),
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Another test sphere entity
 	Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
 
-	pEntity->SetScale(0.3f);
+	pEntity->SetScale(0.5f);
 	pEntity->SetPosition(VEC3(-2, 0.5f, 0));
 	QUATERNION rot;
 	rot.FromAxisAngle(VEC3::UNIT_Y, 90);
