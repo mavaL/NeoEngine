@@ -130,6 +130,9 @@ namespace Neo
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			samPoint.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 			m_pMtlCompose->SetSamplerStateDesc(0, samPoint);
 
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -766,7 +769,7 @@ namespace Neo
 			Mesh* pMesh = MeshLoader::LoadMesh(GetResPath(filename), true);
 			Entity* pEntity = new Entity(pMesh);
 			pEntity->SetCastShadow(false);
-			
+
 			pScene->AddEntity(pEntity);
 
 			bNext = ::FindNextFileA(h, &f);

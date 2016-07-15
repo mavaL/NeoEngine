@@ -5,42 +5,33 @@ namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	VertexData::VertexData()
-		:m_type((eVertexType)-1)
-		,m_nVerts(0)
+		: m_nVerts(0)
+		, m_pVertData(nullptr)
+		, m_pTangentData(nullptr)
 	{
 
 	}
 	//------------------------------------------------------------------------------------
 	VertexData::~VertexData()
 	{
-
+		SAFE_DELETE_ARRAY(m_pVertData);
+		SAFE_DELETE_ARRAY(m_pTangentData);
 	}
 	//------------------------------------------------------------------------------------
-	void VertexData::Init(const void* pVert, uint32 nVert, eVertexType type)
+	void VertexData::InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert)
 	{
+		m_vertType = type;
 		m_nVerts = nVert;
-		m_type = type;
+		m_pVertData = new SVertex[nVert];
 
-		m_vecPos.resize(nVert);
-
-		for (uint32 i = 0; i < nVert; ++i)
-		{
-			switch (type)
-			{
-			case eVertexType_General: m_vecPos[i] = ((SVertex*)pVert)[i].pos; break;
-			case eVertexType_NormalMap: m_vecPos[i] = ((SVertex_NormalMap*)pVert)[i].pos; break;
-			default: assert(0);
-			}
-		}
+		memcpy(m_pVertData, pVert, sizeof(SVertex) * nVert);
 	}
 	//------------------------------------------------------------------------------------
-	uint32 VertexData::GetVertexStride() const
+	void VertexData::InitTangents(const STangentData* pVert, uint32 nVert)
 	{
-		switch (m_type)
-		{
-		case eVertexType_General: return sizeof(SVertex);
-		case eVertexType_NormalMap: return sizeof(SVertex_NormalMap);
-		default: assert(0); return 0;
-		}
+		_AST(nVert == m_nVerts);
+
+		m_pTangentData = new STangentData[nVert];
+		memcpy(m_pTangentData, pVert, sizeof(STangentData) * nVert);
 	}
 }

@@ -16,9 +16,10 @@ namespace Neo
 	{
 	public:
 		static Mesh*	LoadMesh(const STRING& filename, bool bMaterial = false);
+		static bool		SaveMesh(Mesh* pMesh);
 
 	private:
-		static void		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh);
+		static bool		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh, bool bNormalMap, DWORD* pIndexData, uint32 nIndex);
 	};
 }
 

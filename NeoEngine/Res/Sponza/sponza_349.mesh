@@ -1,36 +1,39 @@
-<?xml version="1.0" ?>
 <mesh>
     <submeshes>
-        <submesh material="sponza_330SG" usesharedvertices="false" use32bitindexes="false" operationtype="triangle_list">
+        <submesh material="sponza_330SG">
             <faces count="2">
                 <face v1="0" v2="1" v3="2" />
                 <face v1="0" v2="3" v3="1" />
             </faces>
             <geometry vertexcount="4">
-                <vertexbuffer positions="true" normals="true" colours_diffuse="false" texture_coords="1" texture_coords_dimension_0="float2">
+                <vertexbuffer>
                     <vertex>
                         <position x="3.1799" y="4.0125" z="-14.7657" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.677" v="1" />
+                        <tangent x="0" y="-0.28533" z="-0.958429" w="1" />
+                        <binormal x="0" y="-0.958463" z="0.285215" />
                     </vertex>
                     <vertex>
                         <position x="3.1799" y="6.4306" z="-15.3721" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.1485" v="-2.1033" />
+                        <tangent x="0" y="-0.27114" z="-0.96254" w="1" />
+                        <binormal x="0" y="-0.958469" z="0.285198" />
                     </vertex>
                     <vertex>
                         <position x="3.1799" y="6.3996" z="-15.4764" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6789" v="-2.1013" />
+                        <tangent x="0" y="-0.270721" z="-0.962658" w="1" />
+                        <binormal x="0" y="-0.958469" z="0.285197" />
                     </vertex>
                     <vertex>
                         <position x="3.1799" y="4.0436" z="-14.6614" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.1467" v="1" />
+                        <tangent x="0" y="-0.285747" z="-0.958305" w="1" />
+                        <binormal x="0" y="-0.958463" z="0.285216" />
                     </vertex>
                 </vertexbuffer>
             </geometry>

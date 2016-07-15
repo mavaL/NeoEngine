@@ -1,7 +1,6 @@
-<?xml version="1.0" ?>
 <mesh>
     <submeshes>
-        <submesh material="sponza_22SG" usesharedvertices="false" use32bitindexes="false" operationtype="triangle_list">
+        <submesh material="sponza_22SG">
             <faces count="74">
                 <face v1="0" v2="1" v3="2" />
                 <face v1="0" v2="3" v3="1" />
@@ -54,697 +53,941 @@
                 <face v1="85" v2="88" v3="86" />
                 <face v1="68" v2="87" v3="66" />
                 <face v1="68" v2="85" v3="87" />
-                <face v1="89" v2="26" v3="90" />
-                <face v1="89" v2="24" v3="26" />
-                <face v1="91" v2="28" v3="30" />
-                <face v1="91" v2="92" v3="28" />
-                <face v1="93" v2="34" v3="94" />
-                <face v1="93" v2="32" v3="34" />
-                <face v1="95" v2="38" v3="37" />
-                <face v1="95" v2="96" v3="38" />
-                <face v1="97" v2="42" v3="98" />
-                <face v1="97" v2="40" v3="42" />
-                <face v1="90" v2="40" v3="97" />
-                <face v1="90" v2="26" v3="40" />
-                <face v1="99" v2="100" v3="101" />
-                <face v1="99" v2="102" v3="100" />
-                <face v1="103" v2="49" v3="104" />
-                <face v1="103" v2="50" v3="49" />
-                <face v1="55" v2="105" v3="106" />
-                <face v1="55" v2="52" v3="105" />
-                <face v1="59" v2="107" v3="57" />
-                <face v1="59" v2="108" v3="107" />
-                <face v1="61" v2="109" v3="110" />
-                <face v1="61" v2="63" v3="109" />
-                <face v1="64" v2="104" v3="49" />
+                <face v1="89" v2="90" v3="91" />
+                <face v1="89" v2="92" v3="90" />
+                <face v1="93" v2="94" v3="95" />
+                <face v1="93" v2="96" v3="94" />
+                <face v1="97" v2="98" v3="99" />
+                <face v1="97" v2="100" v3="98" />
+                <face v1="101" v2="102" v3="103" />
+                <face v1="101" v2="104" v3="102" />
+                <face v1="105" v2="106" v3="107" />
+                <face v1="105" v2="108" v3="106" />
+                <face v1="91" v2="108" v3="105" />
+                <face v1="91" v2="90" v3="108" />
+                <face v1="109" v2="110" v3="111" />
+                <face v1="109" v2="112" v3="110" />
+                <face v1="113" v2="114" v3="115" />
+                <face v1="113" v2="116" v3="114" />
+                <face v1="117" v2="118" v3="119" />
+                <face v1="117" v2="120" v3="118" />
+                <face v1="121" v2="122" v3="123" />
+                <face v1="121" v2="124" v3="122" />
+                <face v1="125" v2="126" v3="127" />
+                <face v1="125" v2="128" v3="126" />
+                <face v1="129" v2="115" v3="114" />
             </faces>
-            <geometry vertexcount="111">
-                <vertexbuffer positions="true" normals="true" colours_diffuse="false" texture_coords="1" texture_coords_dimension_0="float2">
+            <geometry vertexcount="130">
+                <vertexbuffer>
                     <vertex>
                         <position x="15.968" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.0974" z="0.9952" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5504" v="0.1119" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.00112791" y="-0.995237" z="-0.097477" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.7896" z="-39.5639" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.1647" z="0.9863" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0916" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.000457029" y="-0.986323" z="-0.164826" />
                     </vertex>
                     <vertex>
                         <position x="15.9434" y="5.7896" z="-39.5639" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.1729" z="0.9849" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5526" v="0.0916" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.000558489" y="-0.984927" z="-0.172972" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.0974" z="0.9952" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.1119" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0" y="-0.995238" z="-0.097477" />
                     </vertex>
                     <vertex>
                         <position x="15.9855" y="5.4796" z="-39.5968" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6787" z="0.7344" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9865" v="0.2328" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.0414887" y="-0.733132" z="-0.67882" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6787" z="0.7344" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9632" v="0.2209" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.0821862" y="-0.731281" z="-0.677106" />
                     </vertex>
                     <vertex>
                         <position x="15.9218" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6787" z="0.7344" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9959" v="0.2209" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.0287272" y="-0.733461" z="-0.679124" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.4796" z="-39.5968" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6787" z="0.7344" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9619" v="0.2328" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.110169" y="-0.729297" z="-0.675269" />
                     </vertex>
                     <vertex>
                         <position x="15.968" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.5649" z="0.8252" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5504" v="0.1119" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.000991769" y="-0.824522" z="0.565828" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.5649" z="0.8252" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.118" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.000318347" y="-0.824523" z="0.565829" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.5649" z="0.8252" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.1119" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0" y="-0.824523" z="0.565829" />
                     </vertex>
                     <vertex>
                         <position x="15.9218" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.5649" z="0.8252" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5546" v="0.118" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.0011544" y="-0.824522" z="0.565828" />
                     </vertex>
                     <vertex>
                         <position x="15.7663" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5687" v="0.0279" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.00385759" y="-0.795007" z="-0.606588" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.021" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.000638412" y="-0.795013" z="-0.606592" />
                     </vertex>
                     <vertex>
                         <position x="15.7073" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5741" v="0.021" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.00421245" y="-0.795006" z="-0.606587" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0279" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0" y="-0.795013" z="-0.606592" />
                     </vertex>
                     <vertex>
                         <position x="15.7686" y="6.5284" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5685" v="0.0141" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.00272253" y="-0.795455" z="0.606006" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.021" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.000455487" y="-0.795458" z="0.606008" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.5284" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0141" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0" y="-0.795458" z="0.606008" />
                     </vertex>
                     <vertex>
                         <position x="15.7073" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0.6068" z="0.7948" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5741" v="0.021" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.00297118" y="-0.795455" z="0.606006" />
                     </vertex>
                     <vertex>
                         <position x="15.8654" y="6.0595" z="-39.4997" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.3131" z="0.9497" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5597" v="0.0633" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="9.03298e-005" y="-0.949717" z="-0.313109" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.365" z="0.931" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0416" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.00022453" y="-0.930998" z="-0.365025" />
                     </vertex>
                     <vertex>
                         <position x="15.7652" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.365" z="0.931" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5688" v="0.0416" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.000453318" y="-0.930998" z="-0.365025" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.0595" z="-39.4997" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-0.2989" z="0.9543" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0633" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-9.33968e-005" y="-0.954268" z="-0.298953" />
                     </vertex>
                     <vertex>
                         <position x="15.9499" y="5.5956" z="-39.5976" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6236" y="-0.1542" z="0.7664" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6071" v="0.1101" />
+                        <tangent x="-0.769859" y="0.288766" z="-0.56915" w="1" />
+                        <binormal x="0.217775" y="-0.975815" z="-0.018977" />
                     </vertex>
                     <vertex>
                         <position x="15.9434" y="5.7896" z="-39.5639" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6119" y="-0.2473" z="0.7513" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6028" v="0.0906" />
+                        <tangent x="-0.727479" y="-0.200601" z="-0.65615" w="1" />
+                        <binormal x="0.336835" y="-0.940883" z="-0.0358047" />
                     </vertex>
                     <vertex>
                         <position x="15.9259" y="5.7896" z="-39.5781" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6112" y="-0.2505" z="0.7508" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.605" v="0.0901" />
+                        <tangent x="-0.720052" y="-0.218097" z="-0.658755" w="1" />
+                        <binormal x="0.342411" y="-0.938912" z="-0.0346111" />
                     </vertex>
                     <vertex>
                         <position x="15.968" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6236" y="-0.1542" z="0.7664" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.605" v="0.1093" />
+                        <tangent x="-0.763977" y="0.331046" z="-0.553848" w="1" />
+                        <binormal x="0.219059" y="-0.975543" z="-0.0181177" />
                     </vertex>
                     <vertex>
                         <position x="15.7476" y="6.2666" z="-39.4329" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6312" y="0.0051" z="0.7756" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5887" v="0.0401" />
+                        <tangent x="-0.748772" y="-0.261616" z="-0.609014" w="1" />
+                        <binormal x="-0.019357" y="-0.999769" z="-0.00932758" />
                     </vertex>
                     <vertex>
                         <position x="15.7663" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6313" y="0.0051" z="0.7755" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5867" v="0.0274" />
+                        <tangent x="-0.731622" y="-0.335763" z="-0.593289" w="1" />
+                        <binormal x="-0.0115896" y="-0.999928" z="-0.00318376" />
                     </vertex>
                     <vertex>
                         <position x="15.7481" y="6.3975" z="-39.4333" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6313" y="0.0051" z="0.7756" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5888" v="0.0265" />
+                        <tangent x="-0.728874" y="-0.346287" z="-0.590617" w="1" />
+                        <binormal x="-0.0104462" y="-0.999943" z="-0.00232521" />
                     </vertex>
                     <vertex>
                         <position x="15.7652" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6314" y="0.0051" z="0.7754" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5865" v="0.0407" />
+                        <tangent x="-0.750028" y="-0.250945" z="-0.611951" w="1" />
+                        <binormal x="-0.0206272" y="-0.999737" z="-0.01" />
                     </vertex>
                     <vertex>
                         <position x="15.7481" y="6.3975" z="-39.4333" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4119" y="-0.7578" z="0.506" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5888" v="0.0265" />
+                        <tangent x="-0.504267" y="-0.273351" z="-0.819142" w="1" />
+                        <binormal x="0.844754" y="-0.525687" z="-0.100216" />
                     </vertex>
                     <vertex>
                         <position x="15.7073" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4121" y="-0.7578" z="0.5059" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5815" v="0.0194" />
+                        <tangent x="-0.729083" y="-0.0610535" z="-0.681697" w="1" />
+                        <binormal x="0.864434" y="-0.500459" z="-0.0478919" />
                     </vertex>
                     <vertex>
                         <position x="15.6879" y="6.4629" z="-39.3843" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.412" y="-0.7578" z="0.506" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5834" v="0.0194" />
+                        <tangent x="-0.776879" y="0.00081734" z="-0.629649" w="1" />
+                        <binormal x="0.869161" y="-0.493449" z="-0.0326693" />
                     </vertex>
                     <vertex>
                         <position x="15.7663" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4119" y="-0.7578" z="0.506" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5867" v="0.0274" />
+                        <tangent x="-0.47024" y="-0.299228" z="-0.830263" w="1" />
+                        <binormal x="0.841809" y="-0.529029" z="-0.107177" />
                     </vertex>
                     <vertex>
                         <position x="15.7073" y="6.4629" z="-39.3686" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4075" y="0.7639" z="0.5003" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5815" v="0.0194" />
+                        <tangent x="-0.670863" y="0.123102" z="-0.731292" w="1" />
+                        <binormal x="-0.874975" y="-0.48342" z="0.0268962" />
                     </vertex>
                     <vertex>
                         <position x="15.7493" y="6.5284" z="-39.4343" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4074" y="0.7639" z="0.5004" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.589" v="0.012" />
+                        <tangent x="-0.252656" y="0.431956" z="-0.865782" w="1" />
+                        <binormal x="-0.874729" y="-0.483957" z="0.025193" />
                     </vertex>
                     <vertex>
                         <position x="15.6879" y="6.4629" z="-39.3843" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4075" y="0.7639" z="0.5004" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5834" v="0.0194" />
+                        <tangent x="-0.776874" y="-0.000842297" z="-0.629655" w="1" />
+                        <binormal x="-0.874766" y="-0.483783" z="0.0271676" />
                     </vertex>
                     <vertex>
                         <position x="15.7686" y="6.5284" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4072" y="0.7639" z="0.5006" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5871" v="0.00999999" />
+                        <tangent x="-0.205062" y="0.456675" z="-0.865677" w="1" />
+                        <binormal x="-0.874394" y="-0.484591" z="0.0246284" />
                     </vertex>
                     <vertex>
                         <position x="15.8475" y="6.0595" z="-39.5143" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.5687" y="-0.4345" z="0.6984" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5978" v="0.0619" />
+                        <tangent x="-0.608048" y="-0.350593" z="-0.712294" w="1" />
+                        <binormal x="0.559335" y="-0.826827" z="-0.0591703" />
                     </vertex>
                     <vertex>
                         <position x="15.7652" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.5392" y="-0.5204" z="0.6622" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5865" v="0.0407" />
+                        <tangent x="-0.641179" y="-0.253592" z="-0.724279" w="1" />
+                        <binormal x="0.639139" y="-0.764952" z="-0.0796817" />
                     </vertex>
                     <vertex>
                         <position x="15.7476" y="6.2666" z="-39.4329" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.539" y="-0.5204" z="0.6623" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5887" v="0.0401" />
+                        <tangent x="-0.64581" y="-0.248291" z="-0.721998" w="1" />
+                        <binormal x="0.638555" y="-0.765306" z="-0.0809626" />
                     </vertex>
                     <vertex>
                         <position x="15.8654" y="6.0595" z="-39.4997" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.5705" y="-0.4294" z="0.7001" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5957" v="0.0628" />
+                        <tangent x="-0.610073" y="-0.3486" z="-0.71154" w="1" />
+                        <binormal x="0.551078" y="-0.832204" z="-0.061228" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0" z="1" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0416" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-1.62803e-006" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.7663" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0" z="1" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5687" v="0.0279" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-6.17325e-006" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.7652" y="6.2666" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0" z="1" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5688" v="0.0416" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-7.78531e-006" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.3975" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="0" z="1" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0279" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="5.4796" z="-39.5968" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4476" v="0.3258" />
+                        <tangent x="-0.000663692" y="0" z="1" w="-1" />
+                        <binormal x="0.999999" y="0" z="0.00116042" />
                     </vertex>
                     <vertex>
                         <position x="15.9856" y="5.4796" z="-39.6266" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4439" v="0.3089" />
+                        <tangent x="-0.00125612" y="0" z="0.999999" w="-1" />
+                        <binormal x="1" y="0" z="0.000574332" />
                     </vertex>
                     <vertex>
                         <position x="16.1514" y="5.4796" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.427" v="0.3258" />
+                        <tangent x="-0.000601838" y="0" z="1" w="-1" />
+                        <binormal x="0.999999" y="0" z="0.00118704" />
                     </vertex>
                     <vertex>
                         <position x="15.9855" y="5.4796" z="-39.5968" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4476" v="0.3089" />
+                        <tangent x="-0.00336082" y="0" z="0.999994" w="-1" />
+                        <binormal x="0.999999" y="0" z="-0.00125835" />
                     </vertex>
                     <vertex>
                         <position x="15.9499" y="5.5956" z="-39.5976" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4388" y="0.7187" z="0.5393" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6071" v="0.1101" />
+                        <tangent x="-0.306874" y="0.443503" z="-0.842101" w="1" />
+                        <binormal x="-0.820328" y="-0.565349" z="0.086268" />
                     </vertex>
                     <vertex>
                         <position x="15.9218" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4386" y="0.7187" z="0.5395" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6007" v="0.1138" />
+                        <tangent x="-0.109995" y="0.552304" z="-0.826354" w="1" />
+                        <binormal x="-0.8297" y="-0.554494" z="0.064297" />
                     </vertex>
                     <vertex>
                         <position x="15.968" y="5.5956" z="-39.5829" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4388" y="0.7187" z="0.5393" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.605" v="0.1093" />
+                        <tangent x="-0.379666" y="0.395942" z="-0.836112" w="1" />
+                        <binormal x="-0.816821" y="-0.568979" z="0.0952202" />
                     </vertex>
                     <vertex>
                         <position x="15.9024" y="5.5376" z="-39.5589" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4388" y="0.7187" z="0.5393" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6028" v="0.1158" />
+                        <tangent x="-0.0759476" y="0.567273" z="-0.82002" w="1" />
+                        <binormal x="-0.83091" y="-0.553146" z="0.0601491" />
                     </vertex>
                     <vertex>
                         <position x="15.9218" y="5.5376" z="-39.5431" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.365" y="-0.8157" z="0.4489" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0078" v="0.2211" />
+                        <tangent x="-0.75998" y="-0.0169159" z="-0.649726" w="1" />
+                        <binormal x="0.652403" y="-0.567718" z="-0.502062" />
                     </vertex>
                     <vertex>
                         <position x="15.9672" y="5.4796" z="-39.6117" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.3652" y="-0.8157" z="0.4486" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0107" v="0.2328" />
+                        <tangent x="-0.773129" y="-0.00264271" z="-0.634243" w="1" />
+                        <binormal x="0.636165" y="-0.57018" z="-0.519798" />
                     </vertex>
                     <vertex>
                         <position x="15.9855" y="5.4796" z="-39.5968" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.3652" y="-0.8157" z="0.4487" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0079" v="0.2328" />
+                        <tangent x="-0.775541" y="1.59807e-008" z="-0.631297" w="1" />
+                        <binormal x="0.633098" y="-0.570588" z="-0.523083" />
                     </vertex>
                     <vertex>
                         <position x="15.9024" y="5.5376" z="-39.5589" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.3651" y="-0.8157" z="0.4487" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0104" v="0.221" />
+                        <tangent x="-0.757005" y="-0.019063" z="-0.653131" w="1" />
+                        <binormal x="0.655498" y="-0.567379" z="-0.498401" />
                     </vertex>
                     <vertex>
                         <position x="16.1513" y="6.5284" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0091" v="0.1024" />
+                        <tangent x="0.000301719" y="0" z="-1" w="1" />
+                        <binormal x="-0.999999" y="0" z="-0.00137045" />
                     </vertex>
                     <vertex>
                         <position x="15.7493" y="6.5284" z="-39.4343" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0105" v="0.1251" />
+                        <tangent x="0.000714739" y="0" z="-1" w="1" />
+                        <binormal x="-0.999999" y="0" z="-0.0013219" />
                     </vertex>
                     <vertex>
                         <position x="15.7686" y="6.5284" z="-39.4185" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0091" v="0.124" />
+                        <tangent x="0.011959" y="0" z="-0.999928" w="1" />
+                        <binormal x="-1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="16.1514" y="6.5284" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0406" v="0.1024" />
+                        <tangent x="0.000289075" y="0" z="-1" w="1" />
+                        <binormal x="-0.999999" y="0" z="-0.00137194" />
                     </vertex>
                     <vertex>
                         <position x="15.9672" y="5.4796" z="-39.6117" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4457" v="0.3071" />
+                        <tangent x="-3.05265e-008" y="0" z="9.08359e-006" w="-1" />
+                        <binormal x="9.08144e-006" y="0" z="-2.00236e-007" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.6124" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9929" y="-0.1192" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5504" v="0.1119" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.119247" y="-0.992864" z="-0.00096834" />
                     </vertex>
                     <vertex>
                         <position x="15.9085" y="5.7896" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9797" y="-0.2005" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0916" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.200597" y="-0.979674" z="-0.00050281" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9929" y="-0.1192" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.1119" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.119247" y="-0.992865" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.9085" y="5.7896" z="-39.5923" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.978" y="-0.2085" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5526" v="0.0916" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.208647" y="-0.977991" z="-0.000590993" />
                     </vertex>
                     <vertex>
                         <position x="15.9489" y="5.4796" z="-39.6266" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6609" y="-0.7505" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9865" v="0.2328" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.750213" y="-0.660281" z="0.0347632" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6609" y="-0.7505" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9632" v="0.2209" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.749524" y="-0.659674" z="0.0551742" />
                     </vertex>
                     <vertex>
                         <position x="15.9489" y="5.4796" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6609" y="-0.7505" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9619" v="0.2328" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.748201" y="-0.65851" z="0.0809981" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.5748" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6609" y="-0.7505" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.9959" v="0.2209" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.750492" y="-0.660526" z="0.021619" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7653" y="0.6437" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.118" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.643806" y="-0.765188" z="0.000287302" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.6124" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7653" y="0.6437" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5504" v="0.1119" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.643806" y="-0.765188" z="0.000664929" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7653" y="0.6437" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.1119" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.643806" y="-0.765188" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.5748" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7653" y="0.6437" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5546" v="0.118" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.643806" y="-0.765188" z="0.000824892" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.4481" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="-0.684" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5687" v="0.0279" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.684458" y="-0.729045" z="0.00313126" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="-0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.021" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.684462" y="-0.729048" z="0.000708695" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="-0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0279" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.684462" y="-0.729049" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.4001" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="-0.684" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5741" v="0.021" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.684458" y="-0.729044" z="0.00355518" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.021" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.683908" y="-0.729568" z="-0.000246815" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.5284" z="-39.4501" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5685" v="0.0141" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.683907" y="-0.729568" z="-0.00107926" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.5284" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0141" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.683908" y="-0.729569" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.4001" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.7294" y="0.6841" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5741" v="0.021" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="-0.683907" y="-0.729568" z="-0.00122432" />
                     </vertex>
                     <vertex>
                         <position x="15.8296" y="6.0595" z="-39.5288" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9284" y="-0.3717" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5597" v="0.0633" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.371612" y="-0.928388" z="8.57056e-005" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9009" y="-0.434" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0416" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.433763" y="-0.901027" z="-3.97052e-005" />
                     </vertex>
                     <vertex>
                         <position x="15.8296" y="6.0595" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9336" y="-0.3584" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0633" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.358382" y="-0.933575" z="0.000101378" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.4473" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.9009" y="-0.434" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5688" v="0.0416" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0.433763" y="-0.901027" z="-6.95981e-005" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.6124" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6236" y="-0.1542" z="0.7664" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.605" v="0.1093" />
+                        <tangent x="0.714685" y="0.280212" z="0.640863" w="-1" />
+                        <binormal x="0.0299316" y="-0.984285" z="-0.174035" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9259" y="5.7896" z="-39.5781" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.605" v="0.0901" />
+                        <tangent x="0.791561" y="-0.198526" z="0.577943" w="-1" />
+                        <binormal x="0.0451402" y="-0.958078" z="-0.282928" />
                     </vertex>
                     <vertex>
                         <position x="15.9085" y="5.7896" z="-39.5923" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6105" y="-0.2535" z="0.7503" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6028" v="0.0906" />
+                        <tangent x="0.790985" y="-0.217222" z="0.571976" w="-1" />
+                        <binormal x="0.0445678" y="-0.956794" z="-0.287331" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9499" y="5.5956" z="-39.5976" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.6071" v="0.1101" />
+                        <tangent x="0.702679" y="0.317919" z="0.63653" w="-1" />
+                        <binormal x="0.0297882" y="-0.98432" z="-0.173859" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.4481" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.6312" y="0.0051" z="0.7756" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5867" v="0.0274" />
+                        <tangent x="0.729729" y="-0.335881" z="0.59555" w="-1" />
+                        <binormal x="0.0038639" y="-0.999949" z="0.00930709" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7476" y="6.2666" z="-39.4329" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5887" v="0.0401" />
+                        <tangent x="0.747231" y="-0.261072" z="0.611135" w="-1" />
+                        <binormal x="0.0110665" y="-0.999819" z="0.0154864" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7481" y="6.3975" z="-39.4333" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5888" v="0.0265" />
+                        <tangent x="0.726714" y="-0.34652" z="0.593136" w="-1" />
+                        <binormal x="0.00279693" y="-0.999961" z="0.00844486" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.4473" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.631" y="0.0051" z="0.7757" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5865" v="0.0407" />
+                        <tangent x="0.750243" y="-0.250314" z="0.611946" w="-1" />
+                        <binormal x="0.0122915" y="-0.999794" z="0.0161192" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.4481" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4119" y="-0.7578" z="0.5061" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5867" v="0.0274" />
+                        <tangent x="0.902379" y="-0.261186" z="0.342775" w="-1" />
+                        <binormal x="0.116699" y="-0.594493" z="-0.795587" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.6879" y="6.4629" z="-39.3843" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5834" v="0.0194" />
+                        <tangent x="0.810063" y="-0.0491391" z="0.58428" w="-1" />
+                        <binormal x="0.0817556" y="-0.584009" z="-0.807619" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.4001" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4118" y="-0.7578" z="0.5061" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5815" v="0.0194" />
+                        <tangent x="0.775365" y="3.23949e-008" z="0.631513" w="-1" />
+                        <binormal x="0.073794" y="-0.580983" z="-0.810564" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7481" y="6.3975" z="-39.4333" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5888" v="0.0265" />
+                        <tangent x="0.907756" y="-0.291317" z="0.301851" w="-1" />
+                        <binormal x="0.122051" y="-0.596298" z="-0.793431" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.5284" z="-39.4501" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4076" y="0.7639" z="0.5003" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5871" v="0.00999999" />
+                        <tangent x="0.906452" y="0.40487" z="0.120105" w="-1" />
+                        <binormal x="-0.0361552" y="-0.56096" z="0.827053" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.6879" y="6.4629" z="-39.3843" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5834" v="0.0194" />
+                        <tangent x="0.833772" y="0.0864817" z="0.545293" w="-1" />
+                        <binormal x="-0.0359309" y="-0.561398" z="0.826766" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7493" y="6.5284" z="-39.4343" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.589" v="0.012" />
+                        <tangent x="0.895618" y="0.441124" z="0.0572586" w="-1" />
+                        <binormal x="-0.0361618" y="-0.560945" z="0.827063" />
                     </vertex>
                     <vertex>
                         <position x="15.6685" y="6.4629" z="-39.4001" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4073" y="0.764" z="0.5005" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5815" v="0.0194" />
+                        <tangent x="0.775365" y="5.50185e-008" z="0.631513" w="-1" />
+                        <binormal x="-0.0361646" y="-0.560963" z="0.82705" />
                     </vertex>
                     <vertex>
                         <position x="15.8296" y="6.0595" z="-39.5288" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.5669" y="-0.4395" z="0.6968" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5957" v="0.0628" />
+                        <tangent x="0.824222" y="-0.331816" z="0.458865" w="-1" />
+                        <binormal x="0.0813832" y="-0.871869" z="-0.482929" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7476" y="6.2666" z="-39.4329" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5887" v="0.0401" />
+                        <tangent x="0.83567" y="-0.236295" z="0.495803" w="-1" />
+                        <binormal x="0.101327" y="-0.820518" z="-0.562568" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.4473" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.5389" y="-0.5204" z="0.6625" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5865" v="0.0407" />
+                        <tangent x="0.83547" y="-0.230203" z="0.498996" w="-1" />
+                        <binormal x="0.101819" y="-0.820979" z="-0.561807" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.8475" y="6.0595" z="-39.5143" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.5978" v="0.0619" />
+                        <tangent x="0.8223" y="-0.331579" z="0.462469" w="-1" />
+                        <binormal x="0.083228" y="-0.875286" z="-0.476389" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.4481" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5687" v="0.0279" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0" y="-1" z="-0.000538207" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0416" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0" y="-1" z="-0.000181157" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.2666" z="-39.4473" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5688" v="0.0416" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0" y="-1" z="-0.000717892" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.3975" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-1" y="0" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.5337" v="0.0279" />
+                        <tangent x="0" y="0" z="1" w="-1" />
+                        <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="15.9489" y="5.4796" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4476" v="0.3258" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.0023501" y="0" z="-0.999997" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9856" y="5.4796" z="-39.6266" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.4439" v="0.3089" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.00166487" y="0" z="-0.999999" />
                     </vertex>
                     <vertex>
                         <position x="15.9489" y="5.4796" z="-39.6266" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="-1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.4476" v="0.3089" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.00162195" y="0" z="-0.999999" />
+                    </vertex>
+                    <vertex>
+                        <position x="16.1514" y="5.4796" z="-39.7616" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.427" v="0.3258" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="-0.00243593" y="0" z="-0.999997" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9024" y="5.5376" z="-39.5589" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.6028" v="0.1158" />
+                        <tangent x="0.863656" y="0.502956" z="0.033669" w="-1" />
+                        <binormal x="-0.101274" y="-0.635065" z="0.765791" />
                     </vertex>
                     <vertex>
                         <position x="15.9318" y="5.5956" z="-39.6124" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.4388" y="0.7188" z="0.5393" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.605" v="0.1093" />
+                        <tangent x="0.897947" y="0.345313" z="0.272857" w="-1" />
+                        <binormal x="-0.111935" y="-0.638164" z="0.76172" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.5748" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.439" y="0.7187" z="0.5391" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.6007" v="0.1138" />
+                        <tangent x="0.846973" y="0.531372" z="-0.0167415" w="-1" />
+                        <binormal x="-0.0992163" y="-0.634021" z="0.766925" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9499" y="5.5956" z="-39.5976" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.6071" v="0.1101" />
+                        <tangent x="0.89449" y="0.293072" z="0.337635" w="-1" />
+                        <binormal x="-0.1148" y="-0.639511" z="0.760162" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9024" y="5.5376" z="-39.5589" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.0104" v="0.221" />
+                        <tangent x="0.78865" y="-0.0162542" z="0.614627" w="-1" />
+                        <binormal x="0.637418" y="-0.570175" z="-0.518265" />
                     </vertex>
                     <vertex>
                         <position x="15.9489" y="5.4796" z="-39.6266" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.3652" y="-0.8157" z="0.4486" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0079" v="0.2328" />
+                        <tangent x="0.777487" y="-0.00260266" z="0.628894" w="-1" />
+                        <binormal x="0.622726" y="-0.571998" z="-0.533883" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9672" y="5.4796" z="-39.6117" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.0107" v="0.2328" />
+                        <tangent x="0.775472" y="2.23523e-005" z="0.631382" w="-1" />
+                        <binormal x="0.620035" y="-0.572264" z="-0.536722" />
                     </vertex>
                     <vertex>
                         <position x="15.883" y="5.5376" z="-39.5748" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="-0.3653" y="-0.8157" z="0.4485" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0078" v="0.2211" />
+                        <tangent x="0.790537" y="-0.0196313" z="0.612099" w="-1" />
+                        <binormal x="0.640242" y="-0.569946" z="-0.515027" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.7493" y="6.5284" z="-39.4343" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.0105" v="0.1251" />
+                        <tangent x="1" y="0" z="-0.000115891" w="-1" />
+                        <binormal x="0.00196328" y="0" z="0.999998" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.5284" z="-39.7616" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0091" v="0.1024" />
+                        <tangent x="1" y="0" z="-5.37256e-006" w="-1" />
+                        <binormal x="0.00203253" y="0" z="0.999998" />
                     </vertex>
                     <vertex>
                         <position x="15.7299" y="6.5284" z="-39.4501" />
-                        <colour_diffuse value="    -1.000000    -1.000000    -1.000000" />
-                        <normal x="0" y="1" z="0" />
+                        <normal x="0" y="0" z="0" />
                         <texcoord u="0.0091" v="0.124" />
+                        <tangent x="0.999995" y="0" z="-0.00324905" w="-1" />
+                        <binormal x="0" y="0" z="1" />
+                    </vertex>
+                    <vertex>
+                        <position x="16.1514" y="6.5284" z="-39.7616" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.0406" v="0.1024" />
+                        <tangent x="1" y="0" z="0" w="-1" />
+                        <binormal x="0.00203589" y="0" z="0.999998" />
+                    </vertex>
+                    <vertex>
+                        <position x="15.9672" y="5.4796" z="-39.6117" />
+                        <normal x="0" y="0" z="0" />
+                        <texcoord u="0.4457" v="0.3071" />
+                        <tangent x="-1" y="0" z="0" w="1" />
+                        <binormal x="0.0366258" y="0" z="-0.999329" />
                     </vertex>
                 </vertexbuffer>
             </geometry>

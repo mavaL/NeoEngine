@@ -41,10 +41,24 @@ struct PointLight
 };
 
 
+float2 Expand(float2 v)
+{
+	return v * 2 - 1;
+}
+
 float3 Expand(float3 v)
 {
-	// [0, 1] -> [-1, 1]
-	return v * 2.0f - 1.0f;
+	return v * 2 - 1;
+}
+
+float3 GetNormalFromTexture(Texture2D tex, SamplerState samp, float2 uv)
+{
+	float4 color = tex.Sample(samp, uv);
+	float3 normal;
+	normal.xy = Expand(color.yx);
+	normal.z = sqrt(saturate(1.f + dot(normal.xy, -normal.xy)));
+
+	return normal;
 }
 
 float3 ReconstructWorldPos(Texture2D texDepth, SamplerState samp, float2 uv)

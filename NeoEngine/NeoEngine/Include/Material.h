@@ -38,7 +38,7 @@ namespace Neo
 	class Material : public IRefCount
 	{
 	public:
-		Material(eVertexType type = eVertexType_General, uint32 nSubMtl = 1);
+		Material(const STRING& name, eVertexType type = eVertexType_General, uint32 nSubMtl = 1);
 		~Material();
 
 	public:
@@ -58,6 +58,8 @@ namespace Neo
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
+		eVertexType				GetVertexType() const { return m_vertType; }
+		const STRING&			GetName() const { return m_name; }
 
 	private:
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
@@ -65,6 +67,7 @@ namespace Neo
 		void		_CreateVertexLayout();
 		std::vector<D3D_SHADER_MACRO> _InternelInitShader(const D3D_SHADER_MACRO* pMacro, uint32 nMacro);
 
+		STRING						m_name;
 		D3D11RenderSystem*			m_pRenderSystem;
 	
 		ID3D11HullShader*			m_pHullShader;

@@ -121,6 +121,7 @@
     <ClInclude Include="Include\SSAO.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\StructuredBuffer.h" />
+    <ClInclude Include="Include\TangentSpaceCalculation.h" />
     <ClInclude Include="Include\Terrain.h" />
     <ClInclude Include="Include\TiledRenderer.h" />
     <ClInclude Include="Include\Tree.h" />

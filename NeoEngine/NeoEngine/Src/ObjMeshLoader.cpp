@@ -42,12 +42,10 @@ namespace Neo
 			vector<VEC2> vecUv(nUv);
 			vector<VEC3> vecNormal(nNormal);
 
-			vector<SVertex_NormalMap> vecVertexWithN;
 			vector<SVertex> vecVertex;
 			vector<DWORD> vecIndex;
 			vecIndex.reserve(nFace * 3);
 			vecVertex.reserve(nFace * 3);
-			vecVertexWithN.reserve(nFace * 3);
 
 			SubMesh* pSubMesh = new SubMesh;
 			pMesh->AddSubMesh(pSubMesh);
@@ -127,9 +125,8 @@ namespace Neo
 						idxNormal[i] -= nTotalNormalCount;
 
 						SVertex vertex;
-						SVertex_NormalMap vertexN;
-						vertexN.pos = vertex.pos = vecPos[idxPos[i]];
-						vertexN.uv = vertex.uv = vecUv[idxUv[i]];
+						vertex.pos = vecPos[idxPos[i]];
+						vertex.uv = vecUv[idxUv[i]];
 						vertex.normal = vecNormal[idxNormal[i]];
 
 						SVertCompare comp = { idxPos[i], idxUv[i], idxNormal[i] };
@@ -137,16 +134,8 @@ namespace Neo
 						DWORD idxVert;
 						if (_DefineVertex(comp, idxVert))
 						{
-							if (bNormalMap)
-							{
-								vecVertexWithN.push_back(vertexN);
-								idxVert = vecVertexWithN.size() - 1;
-							} 
-							else
-							{
-								vecVertex.push_back(vertex);
-								idxVert = vecVertex.size() - 1;
-							}
+							vecVertex.push_back(vertex);
+							idxVert = vecVertex.size() - 1;
 						}
 						
 						vecIndex.push_back(idxVert);
@@ -163,8 +152,7 @@ namespace Neo
 
 			if (bNormalMap)
 			{
-				Mesh::BuildTangentVectors(&vecVertexWithN[0], &vecIndex[0], vecIndex.size());
-				pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
+			//	pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
 			}
 			else
 			{
@@ -299,17 +287,17 @@ namespace Neo
 			}
 			else if (strcmp(command.c_str(), "bump") == 0)
 			{
-				//pNewMaterial->SetVertexType(eVertexType_NormalMap);
+				pNewMaterial->SetVertexType(eVertexType_NormalMap);
 
-				//STRING texName;
-				//file >> texName;
-				//pNewMaterial->SetTexture(eTexSlot_NormalMap, new D3D11Texture(GetResPath(texName)));
+				STRING texName;
+				file >> texName;
+				pNewMaterial->SetTexture(eTexSlot_NormalMap, new D3D11Texture(GetResPath(texName)));
 
-				//D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
-				//samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-				//samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
+				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 
-				//pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
+				pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
 			}
 			else if (strcmp(command.c_str(), "Ks") == 0)
 			{

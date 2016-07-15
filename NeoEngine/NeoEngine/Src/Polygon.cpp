@@ -64,7 +64,7 @@ namespace Neo
 			const VEC3& a = getVertex(i);
 			const VEC3& b = getVertex((i + 1) % getVertexCount());
 
-			if (a.PositionEqual(b))
+			if (a.IsEquivalent(b))
 			{
 				deleteVertex(i);
 				--i;
@@ -158,7 +158,7 @@ namespace Neo
 		bool foundStart = false;
 		for (size_t i = 0; i < getVertexCount(); ++i)
 		{
-			if (getVertex(0).PositionEqual(rhs.getVertex(i)))
+			if (getVertex(0).IsEquivalent(rhs.getVertex(i)))
 			{
 				start = i;
 				foundStart = true;
@@ -174,7 +174,7 @@ namespace Neo
 			const VEC3& vA = getVertex(i);
 			const VEC3& vB = rhs.getVertex((i + start) % getVertexCount());
 
-			if (!vA.PositionEqual(vB))
+			if (!vA.IsEquivalent(vB))
 				return false;
 		}
 

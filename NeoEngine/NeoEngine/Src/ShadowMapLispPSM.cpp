@@ -54,7 +54,7 @@ namespace Neo
 					{
 						const VEC3& v = *vit;
 
-						if (vInsert.PositionEqual(v))
+						if (vInsert.IsEquivalent(v))
 						{
 							bPresent = true;
 							break;

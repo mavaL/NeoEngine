@@ -357,9 +357,9 @@ namespace Common
 		return sqrt(dx * dx + dy * dy + dz * dz);
 	}
 
-	__forceinline bool		Equal(float a, float b)
+	__forceinline bool		Equal(float a, float b, float eps)
 	{
-		return fabs(a - b) < 1e-03;
+		return fabs(a - b) < eps;
 	}
 
 	__forceinline Vector4	Transform_Vec3_By_Mat44(const Vector3& pt, const Matrix44& mat, bool bPosOrDir)

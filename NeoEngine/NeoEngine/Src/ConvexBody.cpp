@@ -375,8 +375,8 @@ namespace Neo
 			// iterate from itStart+1 to the element before the last one
 			for ( ; it != edgeMap.end(); ++it )
 			{	
-				if (itStart->first.PositionEqual(it->second) &&
-					 itStart->second.PositionEqual(it->first))
+				if (itStart->first.IsEquivalent(it->second) &&
+					 itStart->second.IsEquivalent(it->first))
 				{
 					edgeMap.erase(it);
 					// increment itStart before deletion (iterator invalidation)
@@ -489,8 +489,8 @@ namespace Neo
 
 							// if the edge is the same the current vertex of A has to be equal to the next of B and the other
 							// way round
-							if ( aCurrent.PositionEqual(bNext) &&
-								 bCurrent.PositionEqual(aNext))
+							if ( aCurrent.IsEquivalent(bNext) &&
+								 bCurrent.IsEquivalent(aNext))
 							{
 								// polygons are neighbors, assemble new one
 								Polygon *pNew = allocatePolygon();
@@ -528,7 +528,7 @@ namespace Neo
 									const VEC3& b = pNew->getVertex( (i + 1) % pNew->getVertexCount() );
 
 									// if the two vertices are the same...
-									if (a.PositionEqual(b))
+									if (a.IsEquivalent(b))
 									{
 										// remove a
 										pNew->deleteVertex( i );
@@ -808,8 +808,8 @@ namespace Neo
 
 			for ( ; it != itEnd; ++it )
 			{
-				if (itStart->first.PositionEqual(it->second) &&
-					 itStart->second.PositionEqual(it->first))
+				if (itStart->first.IsEquivalent(it->second) &&
+					 itStart->second.IsEquivalent(it->first))
 				{
 					// erase itStart and it
 					edgeMap.erase( it );
@@ -1129,7 +1129,7 @@ namespace Neo
 		for (Polygon::EdgeMap::iterator it = intersectionEdges.begin(); 
 			it != intersectionEdges.end(); ++it)
 		{
-			if (it->first.PositionEqual(vec))
+			if (it->first.IsEquivalent(vec))
 			{
 				vNext = it->second;
 
@@ -1138,7 +1138,7 @@ namespace Neo
 
 				return true; // found!
 			}
-			else if (it->second.PositionEqual(vec))
+			else if (it->second.IsEquivalent(vec))
 			{
 				vNext = it->first;
 

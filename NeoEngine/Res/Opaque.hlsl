@@ -45,8 +45,9 @@ VS_OUTPUT VS( VS_INPUT input )
 	output.uv = input.uv;
 
 #ifdef NORMAL_MAP
-	output.tangent = input.tangent;
-	output.binormal = input.binormal;
+	output.tangent.xyz = normalize(mul(input.tangent.xyz, (float3x3)WorldIT));
+	output.tangent.w = input.tangent.w;
+	output.binormal = normalize(mul(input.binormal, (float3x3)WorldIT));
 #else
 	output.normal = mul(input.normal, (float3x3)WorldIT);
 #endif
@@ -69,11 +70,10 @@ SamplerState	samLinear		: register(s0);
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
 #ifdef NORMAL_MAP
-	float3 vN = normalize(cross(IN.tangent.xyz, IN.binormal.xyz));
-	float3x3 mTangentToWS = float3x3(IN.tangent.xyz, IN.binormal.xyz, vN);
-
-	float3 vNormalTS = Expand(texNormal.Sample(samLinear, IN.uv).xyz);
-	float3 vWorldNormal = normalize(mul(vNormalTS, mTangentToWS));
+	float3x3 matWSToTS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	matWSToTS = transpose(matWSToTS);
+	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
+	float3 vWorldNormal = normalize(mul(vNormalTS, matWSToTS));
 #else
 	float3 vWorldNormal = normalize(IN.normal);
 #endif
@@ -102,11 +102,10 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	gbuffer_output output = (gbuffer_output)0;
 
 #ifdef NORMAL_MAP
-	float3 vN = normalize(cross(IN.tangent.xyz, IN.binormal.xyz));
-	float3x3 mTangentToWS = float3x3(IN.tangent.xyz, IN.binormal.xyz, vN);
-
-	float3 vNormalTS = Expand(texNormal.Sample(samLinear, IN.uv).xyz);
-	float3 vWorldNormal = normalize(mul(vNormalTS, mTangentToWS));
+	float3x3 matWSToTS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	matWSToTS = transpose(matWSToTS);
+	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
+	float3 vWorldNormal = normalize(mul(vNormalTS, matWSToTS));
 
 	output.oNormal.xyz = vWorldNormal * 0.5f + 0.5f;
 #else

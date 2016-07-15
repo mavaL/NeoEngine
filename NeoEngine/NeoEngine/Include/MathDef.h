@@ -16,7 +16,7 @@ const float		TWO_PI		=	6.28318f;
 
 namespace Common
 {
-	bool		Equal(float a, float b);
+	bool		Equal(float a, float b, float eps = 1e-03);
 
 	/////////////////////////////////////////////////////////////
 	//////// Integer point
@@ -38,6 +38,11 @@ namespace Common
 		Vector2(float _x, float _y):x(_x),y(_y) {}
 
 		void Set(float _x, float _y) { x=_x; y=_y; }
+
+		bool	IsEquivalent(const Vector2& rhs, float eps = 1e-03) const
+		{
+			return Equal(x, rhs.x, eps) && Equal(y, rhs.y, eps);
+		}
 
 		float x, y;
 	};
@@ -128,9 +133,9 @@ namespace Common
 			return sqrt(x*x + y*y + z*z);
 		}
 
-		bool	PositionEqual(const Vector3& rhs) const
+		bool	IsEquivalent(const Vector3& rhs, float eps = 1e-03) const
 		{
-			return Equal(x, rhs.x) && Equal(y, rhs.y) && Equal(z, rhs.z);
+			return Equal(x, rhs.x, eps) && Equal(y, rhs.y, eps) && Equal(z, rhs.z, eps);
 		}
 
 		bool	DirectionEqual(const Vector3& dir, float fToleraceRadian) const;

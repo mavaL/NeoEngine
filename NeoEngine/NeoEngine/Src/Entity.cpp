@@ -94,16 +94,16 @@ namespace Neo
 		for (uint32 iSub=0; iSub<m_pMesh->GetSubMeshCount(); ++iSub)
 		{
 			const SubMesh* pSubMesh = m_pMesh->GetSubMesh(iSub);
-			const VertexData::PosData& posData = pSubMesh->GetVertData().GetPosData();
+			const SVertex* pVerts = pSubMesh->GetVertData().GetVertex();
 			const DWORD nVert = pSubMesh->GetVertData().GetVertCount();
 
 			//AABB start with the first pos
-			aabb.m_minCorner = posData[0];
-			aabb.m_maxCorner = posData[0];
+			aabb.m_minCorner = pVerts[0].pos;
+			aabb.m_maxCorner = pVerts[0].pos;
 
 			for (DWORD i=1; i<nVert; ++i)
 			{
-				aabb.Merge(posData[i]);
+				aabb.Merge(pVerts[i].pos);
 			}
 
 			// Fix: In case of AABB become a plane [2/10/2014 mavaL]

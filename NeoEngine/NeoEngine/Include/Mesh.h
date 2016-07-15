@@ -10,6 +10,27 @@
 
 #include "Prerequiestity.h"
 #include "VertexData.h"
+#include "TangentSpaceCalculation.h"
+
+
+class CTangentCalcProxy : public ITriangleInputProxy
+{
+public:
+	CTangentCalcProxy() {}
+	~CTangentCalcProxy() {}
+
+	void		Init(Neo::SVertex* pVerts, DWORD* pIndexData, DWORD nTri);
+	unsigned int GetTriangleCount() const;
+	void		GetTriangleIndices(const unsigned int indwTriNo, unsigned int outdwPos[3], unsigned int outdwNorm[3], unsigned int outdwUV[3]) const;
+	void		GetPos(const unsigned int indwPos, float outfPos[3]) const;
+	void		GetUV(const unsigned int indwPos, float outfUV[2]) const;
+
+private:
+	Neo::SVertex*		m_pVerts;
+	DWORD*				m_pIndex;
+	DWORD				m_nTri;
+};
+
 
 namespace Neo
 {
@@ -22,13 +43,17 @@ namespace Neo
 		~SubMesh();
 
 	public:
-		bool		InitVertData(eVertexType type, const void* pVerts, int nVert, bool bStatic);
+		bool		InitVertData(eVertexType type, const SVertex* pVerts, int nVert, bool bStatic);
+		bool		InitTangentData(const STangentData* pVerts, int nVert, bool bStatic);
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
+		bool		BuildTangents();
 
 		void			SetName(const STRING& name) { m_name = name; }
 		const STRING&	GetName() const { return m_name; }
 
 		const VertexData&	GetVertData() const { return m_vertData; }
+		DWORD				GetIndexCount() const { return m_nIndexCnt; }
+		DWORD*				GetIndexData() const { return m_pIndexData; }
 
 		void		Render();		
 
@@ -36,6 +61,7 @@ namespace Neo
 		STRING			m_name;
 
 		ID3D11Buffer*	m_pVertexBuf;
+		ID3D11Buffer*	m_pVB_Tangent;
 		VertexData		m_vertData;
 
 		ID3D11Buffer*	m_pIndexBuf;
@@ -48,10 +74,11 @@ namespace Neo
 	class Mesh
 	{
 	public:
-		Mesh();
+		Mesh(const char* szfilename = "NoName");
 		~Mesh();
 
 	public:
+		const STRING&	GetFileName() const { return m_filename; }
 		void		AddSubMesh(SubMesh* submesh);
 		SubMesh*	GetSubMesh(uint32 i);
 		uint32		GetSubMeshCount() const;
@@ -60,12 +87,8 @@ namespace Neo
 
 		void		Render();
 
-		static void	BuildTangentVectors(SVertex_NormalMap* pVerts, const DWORD* pIndex, DWORD nIndex);
-		static void	CalcTangentSpace(VEC3& oNormal, VEC3& oTangent, VEC3& oBinormal,
-			const VEC3& vt1, const VEC3& vt2, const VEC3& vt3,
-			const VEC2& tc1, const VEC2& tc2, const VEC2& tc3);
-
 	private:
+		STRING		m_filename;
 		SubMeshes	m_submeshes;
 		Material*	m_pMaterial;
 	};

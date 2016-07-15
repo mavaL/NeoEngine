@@ -164,7 +164,7 @@ namespace Neo
 	class	PixelBox;
 	struct	SColor;
 	struct	SVertex;
-	struct	SVertex_NormalMap;
+	struct	STangentData;
 	struct	SFrameStat;
 	struct	SDirectionLight;
 	class	VertexData;

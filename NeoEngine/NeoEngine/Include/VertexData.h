@@ -36,22 +36,17 @@ namespace Neo
 			,color(SColor::WHITE) {}
 
 		VEC3	pos;
-		VEC3	normal;
 		VEC2	uv;
 		SColor	color;
+		VEC3	normal;
 	};
 	//------------------------------------------------------------------------------------
-	struct SVertex_NormalMap
+	struct STangentData
 	{
-		SVertex_NormalMap() {}
-		SVertex_NormalMap(const VEC3& p, const VEC2& t)
-			: pos(p)
-			, uv(t) {}
+		STangentData() {}
 
-		VEC3	pos;
 		VEC4	tangent;
 		VEC3	binormal;
-		VEC2	uv;
 	};
 	//------------------------------------------------------------------------------------
 	class VertexData
@@ -60,18 +55,19 @@ namespace Neo
 		VertexData();
 		~VertexData();
 
-		typedef std::vector<VEC3>	PosData;
-
 	public:
-		void			Init(const void* pVert, uint32 nVert, eVertexType type);
-		uint32			GetVertexStride() const;
-		const PosData&	GetPosData() const	{ return m_vecPos; }
+		void			InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert);
+		void			InitTangents(const STangentData* pTangent, uint32 nVert);
 		uint32			GetVertCount() const { return m_nVerts; }
+		SVertex*		GetVertex() const { return m_pVertData; }
+		STangentData*	GetTangent() const { return m_pTangentData; }
+		eVertexType		GetVertType() const { return m_vertType; }
 
 	private:
-		eVertexType		m_type;
+		eVertexType		m_vertType;
+		SVertex*		m_pVertData;
+		STangentData*	m_pTangentData;
 		uint32			m_nVerts;
-		PosData			m_vecPos;
 	};
 }
 

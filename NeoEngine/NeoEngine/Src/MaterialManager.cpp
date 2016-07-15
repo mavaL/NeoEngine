@@ -23,7 +23,7 @@ namespace Neo
 		auto iter = m_Mtls.find(name);
 		_AST(iter == m_Mtls.end());
 
-		Material* pMtl = new Material(type, nSubMtl);
+		Material* pMtl = new Material(name, type, nSubMtl);
 
 		m_Mtls.insert(std::make_pair(name, pMtl));
 

@@ -220,12 +220,12 @@ void SetupTestScene6(Scene* scene)
 	float halfW = 200.0f / 2;
 	float halfH = 200.0f / 2;
 
-	SVertex_NormalMap vert[4] =
+	SVertex vert[4] =
 	{
-		SVertex_NormalMap(VEC3(-halfW, 0, +halfH), VEC2(0, 0)),
-		SVertex_NormalMap(VEC3(+halfW, 0, +halfH), VEC2(10, 0)),
-		SVertex_NormalMap(VEC3(+halfW, 0, -halfH), VEC2(10, 10)),
-		SVertex_NormalMap(VEC3(-halfW, 0, -halfH), VEC2(0, 10)),
+		SVertex(VEC3(-halfW, 0, +halfH), VEC2(0, 0)),
+		SVertex(VEC3(+halfW, 0, +halfH), VEC2(1, 0)),
+		SVertex(VEC3(+halfW, 0, -halfH), VEC2(1, 1)),
+		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 1)),
 	};
 
 	DWORD dwIndex[6] = { 0, 1, 3, 1, 2, 3 };
@@ -233,9 +233,9 @@ void SetupTestScene6(Scene* scene)
 	Mesh* pMesh = new Mesh;
 	SubMesh* pSubmesh = new SubMesh;
 
-	Mesh::BuildTangentVectors(vert, dwIndex, 6);
 	pSubmesh->InitVertData(eVertexType_NormalMap, vert, 4, true);
 	pSubmesh->InitIndexData(dwIndex, 6, true);
+	pSubmesh->BuildTangents();
 
 	pMesh->AddSubMesh(pSubmesh);
 
@@ -245,7 +245,7 @@ void SetupTestScene6(Scene* scene)
 
 
 	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor", eVertexType_NormalMap);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("floor_diffuse.png")));
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
 	pMaterial->SetTexture(1, new Neo::D3D11Texture(GetResPath("floor_bump.png")));
 
 	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
@@ -259,8 +259,8 @@ void SetupTestScene6(Scene* scene)
 	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"), scene);
 	_AST(bOk);
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
-		new Neo::D3D11Texture(GetResPath("ambientcube_diff.dds"), eTextureType_CubeMap), 
-		new Neo::D3D11Texture(GetResPath("ambientcube_spec.dds"), eTextureType_CubeMap));
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap), 
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Another test sphere entity
 	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
@@ -294,7 +294,7 @@ void EnterTestScene6(Scene* scene)
 void SetupTestScene7(Scene* scene)
 {
 	// Sun light
-	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.929f, 0.878f, 0.874f));
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.729f, 0.678f, 0.674f));
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene

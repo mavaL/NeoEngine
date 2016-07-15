@@ -141,6 +141,9 @@
     <ClInclude Include="Include\MaterialManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\TangentSpaceCalculation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
