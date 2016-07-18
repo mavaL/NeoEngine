@@ -159,10 +159,10 @@ namespace Neo
 		BYTE tmp_g = Ftoi32_Fast(c.y);
 		BYTE tmp_b = Ftoi32_Fast(c.z);
 #else
-		BYTE tmp_a = Ftoi32_Fast(a * 255);
-		BYTE tmp_r = Ftoi32_Fast(r * 255);
-		BYTE tmp_g = Ftoi32_Fast(g * 255);
-		BYTE tmp_b = Ftoi32_Fast(b * 255);
+		BYTE tmp_a = BYTE(a * 255);
+		BYTE tmp_r = BYTE(r * 255);
+		BYTE tmp_g = BYTE(g * 255);
+		BYTE tmp_b = BYTE(b * 255);
 #endif
 		DWORD ret = (tmp_a << 24) + (tmp_r << 16) + (tmp_g << 8) + (tmp_b);
 

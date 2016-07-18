@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "D3D11Texture.h"
 #include "D3D11RenderSystem.h"
+#include "DDSTextureLoader.h"
 
 namespace Neo
 {
@@ -53,10 +54,18 @@ namespace Neo
 		default: assert(0);
 		}
 
-		V(D3DX11CreateTextureFromFileA(m_pd3dDevice, filename.c_str(), &loadInfo, nullptr,pTex, nullptr));
+		if (filename.find(".dds") != STRING::npos)
+		{
+			V(DirectX::CreateDDSTextureFromFileEx(m_pd3dDevice, EngineToUnicode(filename).c_str(), 
+				4096, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, pTex, &m_pSRV));
+		} 
+		else
+		{
+			V(D3DX11CreateTextureFromFileA(m_pd3dDevice, filename.c_str(), &loadInfo, nullptr, pTex, nullptr));
 
-		// Create SRV
-		CreateSRV();
+			// Create SRV
+			CreateSRV();
+		}
 
 		// Store texture dimension and format
 		switch (GetTextureType())
@@ -482,22 +491,27 @@ namespace Neo
 
 		switch(dxformat)
 		{
-		case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-		case DXGI_FORMAT_R8G8B8A8_UNORM:	format = ePF_A8R8G8B8; break;
+		case DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT_R8G8B8A8_UNORM:	
+			format = ePF_A8R8G8B8; 
+			break;
 		case DXGI_FORMAT_R16_UNORM:			format = ePF_L16; break;
 		case DXGI_FORMAT_R16G16B16A16_FLOAT: format = ePF_A16R16G16B16F; break;
 		case DXGI_FORMAT_R8_UNORM:			format = ePF_L8; break;
 		case DXGI_FORMAT_R16_FLOAT:			format = ePF_R16F; break;
 		case DXGI_FORMAT_R32_FLOAT:			format = ePF_R32F; break;
 
-		case DXGI_FORMAT_BC1_UNORM: format = ePF_DXT1; break;
+		case DXGI_FORMAT_BC1_UNORM:
+		case DXGI_FORMAT_BC1_UNORM_SRGB:
+			format = ePF_DXT1; 
+			break;
 		case DXGI_FORMAT_BC2_UNORM: format = ePF_DXT2; break;
 		case DXGI_FORMAT_BC3_UNORM: format = ePF_DXT3; break;
 		case DXGI_FORMAT_BC4_UNORM: format = ePF_DXT4; break;
 		case DXGI_FORMAT_BC5_UNORM: format = ePF_DXT5; break;
 
 		default:
-			assert(0);	// Not support yet...
+			_AST(0);	// Not support yet...
 			break;
 		}
 

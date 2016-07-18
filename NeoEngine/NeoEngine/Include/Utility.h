@@ -51,50 +51,10 @@ inline T Clamp(const T& val, const T& left, const T& right)
 		return val;
 }
 
-__forceinline int Ceil32_Fast(float x)
-{
-	const float h = 0.5f;
-	int t;
-
-	_asm
-	{
-		fld	x
-			fadd	h
-			fistp	t
-	}
-
-	return t;
-}
-
-__forceinline int Floor32_Fast(float x)
-{
-	const float h = 0.5f;
-	int t;
-
-	_asm
-	{
-		fld	x
-			fsub	h
-			fistp	t
-	}
-
-	return t;
-}
-
-__forceinline int Ftoi32_Fast(float x)
-{
-	int t;
-	_asm
-	{
-		fld	x
-			fistp	t
-	}
-
-	return t;
-
-	// SSE?
-	//return _mm_cvtt_ss2si(_mm_load_ss(&x)); 
-}
+std::wstring	EngineToUnicode(const char* src);
+std::wstring	EngineToUnicode(const std::string& src);
+std::string		UnicodeToEngine(const WCHAR* src);
+std::string		UnicodeToEngine(const std::wstring& src);
 
 
 #ifndef SAFE_DELETE
@@ -111,17 +71,17 @@ __forceinline int Ftoi32_Fast(float x)
 
 #if defined(DEBUG) || defined(_DEBUG)
 #ifndef V
-#define V(x)           { hr = (x); assert(SUCCEEDED(hr)); }
+#define V(x)           { hr = (x); _AST(SUCCEEDED(hr)); }
 #endif
 #ifndef V_RETURN
-#define V_RETURN(x)    { hr = (x); if( FAILED(hr) ) { assert(0); return false; } }
+#define V_RETURN(x)    { hr = (x); if( FAILED(hr) ) { _AST(0); return false; } }
 #endif
 #else
 #ifndef V
 #define V(x)           { hr = (x); }
 #endif
 #ifndef V_RETURN
-#define V_RETURN(x)    { hr = (x); assert(SUCCEEDED(hr)); }
+#define V_RETURN(x)    { hr = (x); }
 #endif
 #endif
 

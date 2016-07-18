@@ -270,8 +270,8 @@ namespace Neo
 				pNewMaterial = MaterialManager::GetSingleton().NewMaterial(matName);
 
 				SubMaterial& subMtl = pNewMaterial->GetSubMaterial(0);
-				subMtl.specular.Set(0.3f, 0.3f, 0.3f);
-				subMtl.glossiness = 0.4f;
+				subMtl.specular.Set(0.05f, 0.05f, 0.05f);
+				subMtl.glossiness = 0.3f;
 			}
 			else if (strcmp(command.c_str(), "map_Kd") == 0)
 			{

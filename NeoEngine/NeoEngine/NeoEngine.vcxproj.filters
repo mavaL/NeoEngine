@@ -96,9 +96,6 @@
     <ClInclude Include="..\Res\Common.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Common.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Tree.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -142,6 +139,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\TangentSpaceCalculation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\DDSTextureLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\dds.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\LoaderHelpers.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Utility.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -263,6 +272,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\MaterialManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\DDSTextureLoader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Utility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

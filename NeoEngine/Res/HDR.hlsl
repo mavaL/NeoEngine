@@ -56,7 +56,8 @@ float4 PS( VS_OUTPUT IN ) : SV_Target
 	float4 sceneColor = texScene.Sample(samPoint, IN.uv);
 #endif
 
-	// sRGB encode
-	//return pow(sceneColor, 1.0f/ 2.2f);
-	return sceneColor;
+	sceneColor = max(0, sceneColor - 0.004f);
+	float4 GammaColor = (sceneColor*(6.2f*sceneColor + 0.5f)) / (sceneColor*(6.2f*sceneColor + 1.7f) + 0.06f);
+
+	return GammaColor;
 }

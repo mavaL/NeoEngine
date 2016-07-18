@@ -9,7 +9,7 @@
 #ifndef Prerequiestity_h__
 #define Prerequiestity_h__
 
-#include "Common.h"
+#include "Utility.h"
 
 
 const int	MAX_TEXTURE_STAGE	=	16;

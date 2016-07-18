@@ -92,16 +92,18 @@
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\AmbientCube.h" />
     <ClInclude Include="Include\Camera.h" />
-    <ClInclude Include="Include\Common.h" />
     <ClInclude Include="Include\ConvexBody.h" />
     <ClInclude Include="Include\D3D11RenderSystem.h" />
     <ClInclude Include="Include\Color.h" />
     <ClInclude Include="Include\D3D11RenderTarget.h" />
     <ClInclude Include="Include\D3D11Texture.h" />
+    <ClInclude Include="Include\dds.h" />
+    <ClInclude Include="Include\DDSTextureLoader.h" />
     <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\Font.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Light.h" />
+    <ClInclude Include="Include\LoaderHelpers.h" />
     <ClInclude Include="Include\Material.h" />
     <ClInclude Include="Include\MaterialManager.h" />
     <ClInclude Include="Include\MathDef.h" />
@@ -125,6 +127,7 @@
     <ClInclude Include="Include\Terrain.h" />
     <ClInclude Include="Include\TiledRenderer.h" />
     <ClInclude Include="Include\Tree.h" />
+    <ClInclude Include="Include\Utility.h" />
     <ClInclude Include="Include\VertexData.h" />
     <ClInclude Include="Include\Water.h" />
   </ItemGroup>
@@ -258,6 +261,7 @@
     <ClCompile Include="Src\D3D11RenderSystem.cpp" />
     <ClCompile Include="Src\D3D11RenderTarget.cpp" />
     <ClCompile Include="Src\D3D11Texture.cpp" />
+    <ClCompile Include="Src\DDSTextureLoader.cpp" />
     <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\Light.cpp" />
@@ -284,6 +288,7 @@
     <ClCompile Include="Src\TestScene.cpp" />
     <ClCompile Include="Src\TiledRenderer.cpp" />
     <ClCompile Include="Src\Tree.cpp" />
+    <ClCompile Include="Src\Utility.cpp" />
     <ClCompile Include="Src\VertexData.cpp" />
     <ClCompile Include="Src\Water.cpp" />
   </ItemGroup>
