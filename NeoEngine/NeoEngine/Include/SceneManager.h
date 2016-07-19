@@ -72,6 +72,7 @@ namespace Neo
 		void		_RenderGBuffer(uint32 phaseFlag);
 		void		_LinearizeDepth();
 		void		_CompositionPass();
+		void		_PointLightPass();
 		void		_HDRFinalScenePass();
 
 		std::vector<Scene*>		m_scenes;	

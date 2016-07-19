@@ -113,8 +113,14 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 #endif
 	output.oNormal.w = 1.0f;
 
-	output.oAlbedo = texDiffuse.Sample(samLinear, IN.uv);
+#ifdef SPEC_MAP
+	output.oSpec.xyz = texSpec.Sample(samLinear, IN.uv).xyz;
+	output.oSpec.w = specularGloss.w;
+#else
 	output.oSpec = specularGloss;
+#endif
+
+	output.oAlbedo = texDiffuse.Sample(samLinear, IN.uv);
 
 	return output;
 }

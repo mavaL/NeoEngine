@@ -336,6 +336,12 @@ namespace Neo
 			retMacros.push_back(macro);
 		}
 
+		if (m_vecSubMtls[0].m_pTexture[eTexSlot_SpecMap])
+		{
+			D3D_SHADER_MACRO macro = { "SPEC_MAP", "" };
+			retMacros.push_back(macro);
+		}
+
 //		if (m_shaderFlag & eShaderFlag_EnableSSAO)
 //		{
 //			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)

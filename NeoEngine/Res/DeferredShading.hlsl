@@ -75,9 +75,10 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 #ifdef AMBIENT_CUBE
 	// Ambient
 	float4 vAmbientDiff, vAmbientSpec;
+	float fAmbDiffStrength = 0.5f, fAmbSpecStrength = 0.5f;
 	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texCube0, texCube1, tex7, samLinear, vView, vNormal, specGloss.xyz, specGloss.w);
 
-	oColor += vAmbientSpec + vAmbientDiff * albedo;
+	oColor += vAmbientSpec * fAmbDiffStrength + vAmbientDiff * albedo * fAmbSpecStrength;
 #endif
 
 	return oColor;

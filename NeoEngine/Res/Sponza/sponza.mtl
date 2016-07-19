@@ -5,6 +5,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_thorn_diff.dds
 bump Sponza\textures\sponza_thorn_ddn.dds -bm 0.02
+spec Sponza\textures\sponza_thorn_spec.dds
 alpha_test
 Ni 1.00
 Ks 0.36 0.36 0.36
@@ -15,6 +16,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\vase_plant.dds
+spec Sponza\textures\vase_plant_spec.dds
 alpha_test
 Ni 1.00
 Ks 0.18 0.18 0.18
@@ -26,6 +28,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\vase_round.dds
 bump Sponza\textures\vase_round_ddn.dds -bm 0.02
+spec Sponza\textures\vase_round_spec.dds
 Ni 1.00
 Ks 0.90 0.90 0.90
 Ns 30.00
@@ -46,6 +49,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\spnza_bricks_a_diff.dds
 bump Sponza\textures\spnza_bricks_a_ddn.dds -bm 0.02
+spec Sponza\textures\spnza_bricks_a_spec.dds
 Ni 1.00
 Ks 0.90 0.90 0.90
 Ns 30.00
@@ -56,6 +60,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_arch_diff.dds
 bump Sponza\textures\sponza_arch_ddn.dds -bm 0.02
+spec Sponza\textures\sponza_arch_spec.dds
 Ni 1.00
 Ks 0.30 0.30 0.30
 Ns 12.0
@@ -65,6 +70,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_ceiling_a_diff.dds
+spec Sponza\textures\sponza_ceiling_a_spec.dds
 Ni 1.00
 Ks 0.90 0.90 0.90
 Ns 30.00
@@ -75,6 +81,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_column_a_diff.dds
 bump Sponza\textures\sponza_column_a_ddn.dds -bm 0.02
+spec Sponza\textures\sponza_column_a_spec.dds
 Ni 1.00
 Ks 0.30 0.30 0.30
 Ns 12.0
@@ -84,6 +91,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_floor_a_diff.dds
+spec Sponza\textures\sponza_floor_a_spec.dds
 Ni 1.00
 Ks 0.33 0.33 0.33
 Ns 6.0
@@ -94,6 +102,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_column_c_diff.dds
 bump Sponza\textures\sponza_column_c_ddn.dds -bm 0.02
+spec Sponza\textures\sponza_column_c_spec.dds
 Ni 1.00
 Ks 0.30 0.30 0.30
 Ns 12.0
@@ -103,6 +112,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_details_diff.dds
+map_Kd Sponza\textures\sponza_details_spec.dds
 Ni 1.00
 Ks 0.30 0.30 0.30
 Ns 14.0
@@ -113,6 +123,7 @@ Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_column_b_diff.dds
 bump Sponza\textures\sponza_column_b_ddn.dds -bm 0.02
+spec Sponza\textures\sponza_column_b_spec.dds
 Ni 1.00
 Ks 0.30 0.30 0.30
 Ns 12.0
@@ -122,6 +133,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_flagpole_diff.dds
+spec Sponza\textures\sponza_flagpole_spec.dds
 Ni 1.00
 Ks 0.68 0.68 0.68
 Ns 11.93
@@ -131,6 +143,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_fabric_green_diff.dds
+spec Sponza\textures\sponza_fabric_spec.dds
 Ni 1.00
 Ks 0.85 0.85 0.85
 Ns 3.66
@@ -140,6 +153,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_fabric_blue_diff.dds
+spec Sponza\textures\sponza_fabric_spec.dds
 Ni 1.00
 Ks 0.85 0.85 0.85
 Ns 3.66
@@ -149,6 +163,7 @@ Kd 0.50 0.50 0.50
 Ka 0.59 0.59 0.59
 Tf 1.00 1.00 1.00
 map_Kd Sponza\textures\sponza_fabric_diff.dds
+spec Sponza\textures\sponza_fabric_spec.dds
 Ni 1.00
 Ks 0.85 0.85 0.85
 Ns 3.66

@@ -270,8 +270,8 @@ namespace Neo
 				pNewMaterial = MaterialManager::GetSingleton().NewMaterial(matName);
 
 				SubMaterial& subMtl = pNewMaterial->GetSubMaterial(0);
-				subMtl.specular.Set(0.05f, 0.05f, 0.05f);
-				subMtl.glossiness = 0.3f;
+				subMtl.specular.Set(0.2f, 0.2f, 0.2f);
+				subMtl.glossiness = 0.5f;
 			}
 			else if (strcmp(command.c_str(), "map_Kd") == 0)
 			{
@@ -298,6 +298,16 @@ namespace Neo
 				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 
 				pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
+			}
+			else if (strcmp(command.c_str(), "spec") == 0)
+			{
+				STRING texName;
+				file >> texName;
+				pNewMaterial->SetTexture(eTexSlot_SpecMap, new D3D11Texture(GetResPath(texName)));
+
+				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_SpecMap);
+				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 			}
 			else if (strcmp(command.c_str(), "Ks") == 0)
 			{

@@ -339,7 +339,7 @@ void EnterTestScene7(Scene* scene)
 	pCamera->SetPosition(VEC3(0, 5, 0));
 	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetMoveSpeed(0.04f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 

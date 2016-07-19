@@ -19,6 +19,7 @@ namespace Neo
 	{
 		eTexSlot_DiffuseMap = 0,
 		eTexSlot_NormalMap,
+		eTexSlot_SpecMap,
 	};
 
 	class SubMaterial
