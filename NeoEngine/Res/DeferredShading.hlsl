@@ -65,6 +65,8 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	float3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, specGloss.w, specGloss.xyz);
 
 	float4 albedo = tex0.Sample(samPoint, IN.uv);
+	albedo.xyz = albedo.xyz * albedo.xyz;
+
 	float4 oColor = albedo * cDiffuse;
 	oColor.xyz += cSpecular;
 
@@ -75,10 +77,10 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 #ifdef AMBIENT_CUBE
 	// Ambient
 	float4 vAmbientDiff, vAmbientSpec;
-	float fAmbDiffStrength = 0.5f, fAmbSpecStrength = 0.5f;
+	float fAmbDiffStrength = 0.3f, fAmbSpecStrength = 0.3f;
 	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texCube0, texCube1, tex7, samLinear, vView, vNormal, specGloss.xyz, specGloss.w);
 
-	oColor += vAmbientSpec * fAmbDiffStrength + vAmbientDiff * albedo * fAmbSpecStrength;
+	oColor += vAmbientSpec * fAmbSpecStrength + vAmbientDiff * albedo * fAmbDiffStrength;
 #endif
 
 	return oColor;

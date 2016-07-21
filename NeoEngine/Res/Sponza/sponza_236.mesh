@@ -25,210 +25,210 @@
                 <vertexbuffer>
                     <vertex>
                         <position x="5.4355" y="20.2237" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="-1" z="0" />
                         <texcoord u="0.4143" v="0.2619" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="-1" z="0" />
                         <texcoord u="0.3593" v="0.1928" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="-1" z="0" />
                         <texcoord u="0.4143" v="0.1928" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.2237" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="-1" z="0" />
                         <texcoord u="0.3593" v="0.2619" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="1" z="0" />
                         <texcoord u="0.3593" v="0.1055" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.6166" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="1" z="0" />
                         <texcoord u="0.4143" v="0.0161" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="1" z="0" />
                         <texcoord u="0.4143" v="0.1055" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.6166" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="1" z="0" />
                         <texcoord u="0.3593" v="0.0161" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="1" y="0" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.4915" v="0.0969" />
                         <tangent x="1" y="0" z="0" w="1" />
                         <binormal x="-0.00490578" y="-0.999988" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.2237" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.4224" v="0.0969" />
                         <tangent x="1" y="-0.000388925" z="0" w="1" />
                         <binormal x="-6.69813e-005" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8182" y="20.2809" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.4984" v="0.0855" />
                         <tangent x="1" y="0.000132457" z="0" w="1" />
                         <binormal x="-4.55619e-005" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8182" y="20.2809" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.664227" y="-0.747531" z="0" />
                         <texcoord u="0.4143" v="0.1795" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.747394" y="-0.664381" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.8527" y="-0.5224" z="0" />
                         <texcoord u="0.3593" v="0.1928" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.521939" y="-0.852983" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8182" y="20.2809" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.664227" y="-0.747531" z="0" />
                         <texcoord u="0.3593" v="0.1795" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.747394" y="-0.664381" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.8527" y="-0.5224" z="0" />
                         <texcoord u="0.4143" v="0.1928" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.521939" y="-0.852983" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.7832" y="20.2237" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.4346" v="0.1836" />
                         <tangent x="-1" y="0" z="0" w="1" />
                         <binormal x="-0.00490868" y="-0.999988" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8182" y="20.2809" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.4277" v="0.1722" />
                         <tangent x="-1" y="-0.000132456" z="0" w="1" />
                         <binormal x="-4.55328e-005" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.2237" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.5037" v="0.1836" />
                         <tangent x="-1" y="0.000388925" z="0" w="1" />
                         <binormal x="-6.70209e-005" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.6166" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.4224" v="0.0188" />
                         <tangent x="1" y="-0.000213103" z="0" w="1" />
                         <binormal x="0.000204982" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.5118" v="0.0188" />
                         <tangent x="1" y="9.40712e-005" z="0" w="1" />
                         <binormal x="0.000437461" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="1" y="0" z="0" />
                         <texcoord u="0.3593" v="0.1055" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="1" y="0" z="0" />
                         <texcoord u="0.4143" v="0.1661" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="1" y="0" z="0" />
                         <texcoord u="0.3593" v="0.1661" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="1" y="0" z="0" />
                         <texcoord u="0.4143" v="0.1055" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.4355" y="20.6166" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.5037" v="0.1055" />
                         <tangent x="-1" y="0.000213103" z="0" w="1" />
                         <binormal x="0.000205156" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.6166" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.4143" v="0.1055" />
                         <tangent x="-1" y="-9.40707e-005" z="0" w="1" />
                         <binormal x="0.000437833" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="-1" />
                         <texcoord u="0.5118" v="0.0794" />
                         <tangent x="0.999988" y="0.00488758" z="0" w="1" />
                         <binormal x="0" y="-1" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.9922" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.418506" y="-0.908214" z="0" />
                         <texcoord u="0.3593" v="0.1661" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.908274" y="-0.418376" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0.418506" y="-0.908214" z="0" />
                         <texcoord u="0.4143" v="0.1661" />
                         <tangent x="0" y="0" z="1" w="1" />
                         <binormal x="-0.908274" y="-0.418376" z="0" />
                     </vertex>
                     <vertex>
                         <position x="5.8855" y="20.3119" z="-9.7154" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="0" y="0" z="1" />
                         <texcoord u="0.4143" v="0.1661" />
                         <tangent x="-0.999988" y="-0.00488754" z="0" w="1" />
                         <binormal x="0" y="-1" z="0" />

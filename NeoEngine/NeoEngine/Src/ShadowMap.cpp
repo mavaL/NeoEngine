@@ -53,7 +53,9 @@ namespace Neo
 		
 		pRenderSystem->UpdateGlobalCBuffer();
 
-		m_pRT_ShadowMap->Update();
+		m_pRT_ShadowMap->BeforeRender(false, true);
+		g_env.pSceneMgr->GetCurScene()->RenderOpaque();
+		m_pRT_ShadowMap->AfterRender();
 #endif
 
 		// Restore render states

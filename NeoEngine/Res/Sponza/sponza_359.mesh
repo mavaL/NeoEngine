@@ -9,28 +9,28 @@
                 <vertexbuffer>
                     <vertex>
                         <position x="3.1798" y="4.0433" z="17.0016" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="-1" y="0" z="0" />
                         <texcoord u="0.677" v="1" />
                         <tangent x="0" y="0.291059" z="-0.956705" w="1" />
                         <binormal x="0" y="-0.956826" z="-0.290662" />
                     </vertex>
                     <vertex>
                         <position x="3.1798" y="6.3923" z="17.829" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="-1" y="0" z="0" />
                         <texcoord u="0.1467" v="-2.0982" />
                         <tangent x="0" y="0.291297" z="-0.956633" w="1" />
                         <binormal x="0" y="-0.956815" z="-0.290696" />
                     </vertex>
                     <vertex>
                         <position x="3.1798" y="6.424" z="17.7249" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="-1" y="0" z="0" />
                         <texcoord u="0.677" v="-2.0982" />
                         <tangent x="0" y="0.291304" z="-0.956631" w="1" />
                         <binormal x="0" y="-0.956815" z="-0.290697" />
                     </vertex>
                     <vertex>
                         <position x="3.1798" y="4.0116" z="17.1058" />
-                        <normal x="0" y="0" z="0" />
+                        <normal x="-1" y="0" z="0" />
                         <texcoord u="0.1467" v="1" />
                         <tangent x="0" y="0.291052" z="-0.956707" w="1" />
                         <binormal x="0" y="-0.956826" z="-0.290661" />

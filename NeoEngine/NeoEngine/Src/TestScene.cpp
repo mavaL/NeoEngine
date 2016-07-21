@@ -294,7 +294,7 @@ void EnterTestScene6(Scene* scene)
 void SetupTestScene7(Scene* scene)
 {
 	// Sun light
-	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.729f, 0.678f, 0.674f));
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.7f,0.7f,0.7f));
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene

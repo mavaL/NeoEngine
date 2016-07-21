@@ -161,6 +161,7 @@ namespace Neo
 			if (Common::DotProduct_Vec3_By_Vec3(txb, n) < 0)
 			{
 				vecTangents[i].tangent.w = -1.0f;
+
 			}
 			else
 			{
@@ -172,6 +173,7 @@ namespace Neo
 		{
 			vecTempVerts[i].pos = pVerts[m_pIndexData[i]].pos;
 			vecTempVerts[i].uv = pVerts[m_pIndexData[i]].uv;
+			vecTempVerts[i].normal = pVerts[m_pIndexData[i]].normal;
 			vecTempTangents[i].tangent = vecTangents[vecTangentIndex[i]].tangent;
 			vecTempTangents[i].binormal = vecTangents[vecTangentIndex[i]].binormal;
 			vecTempIndex[i] = i;

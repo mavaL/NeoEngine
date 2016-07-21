@@ -102,10 +102,9 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	gbuffer_output output = (gbuffer_output)0;
 
 #ifdef NORMAL_MAP
-	float3x3 matWSToTS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
-	matWSToTS = transpose(matWSToTS);
+	float3x3 matTSToWS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
-	float3 vWorldNormal = normalize(mul(vNormalTS, matWSToTS));
+	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
 
 	output.oNormal.xyz = vWorldNormal * 0.5f + 0.5f;
 #else
@@ -120,7 +119,10 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	output.oSpec = specularGloss;
 #endif
 
-	output.oAlbedo = texDiffuse.Sample(samLinear, IN.uv);
+	// Avoid precision problem, decode in ComposePass.
+	float4 albedo = texDiffuse.Sample(samLinear, IN.uv);
+	albedo.xyz = sqrt(albedo.xyz);
+	output.oAlbedo = albedo;
 
 	return output;
 }

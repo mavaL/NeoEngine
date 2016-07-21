@@ -20,6 +20,8 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void VertexData::InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert)
 	{
+		SAFE_DELETE_ARRAY(m_pVertData);
+
 		m_vertType = type;
 		m_nVerts = nVert;
 		m_pVertData = new SVertex[nVert];
@@ -30,6 +32,8 @@ namespace Neo
 	void VertexData::InitTangents(const STangentData* pVert, uint32 nVert)
 	{
 		_AST(nVert == m_nVerts);
+
+		SAFE_DELETE_ARRAY(m_pTangentData);
 
 		m_pTangentData = new STangentData[nVert];
 		memcpy(m_pTangentData, pVert, sizeof(STangentData) * nVert);
