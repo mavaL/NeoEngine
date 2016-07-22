@@ -20,7 +20,7 @@ namespace Neo
 	{
 	public:
 		// Load from file
-		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0);
+		D3D11Texture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0, bool bSRGB = false);
 		// Create as manual
 		D3D11Texture(uint32 width, uint32 height, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
 		// Create from exist resource views

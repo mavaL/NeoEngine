@@ -1105,7 +1105,7 @@ HRESULT DirectX::CreateDDSTextureFromFileEx( ID3D11Device* d3dDevice,
         return hr;
     }
 
-	forceSRGB = header->reserved1[0] != 0;
+	forceSRGB = forceSRGB || (header->reserved1[0] != 0);
 
     hr = CreateTextureFromDDS( d3dDevice, nullptr,
 #if defined(_XBOX_ONE) && defined(_TITLE)

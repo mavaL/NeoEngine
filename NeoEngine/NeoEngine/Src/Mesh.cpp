@@ -63,6 +63,7 @@ namespace Neo
 		, m_nIndexCnt(0)
 		, m_pIndexData(nullptr)
 		, m_pVB_Tangent(nullptr)
+		, m_pVB_BoneWeights(nullptr)
 	{
 
 	}
@@ -71,6 +72,7 @@ namespace Neo
 	{
 		SAFE_RELEASE(m_pVertexBuf);
 		SAFE_RELEASE(m_pVB_Tangent);
+		SAFE_RELEASE(m_pVB_BoneWeights);
 		SAFE_RELEASE(m_pIndexBuf);
 		SAFE_DELETE(m_pIndexData);
 	}
@@ -222,12 +224,12 @@ namespace Neo
 
 		InitVertData(eVertexType_NormalMap, &vecFinalVerts[0], vecFinalVerts.size(), true);
 		InitIndexData(&vecFinalIndex[0], vecFinalIndex.size(), true);
-		InitTangentData(&vecFinalTangents[0], vecFinalTangents.size(), true);
+		InitTangentData(&vecFinalTangents[0], vecFinalTangents.size());
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	bool SubMesh::InitTangentData(const STangentData* pVerts, int nVert, bool bStatic)
+	bool SubMesh::InitTangentData(const STangentData* pVerts, int nVert)
 	{
 		m_vertData.InitTangents(pVerts, nVert);
 
@@ -246,6 +248,29 @@ namespace Neo
 
 		HRESULT hr = S_OK;
 		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pVB_Tangent));
+
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool SubMesh::InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert)
+	{
+		m_vertData.InitBoneWeights(pVerts, nVert);
+
+		SAFE_RELEASE(m_pVB_BoneWeights);
+
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+		bd.ByteWidth = sizeof(SVertexBoneWeight) * nVert;
+		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.Usage = D3D11_USAGE_IMMUTABLE;
+
+		D3D11_SUBRESOURCE_DATA InitData;
+		ZeroMemory(&InitData, sizeof(InitData));
+		InitData.pSysMem = m_vertData.GetBoneWeights();
+
+		HRESULT hr = S_OK;
+		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pVB_BoneWeights));
 
 		return true;
 	}
@@ -297,6 +322,12 @@ namespace Neo
 		{
 			stride = sizeof(STangentData);
 			pDeviceContext->IASetVertexBuffers(1, 1, &m_pVB_Tangent, &stride, &offset);
+		}
+
+		if (m_pVB_BoneWeights)
+		{
+			stride = sizeof(SVertexBoneWeight);
+			pDeviceContext->IASetVertexBuffers(2, 1, &m_pVB_BoneWeights, &stride, &offset);
 		}
 
 		if (m_pIndexBuf)

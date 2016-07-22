@@ -16,6 +16,7 @@
 
 namespace Neo
 {
+	/////////	Stream 0
 	struct SVertex 
 	{
 		SVertex()
@@ -40,13 +41,27 @@ namespace Neo
 		SColor	color;
 		VEC3	normal;
 	};
-	//------------------------------------------------------------------------------------
+	/////////	Stream 1
 	struct STangentData
 	{
 		STangentData() {}
 
 		VEC4	tangent;
 		VEC3	binormal;
+	};
+	/////////	Stream 2
+#define		INVALID_BONE_INDEX	0xff
+
+	struct SVertexBoneWeight 
+	{
+		SVertexBoneWeight()
+		{
+			boneIndices[0] = boneIndices[1] = boneIndices[2] = boneIndices[3] = INVALID_BONE_INDEX;
+			ZeroMemory(boneWeight, sizeof(float) * 4);
+		}
+
+		BYTE	boneIndices[4];
+		float	boneWeight[4];
 	};
 	//------------------------------------------------------------------------------------
 	class VertexData
@@ -58,16 +73,19 @@ namespace Neo
 	public:
 		void			InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert);
 		void			InitTangents(const STangentData* pTangent, uint32 nVert);
+		void			InitBoneWeights(const SVertexBoneWeight* pBoneWeights, uint32 nVert);
 		uint32			GetVertCount() const { return m_nVerts; }
 		SVertex*		GetVertex() const { return m_pVertData; }
 		STangentData*	GetTangent() const { return m_pTangentData; }
+		SVertexBoneWeight*	GetBoneWeights() const { return m_pBoneWeights; }
 		eVertexType		GetVertType() const { return m_vertType; }
 
 	private:
-		eVertexType		m_vertType;
-		SVertex*		m_pVertData;
-		STangentData*	m_pTangentData;
-		uint32			m_nVerts;
+		eVertexType			m_vertType;
+		SVertex*			m_pVertData;
+		STangentData*		m_pTangentData;
+		SVertexBoneWeight*	m_pBoneWeights;
+		uint32				m_nVerts;
 	};
 }
 

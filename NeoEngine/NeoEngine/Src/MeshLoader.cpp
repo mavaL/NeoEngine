@@ -8,7 +8,7 @@ using namespace std;
 
 namespace Neo
 {
-	Mesh* MeshLoader::LoadMesh(const STRING& filename, bool bMaterial)
+	Mesh* MeshLoader::LoadMesh(const STRING& filename, bool bMaterial, SkeletonAnim** pSkelAnim)
 	{
 		TiXmlDocument doc;
 		if(!doc.LoadFile(filename.c_str()))
@@ -83,9 +83,25 @@ namespace Neo
 				TiXmlElement* vertNode = geometryNode->FirstChildElement("vertexbuffer")->FirstChildElement("vertex");
 
 				bSaveMesh = _LoadVertex_General(vertNode, nVert, pSubMesh, bNormalMap, &vecIndex[0], vecIndex.size());
+
+				TiXmlElement* pBoneWeightsNode = submeshNode->FirstChildElement("boneassignments");
+				if (pBoneWeightsNode)
+				{
+					_LoadVertex_BoneWeights(pBoneWeightsNode, pSubMesh);
+				}
+
 			}
 
 			submeshNode = submeshNode->NextSiblingElement("submesh");
+		}
+
+		TiXmlElement* pSkelNode = doc.FirstChildElement("mesh")->FirstChildElement("skeletonlink");
+		if (pSkelNode)
+		{
+			if (pSkelAnim)
+			{
+				*pSkelAnim = _LoadSkeleton(pSkelNode);
+			}
 		}
 
 		if (bSaveMesh)
@@ -113,7 +129,7 @@ namespace Neo
 		{
 			//position
 			TiXmlElement* posNode = pNode->FirstChildElement("position");
-			assert(posNode);
+			_AST(posNode);
 
 			double x, y, z;
 			posNode->Attribute("x", &x);
@@ -122,7 +138,7 @@ namespace Neo
 
 			//normal
 			TiXmlElement* normalNode = pNode->FirstChildElement("normal");
-			assert(normalNode);
+			_AST(normalNode);
 
 			double nx, ny, nz;
 			normalNode->Attribute("x", &nx);
@@ -131,7 +147,12 @@ namespace Neo
 
 			//uv
 			TiXmlElement* uvNode = pNode->FirstChildElement("texcoord");
-			assert(uvNode);
+			double texu = 0.0f, texv = 0.0f;
+			if (uvNode)
+			{
+				uvNode->Attribute("u", &texu);
+				uvNode->Attribute("v", &texv);
+			}
 
 			// tangent, binormal
 			TiXmlElement* tNode = pNode->FirstChildElement("tangent");
@@ -153,21 +174,36 @@ namespace Neo
 				vecTangent[idx].binormal.Set(bx, by, bz);
 			}
 
-			double texu, texv;
-			if(uvNode)
-			{
-				uvNode->Attribute("u", &texu);
-				uvNode->Attribute("v", &texv);
-			}
-
 			SVertex& vert = vecVertex[idx++];
 			vert.pos.Set(x, y, z);
 			vert.normal.Set(nx, ny, nz);
 			vert.normal.Normalize();
-			if (uvNode)
-				vert.uv.Set(texu, texv);
+			vert.uv.Set(texu, texv);
 
 			pNode = pNode->NextSiblingElement("vertex");
+		}
+
+		TiXmlElement* pUVNode = vertNode->Parent()->NextSiblingElement("vertexbuffer");
+		if (pUVNode)
+		{
+			idx = 0;
+			TiXmlElement* pNode = pUVNode->FirstChildElement("vertex");
+			while (pNode)
+			{
+				//uv
+				TiXmlElement* uvNode = pNode->FirstChildElement("texcoord");
+				_AST(uvNode);
+
+				double texu = 0.0f, texv = 0.0f;
+
+				uvNode->Attribute("u", &texu);
+				uvNode->Attribute("v", &texv);
+
+				SVertex& vert = vecVertex[idx++];
+				vert.uv.Set(texu, texv);
+
+				pNode = pNode->NextSiblingElement("vertex");
+			}
 		}
 
 		bool bSaveMesh = false;
@@ -183,7 +219,7 @@ namespace Neo
 			} 
 			else
 			{
-				pSubMesh->InitTangentData(&vecTangent[0], vecTangent.size(), true);
+				pSubMesh->InitTangentData(&vecTangent[0], vecTangent.size());
 			}
 		}
 		else
@@ -194,7 +230,7 @@ namespace Neo
 
 		return bSaveMesh;
 	}
-
+	//------------------------------------------------------------------------------------
 	bool MeshLoader::SaveMesh(Mesh* pMesh)
 	{
 		const char* filename = pMesh->GetFileName().c_str();
@@ -288,6 +324,174 @@ namespace Neo
 		bOk = doc->SaveFile(filename);
 
 		return bOk;
+	}
+	//------------------------------------------------------------------------------------
+	SkeletonAnim* MeshLoader::_LoadSkeleton(TiXmlElement* pSkelNode)
+	{
+		const char* skelFilename = pSkelNode->Attribute("name");
+		_AST(skelFilename);
+
+		TiXmlDocument doc;
+		if (!doc.LoadFile(GetResPath(skelFilename).c_str()))
+		{
+			throw std::logic_error("Failed to load skeleton file!");
+			return nullptr;
+		}
+
+		SkeletonAnim* pSkeleton = new SkeletonAnim;
+
+		// Bone local transformation
+		std::unordered_map<STRING, uint32> mapNameToId;
+		TiXmlElement* pBoneNode = doc.FirstChildElement("skeleton")->FirstChildElement("bones")->FirstChildElement("bone");
+		while (pBoneNode)
+		{
+			Bone* pBone = new Bone;
+			int id;
+			double fRotAngle, posx, posy, posz, axisx, axisy, axisz;
+
+			pBone->m_name = pBoneNode->Attribute("name");
+			pBoneNode->Attribute("id", &id);
+
+			mapNameToId[pBone->m_name] = id;
+
+			{
+				TiXmlElement* posNode = pBoneNode->FirstChildElement("position");
+				posNode->Attribute("x", &posx);
+				posNode->Attribute("y", &posy);
+				posNode->Attribute("z", &posz);
+			}
+			
+			{
+				TiXmlElement* rotNode = pBoneNode->FirstChildElement("rotation");
+				TiXmlElement* axisNode = rotNode->FirstChildElement("axis");
+				rotNode->Attribute("angle", &fRotAngle);
+				axisNode->Attribute("x", &axisx);
+				axisNode->Attribute("y", &axisy);
+				axisNode->Attribute("z", &axisz);
+			}
+
+			pBone->m_matLocal.FromAxisAngle(VEC3(axisx, axisy, axisz), fRotAngle);
+			pBone->m_matLocal.SetTranslation(VEC3(posx, posy, posz));
+
+			pSkeleton->m_vecBones.push_back(pBone);
+			pBoneNode = pBoneNode->NextSiblingElement("bone");
+		}
+
+		// Bone hierarchy
+		TiXmlElement* pRelationNode = doc.FirstChildElement("skeleton")->FirstChildElement("bonehierarchy")->FirstChildElement("boneparent");
+		while (pRelationNode)
+		{
+			const char* szChildName = pRelationNode->Attribute("bone");
+			const char* szParentName = pRelationNode->Attribute("parent");
+
+			auto iterChild = mapNameToId.find(szChildName);
+			auto iterParent = mapNameToId.find(szParentName);
+			_AST(iterChild != mapNameToId.end() && iterParent != mapNameToId.end());
+
+			// Child points to parent.
+			Bone* pChildBone = pSkeleton->m_vecBones[iterChild->second];
+			_AST(pChildBone->m_pParent == nullptr && "This bone already has a parent!");
+			pChildBone->m_pParent = pSkeleton->m_vecBones[iterParent->second];
+
+			pRelationNode = pRelationNode->NextSiblingElement("boneparent");
+		}
+
+		// Anim tracks
+		TiXmlElement* pAnimNode = doc.FirstChildElement("skeleton")->FirstChildElement("animations")->FirstChildElement("animation");
+		while (pAnimNode)
+		{
+			AnimClip* pAnimClip = new AnimClip;
+			
+			pAnimClip->m_name = pAnimNode->Attribute("name");
+			double len;
+			pAnimNode->Attribute("length", &len);
+			pAnimClip->m_fLength = len;
+
+			TiXmlElement* pTrackNode = pAnimNode->FirstChildElement("tracks")->FirstChildElement("track");
+			while (pTrackNode)
+			{
+				AnimTrack* pTrack = new AnimTrack;
+
+				auto iter = mapNameToId.find(pTrackNode->Attribute("bone"));
+				_AST(iter != mapNameToId.end());
+				pTrack->m_boneId = iter->second;
+
+				TiXmlElement* pKfNode = pTrackNode->FirstChildElement("keyframes")->FirstChildElement("keyframe");
+				while (pKfNode)
+				{
+					AnimKeyFrame kf;
+					double fRotAngle, posx, posy, posz, axisx, axisy, axisz, time;
+
+					pKfNode->Attribute("time", &time);
+					kf.m_fTime = time;
+
+					{
+						TiXmlElement* posNode = pKfNode->FirstChildElement("translate");
+						posNode->Attribute("x", &posx);
+						posNode->Attribute("y", &posy);
+						posNode->Attribute("z", &posz);
+					}
+
+					{
+						TiXmlElement* rotNode = pKfNode->FirstChildElement("rotate");
+						TiXmlElement* axisNode = rotNode->FirstChildElement("axis");
+						rotNode->Attribute("angle", &fRotAngle);
+						axisNode->Attribute("x", &axisx);
+						axisNode->Attribute("y", &axisy);
+						axisNode->Attribute("z", &axisz);
+					}
+
+					kf.m_mat.FromAxisAngle(VEC3(axisx, axisy, axisz), fRotAngle);
+					kf.m_mat.SetTranslation(VEC3(posx, posy, posz));
+
+					pTrack->m_vecKeyFrames.push_back(kf);
+					pKfNode = pKfNode->NextSiblingElement("keyframe");
+				}
+
+				pAnimClip->m_tracks.push_back(pTrack);
+				pTrackNode = pTrackNode->NextSiblingElement("track");
+			}
+
+			pSkeleton->m_vecAnims.push_back(pAnimClip);
+			pAnimNode = pAnimNode->NextSiblingElement("animation");
+		}
+
+		return pSkeleton;
+	}
+	//------------------------------------------------------------------------------------
+	bool MeshLoader::_LoadVertex_BoneWeights(TiXmlElement* pNode, SubMesh* pSubMesh)
+	{
+		TiXmlElement* pVertBoneWeightNode = pNode->FirstChildElement("vertexboneassignment");
+		uint32 idx = 0;
+		std::vector<SVertexBoneWeight> vecBoneWeights(pSubMesh->GetVertData().GetVertCount());
+
+		while (pVertBoneWeightNode)
+		{
+			int iVertIndex, iBoneIndex;
+			double fWeight;
+
+			pVertBoneWeightNode->Attribute("vertexindex", &iVertIndex);
+			pVertBoneWeightNode->Attribute("boneindex", &iBoneIndex);
+			pVertBoneWeightNode->Attribute("weight", &fWeight);
+
+			SVertexBoneWeight& vert = vecBoneWeights[iVertIndex];
+			for (int i = 0; i < 4; ++i)
+			{
+				// Find an empty slot.
+				if (vert.boneIndices[i] == INVALID_BONE_INDEX)
+				{
+					vert.boneIndices[i] = iBoneIndex;
+					vert.boneWeight[i] = fWeight;
+				}
+			}
+
+			pVertBoneWeightNode = pVertBoneWeightNode->NextSiblingElement("vertexboneassignment");
+			++idx;
+		}
+
+		pSubMesh->InitBoneWeights(&vecBoneWeights[0], vecBoneWeights.size());
+
+		return true;
 	}
 
 }

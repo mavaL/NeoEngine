@@ -153,6 +153,9 @@
     <ClInclude Include="Include\Utility.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\SkinModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -278,6 +281,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Utility.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\SkinModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

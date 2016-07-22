@@ -103,9 +103,10 @@ namespace Neo
 		Material*		m_pMtlFinalScene;
 
 		MeshLoader*		m_pMeshLoader;
-		typedef std::unordered_map<STRING, Mesh*>	MeshContainer;
+		typedef std::unordered_map<STRING, Mesh*>			MeshContainer;
+		typedef std::unordered_map<Mesh*, SkeletonAnim*>	SkeletonContainer;
 		MeshContainer	m_meshes;
-
+		SkeletonContainer m_skeletons;
 		
 		eDebugRT		m_debugRT;
 		Mesh*			m_pDebugRTMesh;

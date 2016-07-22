@@ -6,7 +6,7 @@
 namespace Neo
 {
 	//--------------------------------------------------------------------------
-	D3D11Texture::D3D11Texture(const STRING& filename, eTextureType type, uint32 usage)
+	D3D11Texture::D3D11Texture(const STRING& filename, eTextureType type, uint32 usage, bool bSRGB)
 	: m_pTexture2D(nullptr)
 	, m_pTexture3D(nullptr)
 	, m_pRenderSystem(g_env.pRenderSystem)
@@ -57,7 +57,7 @@ namespace Neo
 		if (filename.find(".dds") != STRING::npos)
 		{
 			V(DirectX::CreateDDSTextureFromFileEx(m_pd3dDevice, EngineToUnicode(filename).c_str(), 
-				4096, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, false, pTex, &m_pSRV));
+				4096, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, bSRGB, pTex, &m_pSRV));
 		} 
 		else
 		{
@@ -492,6 +492,7 @@ namespace Neo
 		switch(dxformat)
 		{
 		case DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
 		case DXGI_FORMAT_R8G8B8A8_UNORM:	
 			format = ePF_A8R8G8B8; 
 			break;

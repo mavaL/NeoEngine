@@ -15,11 +15,13 @@ namespace Neo
 	class MeshLoader
 	{
 	public:
-		static Mesh*	LoadMesh(const STRING& filename, bool bMaterial = false);
+		static Mesh*	LoadMesh(const STRING& filename, bool bMaterial = false, SkeletonAnim** pSkelAnim = nullptr);
 		static bool		SaveMesh(Mesh* pMesh);
 
 	private:
 		static bool		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh, bool bNormalMap, DWORD* pIndexData, uint32 nIndex);
+		static bool		_LoadVertex_BoneWeights(TiXmlElement* pNode, SubMesh* pSubMesh);
+		static SkeletonAnim*		_LoadSkeleton(TiXmlElement* pSkelNode);
 	};
 }
 

@@ -175,25 +175,6 @@ void EnterTestScene4(Scene* scene)
 	g_env.pSceneMgr->GetShadowMap()->GetCSM()->SetCascadePadding(25.0f);
 }
 
-void SetupTestScene5(Scene* scene)
-{
-	Neo::Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_Tree, GetResPath("Tree\\FanPalm_RT.mesh"));
-
-	scene->AddEntity(pEntity);
-}
-
-void EnterTestScene5(Scene* scene)
-{
-	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0, 10, 0));
-	pCamera->SetNearClip(1);
-	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.1f);
-	pCamera->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO & ~eRenderPhase_ShadowMap);
-}
-
 
 void SetupTestScene6(Scene* scene)
 {
@@ -298,39 +279,74 @@ void SetupTestScene7(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
-	bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
-	_AST(bOk);
+	//bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
+	//_AST(bOk);
 
 	// Ambient cube
-	bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
-	_AST(bOk);
+	//bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
+	//_AST(bOk);
 
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap),
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Another test sphere entity
-	Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
-
-	pEntity->SetScale(0.5f);
-	pEntity->SetPosition(VEC3(-2, 0.5f, 0));
-	QUATERNION rot;
-	rot.FromAxisAngle(VEC3::UNIT_Y, 90);
-	pEntity->SetRotation(rot);
-
-	scene->AddEntity(pEntity);
-
-	Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01", eVertexType_General, 10);
-
-	for (int i = 0; i < 10; ++i)
 	{
-		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("Black1x1.png")));
-		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
-		pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
+		Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
+
+		pEntity->SetScale(0.5f);
+		pEntity->SetPosition(VEC3(-2, 0.5f, 0));
+		QUATERNION rot;
+		rot.FromAxisAngle(VEC3::UNIT_Y, 90);
+		pEntity->SetRotation(rot);
+
+		scene->AddEntity(pEntity);
+
+		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01", eVertexType_General, 10);
+
+		for (int i = 0; i < 10; ++i)
+		{
+			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("Black1x1.png")));
+			pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
+			pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
+		}
+
+		pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+		pEntity->SetMaterial(pMaterial);
 	}
 
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
-	pEntity->SetMaterial(pMaterial);
+	{
+		Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh"));
+		pEntity->SetCastShadow(false);
+		pEntity->SetPosition(VEC3(0, 10, 10));
+		scene->AddEntity(pEntity);
+
+		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_General, pEntity->GetMesh()->GetSubMeshCount());
+
+		STRING strTexNames[] = { "sinbad\\sinbad_body.dds", "sinbad\\sinbad_body.dds", 
+			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_body.dds", "sinbad\\sinbad_sword.dds", 
+			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_clothes.dds" };
+
+		VEC4 vSpecGloss[] = { 
+			VEC4(0.2f, 0.2f, 0.2f, 0.8f),			// Eyes
+			VEC4(0.03f, 0.03f, 0.03f, 0.3f),		// Body
+			VEC4(1.0f, 0.715f, 0.288f, 0.9f),		// Gold
+			VEC4(0.03f, 0.03f, 0.03f, 0.4f),		// Teeth
+			VEC4(0.1f, 0.1f, 0.1f, 0.5f),			// Sheaths
+			VEC4(0.57f, 0.57f, 0.57f, 0.8f),		// Spikes
+			VEC4(0.03f, 0.03f, 0.03f, 0.2f),		// Clothes
+		};
+
+		for (uint32 i = 0; i < pEntity->GetMesh()->GetSubMeshCount(); ++i)
+		{
+			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true));
+			pMaterial->GetSubMaterial(i).glossiness = vSpecGloss[i].w;
+			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
+		}
+
+		pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+		pEntity->SetMaterial(pMaterial);
+	}
 }
 
 void EnterTestScene7(Scene* scene)

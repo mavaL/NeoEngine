@@ -20,6 +20,7 @@
 #include "ShadowMapCSM.h"
 #include "AmbientCube.h"
 #include "MaterialManager.h"
+#include "SkinModel.h"
 
 
 namespace Neo
@@ -425,6 +426,7 @@ namespace Neo
 		if (iter == m_meshes.end())
 		{
 			Mesh* mesh = nullptr;
+			SkeletonAnim* skel = nullptr;
 
 			if (meshname.find(".obj") != STRING::npos)
 			{
@@ -432,21 +434,37 @@ namespace Neo
 			}
 			else
 			{
-				mesh = MeshLoader::LoadMesh(meshname);
+				mesh = MeshLoader::LoadMesh(meshname, false, &skel);
+
+				if (skel)
+				{
+					m_skeletons.insert(std::make_pair(mesh, skel));
+				}
 			}
 
 			iter = m_meshes.insert(std::make_pair(meshname, mesh)).first;
 		}
 		
 		Mesh* mesh = iter->second;
-		assert(mesh);
+		_AST(mesh);
 
 		Entity* pEntity = nullptr;
 
 		switch (type)
 		{
-		case eEntity_StaticModel:	pEntity = new Entity(mesh); break;
-		case eEntity_Tree:			pEntity = new Tree(mesh); break;
+		case eEntity_StaticModel:	
+			pEntity = new Entity(mesh); 
+			break;
+
+		case eEntity_SkinModel:	
+			{
+				auto iterSkel = m_skeletons.find(mesh);
+				_AST(iterSkel != m_skeletons.end());
+
+				pEntity = new SkinModel(mesh, iterSkel->second);
+			}
+			break;
+
 		default: assert(0); return nullptr;
 		}
 
@@ -764,7 +782,7 @@ namespace Neo
 		while (h != INVALID_HANDLE_VALUE && bNext)
 		{
 			STRING filename("sponza\\");
-			filename +=f.cFileName;
+			filename += f.cFileName;
 
 			Mesh* pMesh = MeshLoader::LoadMesh(GetResPath(filename), true);
 			Entity* pEntity = new Entity(pMesh);

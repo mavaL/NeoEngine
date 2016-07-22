@@ -45,7 +45,7 @@ enum eTextureUsage
 enum eEntity
 {
 	eEntity_StaticModel,
-	eEntity_Tree,
+	eEntity_SkinModel,
 };
 
 enum eVertexType
@@ -165,6 +165,7 @@ namespace Neo
 	struct	SColor;
 	struct	SVertex;
 	struct	STangentData;
+	struct	SVertexBoneWeight;
 	struct	SFrameStat;
 	struct	SDirectionLight;
 	class	VertexData;
@@ -192,6 +193,8 @@ namespace Neo
 	typedef std::vector<SPointLight>	PointLightVector;
 	class	AmbientCube;
 	class	MaterialManager;
+	class	SkeletonAnim;
+	class	SkinModel;
 }
 
 
