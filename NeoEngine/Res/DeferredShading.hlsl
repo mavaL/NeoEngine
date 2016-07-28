@@ -59,7 +59,8 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	float3 vView = normalize(camPos - vWorldPos);
 
 	// Sun light
-	float4 cDiffuse = saturate(dot(vNormal, lightDirection)) * lightColor;
+	float fNdotL = saturate(dot(vNormal, lightDirection));
+	float4 cDiffuse = fNdotL * lightColor;
 
 	float4 specGloss = tex2.Sample(samPoint, IN.uv);
 	float3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, specGloss.w, specGloss.xyz);
@@ -68,7 +69,7 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	albedo.xyz = albedo.xyz * albedo.xyz;
 
 	float4 oColor = albedo * cDiffuse;
-	oColor.xyz += cSpecular;
+	oColor.xyz += cSpecular * lightColor.xyz * fNdotL;
 
 	// Shadow
 	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, tex4, tex5, tex6);

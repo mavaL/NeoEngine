@@ -280,8 +280,8 @@ void SetupTestScene7(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
-	//bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
-	//_AST(bOk);
+	bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
+	_AST(bOk);
 
 	// Ambient cube
 	//bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
@@ -330,7 +330,7 @@ void SetupTestScene7(Scene* scene)
 
 		VEC4 vSpecGloss[] = { 
 			VEC4(0.2f, 0.2f, 0.2f, 0.8f),			// Eyes
-			VEC4(0.03f, 0.03f, 0.03f, 0.5f),		// Body
+			VEC4(0.03f, 0.03f, 0.03f, 0.3f),		// Body
 			VEC4(1.0f, 0.715f, 0.288f, 0.9f),		// Gold
 			VEC4(0.03f, 0.03f, 0.03f, 0.4f),		// Teeth
 			VEC4(0.1f, 0.1f, 0.1f, 0.5f),			// Sheaths
