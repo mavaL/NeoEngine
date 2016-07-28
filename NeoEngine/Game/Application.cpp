@@ -202,16 +202,23 @@ void Application::Run()
 		} 
 		else
 		{
+			DWORD curTime = ::GetTickCount();
+			static DWORD lastTime = curTime;
+			
+			const float fDeltaTime = (curTime - lastTime) / 1000.0f;
+
 			// Render a frame during idle time (no messages are waiting)
 			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
 			pSceneMgr->GetCamera()->Update();
 			m_pRenderSystem->Update();
-			pSceneMgr->Update();
+			pSceneMgr->Update(fDeltaTime);
 			
 			m_pRenderSystem->BeginScene();
 			pSceneMgr->Render();
 			m_pRenderSystem->EndScene();
+
+			lastTime = curTime;
 		}
 	}
 }

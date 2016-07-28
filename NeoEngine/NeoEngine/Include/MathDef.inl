@@ -351,6 +351,11 @@ namespace Common
 		return angle * PI / 180;
 	}
 
+	__forceinline float		Radian_To_Angle(float radian)
+	{
+		return radian * 180 / PI;
+	}
+
 	__forceinline float		Vec3_Distance(const Vector3& v1, const Vector3& v2)
 	{
 		float dx = v1.x - v2.x, dy = v1.y - v2.y, dz = v1.z - v2.z;

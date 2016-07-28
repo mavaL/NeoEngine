@@ -26,6 +26,7 @@ namespace Neo
 	, m_depthState(nullptr)
 	, m_pGlobalCBuf(nullptr)
 	, m_pMaterialCB(nullptr)
+	, m_pSkinCB(nullptr)
 	, m_bClipPlaneEnabled(false)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
@@ -151,6 +152,9 @@ namespace Neo
 		bd.ByteWidth = sizeof(cBufferMaterial);
 		V_RETURN(m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pMaterialCB));
 
+		bd.ByteWidth = sizeof(cBufferSkin);
+		V_RETURN(m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pSkinCB));
+
 		return true;
 	}
 	//------------------------------------------------------------------------------------
@@ -223,6 +227,7 @@ namespace Neo
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pMaterialCB);
+		SAFE_RELEASE(m_pSkinCB);
 		SAFE_RELEASE(m_pRenderTargetView);
 		SAFE_RELEASE(m_pTexDepthStencil);
 		SAFE_RELEASE(m_rasterState);
@@ -512,6 +517,12 @@ namespace Neo
 		{
 			m_pDeviceContext->CSSetConstantBuffers(1, 1, &m_pMaterialCB);
 		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::UpdateSkinCBuffer()
+	{
+		m_pDeviceContext->UpdateSubresource(m_pSkinCB, 0, NULL, &m_cBufferSkin, 0, 0);
+		m_pDeviceContext->VSSetConstantBuffers(2, 1, &m_pSkinCB);
 	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::DrawText( const STRING& text, const IPOINT& pos, const SColor& color )

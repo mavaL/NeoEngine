@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "MaterialManager.h"
 #include "Material.h"
+#include "SkinModel.h"
 
 using namespace std;
 
@@ -347,12 +348,13 @@ namespace Neo
 		{
 			Bone* pBone = new Bone;
 			int id;
-			double fRotAngle, posx, posy, posz, axisx, axisy, axisz;
+			double fRadian, posx, posy, posz, axisx, axisy, axisz;
 
 			pBone->m_name = pBoneNode->Attribute("name");
 			pBoneNode->Attribute("id", &id);
 
 			mapNameToId[pBone->m_name] = id;
+			pBone->m_id = id;
 
 			{
 				TiXmlElement* posNode = pBoneNode->FirstChildElement("position");
@@ -364,14 +366,15 @@ namespace Neo
 			{
 				TiXmlElement* rotNode = pBoneNode->FirstChildElement("rotation");
 				TiXmlElement* axisNode = rotNode->FirstChildElement("axis");
-				rotNode->Attribute("angle", &fRotAngle);
+				rotNode->Attribute("angle", &fRadian);
 				axisNode->Attribute("x", &axisx);
 				axisNode->Attribute("y", &axisy);
 				axisNode->Attribute("z", &axisz);
 			}
 
-			pBone->m_matLocal.FromAxisAngle(VEC3(axisx, axisy, axisz), fRotAngle);
-			pBone->m_matLocal.SetTranslation(VEC3(posx, posy, posz));
+			pBone->m_matBindPose.FromAxisAngle(VEC3(axisx, axisy, axisz), Common::Radian_To_Angle(fRadian));
+			pBone->m_matBindPose.SetTranslation(VEC3(posx, posy, posz));
+			pBone->m_matLocal = pBone->m_matBindPose;
 
 			pSkeleton->m_vecBones.push_back(pBone);
 			pBoneNode = pBoneNode->NextSiblingElement("bone");
@@ -390,8 +393,12 @@ namespace Neo
 
 			// Child points to parent.
 			Bone* pChildBone = pSkeleton->m_vecBones[iterChild->second];
+			Bone* pParentBone = pSkeleton->m_vecBones[iterParent->second];
+
 			_AST(pChildBone->m_pParent == nullptr && "This bone already has a parent!");
-			pChildBone->m_pParent = pSkeleton->m_vecBones[iterParent->second];
+
+			pChildBone->m_pParent = pParentBone;
+			pParentBone->m_vecChilds.push_back(pChildBone);
 
 			pRelationNode = pRelationNode->NextSiblingElement("boneparent");
 		}
@@ -420,7 +427,7 @@ namespace Neo
 				while (pKfNode)
 				{
 					AnimKeyFrame kf;
-					double fRotAngle, posx, posy, posz, axisx, axisy, axisz, time;
+					double fRadian, posx, posy, posz, axisx, axisy, axisz, time;
 
 					pKfNode->Attribute("time", &time);
 					kf.m_fTime = time;
@@ -435,14 +442,14 @@ namespace Neo
 					{
 						TiXmlElement* rotNode = pKfNode->FirstChildElement("rotate");
 						TiXmlElement* axisNode = rotNode->FirstChildElement("axis");
-						rotNode->Attribute("angle", &fRotAngle);
+						rotNode->Attribute("angle", &fRadian);
 						axisNode->Attribute("x", &axisx);
 						axisNode->Attribute("y", &axisy);
 						axisNode->Attribute("z", &axisz);
 					}
 
-					kf.m_mat.FromAxisAngle(VEC3(axisx, axisy, axisz), fRotAngle);
-					kf.m_mat.SetTranslation(VEC3(posx, posy, posz));
+					kf.rotate.FromAxisAngle(VEC3(axisx, axisy, axisz), Common::Radian_To_Angle(fRadian));
+					kf.translate.Set(posx, posy, posz);
 
 					pTrack->m_vecKeyFrames.push_back(kf);
 					pKfNode = pKfNode->NextSiblingElement("keyframe");
@@ -480,8 +487,9 @@ namespace Neo
 				// Find an empty slot.
 				if (vert.boneIndices[i] == INVALID_BONE_INDEX)
 				{
-					vert.boneIndices[i] = iBoneIndex;
+					vert.boneIndices[i] = (uint8)iBoneIndex;
 					vert.boneWeight[i] = fWeight;
+					break;
 				}
 			}
 

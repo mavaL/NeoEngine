@@ -38,8 +38,6 @@ namespace Neo
 			m_bSetup = true;
 		}
 
-		m_enterFunc(this);
-
 		// Compute and store the scene aabb
 		m_sceneAABB.SetNull();
 		m_sceneShadowCasterAABB.SetNull();
@@ -56,7 +54,7 @@ namespace Neo
 		for (size_t i=0; i<m_lstEntity.size(); ++i)
 		{
 			Entity* pEntity = m_lstEntity[i];
-			pEntity->Update();		// Manually update its world aabb
+			pEntity->UpdateAABB();
 			m_sceneAABB.Merge(pEntity->GetWorldAABB());
 
 			if (pEntity->GetCastShadow())
@@ -69,13 +67,15 @@ namespace Neo
 				m_sceneShadowReceiverAABB.Merge(pEntity->GetWorldAABB());
 			}
 		}
+
+		m_enterFunc(this);
 	}
 	//------------------------------------------------------------------------------------
-	void Scene::Update()
+	void Scene::Update(float fDeltaTime)
 	{
 		for (size_t i=0; i<m_lstEntity.size(); ++i)
 		{
-			m_lstEntity[i]->Update();
+			m_lstEntity[i]->Update(fDeltaTime);
 		}
 	}
 	//----------------------------------------------------------------------------------------

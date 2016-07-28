@@ -50,8 +50,9 @@ enum eEntity
 
 enum eVertexType
 {
-	eVertexType_General,		// SVertex
-	eVertexType_NormalMap,		// SVertex_NormalMap
+	eVertexType_General,
+	eVertexType_NormalMap,
+	eVertexType_SkinModel,
 };
 
 // Use for render target to control which part to render
@@ -195,6 +196,8 @@ namespace Neo
 	class	MaterialManager;
 	class	SkeletonAnim;
 	class	SkinModel;
+	class	AnimClip;
+	class	SkeletonDebugger;
 }
 
 

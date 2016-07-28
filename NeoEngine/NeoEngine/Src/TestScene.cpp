@@ -13,6 +13,7 @@
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
+#include "SkinModel.h"
 
 using namespace Neo;
 
@@ -316,12 +317,12 @@ void SetupTestScene7(Scene* scene)
 	}
 
 	{
-		Entity* pEntity = g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh"));
-		pEntity->SetCastShadow(false);
-		pEntity->SetPosition(VEC3(0, 10, 10));
-		scene->AddEntity(pEntity);
+		SkinModel* pSkinModel = static_cast<SkinModel*>(g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh")));
+		pSkinModel->SetCastShadow(false);
+		pSkinModel->SetPosition(VEC3(0, 10, 10));
+		scene->AddEntity(pSkinModel);
 
-		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_General, pEntity->GetMesh()->GetSubMeshCount());
+		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_SkinModel, pSkinModel->GetMesh()->GetSubMeshCount());
 
 		STRING strTexNames[] = { "sinbad\\sinbad_body.dds", "sinbad\\sinbad_body.dds", 
 			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_body.dds", "sinbad\\sinbad_sword.dds", 
@@ -329,7 +330,7 @@ void SetupTestScene7(Scene* scene)
 
 		VEC4 vSpecGloss[] = { 
 			VEC4(0.2f, 0.2f, 0.2f, 0.8f),			// Eyes
-			VEC4(0.03f, 0.03f, 0.03f, 0.3f),		// Body
+			VEC4(0.03f, 0.03f, 0.03f, 0.5f),		// Body
 			VEC4(1.0f, 0.715f, 0.288f, 0.9f),		// Gold
 			VEC4(0.03f, 0.03f, 0.03f, 0.4f),		// Teeth
 			VEC4(0.1f, 0.1f, 0.1f, 0.5f),			// Sheaths
@@ -337,15 +338,18 @@ void SetupTestScene7(Scene* scene)
 			VEC4(0.03f, 0.03f, 0.03f, 0.2f),		// Clothes
 		};
 
-		for (uint32 i = 0; i < pEntity->GetMesh()->GetSubMeshCount(); ++i)
+		for (uint32 i = 0; i < pSkinModel->GetMesh()->GetSubMeshCount(); ++i)
 		{
 			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true));
 			pMaterial->GetSubMaterial(i).glossiness = vSpecGloss[i].w;
 			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
 		}
 
-		pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
-		pEntity->SetMaterial(pMaterial);
+		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), GetResPath("SkinModel.hlsl"), eShader_Opaque);
+		pSkinModel->SetMaterial(pMaterial);
+
+		pSkinModel->PlayAnimation();
+		pSkinModel->ShowBones(false);
 	}
 }
 

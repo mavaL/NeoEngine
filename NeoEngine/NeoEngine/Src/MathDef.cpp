@@ -113,7 +113,7 @@ namespace Common
 		float zz = quat.z * quat.z;
 
 		m00 = 1 - 2 * (yy + zz);	m01 = 2 * (xy + zw);	m02 = 2 * (xz - yw);	m03 = 0;
-		m10 = 2 * (xy - zw);		m11 = 1 - 2 * (xx + zz); m12 = 2 * (yz = xw);	m13 = 0;
+		m10 = 2 * (xy - zw);		m11 = 1 - 2 * (xx + zz); m12 = 2 * (yz + xw);	m13 = 0;
 		m20 = 2 * (xz + yw);		m21 = 2 * (yz - xw);	m22 = 1 - 2 * (xx + yy); m23 = 0;
 		m30 = 0;					m31 = 0;				m32 = 0;				m33 = 1;
 	}
@@ -197,6 +197,60 @@ namespace Common
 		y = axis.y * sinf(fHalfRadin);
 		z = axis.z * sinf(fHalfRadin);
 		w = cosf(fHalfRadin);
+	}
+
+	float Quaternion::Normalise()
+	{
+		float len = w*w + x*x + y*y + z*z;
+		float factor = 1.0f / sqrtf(len);
+		*this = *this * factor;
+		return len;
+	}
+
+	float Quaternion::Dot(const Quaternion& rkQ) const
+	{
+		return w*rkQ.w + x*rkQ.x + y*rkQ.y + z*rkQ.z;
+	}
+
+	Quaternion Quaternion::Slerp(float fT, const Quaternion& rkP, const Quaternion& rkQ, bool shortestPath)
+	{
+		float fCos = rkP.Dot(rkQ);
+		Quaternion rkT;
+
+		// Do we need to invert rotation?
+		if (fCos < 0.0f && shortestPath)
+		{
+			fCos = -fCos;
+			rkT = -rkQ;
+		}
+		else
+		{
+			rkT = rkQ;
+		}
+
+		if (fabsf(fCos) < 1 - 1e-03)
+		{
+			// Standard case (slerp)
+			float fSin = sqrtf(1 - fCos * fCos);
+			float fAngle = atan2(fSin, fCos);
+			float fInvSin = 1.0f / fSin;
+			float fCoeff0 = sinf((1.0f - fT) * fAngle) * fInvSin;
+			float fCoeff1 = sinf(fT * fAngle) * fInvSin;
+			return fCoeff0 * rkP + fCoeff1 * rkT;
+		}
+		else
+		{
+			// There are two situations:
+			// 1. "rkP" and "rkQ" are very close (fCos ~= +1), so we can do a linear
+			//    interpolation safely.
+			// 2. "rkP" and "rkQ" are almost inverse of each other (fCos ~= -1), there
+			//    are an infinite number of possibilities interpolation. but we haven't
+			//    have method to fix this case, so just use linear interpolation here.
+			Quaternion t = (1.0f - fT) * rkP + fT * rkT;
+			// taking the complement requires renormalisation
+			t.Normalise();
+			return t;
+		}
 	}
 
 	void Plane::Redefine(const Vector3& _n, const Vector3& _p)

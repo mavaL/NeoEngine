@@ -21,19 +21,21 @@ namespace Neo
 		virtual ~Entity();
 
 	public:
-		// Update
-		virtual void	Update();
+		virtual void	Update(float fDeltaTime);
 		virtual void	Render();
-		void			SetMaterial(Material* pMaterial);
+		virtual void	DebugRender() {}
 
+		void			SetMaterial(Material* pMaterial);
 		void			SetPosition(const VEC3& pos);
 		void			SetRotation(const QUATERNION& quat);
 		void			SetScale(float scale);
+		void			UpdateAABB();
 
 		const VEC3&		GetPosition() { return m_position; }
 		const QUATERNION&	GetRotation() { return m_rotation; }
 		const VEC3&		GetScale() { return m_scale; }
 
+		void			SetWorldMatrix(const MAT44& mat);
 		const MAT44&	GetWorldMatrix();
 		const MAT44&	GetWorldITMatrix();
 

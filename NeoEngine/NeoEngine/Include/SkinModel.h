@@ -13,6 +13,73 @@
 
 namespace Neo
 {
+	class Bone
+	{
+	public:
+		Bone() { m_pParent = nullptr; m_bMatCombineValid = false; }
+		~Bone() {}
+
+		uint32		m_id;
+		STRING		m_name;
+		MAT44		m_matLocal;
+		MAT44		m_matCombine;		// accumulated transformations to root bone.
+		MAT44		m_matBindPose;		// local binding pose
+		MAT44		m_matInvBindPos;	// Inverse binding pose from root to local
+		bool		m_bMatCombineValid;
+		Bone*		m_pParent;
+		std::vector<Bone*> m_vecChilds;
+	};
+
+	class AnimKeyFrame
+	{
+	public:
+		float		m_fTime;
+		VEC3		translate;
+		QUATERNION	rotate;
+	};
+
+	class AnimTrack
+	{
+	public:
+		AnimTrack() {}
+		~AnimTrack() {}
+
+		AnimKeyFrame		GetKf(float fTime);
+
+		uint32		m_boneId;
+		std::vector<AnimKeyFrame>	m_vecKeyFrames;
+	};
+
+	class AnimClip
+	{
+	public:
+		AnimClip() {}
+		~AnimClip()
+		{
+			std::for_each(m_tracks.begin(), m_tracks.end(), std::default_delete<AnimTrack>());
+		}
+
+		STRING						m_name;
+		float						m_fLength;
+		std::vector<AnimTrack*>		m_tracks;
+	};
+
+	class SkeletonAnim
+	{
+	public:
+		SkeletonAnim() {}
+		~SkeletonAnim()
+		{
+			std::for_each(m_vecBones.begin(), m_vecBones.end(), std::default_delete<Bone>());
+			std::for_each(m_vecAnims.begin(), m_vecAnims.end(), std::default_delete<AnimClip>());
+		}
+
+		MAT44	RecursUpdateBoneTransform(Bone* pBone);
+
+		std::vector<Bone*>			m_vecBones;
+		std::vector<AnimClip*>		m_vecAnims;
+	};
+
 	class SkinModel : public Entity
 	{
 	public:
@@ -20,10 +87,40 @@ namespace Neo
 		~SkinModel();
 
 	public:
+		virtual void	Update(float fDeltaTime);
+		virtual void	Render();
+		virtual void	DebugRender();
+
+		void			PlayAnimation();
+		void			ShowBones(bool bShow);
+		SkeletonAnim*	GetSkeleton() { return m_pSkeleton; }
 
 	private:
-
+		SkeletonAnim*		m_pSkeleton;
+		AnimClip*			m_pCurAnim;
+		float				m_fAnimTime;
+		SkeletonDebugger*	m_pSkelRender;
 	};
+
+	class SkeletonDebugger
+	{
+	public:
+		SkeletonDebugger();
+		~SkeletonDebugger();
+
+	public:
+		void		CreateBoneMesh(float fSize);
+		void		AttachToSkinModel(SkinModel* pModel);
+		void		Render();
+
+	private:
+		MAT44					m_matWorld;
+		SkeletonAnim*			m_pSkeleton;
+		Mesh*					m_pMesh;
+		std::vector<Entity*>	m_vecEntity;
+		Material*				m_pMtl;
+	};
+
 }
 
 

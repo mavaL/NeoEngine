@@ -1,26 +1,4 @@
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-cbuffer cbufferGlobal : register( b0 )
-{
-    matrix	World;
-	matrix	View;
-	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
-	matrix	ShadowTransform;
-	float4	clipPlane;
-	float4	frustumFarCorner[4];
-	float4	ambientColor;
-	float4	lightColor;
-	float3	lightDirection;
-	float3	camPos;
-	float	time;
-	float	nearZ, farZ;
-	float	shadowMapTexelSize;
-};
-
+#include "Common.h"
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT

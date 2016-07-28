@@ -96,9 +96,6 @@
     <ClInclude Include="..\Res\Common.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Tree.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Entity.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -238,9 +235,6 @@
     <ClCompile Include="Src\ShadowMap.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Tree.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Entity.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -321,15 +315,6 @@
     <CustomBuild Include="..\Res\Terrain_Depth.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\Res\Tree\Branch.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Tree\Frond.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Tree\Leaf.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Res\DeferredShading.hlsl">
@@ -345,6 +330,12 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\DeferredShadingCommon.h">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\SkinModel.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\DebugSkeleton.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

@@ -78,7 +78,6 @@ namespace Neo
 
 		// Compile
 		V_RETURN(_CompileShaderFromFile(vsFileName.c_str(), szVSEntryFunc, "vs_4_0", vecMacro, &pVSBlob));
-		V_RETURN(_CompileShaderFromFile(psFileName.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
 
 		// Create shader
 		SAFE_RELEASE(m_pVertexShader);
@@ -86,13 +85,11 @@ namespace Neo
 		SAFE_RELEASE(m_pPS_GBuffer);
 
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
-		V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader( pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader ));
 
 		m_vsCode.resize(pVSBlob->GetBufferSize());
 		memcpy_s(&m_vsCode[0], m_vsCode.size(), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize());
 
 		pVSBlob->Release();
-		pPSBlob->Release();
 
 		// Create clip plane shader
 		if (m_shaderFlag & eShaderFlag_EnableClipPlane)
@@ -111,6 +108,13 @@ namespace Neo
 		{
 			V_RETURN(_CompileShaderFromFile(psFileName.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
+			pPSBlob->Release();
+		}
+		else
+		{
+			// Not go into g-buffer
+			V_RETURN(_CompileShaderFromFile(psFileName.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader));
 			pPSBlob->Release();
 		}
 
@@ -196,8 +200,8 @@ namespace Neo
 				{
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT		, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "COLOR"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 				};
 
 				SAFE_RELEASE(m_pInputLayout);
@@ -213,7 +217,6 @@ namespace Neo
 					// Stream 0
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT		, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "COLOR"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					// Stream 1
 					{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -225,7 +228,26 @@ namespace Neo
 			}
 			break;
 
-		default: assert(0); break;
+		case eVertexType_SkinModel:
+		{
+			D3D11_INPUT_ELEMENT_DESC layout[] =
+			{
+				// Stream 0
+				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				// Stream 2
+				{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			};
+
+			SAFE_RELEASE(m_pInputLayout);
+
+			V(m_pRenderSystem->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout));
+		}
+		break;
+
+		default: _AST(0); break;
 		}
 	}
 	//-------------------------------------------------------------------------------

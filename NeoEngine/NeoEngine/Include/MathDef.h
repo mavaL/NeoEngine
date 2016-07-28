@@ -178,6 +178,20 @@ namespace Common
 			return *this;
 		}
 
+		inline Vector4 operator - () const
+		{
+			return Vector4(-x, -y, -z, -w);
+		}
+
+		inline Vector4 operator + (const Vector4& rhs) const
+		{
+			return Vector4(
+				x + rhs.x,
+				y + rhs.y,
+				z + rhs.z,
+				w + rhs.w);
+		}
+
 		inline Vector4& operator += (const Vector4& rhs)
 		{
 			x += rhs.x;
@@ -208,9 +222,33 @@ namespace Common
 
 		Quaternion(const Vector3& axis, float angle) { FromAxisAngle(axis, angle); }
 
-		void	Identity() { *this = IDENTITY; }
+		Quaternion operator* (float fScalar) const
+		{
+			return Quaternion(fScalar*w, fScalar*x, fScalar*y, fScalar*z);
+		}
 
+		Quaternion operator- () const
+		{
+			return Quaternion(-w, -x, -y, -z);
+		}
+
+		Quaternion operator+ (const Quaternion& rkQ) const
+		{
+			return Quaternion(w + rkQ.w, x + rkQ.x, y + rkQ.y, z + rkQ.z);
+		}
+
+		friend Quaternion operator* (float fScalar, const Quaternion& rkQ)
+		{
+			return Quaternion(fScalar*rkQ.w, fScalar*rkQ.x, fScalar*rkQ.y, fScalar*rkQ.z);
+		}
+
+		void	Identity() { *this = IDENTITY; }
+		float	Dot(const Quaternion& rkQ) const;
 		void	FromAxisAngle(const Vector3& axis, float angle);
+		float	Normalise();
+
+		// From OGRE
+		static Quaternion Slerp(float fT, const Quaternion& rkP, const Quaternion& rkQ, bool shortestPath = false);
 
 		static Quaternion IDENTITY;
 
@@ -348,6 +386,7 @@ namespace Common
 	void		Multiply_Vec2_By_K(Vector2& result, const Vector2& v, float k);
 	Vector2		Multiply_Vec2_By_Vec2(const Vector2& v1, const Vector2& v2);
 	float		Angle_To_Radian(float angle);
+	float		Radian_To_Angle(float radian);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
 	bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3);
 

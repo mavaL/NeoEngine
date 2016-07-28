@@ -21,7 +21,7 @@ namespace Neo
 
 	public:
 		bool		Init();
-		void		Update();
+		void		Update(float fDeltaTime);
 		void		Render(Material* pMaterial = nullptr);
 		void		RenderPipline(uint32 phaseFlag = eRenderPhase_All, Material* pMaterial = nullptr);
 

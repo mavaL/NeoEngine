@@ -45,13 +45,19 @@ namespace Neo
 		float	shadowMapTexelSize;
 		float	shadowDepthBias;					// Improving shadow acne artifacts
 	};
-	// Per-SubMaterial constant buffer: (b0)
+	// Per-SubMaterial constant buffer: (b1)
 	__declspec(align(16))
 	struct cBufferMaterial
 	{
 		MAT44	matWorld;
 		MAT44	matWorldIT;
 		VEC4	specularGloss;
+	};
+	// Skined matrixs constant buffer: (b2)
+	__declspec(align(16))
+	struct cBufferSkin
+	{
+		MAT44	matSkin[100];
 	};
 	//----------------------------------------------------------------------------------------
 	class D3D11RenderSystem
@@ -78,6 +84,7 @@ namespace Neo
 		D3D11Texture*				GetDepthTexture()		{ return m_pTexDepthStencil; }
 		cBufferMaterial&			GetMaterialCB()			{ return m_cBufferMaterial; }
 		cBufferGlobal&				GetGlobalCB()			{ return m_cBufferGlobal; }
+		cBufferSkin&				GetSkinCB()				{ return m_cBufferSkin; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -103,9 +110,12 @@ namespace Neo
 		// Enable/Disable clipping plane
 		void		EnableClipPlane(bool bEnable, const PLANE* plane);
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
+
 		// Update constant buffer to device
 		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bComputeShader = false);
 		void		UpdateMaterialCBuffer(bool bTessellate = false, bool bComputeShader = false);
+		void		UpdateSkinCBuffer();
+
 		// Extract frustum planes in world space from view projection matrix
 		void		ExtractFrustumWorldPlanes(PLANE oPlanes[6], const MAT44& matViewProj);
 		
@@ -143,8 +153,10 @@ namespace Neo
 
 		cBufferGlobal				m_cBufferGlobal;
 		cBufferMaterial				m_cBufferMaterial;
+		cBufferSkin					m_cBufferSkin;
 		ID3D11Buffer*				m_pGlobalCBuf;
 		ID3D11Buffer*				m_pMaterialCB;
+		ID3D11Buffer*				m_pSkinCB;
 		bool						m_bClipPlaneEnabled;
 
 		// We centralize them here for supporting to resize window.

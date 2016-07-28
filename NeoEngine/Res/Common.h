@@ -1,4 +1,5 @@
-#define PI 3.1415926
+#define PI				3.1415926
+#define MAX_BONE_NUM	100
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
@@ -30,6 +31,11 @@ cbuffer cbufferMaterial : register(b1)
 	matrix	World;
 	matrix	WorldIT;
 	float4	specularGloss;
+};
+
+cbuffer cbufferSkin : register(b2)
+{
+	matrix	matSkin[MAX_BONE_NUM];
 };
 
 struct PointLight 

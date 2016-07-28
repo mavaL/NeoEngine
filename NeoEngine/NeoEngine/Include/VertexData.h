@@ -36,10 +36,14 @@ namespace Neo
 			,normal(n)
 			,color(SColor::WHITE) {}
 
+		SVertex(const VEC3& p, const SColor& c)
+			:pos(p)
+			,color(c) {}
+
 		VEC3	pos;
 		VEC2	uv;
-		SColor	color;
 		VEC3	normal;
+		SColor	color;
 	};
 	/////////	Stream 1
 	struct STangentData
@@ -57,10 +61,10 @@ namespace Neo
 		SVertexBoneWeight()
 		{
 			boneIndices[0] = boneIndices[1] = boneIndices[2] = boneIndices[3] = INVALID_BONE_INDEX;
-			ZeroMemory(boneWeight, sizeof(float) * 4);
+			boneWeight[0] = boneWeight[1] = boneWeight[2] = boneWeight[3] = 0;
 		}
 
-		BYTE	boneIndices[4];
+		uint8	boneIndices[4];
 		float	boneWeight[4];
 	};
 	//------------------------------------------------------------------------------------

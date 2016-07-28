@@ -44,6 +44,15 @@ namespace Neo
 		m_bMatrixInvalid = true;
 	}
 	//------------------------------------------------------------------------------------
+	void Entity::SetWorldMatrix(const MAT44& mat)
+	{
+		m_matWorld = mat;
+		m_matWorldIT = m_matWorld.Inverse();
+		m_matWorldIT = m_matWorldIT.Transpose();
+
+		m_bMatrixInvalid = false;
+	}
+	//------------------------------------------------------------------------------------
 	const MAT44& Entity::GetWorldMatrix()
 	{
 		_UpdateTransform();
@@ -77,14 +86,9 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void Entity::Update()
+	void Entity::Update(float fDeltaTime)
 	{
-		//更新世界包围盒
-		if (m_bUpdateAABB)
-		{
-			m_worldAABB = m_localAABB;
-			m_worldAABB.Transform(m_matWorld);
-		}
+		UpdateAABB();
 	}
 	//------------------------------------------------------------------------------------
 	void Entity::_ComputeAABB()
@@ -142,5 +146,16 @@ namespace Neo
 	{
 		m_pMesh->SetMaterial(pMaterial);
 	}
+	//------------------------------------------------------------------------------------
+	void Entity::UpdateAABB()
+	{
+		//更新世界包围盒
+		if (m_bUpdateAABB)
+		{
+			m_worldAABB = m_localAABB;
+			m_worldAABB.Transform(m_matWorld);
+		}
+	}
+
 }
 

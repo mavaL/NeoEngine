@@ -150,15 +150,7 @@ namespace Neo
 				file.ignore(1000, '\n');
 			}
 
-			if (bNormalMap)
-			{
-			//	pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertexWithN[0], vecVertexWithN.size(), true);
-			}
-			else
-			{
-				pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], vecVertex.size(), true);
-			}
-
+			pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], vecVertex.size(), true);
 			pSubMesh->InitIndexData(&vecIndex[0], vecIndex.size(), true);
 
 			nTotalPosCount += nPos;

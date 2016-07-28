@@ -13,7 +13,6 @@
 #include "Material.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
-#include "Tree.h"
 #include "Mesh.h"
 #include "TiledRenderer.h"
 #include "StructuredBuffer.h"
@@ -208,7 +207,7 @@ namespace Neo
 		m_pWater = new Water(waterHeight);
 	}
 	//-------------------------------------------------------------------------------
-	void SceneManager::Update()
+	void SceneManager::Update(float fDeltaTime)
 	{
 		if(m_pShadowMap)
 			m_pShadowMap->Update();
@@ -220,7 +219,7 @@ namespace Neo
 			m_pSky->Update();
 
 		if(m_pCurScene)
-			m_pCurScene->Update();
+			m_pCurScene->Update(fDeltaTime);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::Render(Material* pMaterial)
@@ -307,6 +306,12 @@ namespace Neo
 			depthDesc.DepthEnable = FALSE;
 			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 			m_pRenderSystem->SetDepthStencelState(depthDesc);
+
+			auto& lstEntity = m_pCurScene->GetEntityList();
+			for (uint32 i = 0; i < lstEntity.size(); ++i)
+			{
+				lstEntity[i]->DebugRender();
+			}
 
 			char szBuf[64];
 			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %f", g_env.pFrameStat->lastFPS);
@@ -465,7 +470,7 @@ namespace Neo
 			}
 			break;
 
-		default: assert(0); return nullptr;
+		default: _AST(0); return nullptr;
 		}
 
 		return pEntity;

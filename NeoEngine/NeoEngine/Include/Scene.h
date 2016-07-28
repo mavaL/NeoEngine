@@ -25,7 +25,7 @@ namespace Neo
 
 	public:
 		void	Enter();
-		void	Update();
+		void	Update(float fDeltaTime);
 		void	RenderOpaque();
 
 		void				AddEntity(Entity* pEntity);
