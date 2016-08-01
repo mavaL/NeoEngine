@@ -68,7 +68,7 @@ namespace Neo
 
 	public:
 		bool		Init(uint32 wndWidth, uint32 wndHeight, HWND hwnd);
-		void		Update();
+		void		Update(float dt);
 		void		ShutDown();
 		void		BeginScene();
 		void		EndScene();

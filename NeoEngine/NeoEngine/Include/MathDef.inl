@@ -100,7 +100,7 @@ namespace Common
 			-2 * p.n.x * p.d,         -2 * p.n.y * p.d,         -2 * p.n.z * p.d,         1);
 	}
 
-	__forceinline Matrix44	BuildViewMatrix(const Vector3& vEye, Vector3& vLookAt, const Vector3& vUp)
+	__forceinline Matrix44	BuildViewMatrix(const Vector3& vEye, const Vector3& vLookAt, const Vector3& vUp)
 	{
 		Vector3 zAxis(Sub_Vec3_By_Vec3(vLookAt, vEye));
 		zAxis.Normalize();

@@ -182,7 +182,6 @@ namespace Neo
 	class	MeshLoader;
 	class	SSAO;
 	class	ShadowMap;
-	class	Tree;
 	class	Entity;
 	class	SubMesh;
 	class	Mesh;
@@ -198,6 +197,9 @@ namespace Neo
 	class	SkinModel;
 	class	AnimClip;
 	class	SkeletonDebugger;
+	class	ThirdPersonCharacter;
+	class	StateMachine;
+	class	BaseState;
 }
 
 

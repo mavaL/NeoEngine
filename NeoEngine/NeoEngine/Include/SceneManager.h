@@ -19,6 +19,8 @@ namespace Neo
 		SceneManager();
 		~SceneManager();
 
+		ThirdPersonCharacter*	m_pHero;
+
 	public:
 		bool		Init();
 		void		Update(float fDeltaTime);

@@ -97,7 +97,7 @@ namespace Neo
 			camCube.SetUp(vUp[i]);
 			camCube.SetDirection(vLookDirection[i]);
 			camCube._BuildViewMatrix();
-			g_env.pRenderSystem->Update();
+			g_env.pRenderSystem->Update(0);
 
 			pScene->RenderOpaque();
 		}

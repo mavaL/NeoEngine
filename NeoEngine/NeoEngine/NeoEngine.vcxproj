@@ -104,6 +104,7 @@
     <ClInclude Include="Include\dds.h" />
     <ClInclude Include="Include\DDSTextureLoader.h" />
     <ClInclude Include="Include\Entity.h" />
+    <ClInclude Include="Include\EventCallbackBase.h" />
     <ClInclude Include="Include\Font.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Light.h" />
@@ -126,10 +127,13 @@
     <ClInclude Include="Include\SkinModel.h" />
     <ClInclude Include="Include\Sky.h" />
     <ClInclude Include="Include\SSAO.h" />
+    <ClInclude Include="Include\StateMachine\State.h" />
+    <ClInclude Include="Include\StateMachine\StateMachine.h" />
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\StructuredBuffer.h" />
     <ClInclude Include="Include\TangentSpaceCalculation.h" />
     <ClInclude Include="Include\Terrain.h" />
+    <ClInclude Include="Include\ThirdPersonCharacter.h" />
     <ClInclude Include="Include\TiledRenderer.h" />
     <ClInclude Include="Include\Utility.h" />
     <ClInclude Include="Include\VertexData.h" />
@@ -267,12 +271,14 @@
     <ClCompile Include="Src\SkinModel.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
     <ClCompile Include="Src\SSAO.cpp" />
+    <ClCompile Include="Src\StateMachine\StateMachine.cpp" />
     <ClCompile Include="Src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Src\Terrain.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
+    <ClCompile Include="Src\ThirdPersonCharacter.cpp" />
     <ClCompile Include="Src\TiledRenderer.cpp" />
     <ClCompile Include="Src\Utility.cpp" />
     <ClCompile Include="Src\VertexData.cpp" />

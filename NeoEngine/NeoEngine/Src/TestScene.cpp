@@ -14,6 +14,7 @@
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
 #include "SkinModel.h"
+#include "ThirdPersonCharacter.h"
 
 using namespace Neo;
 
@@ -319,7 +320,8 @@ void SetupTestScene7(Scene* scene)
 	{
 		SkinModel* pSkinModel = static_cast<SkinModel*>(g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh")));
 		pSkinModel->SetCastShadow(false);
-		pSkinModel->SetPosition(VEC3(0, 10, 10));
+		pSkinModel->SetPosition(VEC3(0, 2, 0));
+		pSkinModel->SetScale(0.4f);
 		scene->AddEntity(pSkinModel);
 
 		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_SkinModel, pSkinModel->GetMesh()->GetSubMeshCount());
@@ -347,20 +349,19 @@ void SetupTestScene7(Scene* scene)
 
 		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), GetResPath("SkinModel.hlsl"), eShader_Opaque);
 		pSkinModel->SetMaterial(pMaterial);
-
-		pSkinModel->PlayAnimation();
 		pSkinModel->ShowBones(false);
+
+		ThirdPersonCharacter* pCharacter = new ThirdPersonCharacter;
+		pCharacter->Init(pSkinModel, g_env.pSceneMgr->GetCamera(), VEC3(0, 15, -20));
+		g_env.pSceneMgr->m_pHero = pCharacter;
 	}
 }
 
 void EnterTestScene7(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0, 5, 0));
 	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.04f);
-	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 
 namespace Neo

@@ -7,6 +7,7 @@
 
 namespace Neo
 {
+	//------------------------------------------------------------------------------------
 	MAT44 SkeletonAnim::RecursUpdateBoneTransform(Bone* pBone)
 	{
 		MAT44 matParent = MAT44::IDENTITY;
@@ -21,7 +22,7 @@ namespace Neo
 		return pBone->m_matCombine;
 	}
 
-
+	//------------------------------------------------------------------------------------
 	AnimKeyFrame AnimTrack::GetKf(float fTime)
 	{
 		AnimKeyFrame* pA = nullptr;
@@ -29,7 +30,7 @@ namespace Neo
 
 		for (uint32 i = 1; i < m_vecKeyFrames.size(); ++i)
 		{
-			if (fTime < m_vecKeyFrames[i].m_fTime)
+			if (fTime <= m_vecKeyFrames[i].m_fTime)
 			{
 				pB = &m_vecKeyFrames[i];
 				pA = &m_vecKeyFrames[i - 1];
@@ -43,6 +44,40 @@ namespace Neo
 		lerpKf.rotate = QUATERNION::Slerp(t, pA->rotate, pB->rotate);
 
 		return lerpKf;
+	}
+	//------------------------------------------------------------------------------------
+	void AnimState::Update(float dt)
+	{
+		if (m_pAnim)
+		{
+			m_fAnimTime += dt;
+
+			// Loop?
+			if (m_fAnimTime > m_pAnim->m_fLength)
+			{
+				if (m_bLoop)
+				{
+					m_fAnimTime = 0.0f;
+				}
+				else
+				{
+					m_pAnim = nullptr;
+				}
+			}
+
+			for (uint32 i = 0; i < m_pAnim->m_tracks.size(); ++i)
+			{
+				AnimTrack* pTrack = m_pAnim->m_tracks[i];
+				Bone* pBone = m_pSkeleton->m_vecBones[pTrack->m_boneId];
+
+				AnimKeyFrame kf = pTrack->GetKf(m_fAnimTime);
+				MAT44 matAnim;
+				matAnim.FromQuaternion(kf.rotate);
+				matAnim.SetTranslation(kf.translate);
+
+				pBone->m_matLocal = matAnim * pBone->m_matLocal;
+			}
+		}
 	}
 
 	//------------------------------------------------------------------------------------
@@ -174,9 +209,11 @@ namespace Neo
 	SkinModel::SkinModel(Mesh* pMesh, SkeletonAnim* pSkel)
 		: Entity(pMesh)
 		, m_pSkeleton(pSkel)
-		, m_pCurAnim(nullptr)
 		, m_pSkelRender(nullptr)
 	{
+		m_animState[eAnimPart_Base].m_pSkeleton = pSkel;
+		m_animState[eAnimPart_Top].m_pSkeleton = pSkel;
+
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
 		{
 			Bone* pBone = m_pSkeleton->m_vecBones[i];
@@ -192,26 +229,23 @@ namespace Neo
 		SAFE_DELETE(m_pSkelRender);
 	}
 	//------------------------------------------------------------------------------------
-	void SkinModel::PlayAnimation()
+	void SkinModel::PlayAnimation(eAnimPart part, const STRING& name, bool bLoop)
 	{
-		m_pCurAnim = m_pSkeleton->m_vecAnims[0];
-		m_fAnimTime = 0.0f;
+		for (uint32 i = 0; i < m_pSkeleton->m_vecAnims.size(); ++i)
+		{
+			if (m_pSkeleton->m_vecAnims[i]->m_name == name)
+			{
+				m_animState[part].m_pAnim = m_pSkeleton->m_vecAnims[i];
+				break;
+			}
+		}
+
+		m_animState[part].m_fAnimTime = 0.0f;
+		m_animState[part].m_bLoop = bLoop;
 	}
 	//------------------------------------------------------------------------------------
-	void SkinModel::Update(float fDeltaTime)
+	void SkinModel::Update(float dt)
 	{
-		if (!m_pCurAnim)
-		{
-			return;
-		}
-
-		m_fAnimTime += fDeltaTime;
-
-		if (m_fAnimTime > m_pCurAnim->m_fLength)
-		{
-			m_fAnimTime = 0.0f;
-		}
-
 		cBufferSkin& cSkin = g_env.pRenderSystem->GetSkinCB();
 
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
@@ -220,18 +254,8 @@ namespace Neo
 			pBone->m_matLocal = pBone->m_matBindPose;
 		}
 
-		for (uint32 i = 0; i < m_pCurAnim->m_tracks.size(); ++i)
-		{
-			AnimTrack* pTrack = m_pCurAnim->m_tracks[i];
-			Bone* pBone = m_pSkeleton->m_vecBones[pTrack->m_boneId];
-
-			AnimKeyFrame kf = pTrack->GetKf(m_fAnimTime);
-			MAT44 matAnim;
-			matAnim.FromQuaternion(kf.rotate);
-			matAnim.SetTranslation(kf.translate);
-
-			pBone->m_matLocal = matAnim * pBone->m_matLocal;
-		}
+		m_animState[eAnimPart_Base].Update(dt);
+		m_animState[eAnimPart_Top].Update(dt);
 
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
 		{
@@ -240,7 +264,7 @@ namespace Neo
 			m_pSkeleton->RecursUpdateBoneTransform(pBone);
 		}
 
-		Entity::Update(fDeltaTime);
+		Entity::Update(dt);
 	}
 	//------------------------------------------------------------------------------------
 	void SkinModel::Render()

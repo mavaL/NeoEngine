@@ -20,6 +20,7 @@
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "SkinModel.h"
+#include "ThirdPersonCharacter.h"
 
 
 namespace Neo
@@ -209,6 +210,8 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void SceneManager::Update(float fDeltaTime)
 	{
+		m_pHero->Update(fDeltaTime);
+
 		if(m_pShadowMap)
 			m_pShadowMap->Update();
 

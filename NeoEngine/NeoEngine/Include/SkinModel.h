@@ -13,6 +13,13 @@
 
 namespace Neo
 {
+	enum eAnimPart
+	{
+		eAnimPart_Base = 0,		// Animation of full/lower body.
+		eAnimPart_Top,			// Animation of upper body.
+		eAnimPart_Count,
+	};
+	//------------------------------------------------------------------------------------
 	class Bone
 	{
 	public:
@@ -29,7 +36,7 @@ namespace Neo
 		Bone*		m_pParent;
 		std::vector<Bone*> m_vecChilds;
 	};
-
+	//------------------------------------------------------------------------------------
 	class AnimKeyFrame
 	{
 	public:
@@ -37,7 +44,7 @@ namespace Neo
 		VEC3		translate;
 		QUATERNION	rotate;
 	};
-
+	//------------------------------------------------------------------------------------
 	class AnimTrack
 	{
 	public:
@@ -49,7 +56,7 @@ namespace Neo
 		uint32		m_boneId;
 		std::vector<AnimKeyFrame>	m_vecKeyFrames;
 	};
-
+	//------------------------------------------------------------------------------------
 	class AnimClip
 	{
 	public:
@@ -63,7 +70,7 @@ namespace Neo
 		float						m_fLength;
 		std::vector<AnimTrack*>		m_tracks;
 	};
-
+	//------------------------------------------------------------------------------------
 	class SkeletonAnim
 	{
 	public:
@@ -79,7 +86,21 @@ namespace Neo
 		std::vector<Bone*>			m_vecBones;
 		std::vector<AnimClip*>		m_vecAnims;
 	};
+	//------------------------------------------------------------------------------------
+	class AnimState
+	{
+	public:
+		AnimState() :m_pAnim(nullptr),m_fAnimTime(0),m_bLoop(false) {}
+		~AnimState() {}
 
+		void				Update(float dt);
+
+		SkeletonAnim*		m_pSkeleton;
+		AnimClip*			m_pAnim;
+		float				m_fAnimTime;
+		bool				m_bLoop;
+	};
+	//------------------------------------------------------------------------------------
 	class SkinModel : public Entity
 	{
 	public:
@@ -87,21 +108,22 @@ namespace Neo
 		~SkinModel();
 
 	public:
-		virtual void	Update(float fDeltaTime);
+		virtual void	Update(float dt);
 		virtual void	Render();
 		virtual void	DebugRender();
 
-		void			PlayAnimation();
+		// Play 
+		void			PlayAnimation(eAnimPart part, const STRING& name, bool bLoop);
+
 		void			ShowBones(bool bShow);
 		SkeletonAnim*	GetSkeleton() { return m_pSkeleton; }
 
 	private:
 		SkeletonAnim*		m_pSkeleton;
-		AnimClip*			m_pCurAnim;
-		float				m_fAnimTime;
+		AnimState			m_animState[eAnimPart_Count];
 		SkeletonDebugger*	m_pSkelRender;
 	};
-
+	//------------------------------------------------------------------------------------
 	class SkeletonDebugger
 	{
 	public:

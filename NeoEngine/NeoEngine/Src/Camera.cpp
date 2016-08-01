@@ -11,10 +11,11 @@ namespace Neo
 		, m_aspectRatio(0)
 		, m_fixYawAxis(true)
 		, m_moveSpeed(1.0f)
-		, m_bActive(false)
+		, m_bManualControl(false)
 		, m_bFrustumPlanesDirty(true)
 		, m_bFrustumCornersDirty(true)
 		, m_vUp(VEC3::UNIT_Y)
+		, m_bActive(false)
 	{
 		m_fov = Common::Angle_To_Radian(45);
 	}
@@ -25,6 +26,8 @@ namespace Neo
 		, m_aspectRatio(fAspectRatio)
 		, m_fixYawAxis(bFixYaw)
 		, m_vUp(VEC3::UNIT_Y)
+		, m_bManualControl(false)
+		, m_bActive(false)
 	{
 		m_fov = Common::Angle_To_Radian(fov);
 		_BuildProjMatrix();
@@ -32,6 +35,11 @@ namespace Neo
 
 	void Camera::Update()
 	{
+		if (m_bManualControl)
+		{
+			return;
+		}
+
 		_BuildViewMatrix();
 
 		//更新输入
@@ -48,8 +56,10 @@ namespace Neo
 
 		lastCursorPos = curCursorPos;
 
-		if(!m_bActive)
+		if (!m_bActive)
+		{
 			return;
+		}
 
 		//相机旋转
 		if(dx)
@@ -191,6 +201,13 @@ namespace Neo
 		else				m_matRot = Common::Multiply_Mat44_By_Mat44(rot, m_matRot);
 	}
 
+	void Camera::Pitch(float angle)
+	{
+		MAT44 rot;
+		rot.FromAxisAngle(VEC3::UNIT_X, angle);
+		m_matRot = Common::Multiply_Mat44_By_Mat44(rot, m_matRot);
+	}
+
 	void Camera::AddMoveSpeed( float delta )
 	{
 		m_moveSpeed += delta;
@@ -317,6 +334,19 @@ namespace Neo
 	void Camera::GetFarCorner(VEC4 v[4])
 	{
 		memcpy(v, m_farCorners, sizeof(VEC4) * 4);
+	}
+
+	void Camera::MoveLocal(const VEC3& v)
+	{
+		VEC3 vLocal = Common::Transform_Vec3_By_Mat44(v, m_matRot, false).GetVec3();
+		m_viewPt += vLocal;
+	}
+
+	void Camera::Rotate(const VEC3& axis, float angle)
+	{
+		MAT44 rot;
+		rot.FromAxisAngle(axis, angle);
+		m_matRot = Common::Multiply_Mat44_By_Mat44(rot, m_matRot);
 	}
 
 }

@@ -19,6 +19,12 @@
     <Filter Include="源文件\tinyxml">
       <UniqueIdentifier>{c3ec6494-7242-4c09-8b92-409bbfd6e958}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\StateMachine">
+      <UniqueIdentifier>{fa43b803-4159-4fac-97ea-fc2dc9cdb923}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\StateMachine">
+      <UniqueIdentifier>{3354967a-3a3a-4af9-96c3-970f9a399852}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AABB.h">
@@ -153,6 +159,18 @@
     <ClInclude Include="Include\SkinModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ThirdPersonCharacter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\EventCallbackBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\StateMachine\State.h">
+      <Filter>头文件\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\StateMachine\StateMachine.h">
+      <Filter>头文件\StateMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -279,6 +297,12 @@
     </ClCompile>
     <ClCompile Include="Src\SkinModel.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\ThirdPersonCharacter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\StateMachine\StateMachine.cpp">
+      <Filter>源文件\StateMachine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

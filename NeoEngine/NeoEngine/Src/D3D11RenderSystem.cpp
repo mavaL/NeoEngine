@@ -407,22 +407,20 @@ namespace Neo
 		pTexture->CreateSRV();
 	}
 	//-------------------------------------------------------------------------------
-	void D3D11RenderSystem::Update()
+	void D3D11RenderSystem::Update(float dt)
 	{
-		DWORD curTime = GetTickCount();
-		static DWORD lastTime = curTime, nFrameCnt = 0, nFrameTime = 0;
-
-		DWORD dt = curTime - lastTime;
-		lastTime = curTime;
+		static DWORD nFrameCnt = 0;
+		static float fFrameTime = 0;
 
 		// Calc FPS
 		++nFrameCnt;
-		nFrameTime += dt;
+		fFrameTime += dt;
 
-		if (nFrameTime >= 1000)
+		if (fFrameTime >= 1.0f)
 		{
-			g_env.pFrameStat->lastFPS = nFrameCnt / (nFrameTime * 0.001f);
-			nFrameCnt = nFrameTime = 0;
+			g_env.pFrameStat->lastFPS = nFrameCnt / fFrameTime;
+			nFrameCnt = 0;
+			fFrameTime = 0;
 		}
 
 		// Update cBuffer

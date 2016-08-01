@@ -120,11 +120,17 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 		break;
 
 	case WM_LBUTTONDOWN:
-		pSceneMgr->GetCamera()->m_bActive = true;
+		if (!pSceneMgr->GetCamera()->GetManualControl())
+		{
+			pSceneMgr->GetCamera()->SetActive(true);
+		}
 		return 0;
 
 	case WM_LBUTTONUP:
-		pSceneMgr->GetCamera()->m_bActive = false;
+		if (!pSceneMgr->GetCamera()->GetManualControl())
+		{
+			pSceneMgr->GetCamera()->SetActive(false);
+		}
 		return 0;
 
 	case WM_KEYDOWN:
@@ -211,8 +217,8 @@ void Application::Run()
 			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
 			pSceneMgr->GetCamera()->Update();
-			m_pRenderSystem->Update();
 			pSceneMgr->Update(fDeltaTime);
+			m_pRenderSystem->Update(fDeltaTime);
 			
 			m_pRenderSystem->BeginScene();
 			pSceneMgr->Render();
