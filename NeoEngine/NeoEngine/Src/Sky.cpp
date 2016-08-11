@@ -7,109 +7,195 @@
 #include "SceneManager.h"
 #include "Mesh.h"
 #include "Entity.h"
+#include "MaterialManager.h"
+#include "D3D11RenderTarget.h"
 
 namespace Neo
 {
+	const float Rg = 6360.0;
+	const float Rt = 6420.0;
+	const float RL = 6421.0;
+
+	const int TRANSMITTANCE_W = 256;
+	const int TRANSMITTANCE_H = 64;
+
+	const int SKY_W = 64;
+	const int SKY_H = 16;
+
+	const int RES_R = 32;
+	const int RES_MU = 128;
+	const int RES_MU_S = 32;
+	const int RES_NU = 8;
+
 	//------------------------------------------------------------------------------------
 	Sky::Sky()
-	:m_pMesh(nullptr)
-	,m_pRenderSystem(g_env.pRenderSystem)
-	,m_pEntity(nullptr)
+	: m_pRenderSystem(g_env.pRenderSystem)
+	, m_pRT_Transmittance(nullptr)
+	, m_pMtl_Transmittance(nullptr)
+	, m_pMtl_InscatterDeltaS(nullptr)
+	, m_pCB_Inscatter1(nullptr)
+	, m_pRT_Inscatter(nullptr)
+	, m_pMtl_CopyInscatter1(nullptr)
+	, m_pMtl_Sky(nullptr)
 	{
-		_InitMesh();
+		_InitConstantBuffer();
+		_InitMaterials();
+		_Precompute();
 	}
 	//------------------------------------------------------------------------------------
 	Sky::~Sky()
 	{
-		SAFE_DELETE(m_pMesh);
-		SAFE_DELETE(m_pEntity);
+		SAFE_RELEASE(m_pRT_Transmittance);
+		SAFE_RELEASE(m_pMtl_Transmittance);
+		SAFE_RELEASE(m_pRT_InscatterDeltaS[0]);
+		SAFE_RELEASE(m_pRT_InscatterDeltaS[1]);
+		SAFE_RELEASE(m_pMtl_InscatterDeltaS);
+		SAFE_RELEASE(m_pCB_Inscatter1);
+		SAFE_RELEASE(m_pRT_Inscatter);
+		SAFE_RELEASE(m_pMtl_CopyInscatter1);
+		SAFE_RELEASE(m_pMtl_Sky);
 	}
 	//------------------------------------------------------------------------------------
-	void Sky::_InitMesh()
+	void Sky::_InitMaterials()
 	{
-		SVertex* vert = new SVertex[8];
-		DWORD* pIndices = new DWORD[6*2*3];
+		m_pRT_Transmittance = new D3D11RenderTarget;
+		m_pRT_Transmittance->Init(TRANSMITTANCE_W, TRANSMITTANCE_H, ePF_A16R16G16B16F, false, false);
 
-		if(!vert || !pIndices)
-			throw std::exception("Error!Not enough memory!");
+		m_pRT_InscatterDeltaS[0] = new D3D11RenderTarget;
+		m_pRT_InscatterDeltaS[1] = new D3D11RenderTarget;
+		m_pRT_Inscatter = new D3D11RenderTarget;
+		m_pRT_InscatterDeltaS[0]->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
+		m_pRT_InscatterDeltaS[1]->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
+		m_pRT_Inscatter->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
 
-		vert[0].pos.Set(-1, -1, -1);
-		vert[1].pos.Set( 1, -1, -1);
-		vert[2].pos.Set( 1, -1, 1);
-		vert[3].pos.Set(-1, -1, 1);
-		vert[4].pos.Set(-1, 1, -1);
-		vert[5].pos.Set( 1, 1, -1);
-		vert[6].pos.Set( 1, 1, 1);
-		vert[7].pos.Set(-1, 1, 1);
+		m_pMtl_Transmittance = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Transmittance");
+		m_pMtl_Transmittance->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "TransmittancePS");
+		m_pMtl_Transmittance->AddRef();
 
-		pIndices[0] = 0; pIndices[1] = 2; pIndices[2] = 1;
-		pIndices[3] = 0; pIndices[4] = 3; pIndices[5] = 2;
-		pIndices[6] = 5; pIndices[7] = 7; pIndices[8] = 4;
-		pIndices[9] = 5; pIndices[10] = 6; pIndices[11] = 7;
-		pIndices[12] = 3; pIndices[13] = 6; pIndices[14] = 2;
-		pIndices[15] = 3; pIndices[16] = 7; pIndices[17] = 6;
-		pIndices[18] = 1; pIndices[19] = 4; pIndices[20] = 0;
-		pIndices[21] = 1; pIndices[22] = 5; pIndices[23] = 4;
-		pIndices[24] = 0; pIndices[25] = 7; pIndices[26] = 3;
-		pIndices[27] = 0; pIndices[28] = 4; pIndices[29] = 7;
-		pIndices[30] = 2; pIndices[31] = 5; pIndices[32] = 1;
-		pIndices[33] = 2; pIndices[34] = 6; pIndices[35] = 5;
+		m_pMtl_InscatterDeltaS = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_InscatterDeltaS");
+		m_pMtl_InscatterDeltaS->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
+		m_pMtl_InscatterDeltaS->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "Inscatter1PS");
+		m_pMtl_InscatterDeltaS->AddRef();
 
-		m_pMesh = new Mesh;
-		SubMesh* pSubMesh = new SubMesh;
+		m_pMtl_CopyInscatter1 = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_CopyInscatter1");
+		m_pMtl_CopyInscatter1->SetTexture(0, m_pRT_InscatterDeltaS[0]->GetRenderTexture());
+		m_pMtl_CopyInscatter1->SetTexture(1, m_pRT_InscatterDeltaS[1]->GetRenderTexture());
+		m_pMtl_CopyInscatter1->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "CopyInscatter1PS");
+		m_pMtl_CopyInscatter1->AddRef();
 
-		pSubMesh->InitVertData(eVertexType_General, vert, 8, true);
-		pSubMesh->InitIndexData(pIndices, 6*2*3, true);
+		m_pMtl_Sky = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Final");
+		m_pMtl_Sky->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
+		m_pMtl_Sky->SetTexture(1, m_pRT_Inscatter->GetRenderTexture());
 
-		m_pMesh->AddSubMesh(pSubMesh);
+		D3D11_SAMPLER_DESC samDesc = m_pMtl_Sky->GetSamplerStateDesc(0);
+		samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
-		SAFE_DELETE_ARRAY(vert);
-		SAFE_DELETE_ARRAY(pIndices);
+		m_pMtl_Sky->SetSamplerStateDesc(0, samDesc);
 
-		//Neo::Material* pMaterial = new Neo::Material;
-		//pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Skybox.dds"), eTextureType_CubeMap));
-		//pMaterial->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
+		m_pMtl_Sky->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "SkyPS");
+		m_pMtl_Sky->AddRef();
+	}
+	//-------------------------------------------------------------------------------
+	void Sky::_InitConstantBuffer()
+	{
+		HRESULT hr = S_OK;
+		ID3D11Device* pDevice = m_pRenderSystem->GetDevice();
 
-		//m_pMesh->SetMaterial(pMaterial);
-		//pMaterial->Release();
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.ByteWidth = sizeof(cBufferInscatter1);
 
-		//D3D11_SAMPLER_DESC& sampler = pMaterial->GetSamplerStateDesc(0);
-		//sampler.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		//sampler.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		//
-		//pMaterial->SetSamplerStateDesc(0, sampler);
+		V(pDevice->CreateBuffer(&bd, NULL, &m_pCB_Inscatter1));
+	}
+	//-------------------------------------------------------------------------------
+	void Sky::_Precompute()
+	{
+		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
 
-		//m_pEntity = new Entity(m_pMesh);
+		// Transmittance
+		m_pRT_Transmittance->RenderScreenQuad(m_pMtl_Transmittance, false, false);
 
-		//m_pEntity->SetCastShadow(false);
-		//m_pEntity->SetReceiveShadow(false);
+		// Inscatter deltaS
+		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, RES_MU_S * RES_NU, RES_MU);
+		m_pRenderSystem->SetViewport(vp);
+
+		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 1, false, false);
+		m_pMtl_InscatterDeltaS->Activate();
+
+		for (uint32 iSlice = 0; iSlice < RES_R; ++iSlice)
+		{
+			m_pRT_InscatterDeltaS[0]->SetActiveSlice(iSlice);
+			m_pRT_InscatterDeltaS[1]->SetActiveSlice(iSlice);
+
+			m_pRenderSystem->SetRenderTarget(m_pRT_InscatterDeltaS, nullptr, 2, false, false);
+
+			_SetLayer(iSlice);
+
+			D3D11RenderTarget::m_pQuadEntity->Render();
+		}
+
+		// CopyInscatter1
+		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 2, false, false);
+		m_pMtl_CopyInscatter1->Activate();
+
+		for (uint32 iSlice = 0; iSlice < RES_R; ++iSlice)
+		{
+			m_pRT_Inscatter->SetActiveSlice(iSlice);
+			m_pRenderSystem->SetRenderTarget(&m_pRT_Inscatter, nullptr, 1, false, false);
+
+			_SetLayer(iSlice);
+
+			D3D11RenderTarget::m_pQuadEntity->Render();
+		}
+
+		m_pRenderSystem->RestoreViewport();
 	}
 	//-------------------------------------------------------------------------------
 	void Sky::Update()
 	{
-		// Scale and translate our skybox
-		Camera* pCamera = g_env.pSceneMgr->GetCamera();
-		float scale = (pCamera->GetFarClip() - pCamera->GetNearClip()) / 2;
 
-		m_pEntity->SetScale(scale);
-		m_pEntity->SetPosition(pCamera->GetPos());
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::Render()
 	{
-		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+		m_pMtl_Sky->Activate();
 
-		// Shut off z-buffer
+		// Turn off z buffer
+		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+		//depthDesc.DepthEnable = FALSE;
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		depthDesc.DepthEnable = FALSE;
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
 
-		// Render
-		m_pEntity->Render();
+		D3D11RenderTarget::m_pQuadEntity->Render();
 
 		// Restore render state
+		//depthDesc.DepthEnable = TRUE;
 		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthDesc.DepthEnable = TRUE;
 		m_pRenderSystem->SetDepthStencelState(depthDesc);
 	}
+	//------------------------------------------------------------------------------------
+	void Sky::_SetLayer(uint32 iSlice)
+	{
+		double r = iSlice / (RES_R - 1.0f);
+		r = r * r;
+		r = sqrt(Rg * Rg + r * (Rt * Rt - Rg * Rg)) + (iSlice == 0 ? 0.01f : (iSlice == RES_R - 1 ? -0.001f : 0.0f));
+		double dmin = Rt - r;
+		double dmax = sqrt(r * r - Rg * Rg) + sqrt(Rt * Rt - Rg * Rg);
+		double dminp = r - Rg;
+		double dmaxp = sqrt(r * r - Rg * Rg);
+
+		m_cbInscatter1.r = (float)r;
+		m_cbInscatter1.dhdH.Set(float(dmin), float(dmax), float(dminp), float(dmaxp));
+		m_cbInscatter1.layer = iSlice;
+
+		m_pRenderSystem->GetDeviceContext()->UpdateSubresource(m_pCB_Inscatter1, 0, NULL, &m_cbInscatter1, 0, 0);
+		m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &m_pCB_Inscatter1);
+	}
+
 }

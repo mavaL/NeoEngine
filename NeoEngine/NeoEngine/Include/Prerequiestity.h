@@ -74,7 +74,6 @@ enum eRenderPhase
 
 enum eShader
 {
-	eShader_Terrain,
 	eShader_Opaque,
 	eShader_Transparent,
 	eShader_PostProcess,

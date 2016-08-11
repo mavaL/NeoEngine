@@ -3,6 +3,8 @@
 #include "Camera.h"
 #include "SkinModel.h"
 #include "StateMachine/StateMachine.h"
+#include "Terrain.h"
+#include "SceneManager.h"
 
 namespace Neo
 {
@@ -98,6 +100,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void ThirdPersonCharacter::Update(float dt)
 	{
+		if (!m_pCamera->GetManualControl())
+		{
+			return;
+		}
+
 		// Update controller
 		VEC3 vMoveDir = VEC3::ZERO;
 		bool bMove = false;
@@ -142,6 +149,17 @@ namespace Neo
 
 			QUATERNION rot(VEC3::UNIT_Y, fRotate);
 			m_pModel->SetRotation(rot);
+		}
+
+		// Clamp to terrain surface
+		Terrain* pTerrain = g_env.pSceneMgr->GetTerrain();
+		if (pTerrain)
+		{
+			VEC3 vPos = m_pModel->GetPosition();
+			float fTerrainHeight = pTerrain->GetHeightAt(vPos);
+			vPos.y = fTerrainHeight + 2;
+
+			m_pModel->SetPosition(vPos);
 		}
 
 		// Update camera

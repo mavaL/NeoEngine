@@ -321,9 +321,6 @@
     <CustomBuild Include="..\Res\Sky.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\Res\Terrain.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\Res\Water_Depth.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
@@ -334,9 +331,6 @@
       <Filter>Shader</Filter>
     </CustomBuild>
     <CustomBuild Include="..\Res\BilateralBlur.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Terrain_Depth.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -360,6 +354,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\DebugSkeleton.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Terrain.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

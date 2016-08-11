@@ -260,7 +260,7 @@ namespace Neo
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
 		{
 			Bone* pBone = m_pSkeleton->m_vecBones[i];
-
+			pBone->m_bMatCombineValid = false;
 			m_pSkeleton->RecursUpdateBoneTransform(pBone);
 		}
 
@@ -275,7 +275,12 @@ namespace Neo
 		{
 			Bone* pBone = m_pSkeleton->m_vecBones[i];
 
-			pBone->m_matCombine = pBone->m_matInvBindPos * pBone->m_matCombine;
+			if (!pBone->m_bMatCombineValid)
+			{
+				pBone->m_matCombine = pBone->m_matInvBindPos * pBone->m_matCombine;
+				pBone->m_bMatCombineValid = true;
+			}
+
 			cSkin.matSkin[pBone->m_id] = pBone->m_matCombine.Transpose();
 		}
 

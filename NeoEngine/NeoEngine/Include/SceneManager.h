@@ -19,8 +19,6 @@ namespace Neo
 		SceneManager();
 		~SceneManager();
 
-		ThirdPersonCharacter*	m_pHero;
-
 	public:
 		bool		Init();
 		void		Update(float fDeltaTime);
@@ -50,6 +48,7 @@ namespace Neo
 		void		CreateSky();
 		void		CreateTerrain();
 		void		CreateWater(float waterHeight = 0.0f);
+		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
 		const SDirectionLight& GetSunLight() const { return m_sunLight; }
 		D3D11RenderTarget*	GetNormalRT() { return m_pRT_Normal; }
@@ -99,6 +98,7 @@ namespace Neo
 		ShadowMap*		m_pShadowMap;
 		SSAO*			m_pSSAO;
 		TileBasedDeferredRenderer*	m_pTBDR;
+		ThirdPersonCharacter*	m_pHero;
 		D3D11Texture*	m_pTexEnvBRDF;
 		Material*		m_pMtlCompose;
 		Material*		m_pMtlLinearizeDepth;

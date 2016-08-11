@@ -59,6 +59,27 @@ namespace Neo
 	{
 		MAT44	matSkin[100];
 	};
+	// Terrain constant buffer: (b3)
+	__declspec(align(16))
+	struct cBufferTerrain
+	{
+		PLANE	m_frustumPlane[4];
+
+		// When distance is minimum, the tessellation is maximum
+		// When distance is maximum, the tessellation is minimum
+		float	minTessDist;
+		float	maxTessDist;
+
+		// Exponents for power of 2 tessellation.  The tessellation
+		// range is [2^(gMinTess), 2^(gMaxTess)].  Since the maximum
+		// tessellation is 64, this means gMaxTess can be at most 6
+		// since 2^6 = 64.
+		float	minTess;
+		float	maxTess;
+
+		VEC2	invTexSize;
+		float	terrainCellSpace;
+	};
 	//----------------------------------------------------------------------------------------
 	class D3D11RenderSystem
 	{
@@ -85,6 +106,7 @@ namespace Neo
 		cBufferMaterial&			GetMaterialCB()			{ return m_cBufferMaterial; }
 		cBufferGlobal&				GetGlobalCB()			{ return m_cBufferGlobal; }
 		cBufferSkin&				GetSkinCB()				{ return m_cBufferSkin; }
+		cBufferTerrain&				GetTerrainCB()			{ return m_cBufferTerrain; }
 
 		/// TODO: Currently doesn't have render states management
 		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
@@ -115,9 +137,7 @@ namespace Neo
 		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bComputeShader = false);
 		void		UpdateMaterialCBuffer(bool bTessellate = false, bool bComputeShader = false);
 		void		UpdateSkinCBuffer();
-
-		// Extract frustum planes in world space from view projection matrix
-		void		ExtractFrustumWorldPlanes(PLANE oPlanes[6], const MAT44& matViewProj);
+		void		UpdateTerrainCBuffer();
 		
 		/**	Copy back buffer content to another texture
 			Note: The texture must be the same type of the back buffer,
@@ -154,6 +174,8 @@ namespace Neo
 		cBufferGlobal				m_cBufferGlobal;
 		cBufferMaterial				m_cBufferMaterial;
 		cBufferSkin					m_cBufferSkin;
+		cBufferTerrain				m_cBufferTerrain;
+		ID3D11Buffer*				m_pTerrainCB;
 		ID3D11Buffer*				m_pGlobalCBuf;
 		ID3D11Buffer*				m_pMaterialCB;
 		ID3D11Buffer*				m_pSkinCB;

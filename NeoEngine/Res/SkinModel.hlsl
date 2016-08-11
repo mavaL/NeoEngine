@@ -83,12 +83,6 @@ Texture2D		gShadowMap2		: register(t4);
 Texture2D		gShadowMap3		: register(t5);
 SamplerState	samLinear		: register(s0);
 
-struct gbuffer_output
-{
-	float4	oNormal	:	SV_Target0;
-	float4	oAlbedo	:	SV_Target1;
-	float4	oSpec	:	SV_Target2;
-};
 
 gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {

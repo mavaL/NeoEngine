@@ -47,6 +47,7 @@ namespace Neo
 	, m_pMtlCompose(nullptr)
 	, m_pMtlLinearizeDepth(nullptr)
 	, m_pMtlFinalScene(nullptr)
+	, m_pHero(nullptr)
 	{
 		
 	}
@@ -162,8 +163,6 @@ namespace Neo
 			m_pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
 		}
 
-		_InitAllScene();
-
 		return true;
 	}
 	//-------------------------------------------------------------------------------
@@ -174,6 +173,7 @@ namespace Neo
 		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
 		m_scenes.clear();
 
+		SAFE_DELETE(m_pHero);
 		SAFE_DELETE(m_pAmbientCube);
 		SAFE_DELETE(m_pShadowMap);
 		SAFE_DELETE(m_camera);
@@ -208,9 +208,59 @@ namespace Neo
 		m_pWater = new Water(waterHeight);
 	}
 	//-------------------------------------------------------------------------------
+	ThirdPersonCharacter* SceneManager::CreateHero(Scene* pScene, const VEC3& vCamPos)
+	{
+		SkinModel* pSkinModel = static_cast<SkinModel*>(g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh")));
+		pSkinModel->SetCastShadow(true);
+		pSkinModel->SetScale(0.4f);
+
+		pScene->AddEntity(pSkinModel);
+
+		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_SkinModel, pSkinModel->GetMesh()->GetSubMeshCount());
+
+		STRING strTexNames[] = { "sinbad\\sinbad_body.dds", "sinbad\\sinbad_body.dds",
+			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_body.dds", "sinbad\\sinbad_sword.dds",
+			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_clothes.dds" };
+
+		VEC4 vSpecGloss[] = {
+			VEC4(0.2f, 0.2f, 0.2f, 0.8f),			// Eyes
+			VEC4(0.03f, 0.03f, 0.03f, 0.3f),		// Body
+			VEC4(1.0f, 0.715f, 0.288f, 0.9f),		// Gold
+			VEC4(0.03f, 0.03f, 0.03f, 0.4f),		// Teeth
+			VEC4(0.1f, 0.1f, 0.1f, 0.5f),			// Sheaths
+			VEC4(0.57f, 0.57f, 0.57f, 0.8f),		// Spikes
+			VEC4(0.03f, 0.03f, 0.03f, 0.2f),		// Clothes
+		};
+
+		for (uint32 i = 0; i < pSkinModel->GetMesh()->GetSubMeshCount(); ++i)
+		{
+			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true));
+			pMaterial->GetSubMaterial(i).glossiness = vSpecGloss[i].w;
+			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
+		}
+
+		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), GetResPath("SkinModel.hlsl"), eShader_Opaque);
+		pSkinModel->SetMaterial(pMaterial);
+		pSkinModel->ShowBones(false);
+
+		ThirdPersonCharacter* pCharacter = new ThirdPersonCharacter;
+		pCharacter->Init(pSkinModel, m_camera, vCamPos);
+		m_pHero = pCharacter;
+
+		return pCharacter;
+	}
+	//-------------------------------------------------------------------------------
 	void SceneManager::Update(float fDeltaTime)
 	{
-		m_pHero->Update(fDeltaTime);
+		if (!m_pCurScene)
+		{
+			return;
+		}
+
+		if (m_pHero)
+		{
+			m_pHero->Update(fDeltaTime);
+		}
 
 		if(m_pShadowMap)
 			m_pShadowMap->Update();
@@ -221,17 +271,29 @@ namespace Neo
 		if (m_pSky)
 			m_pSky->Update();
 
-		if(m_pCurScene)
-			m_pCurScene->Update(fDeltaTime);
+		m_pCurScene->Update(fDeltaTime);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::Render(Material* pMaterial)
 	{
 		RenderPipline(m_renderFlag, pMaterial);
+
+		static bool bInitTestCases = false;
+		if (!bInitTestCases)
+		{
+			_InitAllScene();
+			ToggleScene();
+			bInitTestCases = true;
+		}
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::RenderPipline(uint32 phaseFlag, Material* pMaterial)
 	{
+		if (!m_pCurScene)
+		{
+			return;
+		}
+
 		//================================================================================
 		/// Shadow map phase
 		//================================================================================
@@ -245,28 +307,6 @@ namespace Neo
 		/// GBuffer phase
 		//================================================================================
 		_RenderGBuffer(phaseFlag);
-
-		//================================================================================
-		/// Render SSAO map
-		//================================================================================
-		//if (phaseFlag & eRenderPhase_SSAO)
-		//{
-		//	m_pSSAO->Update();
-
-		//	// Make use of early-Z
-		//	D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-		//	depthDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
-		//	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		//	m_pRenderSystem->SetDepthStencelState(depthDesc);
-		//}
-
-		//if (phaseFlag & eRenderPhase_SSAO)
-		//{
-		//	D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-		//	depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
-		//	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		//	m_pRenderSystem->SetDepthStencelState(depthDesc);
-		//}
 
 		//================================================================================
 		/// Linearize depth pass
@@ -285,6 +325,15 @@ namespace Neo
 		else
 		{
 			_CompositionPass();
+		}
+
+		// Restore depth buffer, as some forward objects may need it.
+		m_pRenderSystem->SetRenderTarget(&m_pRT_Compose, m_pRenderSystem->GetDepthTexture(), 1, false, false);
+
+		// Sky
+		if (m_pSky)
+		{
+			m_pSky->Render();
 		}
 		
 		//================================================================================
@@ -355,12 +404,6 @@ namespace Neo
 
 		m_pCurScene->RenderOpaque();
 
-		// Sky
-		if (m_pSky)
-		{
-			m_pSky->Render();
-		}
-
 		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthTexture(), 3, false, false);
 	}
 	//------------------------------------------------------------------------------------
@@ -394,12 +437,6 @@ namespace Neo
 
 		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
 		m_pRenderSystem->SetViewport(vp);
-
-		Camera* pCam = g_env.pSceneMgr->GetCamera();
-		pCam->SetAspectRatio(vp.Width / vp.Height);
-
-		m_pRenderSystem->GetGlobalCB().matProj = pCam->GetProjMatrix().Transpose();
-		m_pRenderSystem->UpdateGlobalCBuffer();
 
 		m_pMtlFinalScene->Activate();
 

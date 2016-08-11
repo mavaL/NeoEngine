@@ -123,7 +123,7 @@ namespace Neo
 			m_pRenderSystem->AddResizableTexture(this);
 	}
 	//------------------------------------------------------------------------------------
-	D3D11Texture::D3D11Texture( const StringVector& vecTexNames )
+	D3D11Texture::D3D11Texture(const StringVector& vecTexNames, bool bSRGB)
 	:m_pTexture2D(nullptr)
 	,m_pTexture3D(nullptr)
 	,m_pRenderSystem(g_env.pRenderSystem)
@@ -160,8 +160,17 @@ namespace Neo
 			loadInfo.MipFilter = D3DX11_FILTER_LINEAR;
 			loadInfo.pSrcInfo  = 0;
 
-			V(D3DX11CreateTextureFromFileA(m_pRenderSystem->GetDevice(), vecTexNames[i].c_str(), 
-				&loadInfo, nullptr, (ID3D11Resource**)&vecTexs[i], nullptr));
+			if (vecTexNames[i].find(".dds") != STRING::npos)
+			{
+				V(DirectX::CreateDDSTextureFromFileEx(m_pd3dDevice, EngineToUnicode(vecTexNames[i]).c_str(),
+					4096, D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_READ, 0, bSRGB, (ID3D11Resource**)&vecTexs[i], nullptr));
+			}
+			else
+			{
+				V(D3DX11CreateTextureFromFileA(m_pRenderSystem->GetDevice(), vecTexNames[i].c_str(),
+					&loadInfo, nullptr, (ID3D11Resource**)&vecTexs[i], nullptr));
+			}
+			
 		}
 
 		// Then create the texture array object
@@ -194,6 +203,8 @@ namespace Neo
 
 		for(size_t texElement=0; texElement<vecTexs.size(); ++texElement)
 		{
+			vecTexs[texElement]->GetDesc(&texElementDesc);
+
 			for(UINT mipLevel = 0; mipLevel < texElementDesc.MipLevels; ++mipLevel)
 			{
 				D3D11_MAPPED_SUBRESOURCE mappedTex2D;
@@ -220,8 +231,74 @@ namespace Neo
 		, m_pRTV(pRTV)
 		, m_pSRV(pSRV)
 		, m_pDSV(pDSV)
+		, m_usage(0)
+		, m_texType(eTextureType_2D)
 	{
 
+	}
+	//------------------------------------------------------------------------------------
+	D3D11Texture::D3D11Texture(uint32 width, uint32 height, uint32 depth, ePixelFormat format, uint32 usage, bool bMipMap)
+		: m_pTexture2D(nullptr)
+		, m_pTexture3D(nullptr)
+		, m_pRenderSystem(g_env.pRenderSystem)
+		, m_pRTV(nullptr)
+		, m_pSRV(nullptr)
+		, m_pDSV(nullptr)
+		, m_width(width)
+		, m_height(height)
+		, m_depth(depth)
+		, m_usage(usage)
+		, m_texType(eTextureType_3D)
+		, m_bMipMap(bMipMap)
+		, m_texFormat(format)
+	{
+		ZeroMemory(m_pRTV_slices, sizeof(m_pRTV_slices));
+
+		m_pd3dDevice = m_pRenderSystem->GetDevice();
+		if (m_pd3dDevice)
+			m_pd3dDevice->AddRef();
+
+		HRESULT hr = S_OK;
+		const DXGI_FORMAT dxformat = ConvertToDXFormat(m_texFormat);
+
+		CD3D11_TEXTURE3D_DESC desc(dxformat, width, height, depth, 1);
+
+		// Validate usage
+		assert(!((m_usage&eTextureUsage_WriteOnly) && (m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
+
+		// Assign usage
+		if (m_usage & eTextureUsage_WriteOnly)
+		{
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			desc.Usage = D3D11_USAGE_DYNAMIC;
+		}
+		else if (m_usage & eTextureUsage_ReadWrite)
+		{
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+			desc.Usage = D3D11_USAGE_STAGING;
+			desc.BindFlags = 0;
+		}
+
+		if (m_usage & eTextureUsage_RenderTarget)
+		{
+			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		}
+
+		V(m_pd3dDevice->CreateTexture3D(&desc, nullptr, &m_pTexture3D));
+
+		CreateSRV();
+
+		// Create RTV
+		if (m_usage & eTextureUsage_RenderTarget)
+		{
+			_AST(depth <= 32);
+
+			for (uint32 i = 0; i < depth; ++i)
+			{
+				CD3D11_RENDER_TARGET_VIEW_DESC rtvDesc(D3D11_RTV_DIMENSION_TEXTURE3D, dxformat, 0, i, 1);
+				V(m_pd3dDevice->CreateRenderTargetView(m_pTexture3D, &rtvDesc, &m_pRTV_slices[i]));
+			}
+		}
 	}
 	//-------------------------------------------------------------------------------
 	D3D11Texture::~D3D11Texture()
@@ -346,7 +423,7 @@ namespace Neo
 			CreateDSV();
 		}
 
-		// Bind RT view
+		// Create RTV
 		if (m_usage & eTextureUsage_RenderTarget)
 		{
 			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_pRTV ));
@@ -467,7 +544,7 @@ namespace Neo
 			}
 			break;
 
-		default: assert(0);
+		default: _AST(0);
 		}
 
 		V(m_pd3dDevice->CreateShaderResourceView(*pTex, &SMViewDesc, &m_pSRV));
@@ -493,6 +570,7 @@ namespace Neo
 		{
 		case DXGI_FORMAT_B8G8R8A8_UNORM:
 		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
+		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
 		case DXGI_FORMAT_R8G8B8A8_UNORM:	
 			format = ePF_A8R8G8B8; 
 			break;

@@ -106,23 +106,23 @@ void EnterTestScene2(Scene* scene)
 
 void SetupTestScene3(Scene* scene)
 {
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.7f, 0.7f, 0.7f));
+	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
+	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20));
+	g_env.pSceneMgr->CreateSky();
+	g_env.pSceneMgr->CreateTerrain();
+	//g_env.pSceneMgr->CreateWater(5.0f);
 }
 
 void EnterTestScene3(Scene* scene)
 {
-	g_env.pSceneMgr->CreateSky();
-	g_env.pSceneMgr->CreateTerrain();
-	g_env.pSceneMgr->CreateWater(5.0f);
-
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0, 100, 0));
+	pCamera->SetPosition(VEC3(0,10,0));
 	pCamera->SetNearClip(1);
-	pCamera->SetFarClip(1000.0f);
+	pCamera->SetFarClip(10000.0f);
 	pCamera->SetMoveSpeed(0.5f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->EnableDebugRT(eDebugRT_ShadowMap);
-	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
 }
 
 void SetupTestScene4(Scene* scene)
@@ -281,8 +281,8 @@ void SetupTestScene7(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
-	bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
-	_AST(bOk);
+	//bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
+	//_AST(bOk);
 
 	// Ambient cube
 	//bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
@@ -317,44 +317,7 @@ void SetupTestScene7(Scene* scene)
 		pEntity->SetMaterial(pMaterial);
 	}
 
-	{
-		SkinModel* pSkinModel = static_cast<SkinModel*>(g_env.pSceneMgr->CreateEntity(eEntity_SkinModel, GetResPath("sinbad\\sinbad.mesh")));
-		pSkinModel->SetCastShadow(false);
-		pSkinModel->SetPosition(VEC3(0, 2, 0));
-		pSkinModel->SetScale(0.4f);
-		scene->AddEntity(pSkinModel);
-
-		Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sinbad", eVertexType_SkinModel, pSkinModel->GetMesh()->GetSubMeshCount());
-
-		STRING strTexNames[] = { "sinbad\\sinbad_body.dds", "sinbad\\sinbad_body.dds", 
-			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_body.dds", "sinbad\\sinbad_sword.dds", 
-			"sinbad\\sinbad_clothes.dds", "sinbad\\sinbad_clothes.dds" };
-
-		VEC4 vSpecGloss[] = { 
-			VEC4(0.2f, 0.2f, 0.2f, 0.8f),			// Eyes
-			VEC4(0.03f, 0.03f, 0.03f, 0.3f),		// Body
-			VEC4(1.0f, 0.715f, 0.288f, 0.9f),		// Gold
-			VEC4(0.03f, 0.03f, 0.03f, 0.4f),		// Teeth
-			VEC4(0.1f, 0.1f, 0.1f, 0.5f),			// Sheaths
-			VEC4(0.57f, 0.57f, 0.57f, 0.8f),		// Spikes
-			VEC4(0.03f, 0.03f, 0.03f, 0.2f),		// Clothes
-		};
-
-		for (uint32 i = 0; i < pSkinModel->GetMesh()->GetSubMeshCount(); ++i)
-		{
-			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true));
-			pMaterial->GetSubMaterial(i).glossiness = vSpecGloss[i].w;
-			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
-		}
-
-		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), GetResPath("SkinModel.hlsl"), eShader_Opaque);
-		pSkinModel->SetMaterial(pMaterial);
-		pSkinModel->ShowBones(false);
-
-		ThirdPersonCharacter* pCharacter = new ThirdPersonCharacter;
-		pCharacter->Init(pSkinModel, g_env.pSceneMgr->GetCamera(), VEC3(0, 15, -20));
-		g_env.pSceneMgr->m_pHero = pCharacter;
-	}
+	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20));
 }
 
 void EnterTestScene7(Scene* scene)
@@ -375,7 +338,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		////// Test Scene 3: Terrain
-		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
 		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
@@ -387,7 +350,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
-		ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);
+		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);
 	}
 }
 

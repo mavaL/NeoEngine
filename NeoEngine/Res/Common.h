@@ -1,5 +1,14 @@
-#define PI				3.1415926
+static const float PI = 3.141592657f;
 #define MAX_BONE_NUM	100
+
+
+struct gbuffer_output
+{
+	float4	oNormal : SV_Target0;
+	float4	oAlbedo : SV_Target1;
+	float4	oSpec : SV_Target2;
+};
+
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables

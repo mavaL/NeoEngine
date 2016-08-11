@@ -22,7 +22,11 @@ namespace Neo
 		~D3D11RenderTarget();
 
 	public:
+		// 2D rendering
 		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoColorBuffer = false);
+		// Volume rendering
+		void			Init(uint32 width, uint32 height, uint32 depth, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoColorBuffer = false);
+
 		void			Destroy();
 		void			OnWindowResized();
 
@@ -30,6 +34,7 @@ namespace Neo
 		void			AfterRender();
 		D3D11Texture*	GetRenderTexture() { return m_pRenderTexture; }
 		D3D11Texture*	GetDepthTexture() {return m_pDepthStencil; }
+		void			SetActiveSlice(uint32 i);
 
 		// Render for a post effect
 		void			RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
@@ -52,6 +57,7 @@ namespace Neo
 		VEC2			m_sizeRatio;		// ratio to screen size
 		bool			m_bHasDepthBuffer;
 		bool			m_bUpdateRatioAspect;
+		uint32			m_iActiveSlice;
 	};
 }
 

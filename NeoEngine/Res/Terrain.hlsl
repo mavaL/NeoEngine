@@ -7,19 +7,16 @@ Texture2D		gHeightMap		: register(t0);
 Texture2DArray	gLayerMaps		: register(t1);
 Texture2D		gBlendMap		: register(t2);
 Texture2D		gNormalMap		: register(t3);
-Texture2D		gShadowMap		: register(t4);
-SamplerState	samHeightmap	: register(s0);
-SamplerState	samLayerMap		: register(s1);
-SamplerState	samBlendMap		: register(s2);
-SamplerState	samNormalMap	: register(s3);
-SamplerComparisonState	samShadowMap	: register(s4);
+
+SamplerState	samPoint		: register(s0);
+SamplerState	samLinear		: register(s1);
 
 static const float2	g_layerTexScale = 50.0;
 
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
-cbuffer cbufferTerrain : register( b1 )
+cbuffer cbufferTerrain : register( b3 )
 {
 	float4	frustumWorldPlanes[4];
 	float	minTessDist;
@@ -224,7 +221,7 @@ DomainOut DS(PatchTess patchTess,
 	dout.TiledTex = dout.Tex * g_layerTexScale; 
 	
 	// Displacement mapping
-	dout.PosW.y = gHeightMap.SampleLevel( samHeightmap, dout.Tex, 0 ).r;
+	dout.PosW.y = gHeightMap.SampleLevel( samPoint, dout.Tex, 0 ).r;
 	
 	// Project to homogeneous clip space.
 	dout.PosH = mul(float4(dout.PosW, 1.0f), ViewProj);
@@ -236,8 +233,10 @@ DomainOut DS(PatchTess patchTess,
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 
-float4 PS( DomainOut IN ) : SV_Target
+gbuffer_output PS_GBuffer(DomainOut IN) : SV_Target
 {
+	gbuffer_output output = (gbuffer_output)0;
+
 	//====================================================================================
 	// Estimate normal and tangent using central differences.
 	//====================================================================================
@@ -246,55 +245,50 @@ float4 PS( DomainOut IN ) : SV_Target
 	float2 bottomTex = IN.Tex + float2(0.0f, invTexSize.y);
 	float2 topTex    = IN.Tex + float2(0.0f, -invTexSize.y);
 	
-	float leftY   = gHeightMap.SampleLevel( samHeightmap, leftTex, 0 ).r;
-	float rightY  = gHeightMap.SampleLevel( samHeightmap, rightTex, 0 ).r;
-	float bottomY = gHeightMap.SampleLevel( samHeightmap, bottomTex, 0 ).r;
-	float topY    = gHeightMap.SampleLevel( samHeightmap, topTex, 0 ).r;
+	float leftY   = gHeightMap.SampleLevel( samPoint, leftTex, 0 ).r;
+	float rightY  = gHeightMap.SampleLevel( samPoint, rightTex, 0 ).r;
+	float bottomY = gHeightMap.SampleLevel( samPoint, bottomTex, 0 ).r;
+	float topY    = gHeightMap.SampleLevel( samPoint, topTex, 0 ).r;
 	
 	float3 tangent = normalize(float3(2.0f*terrainCellSpace, rightY - leftY, 0.0f));
-	float3 bitan   = normalize(float3(0.0f, bottomY - topY, -2.0f*terrainCellSpace)); 
+	float3 binormal   = normalize(float3(0.0f, bottomY - topY, -2.0f*terrainCellSpace)); 
 	
-	float3x3 matTBN = float3x3(tangent, bitan, cross(tangent, bitan));
+	float3x3 matTBN = float3x3(tangent, binormal, cross(tangent, binormal));
 
 	//====================================================================================
 	// Texture splatting
 	//====================================================================================
-	float4 c0 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 0.0f) );
-	float4 c1 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 1.0f) );
-	float4 c2 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 2.0f) );
-	float4 c3 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 3.0f) );
-	float4 c4 = gLayerMaps.Sample( samLayerMap, float3(IN.TiledTex, 4.0f) ); 
+	float4 c0 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 0.0f) );
+	float4 c1 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 1.0f) );
+	float4 c2 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 2.0f) );
+	float4 c3 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 3.0f) );
+	float4 c4 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 4.0f) ); 
 	
 	// blend map
-	float4 t  = gBlendMap.Sample( samBlendMap, IN.Tex ); 
+	float4 t  = gBlendMap.Sample( samLinear, IN.Tex ); 
     
     // Blend the layers on top of each other.
-    float4 texColor = c0;
-    texColor = lerp(texColor, c1, t.r);
-    texColor = lerp(texColor, c2, t.g);
-    texColor = lerp(texColor, c3, t.b);
-    texColor = lerp(texColor, c4, t.a);
+    float4 cAlbedo = c0;
+    cAlbedo = lerp(cAlbedo, c1, t.r);
+    cAlbedo = lerp(cAlbedo, c2, t.g);
+    cAlbedo = lerp(cAlbedo, c3, t.b);
+    cAlbedo = lerp(cAlbedo, c4, t.a);
 
 	// normal map
-	float3 N = gNormalMap.Sample(samNormalMap, IN.TiledTex);
-	// decode normal
-	N = (N - 0.5) * 2.0;
+	float3 N = gNormalMap.Sample(samLinear, IN.TiledTex);
+	N = Expand(N);
 	// tangent space to world space
 	N = mul(N, matTBN);
 
-	// Do shadowing
-	float fLitFactor = 0;//ComputeShdow(IN.PosW, ShadowTransform, shadowMapTexelSize, samShadowMap, gShadowMap);
+	cAlbedo.xyz = sqrt(cAlbedo.xyz);
+	output.oAlbedo = cAlbedo;
 
-	// Do lighting
-	float3 PosToCam = camPos - IN.PosW;
-	float3 H = normalize(PosToCam + (-lightDirection));
-	float4 spec = pow(max(0, dot(N, H)), 50) * lightColor;
+	output.oNormal.xyz = normalize(cross(tangent, binormal)) * 0.5f + 0.5f;
+	output.oNormal.w = 1.0f;
 
-	float4 oColor = saturate(max(0, dot(N, -lightDirection)) * lightColor * fLitFactor + ambientColor);
-	oColor *= texColor;
-	oColor += spec;
+	output.oSpec = float4(0.05f, 0.05f, 0.05f, 0.1f);
 
-	return saturate(float4(oColor.rgb, 1.0));
+	return output;
 }
 
 #include "ClipPlaneWrapper.hlsl"

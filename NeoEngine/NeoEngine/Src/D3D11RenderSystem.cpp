@@ -27,6 +27,7 @@ namespace Neo
 	, m_pGlobalCBuf(nullptr)
 	, m_pMaterialCB(nullptr)
 	, m_pSkinCB(nullptr)
+	, m_pTerrainCB(nullptr)
 	, m_bClipPlaneEnabled(false)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
@@ -155,6 +156,9 @@ namespace Neo
 		bd.ByteWidth = sizeof(cBufferSkin);
 		V_RETURN(m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pSkinCB));
 
+		bd.ByteWidth = sizeof(cBufferTerrain);
+		V_RETURN(m_pd3dDevice->CreateBuffer(&bd, NULL, &m_pTerrainCB));
+
 		return true;
 	}
 	//------------------------------------------------------------------------------------
@@ -228,6 +232,7 @@ namespace Neo
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pMaterialCB);
 		SAFE_RELEASE(m_pSkinCB);
+		SAFE_RELEASE(m_pTerrainCB);
 		SAFE_RELEASE(m_pRenderTargetView);
 		SAFE_RELEASE(m_pTexDepthStencil);
 		SAFE_RELEASE(m_rasterState);
@@ -284,9 +289,20 @@ namespace Neo
 		if(pTexture)
 		{
 			pTexture->AddRef();
-
 			ID3D11ShaderResourceView* pSRV = pTexture->GetSRV();
-			m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
+
+			if (pTexture->GetUsage() & eTextureUsage_HullShader)
+			{
+				m_pDeviceContext->HSSetShaderResources(stage, 1, &pSRV);
+			} 
+			else if (pTexture->GetUsage() & eTextureUsage_DomainShader)
+			{
+				m_pDeviceContext->DSSetShaderResources(stage, 1, &pSRV);
+			}
+			else
+			{
+				m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
+			}
 		}
 		else
 		{
@@ -346,9 +362,8 @@ namespace Neo
 			}
 		}
 		
-		if (bClearZ)
+		if (bClearZ && pDSV)
 		{
-			assert(pDSV);
 			m_pDeviceContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		}
 	}
@@ -517,6 +532,15 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::UpdateTerrainCBuffer()
+	{
+		m_pDeviceContext->UpdateSubresource(m_pTerrainCB, 0, NULL, &m_cBufferTerrain, 0, 0);
+		m_pDeviceContext->VSSetConstantBuffers(3, 1, &m_pTerrainCB);
+		m_pDeviceContext->PSSetConstantBuffers(3, 1, &m_pTerrainCB);
+		m_pDeviceContext->HSSetConstantBuffers(3, 1, &m_pTerrainCB);
+		m_pDeviceContext->DSSetConstantBuffers(3, 1, &m_pTerrainCB);
+	}
+	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::UpdateSkinCBuffer()
 	{
 		m_pDeviceContext->UpdateSubresource(m_pSkinCB, 0, NULL, &m_cBufferSkin, 0, 0);
@@ -585,53 +609,6 @@ namespace Neo
 
 			tex->Resize(newWidth, newHeight);
 		}
-	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::ExtractFrustumWorldPlanes( PLANE oPlanes[6], const MAT44& matViewProj )
-	{
-		// Left clipping plane
-		oPlanes[0].n.x = matViewProj.m03 + matViewProj.m00;
-		oPlanes[0].n.y = matViewProj.m13 + matViewProj.m10;
-		oPlanes[0].n.z = matViewProj.m23 + matViewProj.m20;
-		oPlanes[0].d = matViewProj.m33 + matViewProj.m30;
-
-		// Right clipping plane
-		oPlanes[1].n.x = matViewProj.m03 - matViewProj.m00;
-		oPlanes[1].n.y = matViewProj.m13 - matViewProj.m10;
-		oPlanes[1].n.z = matViewProj.m23 - matViewProj.m20;
-		oPlanes[1].d = matViewProj.m33 - matViewProj.m30;
-
-		// Top clipping plane
-		oPlanes[2].n.x = matViewProj.m03 - matViewProj.m01;
-		oPlanes[2].n.y = matViewProj.m13 - matViewProj.m11;
-		oPlanes[2].n.z = matViewProj.m23 - matViewProj.m21;
-		oPlanes[2].d = matViewProj.m33 - matViewProj.m31;
-
-		// Bottom clipping plane
-		oPlanes[3].n.x = matViewProj.m03 + matViewProj.m01;
-		oPlanes[3].n.y = matViewProj.m13 + matViewProj.m11;
-		oPlanes[3].n.z = matViewProj.m23 + matViewProj.m21;
-		oPlanes[3].d = matViewProj.m33 + matViewProj.m31;
-
-		// Near clipping plane
-		oPlanes[4].n.x = matViewProj.m02;
-		oPlanes[4].n.y = matViewProj.m12;
-		oPlanes[4].n.z = matViewProj.m22;
-		oPlanes[4].d = matViewProj.m32;
-
-		// Far clipping plane
-		oPlanes[5].n.x = matViewProj.m03 - matViewProj.m02;
-		oPlanes[5].n.y = matViewProj.m13 - matViewProj.m12;
-		oPlanes[5].n.z = matViewProj.m23 - matViewProj.m22;
-		oPlanes[5].d = matViewProj.m33 - matViewProj.m32;
-
-		// Normalize the plane equations
-		oPlanes[0].Normalize();
-		oPlanes[1].Normalize();
-		oPlanes[2].Normalize();
-		oPlanes[3].Normalize();
-		oPlanes[4].Normalize();
-		oPlanes[5].Normalize();
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::UnbindTexture(D3D11Texture* tex)

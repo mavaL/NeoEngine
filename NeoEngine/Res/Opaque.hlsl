@@ -90,12 +90,6 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	return oColor;
 }
 
-struct gbuffer_output
-{
-	float4	oNormal	:	SV_Target0;
-	float4	oAlbedo	:	SV_Target1;
-	float4	oSpec	:	SV_Target2;
-};
 
 gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {

@@ -44,6 +44,41 @@ namespace Common
 			return Equal(x, rhs.x, eps) && Equal(y, rhs.y, eps);
 		}
 
+		inline Vector2& operator += (const Vector2& rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			return *this;
+		}
+
+		inline Vector2& operator -= (const Vector2& rhs)
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			return *this;
+		}
+
+		inline Vector2& operator *= (const Vector2& rhs)
+		{
+			x *= rhs.x;
+			y *= rhs.y;
+			return *this;
+		}
+
+		inline Vector2& operator /= (const Vector2& rhs)
+		{
+			x /= rhs.x;
+			y /= rhs.y;
+			return *this;
+		}
+
+		inline Vector2& operator *= (float k)
+		{
+			x *= k;
+			y *= k;
+			return *this;
+		}
+
 		float x, y;
 	};
 

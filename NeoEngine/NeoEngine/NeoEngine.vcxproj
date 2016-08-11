@@ -192,12 +192,6 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </CustomBuild>
-    <CustomBuild Include="..\Res\Terrain.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
     <CustomBuild Include="..\Res\Water_Depth.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
@@ -211,12 +205,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </CustomBuild>
     <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Terrain_Depth.hlsl">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
@@ -302,6 +290,9 @@
     <FxCompile Include="..\Res\SkinModel.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Terrain.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Res\TiledCS.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CS</EntryPointName>

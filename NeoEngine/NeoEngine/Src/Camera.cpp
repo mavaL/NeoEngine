@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include <D3DX10math.h>
+#include "SceneManager.h"
 
 namespace Neo
 {
@@ -55,6 +56,21 @@ namespace Neo
 		if(dy) pitchDelta = dy/5.0f;
 
 		lastCursorPos = curCursorPos;
+
+		if (::GetAsyncKeyState(VK_CONTROL) & 0x8000)
+		{
+			VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
+
+			float vangle = asin(vLightDir.y);
+			float hangle = atan2(vLightDir.z, vLightDir.x);
+			vangle += dy / 180.0f * PI / 4;
+			hangle += dx / 180.0f * PI / 4;
+			vLightDir.x = cos(vangle) * cos(hangle);
+			vLightDir.z = cos(vangle) * sin(hangle);
+			vLightDir.y = sin(vangle);
+
+			g_env.pSceneMgr->SetupSunLight(vLightDir, g_env.pSceneMgr->GetSunLight().lightColor);
+		}
 
 		if (!m_bActive)
 		{

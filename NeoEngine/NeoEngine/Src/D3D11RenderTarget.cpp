@@ -15,12 +15,13 @@ namespace Neo
 
 	//----------------------------------------------------------------------------------------
 	D3D11RenderTarget::D3D11RenderTarget()
-	:m_pRenderSystem(g_env.pRenderSystem)
-	,m_pRenderTexture(nullptr)
-	,m_bHasDepthBuffer(false)
-	,m_bUpdateRatioAspect(true)
-	,m_pDepthStencil(nullptr)
-	,m_sizeRatio(0, 0)
+		: m_pRenderSystem(g_env.pRenderSystem)
+		, m_pRenderTexture(nullptr)
+		, m_bHasDepthBuffer(false)
+		, m_bUpdateRatioAspect(true)
+		, m_pDepthStencil(nullptr)
+		, m_sizeRatio(0, 0)
+		, m_iActiveSlice(0)
 	{
 		// Create screen quad
 		static bool bCreate = false;
@@ -31,10 +32,10 @@ namespace Neo
 
 			SVertex v[4] = 
 			{
-				SVertex(VEC3(-1,1,0), VEC2(0,0)),
-				SVertex(VEC3(1,1,0), VEC2(1,0)),
-				SVertex(VEC3(-1,-1,0), VEC2(0,1)),
-				SVertex(VEC3(1,-1,0), VEC2(1,1))
+				SVertex(VEC3(-1,1,1), VEC2(0,0)),
+				SVertex(VEC3(1,1,1), VEC2(1,0)),
+				SVertex(VEC3(-1,-1,1), VEC2(0,1)),
+				SVertex(VEC3(1,-1,1), VEC2(1,1))
 			};
 			DWORD index[6] = { 0,1,2, 1,3,2 };
 
@@ -92,6 +93,35 @@ namespace Neo
 			_CreateDepthBuffer(width, height);
 	}
 	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::Init(uint32 width, uint32 height, uint32 depth, ePixelFormat format, bool bOwnDepthBuffer /*= true*/, bool bUpdateRatioAspect, bool bNoColorBuffer)
+	{
+		// Setup the viewport
+		m_viewport.Width = (float)width;
+		m_viewport.Height = (float)height;
+		m_viewport.MinDepth = 0.0f;
+		m_viewport.MaxDepth = 1.0f;
+		m_viewport.TopLeftX = 0;
+		m_viewport.TopLeftY = 0;
+
+		const uint32 screenW = m_pRenderSystem->GetWndWidth();
+		const uint32 screenH = m_pRenderSystem->GetWndHeight();
+
+		m_sizeRatio.Set(width / (float)screenW, height / (float)screenH);
+
+		m_bHasDepthBuffer = bOwnDepthBuffer;
+		m_bUpdateRatioAspect = bUpdateRatioAspect;
+
+		// Create render texture
+		if (!bNoColorBuffer)
+		{
+			m_pRenderTexture = new D3D11Texture(width, height, depth, format, eTextureUsage_RenderTarget, false);
+		}
+
+		// Create depth stencil buffer
+		if (m_bHasDepthBuffer)
+			_CreateDepthBuffer(width, height);
+	}
+	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::Destroy()
 	{
 		SAFE_RELEASE(m_pDepthStencil);
@@ -136,7 +166,18 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	ID3D11RenderTargetView* D3D11RenderTarget::GetRTV()
 	{
-		return m_pRenderTexture ? m_pRenderTexture->GetRTV() : nullptr;
+		if (m_pRenderTexture)
+		{
+			if (m_pRenderTexture->GetTextureType() == eTextureType_3D)
+			{
+				return m_pRenderTexture->GetRTV(m_iActiveSlice);
+			} 
+			else
+			{
+				return m_pRenderTexture->GetRTV();
+			}
+		}
+		return nullptr;
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
@@ -172,4 +213,11 @@ namespace Neo
 		m_pRenderTexture->Resize(newWidth, newHeight);
 		m_pDepthStencil->Resize(newWidth, newHeight);
 	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::SetActiveSlice(uint32 i)
+	{
+		_AST(m_pRenderTexture->GetTextureType() == eTextureType_3D);
+		m_iActiveSlice = i;
+	}
+
 }

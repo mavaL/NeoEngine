@@ -59,6 +59,7 @@ namespace Neo
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
+		ID3D11SamplerState*		GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
 		const STRING&			GetName() const { return m_name; }
 
