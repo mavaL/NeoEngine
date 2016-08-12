@@ -28,6 +28,10 @@ namespace Neo
 		void		Render();
 
 	private:
+		bool		OnKeyPressed(const OIS::KeyEvent &arg);
+		bool		OnKeyReleased(const OIS::KeyEvent &arg);
+		bool		OnMouseMoved(const OIS::MouseEvent &arg);
+
 		void		_InitMaterials();
 		void		_Precompute();
 		void		_InitConstantBuffer();

@@ -9,6 +9,7 @@
 #include "Entity.h"
 #include "MaterialManager.h"
 #include "D3D11RenderTarget.h"
+#include "InputManager.h"
 
 namespace Neo
 {
@@ -41,6 +42,10 @@ namespace Neo
 		_InitConstantBuffer();
 		_InitMaterials();
 		_Precompute();
+
+		g_env.pInputSystem->m_KeyPressedSignal += Common::slot(this, &Sky::OnKeyPressed);
+		g_env.pInputSystem->m_KeyReleasedSignal += Common::slot(this, &Sky::OnKeyReleased);
+		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &Sky::OnMouseMoved);
 	}
 	//------------------------------------------------------------------------------------
 	Sky::~Sky()
@@ -159,7 +164,7 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Sky::Update()
 	{
-
+		
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::Render()
@@ -196,6 +201,53 @@ namespace Neo
 
 		m_pRenderSystem->GetDeviceContext()->UpdateSubresource(m_pCB_Inscatter1, 0, NULL, &m_cbInscatter1, 0, 0);
 		m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &m_pCB_Inscatter1);
+	}
+	//------------------------------------------------------------------------------------
+	static bool g_bTest = false;
+	bool Sky::OnKeyPressed(const OIS::KeyEvent &arg)
+	{
+		if (arg.key == OIS::KC_LCONTROL)
+		{
+			g_bTest = true;
+		}
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool Sky::OnKeyReleased(const OIS::KeyEvent &arg)
+	{
+		if (arg.key == OIS::KC_LCONTROL)
+		{
+			g_bTest = false;
+		}
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	bool Sky::OnMouseMoved(const OIS::MouseEvent &arg)
+	{
+		// Update sun direction
+		long dx = arg.state.X.rel;
+		long dy = arg.state.Y.rel;
+
+		float yawDelta = 0, pitchDelta = 0;
+		if (dx) yawDelta = dx / 5.0f;
+		if (dy) pitchDelta = dy / 5.0f;
+
+		if (g_bTest)
+		{
+			VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
+
+			float vangle = asin(vLightDir.y);
+			float hangle = atan2(vLightDir.z, vLightDir.x);
+			vangle += dy / 180.0f * PI / 4;
+			hangle += dx / 180.0f * PI / 4;
+			vLightDir.x = cos(vangle) * cos(hangle);
+			vLightDir.z = cos(vangle) * sin(hangle);
+			vLightDir.y = sin(vangle);
+
+			g_env.pSceneMgr->SetupSunLight(vLightDir, g_env.pSceneMgr->GetSunLight().lightColor);
+		}
+
+		return true;
 	}
 
 }

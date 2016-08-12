@@ -30,6 +30,9 @@
 #include <functional>
 #include <memory>
 
+// OIS
+#include <OIS.h>
+
 //D3D
 #include <d3d11.h>
 #include <d3dx11.h>

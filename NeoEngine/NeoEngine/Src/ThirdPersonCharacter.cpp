@@ -5,6 +5,7 @@
 #include "StateMachine/StateMachine.h"
 #include "Terrain.h"
 #include "SceneManager.h"
+#include "InputManager.h"
 
 namespace Neo
 {
@@ -96,58 +97,27 @@ namespace Neo
 		CharMoveState::create(m_pStateMachine, "Move");
 
 		m_pStateMachine->changeState("Idle");
+
+		g_env.pInputSystem->m_KeyPressedSignal += Common::slot(this, &ThirdPersonCharacter::OnKeyPressed);
+		g_env.pInputSystem->m_KeyReleasedSignal += Common::slot(this, &ThirdPersonCharacter::OnKeyReleased);
+		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &ThirdPersonCharacter::OnMouseMoved);
 	}
 	//------------------------------------------------------------------------------------
+	static VEC3 g_vMoveDir = VEC3::ZERO;
+	static bool g_bMove = false;
+	static float g_fRotation = 0;
+
 	void ThirdPersonCharacter::Update(float dt)
 	{
-		if (!m_pCamera->GetManualControl())
-		{
-			return;
-		}
-
-		// Update controller
-		VEC3 vMoveDir = VEC3::ZERO;
-		bool bMove = false;
-		static float fRotate = 0.0f;
-
-		if (::GetAsyncKeyState('W') & 0x8000)
-		{
-			bMove = true;
-			vMoveDir.z = 1.0f;
-			fRotate = 0.0f;
-		}
-		else if (::GetAsyncKeyState('A') & 0x8000)
-		{
-			bMove = true;
-			vMoveDir.x = -1.0f;
-			fRotate = -90.0f;
-		}
-		else if (::GetAsyncKeyState('S') & 0x8000)
-		{
-			bMove = true;
-			vMoveDir.z = -1.0f;
-			fRotate = 180.0f;
-		}
-		else if (::GetAsyncKeyState('D') & 0x8000)
-		{
-			bMove = true;
-			vMoveDir.x = 1.0f;
-			fRotate = 90.0f;
-		}
-		else
-		{
-			m_pStateMachine->tryChangeState("Idle");
-		}
-
-		if (bMove)
+		if (g_bMove)
 		{
 			m_pStateMachine->tryChangeState("Move");
 
 			VEC3 vPos = m_pModel->GetPosition();
-			vPos += vMoveDir * dt * 10;
+			vPos += g_vMoveDir * dt * 10;
 			m_pModel->SetPosition(vPos);
 
-			QUATERNION rot(VEC3::UNIT_Y, fRotate);
+			QUATERNION rot(VEC3::UNIT_Y, g_fRotation);
 			m_pModel->SetRotation(rot);
 		}
 
@@ -162,19 +132,25 @@ namespace Neo
 			m_pModel->SetPosition(vPos);
 		}
 
-		// Update camera
-		POINT curCursorPos;
-		GetCursorPos(&curCursorPos);
-		static POINT lastCursorPos = curCursorPos;
+		m_pCamera->SetPosition(m_pModel->GetPosition());
+		m_pCamera->MoveLocal(VEC3(0, 0, m_vAttachPos.z));
+	}
+	//------------------------------------------------------------------------------------
+	bool ThirdPersonCharacter::OnMouseMoved(const OIS::MouseEvent &arg)
+	{
+		if (!m_pCamera->GetManualControl())
+		{
+			return false;
+		}
 
-		long dx = curCursorPos.x - lastCursorPos.x;
-		long dy = curCursorPos.y - lastCursorPos.y;
+		// Update camera
+		long dx = arg.state.X.rel;
+		long dy = arg.state.Y.rel;
 
 		float yawDelta = 0, pitchDelta = 0;
 		if (dx) yawDelta = dx / 5.0f;
 		if (dy) pitchDelta = dy / 5.0f;
 
-		lastCursorPos = curCursorPos;
 
 		VEC3 vCamToModel = m_pCamera->GetPos() - m_pModel->GetPosition();
 
@@ -182,8 +158,61 @@ namespace Neo
 		m_pCamera->Yaw(yawDelta);
 		m_pCamera->Pitch(pitchDelta);
 		m_pCamera->MoveLocal(VEC3(0, 0, m_vAttachPos.z));
+	}
+	//------------------------------------------------------------------------------------
+	bool ThirdPersonCharacter::OnKeyPressed(const OIS::KeyEvent &arg)
+	{
+		if (!m_pCamera->GetManualControl())
+		{
+			return false;
+		}
 
-		m_pCamera->_BuildViewMatrix();
+		g_vMoveDir = VEC3::ZERO;
+
+		// Update controller
+		if (arg.key == OIS::KC_W)
+		{
+			g_bMove = true;
+			g_vMoveDir.z = 1.0f;
+			g_fRotation = 0.0f;
+		}
+		else if (arg.key == OIS::KC_A)
+		{
+			g_bMove = true;
+			g_vMoveDir.x = -1.0f;
+			g_fRotation = -90.0f;
+		}
+		else if (arg.key == OIS::KC_S)
+		{
+			g_bMove = true;
+			g_vMoveDir.z = -1.0f;
+			g_fRotation = 180.0f;
+		}
+		else if (arg.key == OIS::KC_D)
+		{
+			g_bMove = true;
+			g_vMoveDir.x = 1.0f;
+			g_fRotation = 90.0f;
+		}
+	}
+	//------------------------------------------------------------------------------------
+	bool ThirdPersonCharacter::OnKeyReleased(const OIS::KeyEvent &arg)
+	{
+		if (!m_pCamera->GetManualControl())
+		{
+			return false;
+		}
+
+		switch (arg.key)
+		{
+		case OIS::KC_W:
+		case OIS::KC_A:
+		case OIS::KC_S:
+		case OIS::KC_D: g_bMove = false; m_pStateMachine->tryChangeState("Idle"); break;
+		default: break;
+		}
+
+		return true;
 	}
 
 }

@@ -79,16 +79,16 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	SSAO::~SSAO()
 	{
-		SAFE_RELEASE(m_pSsaoMaterial);
-		SAFE_RELEASE(m_pBlurHMaterial);
-		SAFE_RELEASE(m_pBlurVMaterial);
-		SAFE_RELEASE(m_pTexSsao);
-		SAFE_RELEASE(m_pTexBlurH);
-		SAFE_RELEASE(m_pTexBlurV);
-		SAFE_RELEASE(m_pRT_ssao);
-		SAFE_RELEASE(m_pRT_BlurH);
-		SAFE_RELEASE(m_pRT_BlurV);
-		SAFE_RELEASE(m_pCB_Blur);
+		//SAFE_RELEASE(m_pSsaoMaterial);
+		//SAFE_RELEASE(m_pBlurHMaterial);
+		//SAFE_RELEASE(m_pBlurVMaterial);
+		//SAFE_RELEASE(m_pTexSsao);
+		//SAFE_RELEASE(m_pTexBlurH);
+		//SAFE_RELEASE(m_pTexBlurV);
+		//SAFE_RELEASE(m_pRT_ssao);
+		//SAFE_RELEASE(m_pRT_BlurH);
+		//SAFE_RELEASE(m_pRT_BlurV);
+		//SAFE_RELEASE(m_pCB_Blur);
 	}
 	//-------------------------------------------------------------------------------
 	void SSAO::Update()

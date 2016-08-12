@@ -147,6 +147,14 @@ namespace Common
 			return *this;
 		}
 
+		inline Vector3& operator -= (const Vector3& rhs)
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+			return *this;
+		}
+
 		inline friend Vector3 operator * (const float k, const Vector3& v)
 		{
 			return Vector3(

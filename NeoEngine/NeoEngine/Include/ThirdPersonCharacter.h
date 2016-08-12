@@ -26,6 +26,13 @@ namespace Neo
 		SkinModel*			GetModel() { return m_pModel; }
 
 	private:
+		// OIS::MouseListener
+		bool				OnMouseMoved(const OIS::MouseEvent &arg);
+		// OIS::KeyListener
+		bool				OnKeyPressed(const OIS::KeyEvent &arg);
+		bool				OnKeyReleased(const OIS::KeyEvent &arg);
+
+	private:
 		StateMachine*		m_pStateMachine;
 		SkinModel*			m_pModel;
 		Camera*				m_pCamera;			// Obrit-style camera

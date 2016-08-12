@@ -199,6 +199,7 @@ namespace Neo
 	class	ThirdPersonCharacter;
 	class	StateMachine;
 	class	BaseState;
+	class	CInputManager;
 }
 
 
@@ -206,6 +207,7 @@ struct SGlobalEnv
 {
 	HWND					hwnd;			// Main window handle
 	Neo::D3D11RenderSystem*	pRenderSystem;	// Render system
+	Neo::CInputManager*		pInputSystem;	// Input system
 	Neo::SceneManager*		pSceneMgr;		// Scene manager
 	Neo::SFrameStat*		pFrameStat;		// Frame statics info
 };

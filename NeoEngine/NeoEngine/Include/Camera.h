@@ -63,6 +63,15 @@ namespace Neo
 		void	_UpdateFrustumPlanes() const;
 
 	private:
+		// OIS::MouseListener
+		bool	OnMouseMoved(const OIS::MouseEvent &arg);
+		bool	OnMousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+		bool	OnMouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+		// OIS::KeyListener
+		bool	OnKeyPressed(const OIS::KeyEvent &arg);
+		bool	OnKeyReleased(const OIS::KeyEvent &arg);
+
+	private:
 		VEC3	m_viewPt;
 
 		float	m_nearClip;
@@ -81,6 +90,7 @@ namespace Neo
 		float	m_moveSpeed;
 		bool	m_bManualControl;
 		bool	m_bActive;
+		bool	m_bMove[4];
 
 		MAT44	m_matView;
 		MAT44	m_matProj;

@@ -23,14 +23,14 @@ static const float ISun = 100.0;
 
 // Rayleigh
 static const float HR = 8.0;
-static const float3 betaR = float3(5.8e-3, 1.35e-2, 3.31e-2);
+static const float3 betaR = float3(0.0058, 0.0135, 0.0331);	// For lambdas (680,550,440) nm
 
 // Mie
 // DEFAULT
 static const float HM = 1.2;
 static const float3 betaMSca = float3(4e-3, 4e-3, 4e-3);
 static const float3 betaMEx = betaMSca / 0.9;
-static const float mieG = 0.8;
+static const float mieG = 0.76;
 
 #define TRANSMITTANCE_NON_LINEAR
 #define INSCATTER_NON_LINEAR
@@ -349,7 +349,6 @@ float3 getMie(float4 rayMie)
 //inscattered light along ray x+tv, when sun in direction s (=S[L]-T(x,x0)S[L]|x0)
 float3 inscatter(inout float3 x, float3 v, float3 s)
 {
-	float3 result = float3(0, 0, 0);
 	float r = length(x);
 	float mu = dot(x, v) / r;
 
@@ -362,7 +361,11 @@ float3 inscatter(inout float3 x, float3 v, float3 s)
 	// avoids imprecision problems in Mie scattering when sun is below horizon
 	inscatter.w *= smoothstep(0.00, 0.02, muS);
 
-	result = max(inscatter.rgb * phaseR + getMie(inscatter) * phaseM, 0.0);
+	// sun
+	float3 L0 = smoothstep(0.9997, 0.9999, nu);
+	L0 *= transmittance(r - Rg, mu);
+
+	float3 result = max(inscatter.rgb * phaseR + getMie(inscatter) * phaseM + L0, 0.0);
 
 	return result;
 }

@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include <D3DX10math.h>
 #include "SceneManager.h"
+#include "InputManager.h"
 
 namespace Neo
 {
@@ -19,6 +20,12 @@ namespace Neo
 		, m_bActive(false)
 	{
 		m_fov = Common::Angle_To_Radian(45);
+
+		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &Camera::OnMouseMoved);
+		g_env.pInputSystem->m_MousePressedSignal += Common::slot(this, &Camera::OnMousePressed);
+		g_env.pInputSystem->m_MouseReleasedSignal += Common::slot(this, &Camera::OnMouseReleased);
+		g_env.pInputSystem->m_KeyPressedSignal += Common::slot(this, &Camera::OnKeyPressed);
+		g_env.pInputSystem->m_KeyReleasedSignal += Common::slot(this, &Camera::OnKeyReleased);
 	}
 
 	Camera::Camera(float fNear, float fFar, float fov, float fAspectRatio, bool bFixYaw)
@@ -32,75 +39,39 @@ namespace Neo
 	{
 		m_fov = Common::Angle_To_Radian(fov);
 		_BuildProjMatrix();
+
+
+		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &Camera::OnMouseMoved);
+		g_env.pInputSystem->m_MousePressedSignal += Common::slot(this, &Camera::OnMousePressed);
+		g_env.pInputSystem->m_MouseReleasedSignal += Common::slot(this, &Camera::OnMouseReleased);
+		g_env.pInputSystem->m_KeyPressedSignal += Common::slot(this, &Camera::OnKeyPressed);
+		g_env.pInputSystem->m_KeyReleasedSignal += Common::slot(this, &Camera::OnKeyReleased);
 	}
 
 	void Camera::Update()
 	{
-		if (m_bManualControl)
+		// Camera movement
+		const VEC3 forward = GetDirection();
+		const VEC3 right = GetRight();
+
+		if (m_bMove[0])
 		{
-			return;
+			m_viewPt += forward * m_moveSpeed;
+		}
+		if (m_bMove[1])
+		{
+			m_viewPt -= right * m_moveSpeed;
+		}
+		if (m_bMove[2])
+		{
+			m_viewPt -= forward * m_moveSpeed;
+		}
+		if (m_bMove[3])
+		{
+			m_viewPt += right * m_moveSpeed;
 		}
 
 		_BuildViewMatrix();
-
-		//更新输入
-		POINT curCursorPos;
-		GetCursorPos(&curCursorPos);
-		static POINT lastCursorPos = curCursorPos;
-
-		long dx = curCursorPos.x - lastCursorPos.x;
-		long dy = curCursorPos.y - lastCursorPos.y;
-
-		float yawDelta = 0, pitchDelta = 0;
-		if(dx) yawDelta = dx/5.0f;
-		if(dy) pitchDelta = dy/5.0f;
-
-		lastCursorPos = curCursorPos;
-
-		if (::GetAsyncKeyState(VK_CONTROL) & 0x8000)
-		{
-			VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
-
-			float vangle = asin(vLightDir.y);
-			float hangle = atan2(vLightDir.z, vLightDir.x);
-			vangle += dy / 180.0f * PI / 4;
-			hangle += dx / 180.0f * PI / 4;
-			vLightDir.x = cos(vangle) * cos(hangle);
-			vLightDir.z = cos(vangle) * sin(hangle);
-			vLightDir.y = sin(vangle);
-
-			g_env.pSceneMgr->SetupSunLight(vLightDir, g_env.pSceneMgr->GetSunLight().lightColor);
-		}
-
-		if (!m_bActive)
-		{
-			return;
-		}
-
-		//相机旋转
-		if(dx)
-		{
-			Yaw(yawDelta);
-		}
-		if(dy)
-		{
-			MAT44 rotX;
-			rotX.FromAxisAngle(VEC3::UNIT_X, pitchDelta);
-			//pitch
-			m_matRot = Common::Multiply_Mat44_By_Mat44(rotX, m_matRot);
-		}
-
-		//相机移动
-		VEC3 forward = GetDirection();
-		VEC3 right = GetRight();
-
-		forward = Common::Multiply_Vec3_By_K(forward, m_moveSpeed);
-		right = Common::Multiply_Vec3_By_K(right, m_moveSpeed);
-
-		if(GetAsyncKeyState('W') < 0)		m_viewPt = Add_Vec3_By_Vec3(m_viewPt, forward);
-		else if(GetAsyncKeyState('S') < 0)	m_viewPt = Sub_Vec3_By_Vec3(m_viewPt, forward);
-		if(GetAsyncKeyState('A') < 0)		m_viewPt = Sub_Vec3_By_Vec3(m_viewPt, right);
-		else if(GetAsyncKeyState('D') < 0)	m_viewPt = Add_Vec3_By_Vec3(m_viewPt, right);
 	}
 
 	void Camera::SetPosition( const VEC3& pos )
@@ -363,6 +334,88 @@ namespace Neo
 		MAT44 rot;
 		rot.FromAxisAngle(axis, angle);
 		m_matRot = Common::Multiply_Mat44_By_Mat44(rot, m_matRot);
+	}
+
+	bool Camera::OnMouseMoved(const OIS::MouseEvent &arg)
+	{
+		if (m_bManualControl || !m_bActive)
+		{
+			return false;
+		}
+
+		int dx = arg.state.X.rel;
+		int dy = arg.state.Y.rel;
+		float fYaw = dx / 5.0f;
+		float fPitch = dy / 5.0f;
+
+		if (dx)
+		{
+			Yaw(fYaw);
+		}
+		if (dy)
+		{
+			MAT44 rotX;
+			rotX.FromAxisAngle(VEC3::UNIT_X, fPitch);
+			//pitch
+			m_matRot = Common::Multiply_Mat44_By_Mat44(rotX, m_matRot);
+		}
+	}
+
+	bool Camera::OnMousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+	{
+		if (!GetManualControl() && id == OIS::MB_Left)
+		{
+			SetActive(true);
+			m_bMove[0] = m_bMove[1] = m_bMove[2] = m_bMove[3] = false;
+		}
+		return true;
+	}
+
+	bool Camera::OnMouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+	{
+		if (!GetManualControl() && id == OIS::MB_Left)
+		{
+			SetActive(false);
+		}
+		return true;
+	}
+
+	bool Camera::OnKeyPressed(const OIS::KeyEvent &arg)
+	{
+		if (m_bManualControl)
+		{
+			return false;
+		}
+
+		switch (arg.key)
+		{
+		case OIS::KC_W:	m_bMove[0] = true; break;
+		case OIS::KC_A:	m_bMove[1] = true; break;
+		case OIS::KC_S:	m_bMove[2] = true; break;
+		case OIS::KC_D: m_bMove[3] = true; break;
+		default: break;
+		}
+
+		return true;
+	}
+
+	bool Camera::OnKeyReleased(const OIS::KeyEvent &arg)
+	{
+		if (m_bManualControl)
+		{
+			return false;
+		}
+
+		switch (arg.key)
+		{
+		case OIS::KC_W:	m_bMove[0] = false; break;
+		case OIS::KC_A:	m_bMove[1] = false; break;
+		case OIS::KC_S:	m_bMove[2] = false; break;
+		case OIS::KC_D: m_bMove[3] = false; break;
+		default: break;
+		}
+
+		return true;
 	}
 
 }

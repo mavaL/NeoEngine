@@ -5,15 +5,16 @@
 #include "MathDef.h"
 #include "SceneManager.h"
 #include "Camera.h"
+#include "InputManager.h"
 
 SGlobalEnv			g_env;
 
-static const uint32	SCREEN_WIDTH	=	1024;
-static const uint32	SCREEN_HEIGHT	=	768;
+static const uint32	SCREEN_WIDTH	=	1536;
+static const uint32	SCREEN_HEIGHT	=	864;
 //----------------------------------------------------------------------------------------
 Application::Application()
-:m_hInstance(nullptr)
-,m_pRenderSystem(nullptr)
+: m_hInstance(nullptr)
+, m_pRenderSystem(nullptr)
 {
 
 }
@@ -40,17 +41,19 @@ void Application::Init()
 		return;
 	}
 
+	Neo::CInputManager::GetSingleton().Init();
+
+	g_env.pInputSystem->m_KeyPressedSignal += Common::slot(this, &Application::OnKeyPressed);
+
 	g_env.pFrameStat = new Neo::SFrameStat;
 
 	g_env.pSceneMgr = new Neo::SceneManager;
 	g_env.pSceneMgr->Init();
-	g_env.pSceneMgr->ToggleScene();
 }
 //----------------------------------------------------------------------------------------
 void Application::ShutDown()
 {
 	SAFE_DELETE(g_env.pSceneMgr);
-
 	m_pRenderSystem->ShutDown();
 	SAFE_DELETE(m_pRenderSystem);
 }
@@ -119,68 +122,6 @@ LRESULT CALLBACK Application::WndProc( HWND hWnd, UINT message, WPARAM wParam, L
 		EndPaint(hWnd, &ps);
 		break;
 
-	case WM_LBUTTONDOWN:
-		if (!pSceneMgr->GetCamera()->GetManualControl())
-		{
-			pSceneMgr->GetCamera()->SetActive(true);
-		}
-		return 0;
-
-	case WM_LBUTTONUP:
-		if (!pSceneMgr->GetCamera()->GetManualControl())
-		{
-			pSceneMgr->GetCamera()->SetActive(false);
-		}
-		return 0;
-
-	case WM_KEYDOWN:
-		{
-			switch (wParam)
-			{
-			case VK_ADD:
-				{
-					pSceneMgr->GetCamera()->AddMoveSpeed(1.0f);
-					return 0;
-				}
-				break;
-			case VK_SUBTRACT:
-				{
-					pSceneMgr->GetCamera()->AddMoveSpeed(-0.2f);
-					return 0;
-				}
-				break;
-			case VK_ESCAPE:
-				{
-					DestroyWindow(hWnd);	
-					return 0;
-				}
-			default: return DefWindowProc(hWnd, message, wParam, lParam);
-			}
-		}
-		break;
-
-	case WM_CHAR:
-		{
-			switch (wParam)
-			{
-			case 't':
-				{
-					g_env.pSceneMgr->ToggleScene();
-				}
-				break;
-
-			case 'r':
-				{
-					// Toggle fill mode
-					D3D11_RASTERIZER_DESC& rasDesc = g_env.pRenderSystem->GetRasterizeDesc();
-					rasDesc.FillMode = (rasDesc.FillMode==D3D11_FILL_SOLID?D3D11_FILL_WIREFRAME:D3D11_FILL_SOLID);
-					g_env.pRenderSystem->SetRasterizeDesc(rasDesc);
-				}
-				break;
-			}
-		}
-		break;
-
 	case WM_DESTROY:
 		{
 			PostQuitMessage(0);
@@ -213,6 +154,8 @@ void Application::Run()
 			
 			const float fDeltaTime = (curTime - lastTime) / 1000.0f;
 
+			Neo::CInputManager::GetSingleton().Capture();
+
 			// Render a frame during idle time (no messages are waiting)
 			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
@@ -227,6 +170,35 @@ void Application::Run()
 			lastTime = curTime;
 		}
 	}
+}
+
+bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
+{
+	switch (arg.key)
+	{
+	case OIS::KC_ADD:		g_env.pSceneMgr->GetCamera()->AddMoveSpeed(1.0f); break;
+	case OIS::KC_SUBTRACT:	g_env.pSceneMgr->GetCamera()->AddMoveSpeed(-0.2f); break;
+	case OIS::KC_ESCAPE:	DestroyWindow(g_env.hwnd); break;
+	case OIS::KC_F1:
+		{
+			Neo::Camera* pCam = g_env.pSceneMgr->GetCamera();
+			pCam->SetManualControl(!pCam->GetManualControl());
+		}
+		break;
+
+	case OIS::KC_T:			g_env.pSceneMgr->ToggleScene(); break;
+
+	case OIS::KC_R:
+		{
+			// Toggle fill mode
+			D3D11_RASTERIZER_DESC& rasDesc = g_env.pRenderSystem->GetRasterizeDesc();
+			rasDesc.FillMode = (rasDesc.FillMode == D3D11_FILL_SOLID ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID);
+			g_env.pRenderSystem->SetRasterizeDesc(rasDesc);
+		}
+		break;
+	};
+
+	return true;
 }
 
 

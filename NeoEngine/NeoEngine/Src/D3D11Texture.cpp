@@ -255,8 +255,6 @@ namespace Neo
 		ZeroMemory(m_pRTV_slices, sizeof(m_pRTV_slices));
 
 		m_pd3dDevice = m_pRenderSystem->GetDevice();
-		if (m_pd3dDevice)
-			m_pd3dDevice->AddRef();
 
 		HRESULT hr = S_OK;
 		const DXGI_FORMAT dxformat = ConvertToDXFormat(m_texFormat);
@@ -304,7 +302,6 @@ namespace Neo
 	D3D11Texture::~D3D11Texture()
 	{
 		Destroy();
-		SAFE_RELEASE(m_pd3dDevice);
 	}
 	//-----------------------------------------------------------------------------------
 	void D3D11Texture::Destroy()

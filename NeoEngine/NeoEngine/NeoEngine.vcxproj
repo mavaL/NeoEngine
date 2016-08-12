@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;./Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -106,6 +106,7 @@
     <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\EventCallbackBase.h" />
     <ClInclude Include="Include\Font.h" />
+    <ClInclude Include="Include\InputManager.h" />
     <ClInclude Include="Include\IRefCount.h" />
     <ClInclude Include="Include\Light.h" />
     <ClInclude Include="Include\LoaderHelpers.h" />
@@ -123,6 +124,7 @@
     <ClInclude Include="Include\ShadowMap.h" />
     <ClInclude Include="Include\ShadowMapCSM.h" />
     <ClInclude Include="Include\ShadowMapLispPSM.h" />
+    <ClInclude Include="Include\SimpleSignal.h" />
     <ClInclude Include="Include\Singleton.h" />
     <ClInclude Include="Include\SkinModel.h" />
     <ClInclude Include="Include\Sky.h" />
@@ -242,6 +244,7 @@
     <ClCompile Include="Src\DDSTextureLoader.cpp" />
     <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
+    <ClCompile Include="Src\InputManager.cpp" />
     <ClCompile Include="Src\Light.cpp" />
     <ClCompile Include="Src\Material.cpp" />
     <ClCompile Include="Src\MaterialManager.cpp" />

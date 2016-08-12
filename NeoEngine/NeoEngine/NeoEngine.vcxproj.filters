@@ -171,6 +171,12 @@
     <ClInclude Include="Include\StateMachine\StateMachine.h">
       <Filter>头文件\StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="Include\SimpleSignal.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\InputManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -303,6 +309,9 @@
     </ClCompile>
     <ClCompile Include="Src\StateMachine\StateMachine.cpp">
       <Filter>源文件\StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\InputManager.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

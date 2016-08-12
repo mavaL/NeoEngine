@@ -9,6 +9,7 @@
 #define Application_h__
 
 #include "Prerequiestity.h"
+#include "OIS.h"
 
 //------------------------------------------------------------------------------------
 class Application
@@ -24,6 +25,9 @@ public:
 
 private:
 	bool	_InitWindow();
+
+	// OIS::KeyListener
+	bool	OnKeyPressed(const OIS::KeyEvent &arg);
 
 	static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

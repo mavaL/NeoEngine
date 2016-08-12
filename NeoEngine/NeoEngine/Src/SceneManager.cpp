@@ -105,6 +105,7 @@ namespace Neo
 
 		{
 			m_pMtlLinearizeDepth = MaterialManager::GetSingleton().NewMaterial("Mtl_LinearDepth");
+			m_pMtlLinearizeDepth->AddRef();
 
 			m_pMtlLinearizeDepth->SetTexture(0, m_pRenderSystem->GetDepthTexture());
 
@@ -152,6 +153,7 @@ namespace Neo
 
 		{
 			m_pMtlFinalScene = MaterialManager::GetSingleton().NewMaterial("Mtl_HDRFinalScene");
+			m_pMtlFinalScene->AddRef();
 
 			m_pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
 
@@ -555,6 +557,7 @@ namespace Neo
 	void SceneManager::SetupSunLight( const VEC3& dir, const SColor& color )
 	{
 		m_sunLight.lightDir = dir;
+		m_sunLight.lightDir.Normalize();
 		m_sunLight.lightColor = color;
 	}
 	//------------------------------------------------------------------------------------
