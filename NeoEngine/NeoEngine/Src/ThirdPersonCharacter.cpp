@@ -109,6 +109,11 @@ namespace Neo
 
 	void ThirdPersonCharacter::Update(float dt)
 	{
+		if (!m_pCamera->GetManualControl())
+		{
+			return;
+		}
+
 		if (g_bMove)
 		{
 			m_pStateMachine->tryChangeState("Move");

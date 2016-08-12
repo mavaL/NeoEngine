@@ -356,10 +356,11 @@ namespace Neo
 		//================================================================================
 		if (phaseFlag & eRenderPhase_UI)
 		{
-			D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-			depthDesc.DepthEnable = FALSE;
-			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			m_pRenderSystem->SetDepthStencelState(depthDesc);
+			SStateDepth oldDepthState = m_pRenderSystem->GetCurDepthState();
+			SStateDepth depthState = oldDepthState;
+			depthState.Desc.DepthEnable = FALSE;
+			depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			m_pRenderSystem->SetDepthState(&depthState);
 
 			auto& lstEntity = m_pCurScene->GetEntityList();
 			for (uint32 i = 0; i < lstEntity.size(); ++i)
@@ -381,9 +382,7 @@ namespace Neo
 				m_pDebugRTMesh->Render();
 			}
 
-			depthDesc.DepthEnable = TRUE;
-			depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-			m_pRenderSystem->SetDepthStencelState(depthDesc);
+			m_pRenderSystem->SetDepthState(&oldDepthState);
 		}
 	}
 	//------------------------------------------------------------------------------------

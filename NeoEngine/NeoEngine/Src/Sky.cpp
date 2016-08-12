@@ -172,17 +172,15 @@ namespace Neo
 		m_pMtl_Sky->Activate();
 
 		// Turn off z buffer
-		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-		//depthDesc.DepthEnable = FALSE;
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
+		SStateDepth oldDepthState = m_pRenderSystem->GetCurDepthState();
+		SStateDepth depthState = oldDepthState;
+		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		m_pRenderSystem->SetDepthState(&depthState);
 
 		D3D11RenderTarget::m_pQuadEntity->Render();
 
 		// Restore render state
-		//depthDesc.DepthEnable = TRUE;
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
+		m_pRenderSystem->SetDepthState(&oldDepthState);
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::_SetLayer(uint32 iSlice)

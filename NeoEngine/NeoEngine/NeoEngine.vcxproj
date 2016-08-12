@@ -119,6 +119,7 @@
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Polygon.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
+    <ClInclude Include="Include\RenderState.h" />
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
     <ClInclude Include="Include\ShadowMap.h" />

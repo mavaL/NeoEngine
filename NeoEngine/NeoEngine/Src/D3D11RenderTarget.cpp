@@ -185,10 +185,11 @@ namespace Neo
 		BeforeRender(bClearColor, bClearZ, clearColor, fz);
 
 		// Turn off z buffer
-		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-		depthDesc.DepthEnable = FALSE;
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
+		SStateDepth oldDepthState = m_pRenderSystem->GetCurDepthState();
+		SStateDepth depthState = oldDepthState;
+		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthState.Desc.DepthEnable = FALSE;
+		m_pRenderSystem->SetDepthState(&depthState);
 
 		pMaterial->Activate();
 		m_pQuadEntity->Render();	
@@ -196,9 +197,7 @@ namespace Neo
 		AfterRender();
 
 		// Restore render state
-		depthDesc.DepthEnable = TRUE;
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
+		m_pRenderSystem->SetDepthState(&oldDepthState);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::OnWindowResized()

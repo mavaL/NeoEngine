@@ -256,24 +256,23 @@ namespace Neo
 		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
 
 		// Cull mode
-		const D3D11_CULL_MODE curCullMode = m_pRenderSystem->GetRasterizeDesc().CullMode;
-		D3D11_RASTERIZER_DESC& desc = m_pRenderSystem->GetRasterizeDesc();
+		SStateRaster rasterState = m_pRenderSystem->GetCurRasterState();
 
 		if (m_pRenderSystem->IsClipPlaneEnabled())
 		{
 			switch (m_cullMode)
 			{
-			case D3D11_CULL_FRONT: desc.CullMode = D3D11_CULL_BACK; break;
-			case D3D11_CULL_BACK: desc.CullMode = D3D11_CULL_FRONT; break;
+			case D3D11_CULL_FRONT: rasterState.Desc.CullMode = D3D11_CULL_BACK; break;
+			case D3D11_CULL_BACK: rasterState.Desc.CullMode = D3D11_CULL_FRONT; break;
 			default: break;
 			}
 			
-			m_pRenderSystem->SetRasterizeDesc(desc);
+			m_pRenderSystem->SetRasterState(&rasterState);
 		}
-		else if (m_cullMode != curCullMode)
+		else if (m_cullMode != rasterState.Desc.CullMode)
 		{
-			desc.CullMode = m_cullMode;
-			m_pRenderSystem->SetRasterizeDesc(desc);
+			rasterState.Desc.CullMode = m_cullMode;
+			m_pRenderSystem->SetRasterState(&rasterState);
 		}
 
 		// Clip plane

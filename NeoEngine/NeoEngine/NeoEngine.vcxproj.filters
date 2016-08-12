@@ -177,6 +177,9 @@
     <ClInclude Include="Include\InputManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\RenderState.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">

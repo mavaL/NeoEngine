@@ -21,9 +21,9 @@ namespace Neo
 	, m_pSwapChain(nullptr)
 	, m_pRenderTargetView(nullptr)
 	, m_pTexDepthStencil(nullptr)
-	, m_rasterState(nullptr)
-	, m_blendState(nullptr)
-	, m_depthState(nullptr)
+	, m_iCurBlendState(0xffffffff)
+	, m_iCurDepthState(0xffffffff)
+	, m_iCurRasterState(0xffffffff)
 	, m_pGlobalCBuf(nullptr)
 	, m_pMaterialCB(nullptr)
 	, m_pSkinCB(nullptr)
@@ -96,39 +96,42 @@ namespace Neo
 
 		V_RETURN(_OnSwapChainResized());
 
-		// Init rasterize desc
-		m_rasterDesc.AntialiasedLineEnable = false;
-		m_rasterDesc.CullMode				= D3D11_CULL_BACK;
-		m_rasterDesc.DepthBias				= 0;
-		m_rasterDesc.DepthBiasClamp			= 0.0f;
-		m_rasterDesc.DepthClipEnable		= true;
-		m_rasterDesc.FillMode				= D3D11_FILL_SOLID;
-		m_rasterDesc.FrontCounterClockwise	= false;
-		m_rasterDesc.MultisampleEnable		= false;
-		m_rasterDesc.ScissorEnable			= false;
-		m_rasterDesc.SlopeScaledDepthBias	= 0.0f;
+		// Init rasterize state
+		SStateRaster rasterState;
+		rasterState.Desc.AntialiasedLineEnable	= FALSE;
+		rasterState.Desc.CullMode				= D3D11_CULL_BACK;
+		rasterState.Desc.DepthBias				= 0;
+		rasterState.Desc.DepthBiasClamp			= 0.0f;
+		rasterState.Desc.DepthClipEnable		= TRUE;
+		rasterState.Desc.FillMode				= D3D11_FILL_SOLID;
+		rasterState.Desc.FrontCounterClockwise = FALSE;
+		rasterState.Desc.MultisampleEnable		= FALSE;
+		rasterState.Desc.ScissorEnable			= FALSE;
+		rasterState.Desc.SlopeScaledDepthBias	= 0.0f;
 
-		SetRasterizeDesc(m_rasterDesc);
+		SetRasterState(&rasterState);
 
-		// Init depth stencil desc
-		m_depthStencilDesc = CD3D11_DEPTH_STENCIL_DESC (CD3D11_DEFAULT());
-		m_depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+		// Init depth stencil state
+		SStateDepth depthState;
+		depthState.Desc = CD3D11_DEPTH_STENCIL_DESC(CD3D11_DEFAULT());
+		depthState.Desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
-		SetDepthStencelState(m_depthStencilDesc);
+		SetDepthState(&depthState);
 
-		// Init blend state desc
-		m_blendDesc.AlphaToCoverageEnable			= FALSE;
-		m_blendDesc.IndependentBlendEnable			= FALSE;
-		m_blendDesc.RenderTarget[0].BlendEnable		= FALSE;
-		m_blendDesc.RenderTarget[0].SrcBlend		= D3D11_BLEND_ONE;
-		m_blendDesc.RenderTarget[0].DestBlend		= D3D11_BLEND_ZERO; 
-		m_blendDesc.RenderTarget[0].BlendOp			= D3D11_BLEND_OP_ADD; 
-		m_blendDesc.RenderTarget[0].SrcBlendAlpha	= D3D11_BLEND_ONE;
-		m_blendDesc.RenderTarget[0].DestBlendAlpha	= D3D11_BLEND_ZERO; 
-		m_blendDesc.RenderTarget[0].BlendOpAlpha	= D3D11_BLEND_OP_ADD; 
-		m_blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		// Init blend state
+		SStateBlend blendState;
+		blendState.Desc.AlphaToCoverageEnable = FALSE;
+		blendState.Desc.IndependentBlendEnable			= FALSE;
+		blendState.Desc.RenderTarget[0].BlendEnable		= FALSE;
+		blendState.Desc.RenderTarget[0].SrcBlend		= D3D11_BLEND_ONE;
+		blendState.Desc.RenderTarget[0].DestBlend		= D3D11_BLEND_ZERO; 
+		blendState.Desc.RenderTarget[0].BlendOp			= D3D11_BLEND_OP_ADD; 
+		blendState.Desc.RenderTarget[0].SrcBlendAlpha	= D3D11_BLEND_ONE;
+		blendState.Desc.RenderTarget[0].DestBlendAlpha	= D3D11_BLEND_ZERO; 
+		blendState.Desc.RenderTarget[0].BlendOpAlpha	= D3D11_BLEND_OP_ADD; 
+		blendState.Desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-		SetBlendStateDesc(m_blendDesc);
+		SetBlendState(&blendState);
 
 		// Setup the viewport
 		m_viewport.Width = (float)wndWidth;
@@ -229,15 +232,30 @@ namespace Neo
 	void D3D11RenderSystem::_ShutDownDevice()
 	{
 		if( m_pDeviceContext ) m_pDeviceContext->ClearState();
+
+		for (uint32 i = 0; i < m_blendStates.size(); ++i)
+		{
+			SAFE_RELEASE(m_blendStates[i].pState);
+		}
+		for (uint32 i = 0; i < m_depthStates.size(); ++i)
+		{
+			SAFE_RELEASE(m_depthStates[i].pState);
+		}
+		for (uint32 i = 0; i < m_rasterStates.size(); ++i)
+		{
+			SAFE_RELEASE(m_rasterStates[i].pState);
+		}
+
+		m_rasterStates.clear();
+		m_blendStates.clear();
+		m_depthStates.clear();
+
 		SAFE_RELEASE(m_pGlobalCBuf);
 		SAFE_RELEASE(m_pMaterialCB);
 		SAFE_RELEASE(m_pSkinCB);
 		SAFE_RELEASE(m_pTerrainCB);
 		SAFE_RELEASE(m_pRenderTargetView);
 		SAFE_RELEASE(m_pTexDepthStencil);
-		SAFE_RELEASE(m_rasterState);
-		SAFE_RELEASE(m_blendState);
-		SAFE_RELEASE(m_depthState);
 
 		SAFE_RELEASE(m_pSwapChain);
 		SAFE_RELEASE(m_pDeviceContext);
@@ -366,49 +384,6 @@ namespace Neo
 		{
 			m_pDeviceContext->ClearDepthStencilView(pDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
 		}
-	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetDepthStencelState( const D3D11_DEPTH_STENCIL_DESC& desc )
-	{
-		m_depthStencilDesc = desc;
-
-		SAFE_RELEASE(m_depthState);
-
-		HRESULT hr = S_OK;
-		V(m_pd3dDevice->CreateDepthStencilState(&m_depthStencilDesc, &m_depthState));	
-
-		m_pDeviceContext->OMSetDepthStencilState(m_depthState, 1);
-	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetRasterizeDesc( const D3D11_RASTERIZER_DESC& desc )
-	{
-		m_rasterDesc = desc;
-
-		SAFE_RELEASE(m_rasterState);
-
-		HRESULT hr = S_OK;
-		V(m_pd3dDevice->CreateRasterizerState(&m_rasterDesc, &m_rasterState));
-
-		m_pDeviceContext->RSSetState(m_rasterState);
-	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetBlendStateDesc( const D3D11_BLEND_DESC& desc )
-	{
-		m_blendDesc = desc;
-
-		SAFE_RELEASE(m_blendState);
-
-		HRESULT hr = S_OK;
-		V(m_pd3dDevice->CreateBlendState(&m_blendDesc, &m_blendState));
-
-		float blendFactor[4];
-		// Setup the blend factor.
-		blendFactor[0] = 0.0f;
-		blendFactor[1] = 0.0f;
-		blendFactor[2] = 0.0f;
-		blendFactor[3] = 0.0f;
-
-		m_pDeviceContext->OMSetBlendState(m_blendState, blendFactor, 0xffffffff);
 	}
 	//-------------------------------------------------------------------------------
 	void D3D11RenderSystem::CopyFrameBufferToTexture( D3D11Texture* pTexture )
@@ -624,5 +599,91 @@ namespace Neo
 			}
 		}
 	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetDepthState(SStateDepth* pNewState)
+	{
+		HRESULT hr = S_OK;
+		uint32 i;
+		uint64 nHash = SStateDepth::GetHash(pNewState->Desc);
+		const uint32 kNumStates = m_depthStates.size();
+		for (i = 0; i < kNumStates; i++)
+		{
+			if (m_depthStates[i].nHashVal == nHash)
+				break;
+		}
+		if (i == kNumStates)
+		{
+			SStateDepth pState = *pNewState;
+			pState.nHashVal = nHash;
+
+			V(m_pd3dDevice->CreateDepthStencilState(&pState.Desc, &pState.pState));
+
+			m_depthStates.push_back(pState);
+		}
+		if (i != m_iCurDepthState)
+		{
+			m_iCurDepthState = i;
+			m_pDeviceContext->OMSetDepthStencilState(m_depthStates[i].pState, 1);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetBlendState(SStateBlend* pNewState)
+	{
+		uint32 i;
+		HRESULT hr = S_OK;
+		uint64 nHash = SStateBlend::GetHash(pNewState->Desc);
+		for (i = 0; i < m_blendStates.size(); i++)
+		{
+			if (m_blendStates[i].nHashVal.SortVal == nHash)
+				break;
+		}
+		if (i == m_blendStates.size())
+		{
+			SStateBlend pState = *pNewState;
+			pState.nHashVal.SortVal = nHash;
+
+			V(m_pd3dDevice->CreateBlendState(&pState.Desc, &pState.pState));
+
+			m_blendStates.push_back(pState);
+		}
+		if (i != m_iCurBlendState)
+		{
+			m_iCurBlendState = i;
+			
+			float blendFactor[4] = {0};
+
+			m_pDeviceContext->OMSetBlendState(m_blendStates[i].pState, blendFactor, 0xffffffff);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderSystem::SetRasterState(SStateRaster* pNewState)
+	{
+		uint32 i;
+		HRESULT hr = S_OK;
+		uint32 nHash = SStateRaster::GetHash(pNewState->Desc);
+		uint64 nValuesHash = SStateRaster::GetValuesHash(pNewState->Desc);
+		for (i = 0; i < m_rasterStates.size(); i++)
+		{
+			if (m_rasterStates[i].nHashVal == nHash && m_rasterStates[i].nValuesHash == nValuesHash)
+				break;
+		}
+		if (i == m_rasterStates.size())
+		{
+			SStateRaster pState = *pNewState;
+			pState.nHashVal = nHash;
+			pState.nValuesHash = nValuesHash;
+
+			V(m_pd3dDevice->CreateRasterizerState(&pState.Desc, &pState.pState));
+
+			m_rasterStates.push_back(pState);
+		}
+
+		if (i != m_iCurRasterState)
+		{
+			m_iCurRasterState = i;
+			m_pDeviceContext->RSSetState(m_rasterStates[i].pState);
+		}
+	}
+
 }
 

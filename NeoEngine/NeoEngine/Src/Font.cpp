@@ -41,17 +41,18 @@ namespace Neo
 		_InitMesh(text, pos, color);
 
 		// Enable alpha blend
-		D3D11_BLEND_DESC& blendDesc = m_pRenderSystem->GetBlendStateDesc();
-		blendDesc.RenderTarget[0].BlendEnable = TRUE;
-		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-		m_pRenderSystem->SetBlendStateDesc(blendDesc);
+		SStateBlend OldBlendState = m_pRenderSystem->GetCurBlendState();
+		SStateBlend blendState = OldBlendState;
+		blendState.Desc.RenderTarget[0].BlendEnable = TRUE;
+		blendState.Desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+
+		m_pRenderSystem->SetBlendState(&blendState);
 
 		m_pEntity->Render();
 
 		// Reset render state
-		blendDesc.RenderTarget[0].BlendEnable = FALSE;
-		m_pRenderSystem->SetBlendStateDesc(blendDesc);
+		m_pRenderSystem->SetBlendState(&OldBlendState);
 	}
 	//------------------------------------------------------------------------------------
 	void Font::_InitMesh( const STRING& text, const IPOINT& pos, const SColor& color )

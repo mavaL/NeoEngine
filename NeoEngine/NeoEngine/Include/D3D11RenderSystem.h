@@ -11,6 +11,7 @@
 #include "Prerequiestity.h"
 #include "MathDef.h"
 #include "Color.h"
+#include "RenderState.h"
 
 namespace Neo
 {
@@ -108,13 +109,12 @@ namespace Neo
 		cBufferSkin&				GetSkinCB()				{ return m_cBufferSkin; }
 		cBufferTerrain&				GetTerrainCB()			{ return m_cBufferTerrain; }
 
-		/// TODO: Currently doesn't have render states management
-		D3D11_DEPTH_STENCIL_DESC&	GetDepthStencilDesc()	{ return m_depthStencilDesc; }
-		D3D11_RASTERIZER_DESC&		GetRasterizeDesc()		{ return m_rasterDesc; }
-		D3D11_BLEND_DESC&			GetBlendStateDesc()		{ return m_blendDesc; }
-		void						SetDepthStencelState(const D3D11_DEPTH_STENCIL_DESC& desc);
-		void						SetRasterizeDesc(const D3D11_RASTERIZER_DESC& desc);
-		void						SetBlendStateDesc(const D3D11_BLEND_DESC& desc);
+		void						SetDepthState(SStateDepth* pState);
+		void						SetBlendState(SStateBlend* pState);
+		void						SetRasterState(SStateRaster* pState);
+		SStateDepth&				GetCurDepthState()		{ return m_depthStates[m_iCurDepthState]; }
+		SStateBlend&				GetCurBlendState()		{ return m_blendStates[m_iCurBlendState]; }
+		SStateRaster&				GetCurRasterState()		{ return m_rasterStates[m_iCurRasterState]; }
 
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture);
@@ -158,18 +158,19 @@ namespace Neo
 		DXGI_SWAP_CHAIN_DESC		m_swapChainDesc;
 		IDXGISwapChain*				m_pSwapChain;
 		D3D11_VIEWPORT				m_viewport;
-		D3D11_RASTERIZER_DESC		m_rasterDesc;
-		ID3D11RasterizerState*		m_rasterState;
-		D3D11_BLEND_DESC			m_blendDesc;
-		ID3D11BlendState*			m_blendState;
-		D3D11_DEPTH_STENCIL_DESC	m_depthStencilDesc;
-		ID3D11DepthStencilState*	m_depthState;
 		ID3D11RenderTargetView*		m_pRenderTargetView;	// Frame buffer RT
 		D3D11Texture*				m_pTexDepthStencil;
 		D3D11Texture*				m_pTexture[MAX_TEXTURE_STAGE];
 		Font*						m_pFont;
 
 		uint32						m_wndWidth, m_wndHeight;
+
+		std::vector<SStateBlend>	m_blendStates;
+		std::vector<SStateDepth>	m_depthStates;
+		std::vector<SStateRaster>	m_rasterStates;
+		uint32						m_iCurBlendState;
+		uint32						m_iCurDepthState;
+		uint32						m_iCurRasterState;
 
 		cBufferGlobal				m_cBufferGlobal;
 		cBufferMaterial				m_cBufferMaterial;

@@ -225,28 +225,28 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Water::_RenderRefraction()
 	{
-		D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
-		D3D11_BLEND_DESC& blendDesc = m_pRenderSystem->GetBlendStateDesc();
+		//D3D11_DEPTH_STENCIL_DESC& depthDesc = m_pRenderSystem->GetDepthStencilDesc();
+		//D3D11_BLEND_DESC& blendDesc = m_pRenderSystem->GetBlendStateDesc();
 
-		// Shut off z-write and color output
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALPHA;
+		//// Shut off z-write and color output
+		//depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		//blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALPHA;
 
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
-		m_pRenderSystem->SetBlendStateDesc(blendDesc);
+		//m_pRenderSystem->SetDepthStencelState(depthDesc);
+		//m_pRenderSystem->SetBlendStateDesc(blendDesc);
 
-		// Render
-		m_waterMesh->SetMaterial(m_pRefracMaterial);
-		m_pEntity->Render();
+		//// Render
+		//m_waterMesh->SetMaterial(m_pRefracMaterial);
+		//m_pEntity->Render();
 
-		m_pRenderSystem->CopyFrameBufferToTexture(m_pTexSceneWithRefracMask);
+		//m_pRenderSystem->CopyFrameBufferToTexture(m_pTexSceneWithRefracMask);
 
-		// Restore render state
-		depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		//// Restore render state
+		//depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		//blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
-		m_pRenderSystem->SetDepthStencelState(depthDesc);
-		m_pRenderSystem->SetBlendStateDesc(blendDesc);
+		//m_pRenderSystem->SetDepthStencelState(depthDesc);
+		//m_pRenderSystem->SetBlendStateDesc(blendDesc);
 	}
 	//------------------------------------------------------------------------------------
 	void Water::_RenderReflection()
