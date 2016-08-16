@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -122,9 +122,9 @@
     <ClInclude Include="Include\RenderState.h" />
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
-    <ClInclude Include="Include\ShadowMap.h" />
-    <ClInclude Include="Include\ShadowMapCSM.h" />
-    <ClInclude Include="Include\ShadowMapLispPSM.h" />
+    <ClInclude Include="Include\Shadow\ShadowMap.h" />
+    <ClInclude Include="Include\Shadow\ShadowMapLispPSM.h" />
+    <ClInclude Include="Include\Shadow\ShadowMapPSSM.h" />
     <ClInclude Include="Include\SimpleSignal.h" />
     <ClInclude Include="Include\Singleton.h" />
     <ClInclude Include="Include\SkinModel.h" />
@@ -257,9 +257,9 @@
     <ClCompile Include="Src\Polygon.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
-    <ClCompile Include="Src\ShadowMap.cpp" />
-    <ClCompile Include="Src\ShadowMapCSM.cpp" />
-    <ClCompile Include="Src\ShadowMapLispPSM.cpp" />
+    <ClCompile Include="Src\Shadow\ShadowMap.cpp" />
+    <ClCompile Include="Src\Shadow\ShadowMapLispPSM.cpp" />
+    <ClCompile Include="Src\Shadow\ShadowMapPSSM.cpp" />
     <ClCompile Include="Src\SkinModel.cpp" />
     <ClCompile Include="Src\Sky.cpp" />
     <ClCompile Include="Src\SSAO.cpp" />

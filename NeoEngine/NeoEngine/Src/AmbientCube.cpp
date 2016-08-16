@@ -5,6 +5,8 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Camera.h"
+#include "Terrain.h"
+#include "Sky.h"
 
 namespace Neo
 {
@@ -100,6 +102,19 @@ namespace Neo
 			g_env.pRenderSystem->Update(0);
 
 			pScene->RenderOpaque();
+
+			Terrain* pTerrain = g_env.pSceneMgr->GetTerrain();
+			Sky* pSky = g_env.pSceneMgr->GetSky();
+
+			if (pTerrain)
+			{
+				pTerrain->Render();
+			}
+
+			if (pSky)
+			{
+				pSky->Render();
+			}
 		}
 
 		g_env.pRenderSystem->EndScene();

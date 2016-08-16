@@ -25,6 +25,12 @@
     <Filter Include="源文件\StateMachine">
       <UniqueIdentifier>{3354967a-3a3a-4af9-96c3-970f9a399852}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Shadow">
+      <UniqueIdentifier>{18ec3335-6aee-4045-b22e-7fb0ef7da707}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Shadow">
+      <UniqueIdentifier>{bcd411c9-9d82-4bb0-a96f-a9fdca9a766d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AABB.h">
@@ -96,9 +102,6 @@
     <ClInclude Include="Include\Singleton.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ShadowMap.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\Res\Common.h">
       <Filter>Shader</Filter>
     </ClInclude>
@@ -115,12 +118,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\Polygon.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ShadowMapLispPSM.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ShadowMapCSM.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\ObjMeshLoader.h">
@@ -179,6 +176,15 @@
     </ClInclude>
     <ClInclude Include="Include\RenderState.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Shadow\ShadowMap.h">
+      <Filter>头文件\Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Shadow\ShadowMapLispPSM.h">
+      <Filter>头文件\Shadow</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Shadow\ShadowMapPSSM.h">
+      <Filter>头文件\Shadow</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -259,9 +265,6 @@
     <ClCompile Include="..\Dependency\tinyxml\tinyxmlparser.cpp">
       <Filter>源文件\tinyxml</Filter>
     </ClCompile>
-    <ClCompile Include="Src\ShadowMap.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Entity.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -275,12 +278,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\ConvexBody.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\ShadowMapLispPSM.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\ShadowMapCSM.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\ObjMeshLoader.cpp">
@@ -315,6 +312,15 @@
     </ClCompile>
     <ClCompile Include="Src\InputManager.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Shadow\ShadowMap.cpp">
+      <Filter>源文件\Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Shadow\ShadowMapLispPSM.cpp">
+      <Filter>源文件\Shadow</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Shadow\ShadowMapPSSM.cpp">
+      <Filter>源文件\Shadow</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

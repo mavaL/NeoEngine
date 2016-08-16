@@ -8,7 +8,8 @@
 #include "SceneManager.h"
 #include "Material.h"
 #include "ShadowMap.h"
-#include "ShadowMapCSM.h"
+
+#include "ShadowMapPSSM.h"
 
 namespace Neo
 {
@@ -438,12 +439,12 @@ namespace Neo
 		
 		cam->GetFarCorner(m_cBufferGlobal.frustumFarCorner);
 
-#if USE_CSM
-		ShadowMapCSM* pCSM = g_env.pSceneMgr->GetShadowMap()->GetCSM();
+#if USE_PSSM
+		ShadowMapPSSM* pPSSM = g_env.pSceneMgr->GetShadowMap()->GetPSSM();
 
-		m_cBufferGlobal.matShadow[0] = pCSM->GetShadowTransform(0).Transpose();
-		m_cBufferGlobal.matShadow[1] = pCSM->GetShadowTransform(1).Transpose();
-		m_cBufferGlobal.matShadow[2] = pCSM->GetShadowTransform(2).Transpose();
+		m_cBufferGlobal.matShadow[0] = pPSSM->GetShadowTransform(0).Transpose();
+		m_cBufferGlobal.matShadow[1] = pPSSM->GetShadowTransform(1).Transpose();
+		m_cBufferGlobal.matShadow[2] = pPSSM->GetShadowTransform(2).Transpose();
 #else
 		m_cBufferGlobal.matShadow[0] = g_env.pSceneMgr->GetShadowMap()->GetShadowTransform().Transpose();
 #endif

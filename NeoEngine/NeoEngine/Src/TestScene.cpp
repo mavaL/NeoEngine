@@ -9,7 +9,7 @@
 #include "Entity.h"
 #include "Mesh.h"
 #include "ShadowMap.h"
-#include "ShadowMapCSM.h"
+
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
@@ -109,10 +109,17 @@ void SetupTestScene3(Scene* scene)
 	// Sun light
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.7f, 0.7f, 0.7f));
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
-	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20));
+
+	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64,0,358));
 	g_env.pSceneMgr->CreateSky();
 	g_env.pSceneMgr->CreateTerrain();
-	//g_env.pSceneMgr->CreateWater(5.0f);
+	
+	// Ambient cube
+	//bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 20, 0), GetResPath("tmp_cubemap.dds"), scene);
+	//_AST(bOk);
+	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap),
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 }
 
 void EnterTestScene3(Scene* scene)
@@ -120,7 +127,7 @@ void EnterTestScene3(Scene* scene)
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(0,10,0));
 	pCamera->SetNearClip(1);
-	pCamera->SetFarClip(10000.0f);
+	pCamera->SetFarClip(2500.0f);
 	pCamera->SetMoveSpeed(0.5f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
@@ -173,8 +180,6 @@ void EnterTestScene4(Scene* scene)
 	pCamera->SetFarClip(500.0f);
 	pCamera->SetMoveSpeed(0.25f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->GetShadowMap()->GetCSM()->SetCascadePadding(25.0f);
 }
 
 

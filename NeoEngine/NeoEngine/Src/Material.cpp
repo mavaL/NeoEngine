@@ -6,7 +6,7 @@
 #include "SceneManager.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
-#include "ShadowMapCSM.h"
+
 
 namespace Neo
 {
@@ -404,8 +404,9 @@ namespace Neo
 //			}
 //		}
 
-#if USE_CSM
-		D3D_SHADER_MACRO macroCSM = { "SHADOW_CSM", "" };
+
+#if USE_PSSM
+		D3D_SHADER_MACRO macroCSM = { "SHADOW_PSSM", "" };
 		retMacros.push_back(macroCSM);
 #endif
 

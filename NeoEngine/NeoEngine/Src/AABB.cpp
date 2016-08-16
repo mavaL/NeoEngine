@@ -29,6 +29,14 @@ namespace Common
 		Merge(aabb.m_maxCorner);
 	}
 
+	void AxisAlignBBox::Merge(const VEC3* points, uint32 nPoint)
+	{
+		for (uint32 i = 0; i < nPoint; ++i)
+		{
+			Merge(points[i]);
+		}
+	}
+
 	void AxisAlignBBox::Transform( const MAT44& matrix )
 	{
 		VEC3 oldMin, oldMax, currentCorner;
@@ -102,4 +110,17 @@ namespace Common
 			m_maxCorner.y - m_minCorner.y,
 			m_maxCorner.z - m_minCorner.z);
 	}
+	//------------------------------------------------------------------------------------
+	void AxisAlignBBox::GetPoints(VEC3* pPoints) const
+	{
+		pPoints[0].Set(m_minCorner.x, m_minCorner.y, m_minCorner.z);
+		pPoints[1].Set(m_maxCorner.x, m_minCorner.y, m_minCorner.z);
+		pPoints[2].Set(m_minCorner.x, m_maxCorner.y, m_minCorner.z);
+		pPoints[3].Set(m_minCorner.x, m_minCorner.y, m_maxCorner.z);
+		pPoints[4].Set(m_minCorner.x, m_maxCorner.y, m_maxCorner.z);
+		pPoints[5].Set(m_maxCorner.x, m_minCorner.y, m_maxCorner.z);
+		pPoints[6].Set(m_maxCorner.x, m_maxCorner.y, m_minCorner.z);
+		pPoints[7].Set(m_maxCorner.x, m_maxCorner.y, m_maxCorner.z);
+	}
+
 }

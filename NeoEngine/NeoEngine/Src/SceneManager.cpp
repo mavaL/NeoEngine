@@ -16,11 +16,12 @@
 #include "Mesh.h"
 #include "TiledRenderer.h"
 #include "StructuredBuffer.h"
-#include "ShadowMapCSM.h"
+
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
+#include "ShadowMapPSSM.h"
 
 
 namespace Neo
@@ -125,10 +126,13 @@ namespace Neo
 			m_pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
 			m_pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
 			m_pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
-			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetCSM()->GetShadowTexture(0));
-			m_pMtlCompose->SetTexture(5, m_pShadowMap->GetCSM()->GetShadowTexture(1));
-			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
-			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetCSM()->GetShadowTexture(2));
+#if USE_PSSM
+			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetPSSM()->GetShadowTexture(0));
+			m_pMtlCompose->SetTexture(5, m_pShadowMap->GetPSSM()->GetShadowTexture(1));
+			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetPSSM()->GetShadowTexture(2));
+#else
+			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetShadowTexture());
+#endif
 			m_pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
@@ -143,6 +147,9 @@ namespace Neo
 
 			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
+			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+			samPoint.BorderColor[0] = samPoint.BorderColor[1] = samPoint.BorderColor[2] = samPoint.BorderColor[3] = 1;
 			m_pMtlCompose->SetSamplerStateDesc(2, samPoint);
 
 			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
@@ -368,9 +375,13 @@ namespace Neo
 				lstEntity[i]->DebugRender();
 			}
 
-			char szBuf[64];
-			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %f", g_env.pFrameStat->lastFPS);
+			char szBuf[512];
+			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %.2f", g_env.pFrameStat->lastFPS);
 			m_pRenderSystem->DrawText(szBuf, IPOINT(10,10), Neo::SColor::YELLOW);
+
+			const VEC3& vCamPos = m_camera->GetPos();
+			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
+			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
 
 			// Debug RT
 			if (m_debugRT == eDebugRT_SSAO)

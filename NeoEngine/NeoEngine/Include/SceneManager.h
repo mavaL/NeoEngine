@@ -57,6 +57,7 @@ namespace Neo
 		D3D11RenderTarget*	GetDepthRT() { return m_pRT_Depth; }
 		SSAO*		GetSSAO()		{ return m_pSSAO; }
 		Terrain*	GetTerrain()	{ return m_pTerrain; }
+		Sky*		GetSky()		{ return m_pSky; }
 		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
 		AmbientCube*	GetAmbientCube() { return m_pAmbientCube; }
 		const PointLightVector& GetPointLights() const { return m_vecPointLights; }

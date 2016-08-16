@@ -45,6 +45,7 @@ namespace Neo
 		float	nearZ, farZ;
 		float	shadowMapTexelSize;
 		float	shadowDepthBias;					// Improving shadow acne artifacts
+		float	shadowSplitDists[4];
 	};
 	// Per-SubMaterial constant buffer: (b1)
 	__declspec(align(16))

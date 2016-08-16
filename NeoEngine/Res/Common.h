@@ -33,6 +33,7 @@ cbuffer cbufferGlobal : register(b0)
 	float	nearZ, farZ;
 	float	shadowMapTexelSize;
 	float	shadowDepthBias;
+	float4	shadowSplitDists;
 };
 
 cbuffer cbufferMaterial : register(b1)
@@ -112,20 +113,13 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 pos
 float4	ComputeShadow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float4x4 matShadow3, float shadowMapTexelSize,
 	SamplerComparisonState sam, Texture2D texShdow1, Texture2D texShdow2, Texture2D texShdow3)
 {
-#ifdef SHADOW_CSM
+#ifdef SHADOW_PSSM
 	float fEyeZ = mul(float4(posW, 1.0f), View).z;
-	float fZ = (fEyeZ - nearZ) / (farZ - nearZ);
-
-	const float	CASCADE_PARTITION[3] =
-	{
-		0.1f, 0.4f, 1.0f
-	};
-
-	if (fZ <= CASCADE_PARTITION[0])
+	if (fEyeZ <= shadowSplitDists[1])
 	{
 		return Shadow_Sample(texShdow1, sam, posW, shadowMapTexelSize, matShadow);
 	} 
-	else if (fZ <= CASCADE_PARTITION[1])
+	else if (fEyeZ <= shadowSplitDists[2])
 	{
 		return Shadow_Sample(texShdow2, sam, posW, shadowMapTexelSize, matShadow2);
 	}
@@ -136,7 +130,6 @@ float4	ComputeShadow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float
 #else
 	return Shadow_Sample(texShdow1, sam, posW, shadowMapTexelSize, matShadow);
 #endif
-
 }
 
 half DiffuseBRDF(half3 N, half3 V, half3 L, half Gloss, half NdotL)

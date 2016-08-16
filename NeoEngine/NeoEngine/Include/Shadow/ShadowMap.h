@@ -25,7 +25,7 @@ namespace Neo
 		void			Update();
 		void			Render();
 		D3D11Texture*	GetShadowTexture();
-		ShadowMapCSM*	GetCSM() { return m_pCSM; }
+		ShadowMapPSSM*	GetPSSM() { return m_pPSSM; }
 		const MAT44&	GetShadowTransform() const { return m_matShadowTransform; }
 		ID3D11SamplerState*	GetShadowSampler() { return m_pShadowSampler; }
 
@@ -34,7 +34,7 @@ namespace Neo
 		MAT44				m_matLightView;
 		MAT44				m_matLightProj;
 		MAT44				m_matShadowTransform;
-		ShadowMapCSM*		m_pCSM;
+		ShadowMapPSSM*		m_pPSSM;
 		ID3D11SamplerState*	m_pShadowSampler;
 	};
 }

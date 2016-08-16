@@ -32,23 +32,38 @@ inline float RandomRange(float fMin, float fMax, int range)
 	return fMin + (fMax - fMin) * RandomFloat(range);
 }
 
-template<class T>
-inline void Swap(T& t1, T& t2)
+// swap variables of any type
+template<typename Type>
+inline void Swap(Type &A, Type &B)
 {
-	T tmp = t1;
-	t1 = t2;
-	t2 = tmp;
+	Type C = A;
+	A = B;
+	B = C;
 }
 
-template<class T>
-inline T Clamp(const T& val, const T& left, const T& right)
+// clamp variables of any type
+template<typename Type>
+inline Type Clamp(const Type &A, const Type &Min, const Type &Max)
 {
-	if(val < left)
-		return left;
-	else if(val > right)
-		return right;
-	else
-		return val;
+	if (A < Min) return Min;
+	if (A > Max) return Max;
+	return A;
+}
+
+// return smaller of the given variables
+template<typename Type>
+inline Type Min(const Type &A, const Type &B)
+{
+	if (A < B) return A;
+	return B;
+}
+
+// return larger of the given variables
+template<typename Type>
+inline Type Max(const Type &A, const Type &B)
+{
+	if (A > B) return A;
+	return B;
 }
 
 std::wstring	EngineToUnicode(const char* src);

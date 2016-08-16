@@ -1,0 +1,45 @@
+/********************************************************************
+	created:	2016/08/15 15:30
+	filename	ShadowMapPSSM.h
+	author:		maval
+
+	purpose:	Parallel-Split Shadow Maps
+*********************************************************************/
+#ifndef ShadowMapPSSM_h__
+#define ShadowMapPSSM_h__
+
+
+#include "Prerequiestity.h"
+#include "MathDef.h"
+
+namespace Neo
+{
+	class ShadowMapPSSM
+	{
+	public:
+		ShadowMapPSSM();
+		~ShadowMapPSSM();
+
+	public:
+		void				Update(Camera& cam);
+		void				Render();
+		D3D11Texture*		GetShadowTexture(int i);
+		const MAT44&		GetShadowTransform(int i) { return m_matShadowTransform[i]; }
+		void				SetCascadePadding(float f) { m_fCascadePadding = f; }
+
+	private:
+		void				_AdjustCameraNearFar(Camera& cam);
+		void				_CalculateSplitPositions(Camera& cam, float* pDists);
+		AABB				_CalculateSplitFrustumAABB(Camera& cam, float fNear, float fFar);
+		std::vector<Entity*>_FindCasters(Camera& cam, const AABB& frustumAABB, const VEC3& vSweepDir);
+		MAT44				_CalculateCropMatrix(Camera& cam, const EntityList& receivers, const EntityList& castersInSplit, const AABB& frustumAABB, const MAT44& matLightViewProj);
+
+	private:
+		MAT44				m_matLightProj[CSM_CASCADE_NUM];
+		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
+		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];
+		float				m_fCascadePadding;
+	};
+}
+
+#endif // ShadowMapPSSM_h__

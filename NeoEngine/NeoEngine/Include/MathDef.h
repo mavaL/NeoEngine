@@ -404,7 +404,7 @@ namespace Common
 	};
 
 
-
+	class AxisAlignBBox;
 	//////// 以4x4矩阵变换4d坐标
 	void	Transform_Vec4_By_Mat44(Vector4& result, const Vector4& pt, const Matrix44& mat);
 	Vector4	Transform_Vec4_By_Mat44(const Vector4& pt, const Matrix44& mat);
@@ -432,6 +432,7 @@ namespace Common
 	float		Radian_To_Angle(float radian);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
 	bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3);
+	bool		SweepIntersectionTest(const AxisAlignBBox &objectBB, const AxisAlignBBox &frustumBB, const Vector3 &vSweepDir);
 
 
 	//建构关于平面的反射矩阵

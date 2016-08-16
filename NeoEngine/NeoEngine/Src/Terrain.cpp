@@ -329,8 +329,10 @@ namespace Neo
 	{
 		const float fHalfDim = (HEIGHT_MAP_SIZE - 1.0f) * CELL_SPACE / 2;
 		VEC3 vMin, vMax;
-		vMin.x = vMin.z = -fHalfDim;
-		vMax.x = vMax.z = fHalfDim;
+		vMin.x = m_vOrigin.x;
+		vMin.z = m_vOrigin.y;
+		vMax.x = m_vOrigin.x + m_vDimension.x;
+		vMax.z = m_vOrigin.y + m_vDimension.y;
 		vMin.y = FLT_MAX;
 		vMax.y = FLT_MIN;
 

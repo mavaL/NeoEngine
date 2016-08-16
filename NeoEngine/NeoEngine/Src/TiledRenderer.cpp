@@ -6,7 +6,7 @@
 #include "SceneManager.h"
 #include "D3D11RenderTarget.h"
 #include "D3D11Texture.h"
-#include "ShadowMapCSM.h"
+#include "ShadowMapPSSM.h"
 #include "ShadowMap.h"
 #include "AmbientCube.h"
 #include "MaterialManager.h"
@@ -56,9 +56,9 @@ namespace Neo
 		ID3D11ShaderResourceView* pSRV2 = g_env.pSceneMgr->GetNormalRT()->GetRenderTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV3 = g_env.pSceneMgr->GetSpecRT()->GetRenderTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV4 = g_env.pSceneMgr->GetDepthRT()->GetRenderTexture()->GetSRV();
-		ID3D11ShaderResourceView* pSRV5 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(0)->GetSRV();
-		ID3D11ShaderResourceView* pSRV6 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(1)->GetSRV();
-		ID3D11ShaderResourceView* pSRV7 = g_env.pSceneMgr->GetShadowMap()->GetCSM()->GetShadowTexture(2)->GetSRV();
+		ID3D11ShaderResourceView* pSRV5 = g_env.pSceneMgr->GetShadowMap()->GetPSSM()->GetShadowTexture(0)->GetSRV();
+		ID3D11ShaderResourceView* pSRV6 = g_env.pSceneMgr->GetShadowMap()->GetPSSM()->GetShadowTexture(1)->GetSRV();
+		ID3D11ShaderResourceView* pSRV7 = g_env.pSceneMgr->GetShadowMap()->GetPSSM()->GetShadowTexture(2)->GetSRV();
 		ID3D11ShaderResourceView* pSRV8 = g_env.pSceneMgr->GetAmbientCube()->GetIrradianceTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV9 = g_env.pSceneMgr->GetAmbientCube()->GetRadianceTexture()->GetSRV();
 		ID3D11ShaderResourceView* pSRV10 = g_env.pSceneMgr->GetEnvBRDFTexture()->GetSRV();

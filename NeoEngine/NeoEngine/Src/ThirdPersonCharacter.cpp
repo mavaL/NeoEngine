@@ -163,6 +163,8 @@ namespace Neo
 		m_pCamera->Yaw(yawDelta);
 		m_pCamera->Pitch(pitchDelta);
 		m_pCamera->MoveLocal(VEC3(0, 0, m_vAttachPos.z));
+
+		return true;
 	}
 	//------------------------------------------------------------------------------------
 	bool ThirdPersonCharacter::OnKeyPressed(const OIS::KeyEvent &arg)
@@ -199,6 +201,8 @@ namespace Neo
 			g_vMoveDir.x = 1.0f;
 			g_fRotation = 90.0f;
 		}
+
+		return true;
 	}
 	//------------------------------------------------------------------------------------
 	bool ThirdPersonCharacter::OnKeyReleased(const OIS::KeyEvent &arg)

@@ -47,7 +47,7 @@ namespace Neo
 		if (pTerrain)
 		{
 			m_sceneAABB.Merge(pTerrain->GetTerrainAABB());
-			m_sceneShadowCasterAABB.Merge(pTerrain->GetTerrainAABB());
+			//m_sceneShadowCasterAABB.Merge(pTerrain->GetTerrainAABB());
 			m_sceneShadowReceiverAABB.Merge(pTerrain->GetTerrainAABB());
 		}
 
@@ -83,14 +83,21 @@ namespace Neo
 	{
 		for (size_t i = 0; i < m_lstEntity.size(); ++i)
 		{
-			const eRenderPhase curPhase = g_env.pSceneMgr->GetCurRenderPhase();
-
-			if (curPhase != eRenderPhase_ShadowMap || m_lstEntity[i]->GetCastShadow())
+			m_lstEntity[i]->Render();
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void Scene::RenderShadowCasters()
+	{
+		for (size_t i = 0; i < m_lstEntity.size(); ++i)
+		{
+			if (m_lstEntity[i]->GetCastShadow())
 			{
 				m_lstEntity[i]->Render();
 			}
 		}
 	}
+
 }
 
 

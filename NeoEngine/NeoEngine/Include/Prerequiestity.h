@@ -19,7 +19,7 @@ const int	SHADOW_MAP_SIZE		=	1024;
 
 #define USE_SIMD				0			// «∑Ò π”√SIMD
 #define USE_LISPPSM				0			// Light space perspective shadow mapping
-#define USE_CSM					1			// Cascade shadow mapping
+#define USE_PSSM				1			// Parallel-Split Shadow Maps
 #define	CSM_CASCADE_NUM			3			// Cascade level
 
 
@@ -142,22 +142,6 @@ namespace Common
 	class Ray;
 }
 
-typedef std::string			STRING;
-typedef std::vector<STRING>	StringVector;
-typedef unsigned long long	uint64;
-typedef unsigned int		uint32;
-typedef unsigned short		uint16;
-typedef unsigned char		uint8;
-typedef Common::Vector2			VEC2;
-typedef Common::Vector3			VEC3;
-typedef Common::Vector4			VEC4;
-typedef Common::Matrix44		MAT44;
-typedef Common::AxisAlignBBox	AABB;
-typedef Common::Plane			PLANE;
-typedef Common::iPoint			IPOINT;
-typedef Common::Quaternion		QUATERNION;
-typedef Common::Ray				RAY;
-
 namespace Neo
 {
 	class	Camera;
@@ -186,7 +170,6 @@ namespace Neo
 	class	SubMesh;
 	class	Mesh;
 	class	ConvexBody;
-	class	ShadowMapCSM;
 	class	TileBasedDeferredRenderer;
 	template<typename t>class	StructuredBuffer;
 	struct	SPointLight;
@@ -201,7 +184,27 @@ namespace Neo
 	class	StateMachine;
 	class	BaseState;
 	class	CInputManager;
+	class	ShadowMapPSSM;
 }
+
+
+typedef std::string			STRING;
+typedef std::vector<STRING>	StringVector;
+typedef unsigned long long	uint64;
+typedef unsigned int		uint32;
+typedef unsigned short		uint16;
+typedef unsigned char		uint8;
+typedef Common::Vector2			VEC2;
+typedef Common::Vector3			VEC3;
+typedef Common::Vector4			VEC4;
+typedef Common::Matrix44		MAT44;
+typedef Common::AxisAlignBBox	AABB;
+typedef Common::Plane			PLANE;
+typedef Common::iPoint			IPOINT;
+typedef Common::Quaternion		QUATERNION;
+typedef Common::Ray				RAY;
+typedef std::vector<Neo::Entity*>	EntityList;
+
 
 
 struct SGlobalEnv 

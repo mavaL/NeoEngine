@@ -7,7 +7,8 @@
 #include "Camera.h"
 #include "ConvexBody.h"
 #include "ShadowMapLispPSM.h"
-#include "ShadowMapCSM.h"
+
+#include "ShadowMapPSSM.h"
 #include <d3dx9.h>
 
 
@@ -23,7 +24,7 @@ namespace Neo
 		// FIXME: Shadow map doesn't really need a frame buffer.
 		m_pRT_ShadowMap->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
 
-		m_pCSM = new ShadowMapCSM;
+		m_pPSSM = new ShadowMapPSSM;
 
 		D3D11_SAMPLER_DESC samDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 		samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
@@ -35,7 +36,7 @@ namespace Neo
 	{
 		SAFE_RELEASE(m_pRT_ShadowMap);
 		SAFE_RELEASE(m_pShadowSampler);
-		SAFE_DELETE(m_pCSM);
+		SAFE_DELETE(m_pPSSM);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMap::Render()
@@ -43,8 +44,8 @@ namespace Neo
 		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
 		cBufferGlobal& cb = pRenderSystem->GetGlobalCB();
 
-#if USE_CSM
-		m_pCSM->Render();
+#if USE_PSSM
+		m_pPSSM->Render();
 #else
 		// Set light space transform
 		cb.matView = m_matLightView.Transpose();
@@ -54,7 +55,7 @@ namespace Neo
 		pRenderSystem->UpdateGlobalCBuffer();
 
 		m_pRT_ShadowMap->BeforeRender(false, true);
-		g_env.pSceneMgr->GetCurScene()->RenderOpaque();
+		g_env.pSceneMgr->GetCurScene()->RenderShadowCasters();
 		m_pRT_ShadowMap->AfterRender();
 #endif
 
@@ -82,7 +83,7 @@ namespace Neo
 		vInvLightDir.Neg();
 
 		bool bUseLisPSM = false;
-		bool bUseCSM = false;
+		bool bUsePSSM = false;
 		
 		//  these are the limits specified by the physical camera
 		//  gamma is the "tilt angle" between the light and the view direction.
@@ -91,13 +92,13 @@ namespace Neo
 
 #if USE_LISPPSM
 		bUseLisPSM = true;
-#elif USE_CSM
-		bUseCSM = true;
+#elif USE_PSSM
+		bUsePSSM = true;
 #endif
 
-		if (bUseCSM)
+		if (bUsePSSM)
 		{
-			m_pCSM->Update(*cam);
+			m_pPSSM->Update(*cam);
 		}
 		else if (!bUseLisPSM || fabsf(m_fCosGamma >= 0.99f))
 		{

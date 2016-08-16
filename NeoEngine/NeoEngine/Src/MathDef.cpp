@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MathDef.h"
+#include "AABB.h"
 
 namespace Common
 {
@@ -308,6 +309,114 @@ namespace Common
 		return ret;
 	}
 
+	bool SweepIntersectionTest(const AxisAlignBBox &objectBB, const AxisAlignBBox &frustumBB, const Vector3 &vSweepDir)
+	{
+		// min and max vectors of object
+		const Vector3 &vFrustumMin = frustumBB.m_minCorner;
+		const Vector3 &vFrustumMax = frustumBB.m_maxCorner;
+		const Vector3 &vObjectMin = objectBB.m_minCorner;
+		const Vector3 &vObjectMax = objectBB.m_maxCorner;
+
+		// calculate projections along sweep direction
+		//
+
+		// project AABB center point
+		Vector3 vFrustumCenter = (vFrustumMin + vFrustumMax) * 0.5f;
+		Vector3 vFrustumHalfSize = (vFrustumMax - vFrustumMin) * 0.5f;
+		float fFrustumCenterProj = DotProduct_Vec3_By_Vec3(vFrustumCenter, vSweepDir);
+		// project AABB half-size
+		float fFrustumHalfSizeProj = vFrustumHalfSize.x * fabs(vSweepDir.x) +
+			vFrustumHalfSize.y * fabs(vSweepDir.y) +
+			vFrustumHalfSize.z * fabs(vSweepDir.z);
+		float fFrustumProjMin = fFrustumCenterProj - fFrustumHalfSizeProj;
+		float fFrustumProjMax = fFrustumCenterProj + fFrustumHalfSizeProj;
+
+		// project AABB center poin
+		Vector3 vObjectCenter = (vObjectMin + vObjectMax) * 0.5f;
+		Vector3 vObjectHalfSize = (vObjectMax - vObjectMin) * 0.5f;
+		float fObjectCenterProj = DotProduct_Vec3_By_Vec3(vObjectCenter, vSweepDir);
+		// project AABB half-size
+		float fObjectHalfSizeProj = vObjectHalfSize.x * fabs(vSweepDir.x) +
+			vObjectHalfSize.y * fabs(vSweepDir.y) +
+			vObjectHalfSize.z * fabs(vSweepDir.z);
+		float fObjectProjMin = fObjectCenterProj - fObjectHalfSizeProj;
+		float fObjectProjMax = fObjectCenterProj + fObjectHalfSizeProj;
+
+		// find the distance in sweep direction
+		// where intersection occurs on all axis.
+		//
+
+		// sweep direction intersection
+		// starts: fObjectProjMax + fDist = fFrustumProjMin
+		//   ends: fObjectProjMin + fDist = fFrustumProjMax
+		float fDistMin = fFrustumProjMin - fObjectProjMax;
+		float fDistMax = fFrustumProjMax - fObjectProjMin;
+		if (fDistMin > fDistMax) Swap(fDistMin, fDistMax);
+
+		// only intersects in opposite of sweep direction
+		if (fDistMax < 0) return false;
+
+		// intersection on an axis:
+		// starts: vObjectMax.x + fDist*vSweepDir.x = vFrustumMin.x
+		//   ends: vObjectMin.x + fDist*vSweepDir.x = vFrustumMax.x
+
+		// test x-axis:
+		if (vSweepDir.x == 0)
+		{
+			// there is never an intersection on this axis
+			if (vFrustumMin.x > vObjectMax.x || vObjectMin.x > vFrustumMax.x) return false;
+		}
+		else
+		{
+			float fDistMinNew = (vFrustumMin.x - vObjectMax.x) / vSweepDir.x;
+			float fDistMaxNew = (vFrustumMax.x - vObjectMin.x) / vSweepDir.x;
+			if (fDistMinNew > fDistMaxNew) Swap(fDistMinNew, fDistMaxNew);
+
+			// distance ranges don't overlap
+			if (fDistMin > fDistMaxNew || fDistMinNew > fDistMax) return false;
+			// otherwise merge ranges
+			fDistMin = Max(fDistMin, fDistMinNew);
+			fDistMax = Min(fDistMax, fDistMaxNew);
+		}
+
+		// test y-axis:
+		if (vSweepDir.y == 0)
+		{
+			// there is never an intersection on this axis
+			if (vFrustumMin.y > vObjectMax.y || vObjectMin.y > vFrustumMax.y) return false;
+		}
+		else
+		{
+			float fDistMinNew = (vFrustumMin.y - vObjectMax.y) / vSweepDir.y;
+			float fDistMaxNew = (vFrustumMax.y - vObjectMin.y) / vSweepDir.y;
+			if (fDistMinNew > fDistMaxNew) Swap(fDistMinNew, fDistMaxNew);
+
+			// distance ranges don't overlap
+			if (fDistMin > fDistMaxNew || fDistMinNew > fDistMax) return false;
+			// otherwise merge ranges
+			fDistMin = Max(fDistMin, fDistMinNew);
+			fDistMax = Min(fDistMax, fDistMaxNew);
+		}
+
+		// test z-axis:
+		if (vSweepDir.z == 0)
+		{
+			// there is never an intersection on this axis
+			if (vFrustumMin.z > vObjectMax.z || vObjectMin.z > vFrustumMax.z) return false;
+		}
+		else
+		{
+			float fDistMinNew = (vFrustumMin.z - vObjectMax.z) / vSweepDir.z;
+			float fDistMaxNew = (vFrustumMax.z - vObjectMin.z) / vSweepDir.z;
+			if (fDistMinNew > fDistMaxNew) Swap(fDistMinNew, fDistMaxNew);
+
+			// distance ranges don't overlap
+			if (fDistMin > fDistMaxNew || fDistMinNew > fDistMax) return false;
+		}
+
+		// all tests passed - intersection occurs
+		return true;
+	}
 }
 
 

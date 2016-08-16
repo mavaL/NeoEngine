@@ -17,7 +17,6 @@ namespace Neo
 	{
 	public:
 		typedef std::function<void(Scene*)>	StrategyFunc;
-		typedef std::vector<Entity*>	EntityList;
 
 	public:
 		Scene(StrategyFunc& setupFunc, StrategyFunc& enterFunc);
@@ -27,6 +26,7 @@ namespace Neo
 		void	Enter();
 		void	Update(float fDeltaTime);
 		void	RenderOpaque();
+		void	RenderShadowCasters();
 
 		void				AddEntity(Entity* pEntity);
 		EntityList&			GetEntityList() { return m_lstEntity; }
