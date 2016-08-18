@@ -125,7 +125,7 @@ namespace Common
 		return ret;
 	}
 
-	__forceinline Matrix44	BuildOthroMatrix(float l, float r, float b, float t, float n, float f)
+	__forceinline Matrix44	BuildOthroMatrixOffCenter(float l, float r, float b, float t, float n, float f)
 	{
 		float    ReciprocalWidth;
 		float    ReciprocalHeight;
@@ -140,6 +140,14 @@ namespace Common
 		ret.SetRow(3, Vector4(-(l + r) * ReciprocalWidth, -(t + b) * ReciprocalHeight,-ret.m22 * n,1.0f));
 
 		return ret;
+	}
+
+	__forceinline Matrix44	BuildOthroMatrix(float w, float h, float n, float f)
+	{
+		return Matrix44(2.0f / w, 0, 0, 0,
+			0, 2.0f / h, 0, 0,
+			0, 0, 1 / (f - n), 0,
+			0, 0, -n / (n - f), 1);
 	}
 
 	__forceinline void		Add_Vec2_By_Vec2(Vector2& result, const Vector2& v1, const Vector2& v2)

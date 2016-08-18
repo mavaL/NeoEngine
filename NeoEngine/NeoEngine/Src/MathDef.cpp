@@ -254,6 +254,76 @@ namespace Common
 		}
 	}
 
+	void Quaternion::FromRotationMatrix(const Matrix44& kRot)
+	{
+		// Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+		// article "Quaternion Calculus and Fast Animation".
+
+		float fTrace = kRot.m_arr[0][0] + kRot.m_arr[1][1] + kRot.m_arr[2][2];
+		float fRoot;
+
+		if (fTrace > 0.0)
+		{
+			// |w| > 1/2, may as well choose w > 1/2
+			fRoot = sqrtf(fTrace + 1.0f);  // 2w
+			w = 0.5f*fRoot;
+			fRoot = 0.5f / fRoot;  // 1/(4w)
+			x = (kRot.m_arr[2][1] - kRot.m_arr[2][1])*fRoot;
+			y = (kRot.m_arr[2][0] - kRot.m_arr[0][2])*fRoot;
+			z = (kRot.m_arr[0][1] - kRot.m_arr[1][0])*fRoot;
+		}
+		else
+		{
+			// |w| <= 1/2
+			static size_t s_iNext[3] = { 1, 2, 0 };
+			size_t i = 0;
+			if (kRot.m_arr[1][1] > kRot.m_arr[0][0])
+				i = 1;
+			if (kRot.m_arr[2][2] > kRot.m_arr[i][i])
+				i = 2;
+			size_t j = s_iNext[i];
+			size_t k = s_iNext[j];
+
+			fRoot = sqrtf(kRot.m_arr[i][i] - kRot.m_arr[j][j] - kRot.m_arr[k][k] + 1.0f);
+			float* apkQuat[3] = { &x, &y, &z };
+			*apkQuat[i] = 0.5f*fRoot;
+			fRoot = 0.5f / fRoot;
+			w = (kRot.m_arr[j][k] - kRot.m_arr[k][j])*fRoot;
+			*apkQuat[j] = (kRot.m_arr[i][j] + kRot.m_arr[j][i])*fRoot;
+			*apkQuat[k] = (kRot.m_arr[i][k] + kRot.m_arr[k][i])*fRoot;
+		}
+	}
+
+	Matrix44 Quaternion::ToRotationMatrix() const
+	{
+		float fTx = x + x;
+		float fTy = y + y;
+		float fTz = z + z;
+		float fTwx = fTx*w;
+		float fTwy = fTy*w;
+		float fTwz = fTz*w;
+		float fTxx = fTx*x;
+		float fTxy = fTy*x;
+		float fTxz = fTz*x;
+		float fTyy = fTy*y;
+		float fTyz = fTz*y;
+		float fTzz = fTz*z;
+
+		Matrix44 kRot;
+
+		kRot.m_arr[0][0] = 1.0f - (fTyy + fTzz);
+		kRot.m_arr[0][1] = fTxy - fTwz;
+		kRot.m_arr[0][2] = fTxz + fTwy;
+		kRot.m_arr[1][0] = fTxy + fTwz;
+		kRot.m_arr[1][1] = 1.0f - (fTxx + fTzz);
+		kRot.m_arr[1][2] = fTyz - fTwx;
+		kRot.m_arr[2][0] = fTxz - fTwy;
+		kRot.m_arr[2][1] = fTyz + fTwx;
+		kRot.m_arr[2][2] = 1.0f - (fTxx + fTyy);
+
+		return kRot;
+	}
+
 	void Plane::Redefine(const Vector3& _n, const Vector3& _p)
 	{
 		n = _n;

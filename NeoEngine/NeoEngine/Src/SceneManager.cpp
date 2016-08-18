@@ -383,6 +383,15 @@ namespace Neo
 			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
 			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
 
+			const uint32 nShadowCasters = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
+			sprintf_s(szBuf, sizeof(szBuf), "CasterInCascade 0 : %d", nShadowCasters);
+			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
+
+			if (m_pHero)
+			{
+				m_pRenderSystem->DrawText(m_strHeroStateChange, IPOINT(10, 55), Neo::SColor::YELLOW);
+			}
+
 			// Debug RT
 			if (m_debugRT == eDebugRT_SSAO)
 			{

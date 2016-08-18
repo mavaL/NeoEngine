@@ -117,6 +117,7 @@ namespace Neo
 
 		void			ShowBones(bool bShow);
 		SkeletonAnim*	GetSkeleton() { return m_pSkeleton; }
+		AnimState&		GetAnimState(eAnimPart part) { return m_animState[part]; }
 
 	private:
 		SkeletonAnim*		m_pSkeleton;

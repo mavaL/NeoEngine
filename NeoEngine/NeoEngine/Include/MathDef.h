@@ -3,8 +3,8 @@
 	filename	MathDef.h
 	author:		maval
 
-	purpose:	Math lib. Support non-"operator overload" version
-				to avoid efficiency loss
+	purpose:	Math lib.
+				Much algorithm from OGRE.
 *********************************************************************/
 #ifndef MathDef_h__
 #define MathDef_h__
@@ -139,6 +139,14 @@ namespace Common
 			return *this;
 		}
 
+		inline Vector3& operator /= (float k)
+		{
+			x /= k;
+			y /= k;
+			z /= k;
+			return *this;
+		}
+
 		inline Vector3& operator += (const Vector3& rhs)
 		{
 			x += rhs.x;
@@ -255,6 +263,8 @@ namespace Common
 
 	/////////////////////////////////////////////////////////////
 	//////// Quaternion
+	class Matrix44;
+
 	class Quaternion
 	{
 	public:
@@ -268,6 +278,20 @@ namespace Common
 		Quaternion operator* (float fScalar) const
 		{
 			return Quaternion(fScalar*w, fScalar*x, fScalar*y, fScalar*z);
+		}
+
+		Quaternion operator* (const Quaternion& rkQ) const
+		{
+			// NOTE:  Multiplication is not generally commutative, so in most
+			// cases p*q != q*p.
+
+			return Quaternion
+				(
+				w * rkQ.w - x * rkQ.x - y * rkQ.y - z * rkQ.z,
+				w * rkQ.x + x * rkQ.w + y * rkQ.z - z * rkQ.y,
+				w * rkQ.y + y * rkQ.w + z * rkQ.x - x * rkQ.z,
+				w * rkQ.z + z * rkQ.w + x * rkQ.y - y * rkQ.x
+				);
 		}
 
 		Quaternion operator- () const
@@ -285,12 +309,13 @@ namespace Common
 			return Quaternion(fScalar*rkQ.w, fScalar*rkQ.x, fScalar*rkQ.y, fScalar*rkQ.z);
 		}
 
-		void	Identity() { *this = IDENTITY; }
-		float	Dot(const Quaternion& rkQ) const;
-		void	FromAxisAngle(const Vector3& axis, float angle);
-		float	Normalise();
+		void		Identity() { *this = IDENTITY; }
+		float		Dot(const Quaternion& rkQ) const;
+		void		FromAxisAngle(const Vector3& axis, float angle);
+		float		Normalise();
+		void		FromRotationMatrix(const Matrix44& kRot);
+		Matrix44	ToRotationMatrix() const;
 
-		// From OGRE
 		static Quaternion Slerp(float fT, const Quaternion& rkP, const Quaternion& rkQ, bool shortestPath = false);
 
 		static Quaternion IDENTITY;
@@ -338,6 +363,7 @@ namespace Common
 		void		FromAxises(const Vector3& v1, const Vector3& v2, const Vector3& v3);
 		//通过四元数构建
 		void		FromQuaternion(const Quaternion& quat);
+
 
 		union
 		{
@@ -432,6 +458,8 @@ namespace Common
 	float		Radian_To_Angle(float radian);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
 	bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3);
+
+	// AABB vs AABB sweep test, returns true if intersection can occur if object is translated along given direction
 	bool		SweepIntersectionTest(const AxisAlignBBox &objectBB, const AxisAlignBBox &frustumBB, const Vector3 &vSweepDir);
 
 
@@ -440,7 +468,8 @@ namespace Common
 	// Build view matrix, Left handed
 	Matrix44	BuildViewMatrix(const Vector3& vEye, const Vector3& vLookAt, const Vector3& vUp);
 	// Build othrographic projection matrix, left handed
-	Matrix44	BuildOthroMatrix(float l, float r, float b, float t, float n, float f);
+	Matrix44	BuildOthroMatrixOffCenter(float l, float r, float b, float t, float n, float f);
+	Matrix44	BuildOthroMatrix(float w, float h, float n, float f);
 }
 
 #include "MathDef.inl"

@@ -44,6 +44,12 @@ namespace Neo
 		m_bMatrixInvalid = true;
 	}
 	//------------------------------------------------------------------------------------
+	void Entity::SetScale(float x, float y, float z)
+	{
+		m_scale.Set(x, y, z);
+		m_bMatrixInvalid = true;
+	}
+	//------------------------------------------------------------------------------------
 	void Entity::SetWorldMatrix(const MAT44& mat)
 	{
 		m_matWorld = mat;

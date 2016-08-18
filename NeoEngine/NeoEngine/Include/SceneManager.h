@@ -41,6 +41,7 @@ namespace Neo
 		void		SetEnableAmbientCube(bool bEnable);
 		void		SetCurRenderPhase(eRenderPhase e) { m_curRenderPhase = e; }
 		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
+		STRING&		GetHeroStateChangeStr() { return m_strHeroStateChange; }
 
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
@@ -50,18 +51,19 @@ namespace Neo
 		void		CreateWater(float waterHeight = 0.0f);
 		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
-		const SDirectionLight& GetSunLight() const { return m_sunLight; }
-		D3D11RenderTarget*	GetNormalRT() { return m_pRT_Normal; }
-		D3D11RenderTarget*	GetAlbedoRT() { return m_pRT_Albedo; }
-		D3D11RenderTarget*	GetSpecRT() { return m_pRT_Specular; }
-		D3D11RenderTarget*	GetDepthRT() { return m_pRT_Depth; }
-		SSAO*		GetSSAO()		{ return m_pSSAO; }
-		Terrain*	GetTerrain()	{ return m_pTerrain; }
-		Sky*		GetSky()		{ return m_pSky; }
-		ShadowMap*	GetShadowMap()	{ return m_pShadowMap; }
-		AmbientCube*	GetAmbientCube() { return m_pAmbientCube; }
-		const PointLightVector& GetPointLights() const { return m_vecPointLights; }
-		D3D11Texture*	GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
+		const SDirectionLight&		GetSunLight() const { return m_sunLight; }
+		D3D11RenderTarget*			GetNormalRT() { return m_pRT_Normal; }
+		D3D11RenderTarget*			GetAlbedoRT() { return m_pRT_Albedo; }
+		D3D11RenderTarget*			GetSpecRT() { return m_pRT_Specular; }
+		D3D11RenderTarget*			GetDepthRT() { return m_pRT_Depth; }
+		SSAO*						GetSSAO()		{ return m_pSSAO; }
+		Terrain*					GetTerrain()	{ return m_pTerrain; }
+		Sky*						GetSky()		{ return m_pSky; }
+		ThirdPersonCharacter*		GetHero()		{ return m_pHero; }
+		ShadowMap*					GetShadowMap()	{ return m_pShadowMap; }
+		AmbientCube*				GetAmbientCube() { return m_pAmbientCube; }
+		const PointLightVector&		GetPointLights() const { return m_vecPointLights; }
+		D3D11Texture*				GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
@@ -114,6 +116,7 @@ namespace Neo
 		eDebugRT		m_debugRT;
 		Mesh*			m_pDebugRTMesh;
 		Material*		m_pDebugRTMaterial;
+		STRING			m_strHeroStateChange;
 	};
 }
 

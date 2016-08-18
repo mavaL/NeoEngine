@@ -101,11 +101,7 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 pos
 	shadowPos.z -= shadowDepthBias;
 	float2 shadowTexUV = shadowPos.xy;
 
-	// 2x2 PCF kernel
-	float fLitFactor = 0.25f * texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(-shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(+shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(-shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
-	fLitFactor += 0.25f * texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(+shadowMapTexelSize, +shadowMapTexelSize), shadowPos.z);
+	float fLitFactor = texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(-shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
 
 	return float4(fLitFactor, fLitFactor, fLitFactor, 1);
 }

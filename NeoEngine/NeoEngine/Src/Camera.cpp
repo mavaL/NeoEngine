@@ -167,17 +167,26 @@ namespace Neo
 
 	VEC3 Camera::GetDirection() const
 	{
-		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Z, m_matRot, false).GetVec3();
+		VEC3 vDir = Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Z, m_matRot, false).GetVec3();
+		vDir.Normalize();
+
+		return vDir;
 	}
 
 	VEC3 Camera::GetRight() const	
 	{
-		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_X, m_matRot, false).GetVec3();
+		VEC3 vRight = Common::Transform_Vec3_By_Mat44(VEC3::UNIT_X, m_matRot, false).GetVec3();
+		vRight.Normalize();
+
+		return vRight;
 	}
 
 	VEC3 Camera::GetUp() const
 	{
-		return Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Y, m_matRot, false).GetVec3();
+		VEC3 vUp = Common::Transform_Vec3_By_Mat44(VEC3::UNIT_Y, m_matRot, false).GetVec3();
+		vUp.Normalize();
+
+		return vUp;
 	}
 
 	void Camera::Yaw( float angle )
@@ -382,7 +391,7 @@ namespace Neo
 
 	bool Camera::OnKeyPressed(const OIS::KeyEvent &arg)
 	{
-		if (m_bManualControl)
+		if (m_bManualControl || !m_bActive)
 		{
 			return false;
 		}
@@ -401,7 +410,7 @@ namespace Neo
 
 	bool Camera::OnKeyReleased(const OIS::KeyEvent &arg)
 	{
-		if (m_bManualControl)
+		if (m_bManualControl || !m_bActive)
 		{
 			return false;
 		}

@@ -47,6 +47,16 @@ namespace Neo
 #if USE_PSSM
 		m_pPSSM->Render();
 #else
+		const EntityList& ents = g_env.pSceneMgr->GetCurScene()->GetEntityList();
+		EntityList shadowCasters;
+		for (size_t i = 0; i < ents.size(); ++i)
+		{
+			if (ents[i]->GetCastShadow())
+			{
+				shadowCasters.push_back(ents[i]);
+			}
+		}
+
 		// Set light space transform
 		cb.matView = m_matLightView.Transpose();
 		cb.matProj = m_matLightProj.Transpose();
@@ -55,7 +65,7 @@ namespace Neo
 		pRenderSystem->UpdateGlobalCBuffer();
 
 		m_pRT_ShadowMap->BeforeRender(false, true);
-		g_env.pSceneMgr->GetCurScene()->RenderShadowCasters();
+		g_env.pSceneMgr->GetCurScene()->RenderEntityList(shadowCasters);
 		m_pRT_ShadowMap->AfterRender();
 #endif
 
@@ -124,7 +134,7 @@ namespace Neo
 			float t = vLightTargetLS.y + vAabbSize.y * 0.5f;
 			float f = vLightTargetLS.z + vAabbSize.z * 0.5f;
 
-			m_matLightProj = Common::BuildOthroMatrix(l, r, b, t, n, f);
+			m_matLightProj = Common::BuildOthroMatrixOffCenter(l, r, b, t, n, f);
 		}
 		else
 		{

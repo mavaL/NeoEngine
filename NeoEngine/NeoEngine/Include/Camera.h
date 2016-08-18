@@ -52,6 +52,7 @@ namespace Neo
 		const VEC3*		GetWorldSpaceFrustumCorners() const;
 		const PLANE&	GetFrustumPlane(int i) const;
 		void			GetFarCorner(VEC4 v[4]);
+		const MAT44&	GetRotation() const { return m_matRot; }
 
 		void			SetViewMatrix(const MAT44& mat) { m_matView = mat; }
 		const MAT44&	GetViewMatrix() const	{ return m_matView; }

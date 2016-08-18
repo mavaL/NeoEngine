@@ -9,12 +9,15 @@
 #include "Utility.h"
 #include "Entity.h"
 #include "Terrain.h"
+#include "SkinModel.h"
+#include "ThirdPersonCharacter.h"
 
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::ShadowMapPSSM()
-		:m_fCascadePadding(1.0f)
+		: m_fCascadePadding(1.0f)
+		, m_fSplitSchemeWeight(0.5f)
 	{
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
@@ -33,9 +36,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Update(Camera& cam)
 	{
-		VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
-
-		// Constructing a new camera as our light camera
+		// Constructing a new camera because we will modify near/far plane
 		Camera tmpCam = cam;
 
 		_AdjustCameraNearFar(tmpCam);
@@ -50,47 +51,38 @@ namespace Neo
 		cb.shadowSplitDists[3] = fSplitPoints[3];
 
 		// Calc light view matrix
-		const AABB& castersAABB = g_env.pSceneMgr->GetCurScene()->GetSceneShadowCasterAABB();
-		const AABB sceneAABB = g_env.pSceneMgr->GetCurScene()->GetSceneAABB();
-
-		VEC3 vLightTarget = castersAABB.GetCenter();
+		VEC3 vLightDir = g_env.pSceneMgr->GetSunLight().lightDir;
 		VEC3 vInvLightDir = vLightDir;
 		vInvLightDir.Neg();
 
-		VEC3 vLightPos = vLightTarget + vInvLightDir * sceneAABB.m_boundingRadius;
+		const AABB sceneAABB = g_env.pSceneMgr->GetCurScene()->GetSceneAABB();
 
-		MAT44 matLightView = Common::BuildViewMatrix(vLightPos, vLightTarget, VEC3::UNIT_Y);
+		VEC3 vLightPos = vInvLightDir * sceneAABB.m_boundingRadius;
+
+		MAT44 lightView = Common::BuildViewMatrix(vLightPos, VEC3::ZERO, VEC3::UNIT_Y);
 
 		// Calc a tight light frustum
 		AABB tmpAABB = _CalculateSplitFrustumAABB(tmpCam, tmpCam.GetNearClip(), tmpCam.GetFarClip());
-		tmpAABB.Transform(matLightView);
+		tmpAABB.Transform(lightView);
 
 		const VEC3 vAabbSize = tmpAABB.GetSize();
-		const VEC3 vLightTargetLS = tmpAABB.GetCenter();
-
-		float l = vLightTargetLS.x - vAabbSize.x * 0.5f;
-		float b = vLightTargetLS.y - vAabbSize.y * 0.5f;
-		float n = vLightTargetLS.z - vAabbSize.z * 0.5f;
-		float r = vLightTargetLS.x + vAabbSize.x * 0.5f;
-		float t = vLightTargetLS.y + vAabbSize.y * 0.5f;
-		float f = vLightTargetLS.z + vAabbSize.z * 0.5f;
-
-		MAT44 lightProj = Common::BuildOthroMatrix(l, r, b, t, n, f);
-
-		std::set<Entity*> casters;
+		
+		MAT44 lightProj = Common::BuildOthroMatrix(vAabbSize.x, vAabbSize.y, 0, vAabbSize.z);
 
 		for (int i = 0; i < CSM_CASCADE_NUM; ++i)
 		{
-			AABB frusumAABB = _CalculateSplitFrustumAABB(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
+			VEC3 vFrustumPoints[8];
+			AABB frusumAABB = _CalculateSplitFrustumAABB(tmpCam, fSplitPoints[i], fSplitPoints[i + 1], vFrustumPoints);
 
 			// find casters
-			std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
-			casters.insert(castersInSplit.begin(), castersInSplit.end());
+			std::vector<Entity*> castersInSplit = _FindCasters2(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
+			
+			m_shadowCasters[i] = castersInSplit;
 
 			// calculate crop matrix
-			MAT44 matCrop = _CalculateCropMatrix(tmpCam, g_env.pSceneMgr->GetCurScene()->GetEntityList(), castersInSplit, frusumAABB, matLightView * lightProj);
+			MAT44 matCrop = _CalculateCropMatrix(tmpCam, g_env.pSceneMgr->GetCurScene()->GetEntityList(), castersInSplit, frusumAABB, lightView * lightProj);
 			// combine
-			m_matLightProj[i] = matLightView * lightProj * matCrop;
+			m_matLightProj[i] = lightView * lightProj * matCrop;
 
 			// calculate texture matrix
 			float fTexOffset = 0.5f + (0.5f / SHADOW_MAP_SIZE);
@@ -118,7 +110,7 @@ namespace Neo
 			g_env.pRenderSystem->UpdateGlobalCBuffer();
 
 			m_shadowMapCascades[iCascade]->BeforeRender(false, true);
-			g_env.pSceneMgr->GetCurScene()->RenderShadowCasters();
+			g_env.pSceneMgr->GetCurScene()->RenderEntityList(m_shadowCasters[iCascade]);
 			m_shadowMapCascades[iCascade]->AfterRender();
 		}
 	}
@@ -185,6 +177,9 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::_CalculateSplitPositions(Camera& cam, float* pDists)
 	{
+		const float fNear = cam.GetNearClip();
+		const float fFar = cam.GetFarClip();
+
 		// Practical split scheme:
 		//
 		// CLi = n*(f/n)^(i/numsplits)
@@ -194,16 +189,12 @@ namespace Neo
 		// lambda scales between logarithmic and uniform
 		//
 
-		const float fNear = cam.GetNearClip();
-		const float fFar = cam.GetFarClip();
-		const float g_fSplitSchemeWeight = 0.5f;
-
 		for (int i = 0; i < CSM_CASCADE_NUM; i++)
 		{
 			float fIDM = i / (float)CSM_CASCADE_NUM;
 			float fLog = fNear * powf(fFar / fNear, fIDM);
 			float fUniform = fNear + (fFar - fNear) * fIDM;
-			pDists[i] = fLog * g_fSplitSchemeWeight + fUniform * (1 - g_fSplitSchemeWeight);
+			pDists[i] = fLog * m_fSplitSchemeWeight + fUniform * (1 - m_fSplitSchemeWeight);
 		}
 
 		// make sure border values are accurate
@@ -211,7 +202,7 @@ namespace Neo
 		pDists[CSM_CASCADE_NUM] = fFar;
 	}
 	//------------------------------------------------------------------------------------
-	AABB ShadowMapPSSM::_CalculateSplitFrustumAABB(Camera& cam, float fNear, float fFar)
+	AABB ShadowMapPSSM::_CalculateSplitFrustumAABB(Camera& cam, float fNear, float fFar, VEC3* oFrusumPoints)
 	{
 		VEC3 vZ = cam.GetDirection();
 		vZ.Normalize();
@@ -244,6 +235,11 @@ namespace Neo
 		vFrustumPoints[6] = vFarPlaneCenter + vX*fFarPlaneHalfWidth + vY*fFarPlaneHalfHeight;
 		vFrustumPoints[7] = vFarPlaneCenter + vX*fFarPlaneHalfWidth - vY*fFarPlaneHalfHeight;
 
+		if (oFrusumPoints)
+		{
+			memcpy(oFrusumPoints, vFrustumPoints, sizeof(VEC3) * 8);
+		}
+
 		AABB aabb;
 		aabb.Merge(vFrustumPoints, 8);
 
@@ -263,7 +259,7 @@ namespace Neo
 				continue;
 
 			// do intersection test
-			if (!Common::SweepIntersectionTest(pObject->GetWorldAABB(), frustumAABB, vSweepDir))
+			if (!SweepIntersectionTest(pObject->GetWorldAABB(), frustumAABB, vSweepDir))
 				continue;
 
 			casters.push_back(pObject);
@@ -361,6 +357,55 @@ namespace Neo
 
 		// finally, create matrix
 		return BuildCropMatrix(cropBB.m_minCorner, cropBB.m_maxCorner);
+	}
+	//------------------------------------------------------------------------------------
+	std::vector<Entity*> ShadowMapPSSM::_FindCasters2(Camera& cam, float fNear, float fFar)
+	{
+		std::vector<Entity*> casters;
+		auto& lstEntity = g_env.pSceneMgr->GetCurScene()->GetEntityList();
+		casters.reserve(lstEntity.size());
+
+		for (uint32 i = 0; i < lstEntity.size(); i++)
+		{
+			Entity *pObject = lstEntity[i];
+			if (!pObject->GetCastShadow())
+				continue;
+
+			// do intersection test
+			if (!_IsAabbInsideFrustum(cam, fNear, fFar, pObject->GetWorldAABB()))
+				continue;
+
+			casters.push_back(pObject);
+		}
+		return casters;
+	}
+	//------------------------------------------------------------------------------------
+	bool ShadowMapPSSM::_IsAabbInsideFrustum(Camera& cam, float fNear, float fFar, const AABB& aabb)
+	{
+		//物体坐标转换到相机空间进行裁减
+		VEC4 pos(aabb.GetCenter(), 1.0f);
+		Common::Transform_Vec4_By_Mat44(pos, pos, cam.GetViewMatrix());
+
+		float half_h = tanf(cam.GetFov() * 0.5f) * fNear;
+		float half_w = half_h * cam.GetAspectRatio();
+
+		//检测前后面
+		if (pos.z + aabb.m_boundingRadius <= fNear || pos.z - aabb.m_boundingRadius >= fFar)
+			return false;
+
+		//检测左右面
+		float planeX = half_w * pos.z / fNear;
+		if (pos.x - planeX >= aabb.m_boundingRadius ||
+			pos.x + aabb.m_boundingRadius <= -planeX)
+			return false;
+
+		//检测上下面
+		float planeY = half_h * pos.z / fNear;
+		if (pos.y - planeY >= aabb.m_boundingRadius ||
+			pos.y + aabb.m_boundingRadius <= -planeY)
+			return false;
+
+		return true;
 	}
 
 }

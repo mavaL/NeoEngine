@@ -9,12 +9,13 @@
 #include "Entity.h"
 #include "Mesh.h"
 #include "ShadowMap.h"
-
+#include "Terrain.h"
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
+#include "ShadowMapPSSM.h"
 
 using namespace Neo;
 
@@ -107,10 +108,10 @@ void EnterTestScene2(Scene* scene)
 void SetupTestScene3(Scene* scene)
 {
 	// Sun light
-	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.7f, 0.7f, 0.7f));
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
-	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64,0,358));
+	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64, 0, 358));
 	g_env.pSceneMgr->CreateSky();
 	g_env.pSceneMgr->CreateTerrain();
 	
@@ -120,6 +121,33 @@ void SetupTestScene3(Scene* scene)
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap),
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
+
+
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_wood");
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("WoodPallet.dds"), eTextureType_2D, 0, true));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+
+	for (int i = 0; i < 5; ++i)
+	{
+		for (int j = 0; j < 5; ++j)
+		{
+			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("WoodPallet.mesh"));
+
+			scene->AddEntity(pCaster);
+			pCaster->SetMaterial(pMaterial);
+			pCaster->SetCastShadow(true);
+			pCaster->SetReceiveShadow(false);
+
+			VEC3 vPos(VEC3(-100 + i * 40.f, 0, 300 + j * 40.f));
+			vPos.y = g_env.pSceneMgr->GetTerrain()->GetHeightAt(vPos);
+			pCaster->SetPosition(vPos);
+
+			pCaster->SetScale(1, 1, 3);
+
+			QUATERNION quat(VEC3::UNIT_Z, 90);
+			pCaster->SetRotation(quat);
+		}
+	}
 }
 
 void EnterTestScene3(Scene* scene)

@@ -29,6 +29,7 @@ namespace Neo
 		void			SetPosition(const VEC3& pos);
 		void			SetRotation(const QUATERNION& quat);
 		void			SetScale(float scale);
+		void			SetScale(float x, float y, float z);
 		void			UpdateAABB();
 
 		const VEC3&		GetPosition() { return m_position; }

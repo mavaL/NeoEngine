@@ -23,7 +23,7 @@ namespace Neo
 	public:
 		void				Init(SkinModel* pModel, Camera* pCamera, const VEC3& vAttachPos);
 		void				Update(float dt);
-		SkinModel*			GetModel() { return m_pModel; }
+		SkinModel*			GetModel() { return m_pModel; }	
 
 	private:
 		// OIS::MouseListener

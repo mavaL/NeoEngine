@@ -26,7 +26,7 @@ namespace Neo
 		void	Enter();
 		void	Update(float fDeltaTime);
 		void	RenderOpaque();
-		void	RenderShadowCasters();
+		void	RenderEntityList(const EntityList& ents);
 
 		void				AddEntity(Entity* pEntity);
 		EntityList&			GetEntityList() { return m_lstEntity; }

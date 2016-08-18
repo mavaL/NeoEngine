@@ -62,10 +62,7 @@ namespace Neo
 				m_sceneShadowCasterAABB.Merge(pEntity->GetWorldAABB());
 			}
 
-			if (pEntity->GetReceiveShadow())
-			{
-				m_sceneShadowReceiverAABB.Merge(pEntity->GetWorldAABB());
-			}
+			m_sceneShadowReceiverAABB.Merge(pEntity->GetWorldAABB());
 		}
 
 		m_enterFunc(this);
@@ -87,14 +84,11 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void Scene::RenderShadowCasters()
+	void Scene::RenderEntityList(const EntityList& ents)
 	{
-		for (size_t i = 0; i < m_lstEntity.size(); ++i)
+		for (size_t i = 0; i < ents.size(); ++i)
 		{
-			if (m_lstEntity[i]->GetCastShadow())
-			{
-				m_lstEntity[i]->Render();
-			}
+			ents[i]->Render();
 		}
 	}
 

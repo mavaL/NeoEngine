@@ -18,6 +18,7 @@ namespace Neo
 		void enter();
 		void exit();
 		void update(float dt);
+		const char* getStateName() const { return "IdleState"; }
 
 	private:
 
@@ -47,6 +48,7 @@ namespace Neo
 		void enter();
 		void exit();
 		void update(float dt);
+		const char* getStateName() const { return "MoveState"; }
 
 	private:
 
@@ -118,12 +120,23 @@ namespace Neo
 		{
 			m_pStateMachine->tryChangeState("Move");
 
+			// Only want camera's direction
+			MAT44 matCamOnlyZ = m_pCamera->GetRotation();
+			matCamOnlyZ.SetRow(1, VEC4(0, 1, 0, 0));
+			VEC3 vX = Common::CrossProduct_Vec3_By_Vec3(VEC3::UNIT_Y, m_pCamera->GetDirection());
+			matCamOnlyZ.SetRow(0, VEC4(vX, 0));
+
+			VEC3 vRelMoveDir = Common::Transform_Vec3_By_Mat44(g_vMoveDir, matCamOnlyZ, false).GetVec3();
+			vRelMoveDir.Normalize();
+
 			VEC3 vPos = m_pModel->GetPosition();
-			vPos += g_vMoveDir * dt * 10;
+			vPos += vRelMoveDir * dt * 50;
 			m_pModel->SetPosition(vPos);
 
-			QUATERNION rot(VEC3::UNIT_Y, g_fRotation);
-			m_pModel->SetRotation(rot);
+			QUATERNION quatCam;
+			quatCam.FromRotationMatrix(matCamOnlyZ);
+			QUATERNION quat(VEC3::UNIT_Y, g_fRotation);
+			m_pModel->SetRotation(quat * quatCam);
 		}
 
 		// Clamp to terrain surface
@@ -139,6 +152,11 @@ namespace Neo
 
 		m_pCamera->SetPosition(m_pModel->GetPosition());
 		m_pCamera->MoveLocal(VEC3(0, 0, m_vAttachPos.z));
+
+		STRING& str = g_env.pSceneMgr->GetHeroStateChangeStr();
+		char szBuf[64];
+		sprintf_s(szBuf, 64, "%s : %.2f", m_pStateMachine->getCurState()->getStateName(), m_pModel->GetAnimState(eAnimPart_Top).m_fAnimTime);
+		str = szBuf;
 	}
 	//------------------------------------------------------------------------------------
 	bool ThirdPersonCharacter::OnMouseMoved(const OIS::MouseEvent &arg)

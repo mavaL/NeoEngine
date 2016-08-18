@@ -12,6 +12,7 @@ namespace Neo
 	public:
 		void destroy(){delete this;}
 
+		virtual const char* getStateName() const = 0;
 		virtual void enter() = 0;
 		virtual void exit() = 0;
 		virtual void update(float timeSinceLastFrame) = 0;
