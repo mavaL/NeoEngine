@@ -21,12 +21,6 @@ namespace Neo
 	{
 		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
 
-#if !USE_PSSM
-		m_pRT_ShadowMap = new D3D11RenderTarget;
-		// FIXME: Shadow map doesn't really need a frame buffer.
-		m_pRT_ShadowMap->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
-#endif
-
 		m_pPSSM = new ShadowMapPSSM;
 
 		D3D11_SAMPLER_DESC samDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
@@ -40,6 +34,19 @@ namespace Neo
 		SAFE_RELEASE(m_pRT_ShadowMap);
 		SAFE_RELEASE(m_pShadowSampler);
 		SAFE_DELETE(m_pPSSM);
+	}
+	//------------------------------------------------------------------------------------
+	void ShadowMap::SetShadowMapSize(uint32 nSize)
+	{
+#if USE_PSSM
+		m_pPSSM->SetShadowMapSize(nSize);
+#else
+		SAFE_RELEASE(m_pRT_ShadowMap);
+
+		m_pRT_ShadowMap = new D3D11RenderTarget;
+		// FIXME: Shadow map doesn't really need a frame buffer.
+		m_pRT_ShadowMap->Init(nSize, nSize, ePF_A8R8G8B8, true, false, true);
+#endif
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMap::Render()

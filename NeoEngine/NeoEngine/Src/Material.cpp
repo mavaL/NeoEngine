@@ -96,7 +96,8 @@ namespace Neo
 		pVSBlob->Release();
 
 		// Shadow map gen tech
-		if (strShaderFile.find("Opaque.hlsl") != STRING::npos)
+		if (strShaderFile.find("Opaque.hlsl") != STRING::npos ||
+			strShaderFile.find("SkinModel.hlsl") != STRING::npos)
 		{
 			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ShadowMapGen", "vs_4_0", vecMacro, &pVSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_Shadow));

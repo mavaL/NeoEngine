@@ -23,7 +23,7 @@ namespace Neo
 
 	public:
 		// 2D rendering
-		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoColorBuffer = false);
+		void			Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoColorBuffer = false, bool bMips = false);
 		// Volume rendering
 		void			Init(uint32 width, uint32 height, uint32 depth, ePixelFormat format, bool bOwnDepthBuffer = true, bool bUpdateRatioAspect = true, bool bNoColorBuffer = false);
 
@@ -35,6 +35,7 @@ namespace Neo
 		D3D11Texture*	GetRenderTexture() { return m_pRenderTexture; }
 		D3D11Texture*	GetDepthTexture() {return m_pDepthStencil; }
 		void			SetActiveSlice(uint32 i);
+		void			GenerateMips();
 
 		// Render for a post effect
 		void			RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);

@@ -377,6 +377,11 @@ namespace Neo
 		if (m_usage & eTextureUsage_RenderTarget)
 		{
 			desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+
+			if (m_usage & eTextureUsage_AutoGenMips)
+			{
+				desc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
+			}
 		}
 
 		if (GetTextureType() == eTextureType_CubeMap)
@@ -405,7 +410,7 @@ namespace Neo
 		assert(SUCCEEDED(hr) && "Create texture failed!");
 
 		// Generate mipmap levels
-		if (m_bMipMap)
+		if (m_bMipMap && !(m_usage & eTextureUsage_RenderTarget))
 		{
 			V(D3DX11FilterTexture(m_pRenderSystem->GetDeviceContext(), m_pTexture2D, 0, D3DX11_DEFAULT));
 		}

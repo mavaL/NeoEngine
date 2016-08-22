@@ -109,7 +109,9 @@ void SetupTestScene3(Scene* scene)
 {
 	// Sun light
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
-	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
+	g_env.pSceneMgr->SetShadowMapSize(1024);
+	// As using VSM we dont need bias any more.
+	g_env.pSceneMgr->SetShadowDepthBias(0);
 
 	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64, 0, 358));
 	g_env.pSceneMgr->CreateSky();
@@ -164,6 +166,7 @@ void SetupTestScene4(Scene* scene)
 {
 	// Sun light
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
+	g_env.pSceneMgr->SetShadowMapSize(512);
 	// As using VSM we dont need bias any more.
 	g_env.pSceneMgr->SetShadowDepthBias(0);
 
@@ -373,10 +376,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		////// Test Scene 3: Terrain
-		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);

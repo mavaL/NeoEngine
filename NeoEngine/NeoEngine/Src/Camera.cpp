@@ -21,6 +21,8 @@ namespace Neo
 	{
 		m_fov = Common::Angle_To_Radian(45);
 
+		m_bMove[0] = m_bMove[1] = m_bMove[2] = m_bMove[3] = false;
+
 		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &Camera::OnMouseMoved);
 		g_env.pInputSystem->m_MousePressedSignal += Common::slot(this, &Camera::OnMousePressed);
 		g_env.pInputSystem->m_MouseReleasedSignal += Common::slot(this, &Camera::OnMouseReleased);
@@ -40,6 +42,7 @@ namespace Neo
 		m_fov = Common::Angle_To_Radian(fov);
 		_BuildProjMatrix();
 
+		m_bMove[0] = m_bMove[1] = m_bMove[2] = m_bMove[3] = false;
 
 		g_env.pInputSystem->m_MouseMoveSignal += Common::slot(this, &Camera::OnMouseMoved);
 		g_env.pInputSystem->m_MousePressedSignal += Common::slot(this, &Camera::OnMousePressed);

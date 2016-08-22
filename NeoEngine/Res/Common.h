@@ -97,8 +97,9 @@ float3 ReconstructWorldPos(Texture2D texDepth, SamplerState samp, float2 uv)
 float4 Shadow_Sample(Texture2D texShadow, SamplerState sam, float3 posW, float shadowMapTexelSize, float4x4 matShadow)
 {
 	float4 shadowPos = mul(float4(posW, 1.0f), matShadow);
+	float fLinearZ = shadowPos.z;
 	shadowPos.xyz /= shadowPos.w;
-	shadowPos.z -= shadowDepthBias;
+	fLinearZ -= shadowDepthBias;
 	float2 shadowTexUV = shadowPos.xy;
 
 #ifdef USE_VSM
@@ -107,9 +108,9 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerState sam, float3 posW, float s
 	float variance = moments.y - moments.x * moments.x;
 
 	// Avoid light bleeding problem..
-	variance = max(0.00002f, variance - 0.0009f);
+	variance = max(smoothstep(0.0009f, 1.0f, variance), 0.00002f);
 
-	float diff = shadowPos.z - moments.x;
+	float diff = fLinearZ - moments.x;
 	float fLitFactor;
 	if(diff > 0.0)
 	{
@@ -121,7 +122,7 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerState sam, float3 posW, float s
 	}
 #else
 	float fz = texShadow.SampleLevel(sam, shadowTexUV, 0).x;
-	float fLitFactor = shadowPos.z <= fz;
+	float fLitFactor = fLinearZ <= fz;
 #endif
 
 	return float4(fLitFactor, fLitFactor, fLitFactor, 1);

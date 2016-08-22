@@ -43,6 +43,8 @@ namespace Neo
 		void		SetCurRenderPhase(eRenderPhase e) { m_curRenderPhase = e; }
 		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
 		STRING&		GetHeroStateChangeStr() { return m_strHeroStateChange; }
+		void		SetShadowMapSize(uint32 nSize);
+		uint32		GetShadowMapSize() const;
 
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
@@ -91,6 +93,7 @@ namespace Neo
 		D3D11RenderTarget*		m_pRT_Depth;
 
 		uint32			m_renderFlag;	// Render phase control flag
+		uint32			m_nShadowMapSize;
 		eRenderPhase	m_curRenderPhase;
 		Camera*			m_camera;
 		SDirectionLight	m_sunLight;				// Sun light

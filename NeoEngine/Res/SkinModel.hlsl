@@ -73,6 +73,42 @@ VS_OUTPUT VS( VS_INPUT IN )
 
 
 //--------------------------------------------------------------------------------------
+// shadow map generation
+//--------------------------------------------------------------------------------------
+struct VS_OUTPUT_ShadowMapGen
+{
+	float4 Pos			: SV_POSITION;
+	float4 vDepth		: TEXCOORD0;
+};
+
+VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
+{
+	VS_OUTPUT_ShadowMapGen OUT = (VS_OUTPUT_ShadowMapGen)0;
+
+	int4 decodeIndices = D3DCOLORtoUBYTE4(IN.boneIndices).zyxw;
+
+	float4 vLocalPos =
+		mul(IN.Pos, matSkin[decodeIndices.x]) * IN.boneWeights.x +
+		mul(IN.Pos, matSkin[decodeIndices.y]) * IN.boneWeights.y +
+		mul(IN.Pos, matSkin[decodeIndices.z]) * IN.boneWeights.z +
+		mul(IN.Pos, matSkin[decodeIndices.w]) * IN.boneWeights.w;
+
+	float4 vWorldPos = mul(vLocalPos, World);
+	float4 posH = mul(vWorldPos, ViewProj);
+
+	OUT.Pos = posH;
+	OUT.vDepth = posH.z;
+
+	return OUT;
+}
+
+float4 PS_ShadowMapGen(VS_OUTPUT_ShadowMapGen IN) : SV_Target
+{
+	return float4(IN.vDepth.x, IN.vDepth.x * IN.vDepth.x, 0, 1);
+}
+
+
+//--------------------------------------------------------------------------------------
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 Texture2D		texDiffuse		: register(t0);

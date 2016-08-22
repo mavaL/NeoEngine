@@ -64,7 +64,7 @@ namespace Neo
 		Destroy();
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer /*= true*/, bool bUpdateRatioAspect, bool bNoColorBuffer)
+	void D3D11RenderTarget::Init(uint32 width, uint32 height, ePixelFormat format, bool bOwnDepthBuffer /*= true*/, bool bUpdateRatioAspect, bool bNoColorBuffer, bool bMips)
 	{
 		// Setup the viewport
 		m_viewport.Width = (float)width;
@@ -85,7 +85,12 @@ namespace Neo
 		// Create render texture
 		if (!bNoColorBuffer)
 		{
-			m_pRenderTexture = new D3D11Texture(width, height, nullptr, format, eTextureUsage_RenderTarget, false);
+			uint32 nUsage = eTextureUsage_RenderTarget;
+			if (bMips)
+			{
+				nUsage |= eTextureUsage_AutoGenMips;
+			}
+			m_pRenderTexture = new D3D11Texture(width, height, nullptr, format, nUsage, bMips);
 		}
 
 		// Create depth stencil buffer
@@ -217,6 +222,13 @@ namespace Neo
 	{
 		_AST(m_pRenderTexture->GetTextureType() == eTextureType_3D);
 		m_iActiveSlice = i;
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11RenderTarget::GenerateMips()
+	{
+		_AST(m_pRenderTexture->GetUsage() & eTextureUsage_AutoGenMips);
+
+		m_pRenderSystem->GetDeviceContext()->GenerateMips(m_pRenderTexture->GetSRV());
 	}
 
 }

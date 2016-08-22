@@ -7,6 +7,9 @@
 				Variance Shadow Maps
 
 	references:	http://www.punkuser.net/vsm/vsm_paper.pdf
+				"Summed-Area Variance Shadow Maps"
+
+	history:	1. 2016/8/22 first version. Works well on scene4, VERY BAD on scene3...
 *********************************************************************/
 #ifndef ShadowMapPSSM_h__
 #define ShadowMapPSSM_h__
@@ -24,10 +27,12 @@ namespace Neo
 		~ShadowMapPSSM();
 
 	public:
+		void				SetShadowMapSize(uint32 nSize);
 		void				Update(Camera& cam);
 		void				Render();
 		D3D11Texture*		GetShadowTexture(int i);
 		const MAT44&		GetShadowTransform(int i) { return m_matShadowTransform[i]; }
+		const MAT44&		GetLightViewMatrix() { return m_matLightView; }
 		void				SetSplitSchemeWeight(float fWeight) { m_fSplitSchemeWeight = fWeight; }
 		uint32				GetShadowCasterNum(uint32 iCascade) const { return m_shadowCasters[iCascade].size(); }
 
@@ -45,6 +50,7 @@ namespace Neo
 		void				_VSMBlurPass(int iCascade);
 
 	private:
+		MAT44				m_matLightView;
 		MAT44				m_matLightProj[CSM_CASCADE_NUM];
 		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
 		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];

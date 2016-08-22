@@ -22,6 +22,7 @@ namespace Neo
 		~ShadowMap();
 
 	public:
+		void			SetShadowMapSize(uint32 nSize);
 		void			Update();
 		void			Render();
 		D3D11Texture*	GetShadowTexture();

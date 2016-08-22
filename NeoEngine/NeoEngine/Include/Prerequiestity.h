@@ -13,7 +13,6 @@
 
 
 const int	MAX_TEXTURE_STAGE	=	16;
-const int	SHADOW_MAP_SIZE		=	512;
 
 
 
@@ -40,7 +39,8 @@ enum eTextureUsage
 	eTextureUsage_DomainShader	= 1 << 3,		// Bind to domain shader
 	eTextureUsage_HullShader	= 1 << 4,		// Bind to hull shader
 	eTextureUsage_RecreateOnWndResized = 1 << 5,
-	eTextureUsage_Depth			= 1 << 6
+	eTextureUsage_Depth			= 1 << 6,
+	eTextureUsage_AutoGenMips	= 1 << 7,
 };
 
 enum eEntity

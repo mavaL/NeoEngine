@@ -78,7 +78,7 @@ VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
 	float4 posH = mul(vWorldPos, ViewProj);
 
 	OUT.Pos = posH;
-	OUT.vDepth.xy = posH.zw;
+	OUT.vDepth = posH.z;
 
 	return OUT;
 }
@@ -116,8 +116,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 //--------------------------------------------------------------------------------------
 float4 PS_ShadowMapGen(VS_OUTPUT_ShadowMapGen IN) : SV_Target
 {
-	float fDepth = IN.vDepth.x / IN.vDepth.y;
-	return float4(fDepth, fDepth * fDepth, 0, 1);
+	return float4(IN.vDepth.x, IN.vDepth.x * IN.vDepth.x, 0, 1);
 }
 
 //--------------------------------------------------------------------------------------

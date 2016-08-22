@@ -49,6 +49,7 @@ namespace Neo
 	, m_pMtlLinearizeDepth(nullptr)
 	, m_pMtlFinalScene(nullptr)
 	, m_pHero(nullptr)
+	, m_nShadowMapSize(0)
 	{
 		
 	}
@@ -78,6 +79,8 @@ namespace Neo
 		m_pSSAO = new SSAO;
 		m_pTBDR = new TileBasedDeferredRenderer;
 		m_pAmbientCube = new AmbientCube;
+
+		SetShadowMapSize(512);
 
 		{
 			m_pDebugRTMesh = new Mesh;
@@ -120,19 +123,6 @@ namespace Neo
 		{
 			m_pMtlCompose = MaterialManager::GetSingleton().NewMaterial("Mtl_DeferredShadingCompose");
 			m_pMtlCompose->AddRef();
-
-			m_pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
-			m_pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
-			m_pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
-			m_pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
-#if USE_PSSM
-			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetPSSM()->GetShadowTexture(0));
-			m_pMtlCompose->SetTexture(5, m_pShadowMap->GetPSSM()->GetShadowTexture(1));
-			m_pMtlCompose->SetTexture(6, m_pShadowMap->GetPSSM()->GetShadowTexture(2));
-#else
-			m_pMtlCompose->SetTexture(4, m_pShadowMap->GetShadowTexture());
-#endif
-			m_pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
 
 			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -439,6 +429,18 @@ namespace Neo
 	{
 		m_curRenderPhase = eRenderPhase_Compose;
 
+		m_pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
+		m_pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
+		m_pMtlCompose->SetTexture(2, m_pRT_Specular->GetRenderTexture());
+		m_pMtlCompose->SetTexture(3, m_pRT_Depth->GetRenderTexture());
+#if USE_PSSM
+		m_pMtlCompose->SetTexture(4, m_pShadowMap->GetPSSM()->GetShadowTexture(0));
+		m_pMtlCompose->SetTexture(5, m_pShadowMap->GetPSSM()->GetShadowTexture(1));
+		m_pMtlCompose->SetTexture(6, m_pShadowMap->GetPSSM()->GetShadowTexture(2));
+#else
+		m_pMtlCompose->SetTexture(4, m_pShadowMap->GetShadowTexture());
+#endif
+		m_pMtlCompose->SetTexture(7, m_pTexEnvBRDF);
 		m_pMtlCompose->SetTexture(10, m_pAmbientCube->GetIrradianceTexture());
 		m_pMtlCompose->SetTexture(11, m_pAmbientCube->GetRadianceTexture());
 
@@ -875,6 +877,20 @@ namespace Neo
 		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
 
 		m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::SetShadowMapSize(uint32 nSize)
+	{
+		if (nSize != m_nShadowMapSize)
+		{
+			m_pShadowMap->SetShadowMapSize(nSize);
+			m_nShadowMapSize = nSize;
+		}
+	}
+	//------------------------------------------------------------------------------------
+	uint32 SceneManager::GetShadowMapSize() const
+	{
+		return m_nShadowMapSize;
 	}
 
 }

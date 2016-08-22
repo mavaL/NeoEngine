@@ -78,7 +78,15 @@ namespace Neo
 		m_pMtl_Transmittance->AddRef();
 
 		m_pMtl_InscatterDeltaS = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_InscatterDeltaS");
+
+		D3D11_SAMPLER_DESC samDesc = m_pMtl_InscatterDeltaS->GetSamplerStateDesc(0);
+		samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+		samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+
 		m_pMtl_InscatterDeltaS->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
+		m_pMtl_InscatterDeltaS->SetSamplerStateDesc(0, samDesc);
 		m_pMtl_InscatterDeltaS->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "Inscatter1PS");
 		m_pMtl_InscatterDeltaS->AddRef();
 
@@ -91,12 +99,6 @@ namespace Neo
 		m_pMtl_Sky = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Final");
 		m_pMtl_Sky->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
 		m_pMtl_Sky->SetTexture(1, m_pRT_Inscatter->GetRenderTexture());
-
-		D3D11_SAMPLER_DESC samDesc = m_pMtl_Sky->GetSamplerStateDesc(0);
-		samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
 		m_pMtl_Sky->SetSamplerStateDesc(0, samDesc);
 

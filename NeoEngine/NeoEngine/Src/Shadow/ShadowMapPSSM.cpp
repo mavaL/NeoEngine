@@ -19,16 +19,9 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::ShadowMapPSSM()
 		: m_fSplitSchemeWeight(0.5f)
+		, m_pRT_VSM_Blur(nullptr)
 	{
-		// RTs
-		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
-		{
-			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
-			m_shadowMapCascades[iCascade]->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_G32R32F, true, false);
-		}
-
-		m_pRT_VSM_Blur = new D3D11RenderTarget();
-		m_pRT_VSM_Blur->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_G32R32F, false, false);
+		ZeroMemory(m_shadowMapCascades, sizeof(m_shadowMapCascades));
 	}
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::~ShadowMapPSSM()
@@ -38,6 +31,24 @@ namespace Neo
 			SAFE_RELEASE(m_shadowMapCascades[iCascade]);
 		}
 		SAFE_RELEASE(m_pRT_VSM_Blur);
+	}
+	//------------------------------------------------------------------------------------
+	void ShadowMapPSSM::SetShadowMapSize(uint32 nSize)
+	{
+		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
+		{
+			SAFE_RELEASE(m_shadowMapCascades[iCascade]);
+		}
+		SAFE_RELEASE(m_pRT_VSM_Blur);
+
+		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
+		{
+			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
+			m_shadowMapCascades[iCascade]->Init(nSize, nSize, ePF_G32R32F, true, false, false, true);
+		}
+
+		m_pRT_VSM_Blur = new D3D11RenderTarget();
+		m_pRT_VSM_Blur->Init(nSize, nSize, ePF_G32R32F, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Update(Camera& cam)
@@ -66,6 +77,7 @@ namespace Neo
 		VEC3 vLightPos = vInvLightDir * sceneAABB.m_boundingRadius;
 
 		MAT44 lightView = Common::BuildViewMatrix(vLightPos, VEC3::ZERO, VEC3::UNIT_Y);
+		m_matLightView = lightView;
 
 		// Calc a tight light frustum
 		AABB tmpAABB = _CalculateSplitFrustumAABB(tmpCam, tmpCam.GetNearClip(), tmpCam.GetFarClip());
@@ -81,7 +93,8 @@ namespace Neo
 			AABB frusumAABB = _CalculateSplitFrustumAABB(tmpCam, fSplitPoints[i], fSplitPoints[i + 1], vFrustumPoints);
 
 			// find casters
-			std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
+			//std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
+			std::vector<Entity*> castersInSplit = _FindCasters2(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
 			
 			m_shadowCasters[i] = castersInSplit;
 
@@ -91,7 +104,7 @@ namespace Neo
 			m_matLightProj[i] = lightView * lightProj * matCrop;
 
 			// calculate texture matrix
-			float fTexOffset = 0.5f + (0.5f / SHADOW_MAP_SIZE);
+			float fTexOffset = 0.5f + (0.5f / g_env.pSceneMgr->GetShadowMapSize());
 
 			MAT44 matTexBias(0.5f, 0.0f, 0.0f, 0.0f,
 				0.0f, -0.5f, 0.0f, 0.0f,
@@ -122,6 +135,8 @@ namespace Neo
 #if USE_VSM
 			_VSMBlurPass(iCascade);
 #endif
+
+			m_shadowMapCascades[iCascade]->GenerateMips();
 		}
 	}
 	//------------------------------------------------------------------------------------
