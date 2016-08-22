@@ -50,7 +50,7 @@ namespace Neo
 		void		SetVertexType(eVertexType type) { m_vertType = type; }
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 		// NB: Should be called after all texture stages have been setup
-		bool		InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 
+		bool		InitShader(const STRING& strShaderFile, eShader shaderType, 
 			uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, const char* szVSEntryFunc = "VS", const char* szPSEntryFunc = "PS");
 		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
 		bool		InitComputeShader(const STRING& filename);

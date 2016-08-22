@@ -13,7 +13,7 @@
 
 
 const int	MAX_TEXTURE_STAGE	=	16;
-const int	SHADOW_MAP_SIZE		=	1024;
+const int	SHADOW_MAP_SIZE		=	512;
 
 
 
@@ -21,6 +21,7 @@ const int	SHADOW_MAP_SIZE		=	1024;
 #define USE_LISPPSM				0			// Light space perspective shadow mapping
 #define USE_PSSM				1			// Parallel-Split Shadow Maps
 #define	CSM_CASCADE_NUM			3			// Cascade level
+#define USE_VSM					1			// Variance Shadow Maps
 
 
 enum eTextureType
@@ -104,6 +105,7 @@ enum ePixelFormat
 	ePF_DXT3,
 	ePF_DXT4,
 	ePF_DXT5,
+	ePF_Depth32,
 	ePF_Unknown
 };
 

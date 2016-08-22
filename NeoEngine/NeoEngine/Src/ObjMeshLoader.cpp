@@ -126,7 +126,11 @@ namespace Neo
 
 						SVertex vertex;
 						vertex.pos = vecPos[idxPos[i]];
-						vertex.uv = vecUv[idxUv[i]];
+
+						if (idxUv[i] != 0xffffffff)
+						{
+							vertex.uv = vecUv[idxUv[i]];
+						}
 						vertex.normal = vecNormal[idxNormal[i]];
 
 						SVertCompare comp = { idxPos[i], idxUv[i], idxNormal[i] };
@@ -256,7 +260,7 @@ namespace Neo
 
 				if (pNewMaterial)
 				{
-					pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+					pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
 				}
 
 				pNewMaterial = MaterialManager::GetSingleton().NewMaterial(matName);
@@ -311,7 +315,7 @@ namespace Neo
 			file.ignore(1000, '\n');
 		}
 
-		pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), GetResPath("Opaque.hlsl"), eShader_Opaque);
+		pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
 
 		return true;
 	}

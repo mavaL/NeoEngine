@@ -1,12 +1,16 @@
 #include "stdafx.h"
 #include "MaterialManager.h"
 #include "Material.h"
+#include "D3D11Texture.h"
 
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	MaterialManager::MaterialManager()
 	{
+		Material* pMaterial = NewMaterial("Mtl_DefaultWhite");
+		pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
+		pMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
 	}
 	//------------------------------------------------------------------------------------
 	MaterialManager::~MaterialManager()

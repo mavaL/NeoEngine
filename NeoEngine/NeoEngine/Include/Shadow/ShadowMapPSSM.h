@@ -3,7 +3,10 @@
 	filename	ShadowMapPSSM.h
 	author:		maval
 
-	purpose:	Parallel-Split Shadow Maps
+	purpose:	Parallel-Split Shadow Maps + 
+				Variance Shadow Maps
+
+	references:	http://www.punkuser.net/vsm/vsm_paper.pdf
 *********************************************************************/
 #ifndef ShadowMapPSSM_h__
 #define ShadowMapPSSM_h__
@@ -39,13 +42,14 @@ namespace Neo
 
 		bool				_IsAabbInsideFrustum(Camera& cam, float fNear, float fFar, const AABB& aabb);
 		MAT44				_CalculateCropMatrix(Camera& cam, const EntityList& receivers, const EntityList& castersInSplit, const AABB& frustumAABB, const MAT44& matLightViewProj);
+		void				_VSMBlurPass(int iCascade);
 
 	private:
 		MAT44				m_matLightProj[CSM_CASCADE_NUM];
 		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
 		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];
 		EntityList			m_shadowCasters[CSM_CASCADE_NUM];
-		float				m_fCascadePadding;
+		D3D11RenderTarget*	m_pRT_VSM_Blur;
 		float				m_fSplitSchemeWeight;	// 0 = use fully uniform split, 1 = use fully log split
 	};
 }

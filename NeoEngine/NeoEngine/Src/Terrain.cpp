@@ -187,7 +187,7 @@ namespace Neo
 		// Turn GPU frustum clipping on
 		D3D_SHADER_MACRO macro[] = { "GPU_FRUSTUM_CLIP", "" };
 
-		pMaterial->InitShader(GetResPath("Terrain.hlsl"), GetResPath("Terrain.hlsl"), eShader_Opaque, 0, macro);
+		pMaterial->InitShader(GetResPath("Terrain.hlsl"), eShader_Opaque, 0, macro);
 		pMaterial->InitTessellationShader(GetResPath("Terrain.hlsl"), 0, macro);
 
 

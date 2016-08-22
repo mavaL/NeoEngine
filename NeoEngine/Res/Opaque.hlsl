@@ -1,6 +1,15 @@
 #include "Common.h"
 
 
+Texture2D		texDiffuse		: register(t0);
+Texture2D		texNormal		: register(t1);
+Texture2D		texSpec			: register(t2);
+Texture2D		gShadowMap		: register(t3);
+Texture2D		gShadowMap2		: register(t4);
+Texture2D		gShadowMap3		: register(t5);
+SamplerState	samLinear		: register(s0);
+
+
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
@@ -33,40 +42,51 @@ struct VS_OUTPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS( VS_INPUT input )
+VS_OUTPUT VS( VS_INPUT IN )
 {
-    VS_OUTPUT output = (VS_OUTPUT)0;
+    VS_OUTPUT OUT = (VS_OUTPUT)0;
 
-	float4 vWorldPos = mul(input.Pos, World);
+	float4 vWorldPos = mul(IN.Pos, World);
 	float4 posH = mul(vWorldPos, ViewProj);
 
-    output.Pos = posH;
-	output.WPos = vWorldPos.xyz;
-	output.uv = input.uv;
+	OUT.Pos = posH;
+	OUT.WPos = vWorldPos.xyz;
+	OUT.uv = IN.uv;
 
 #ifdef NORMAL_MAP
-	output.tangent.xyz = normalize(mul(input.tangent.xyz, (float3x3)WorldIT));
-	output.tangent.w = input.tangent.w;
-	output.binormal = normalize(mul(input.binormal, (float3x3)WorldIT));
+	OUT.tangent.xyz = normalize(mul(IN.tangent.xyz, (float3x3)WorldIT));
+	OUT.tangent.w = IN.tangent.w;
+	OUT.binormal = normalize(mul(IN.binormal, (float3x3)WorldIT));
 #else
-	output.normal = mul(input.normal, (float3x3)WorldIT);
+	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 #endif
 
-    return output;
+	return OUT;
+}
+
+struct VS_OUTPUT_ShadowMapGen
+{
+	float4 Pos			: SV_POSITION;
+	float4 vDepth		: TEXCOORD0;
+};
+
+VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
+{
+	VS_OUTPUT_ShadowMapGen OUT = (VS_OUTPUT_ShadowMapGen)0;
+
+	float4 vWorldPos = mul(IN.Pos, World);
+	float4 posH = mul(vWorldPos, ViewProj);
+
+	OUT.Pos = posH;
+	OUT.vDepth.xy = posH.zw;
+
+	return OUT;
 }
 
 
 //--------------------------------------------------------------------------------------
-// Pixel Shader
+// PS for forward rendering
 //--------------------------------------------------------------------------------------
-Texture2D		texDiffuse		: register(t0);
-Texture2D		texNormal		: register(t1);
-Texture2D		texSpec			: register(t2);
-Texture2D		gShadowMap		: register(t3);
-Texture2D		gShadowMap2		: register(t4);
-Texture2D		gShadowMap3		: register(t5);
-SamplerState	samLinear		: register(s0);
-
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
 #ifdef NORMAL_MAP
@@ -91,6 +111,18 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 }
 
 
+//--------------------------------------------------------------------------------------
+// PS for shadow map generation
+//--------------------------------------------------------------------------------------
+float4 PS_ShadowMapGen(VS_OUTPUT_ShadowMapGen IN) : SV_Target
+{
+	float fDepth = IN.vDepth.x / IN.vDepth.y;
+	return float4(fDepth, fDepth * fDepth, 0, 1);
+}
+
+//--------------------------------------------------------------------------------------
+// PS for g-buffer generation
+//--------------------------------------------------------------------------------------
 gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {
 	gbuffer_output output = (gbuffer_output)0;

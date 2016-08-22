@@ -25,7 +25,7 @@ TextureCube texAmbientCubeSpec : register(t9);
 Texture2D texEnvBRDF : register(t10);
 
 SamplerState samPoint : register(s0);
-SamplerComparisonState samShadow : register(s1);
+SamplerState samShadow : register(s1);
 SamplerState samLinear : register(s2);
 
 // Per-tile shared data

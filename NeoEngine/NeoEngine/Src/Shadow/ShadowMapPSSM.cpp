@@ -11,19 +11,24 @@
 #include "Terrain.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
+#include "Material.h"
+#include "MaterialManager.h"
 
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::ShadowMapPSSM()
-		: m_fCascadePadding(1.0f)
-		, m_fSplitSchemeWeight(0.5f)
+		: m_fSplitSchemeWeight(0.5f)
 	{
+		// RTs
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
 			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
-			m_shadowMapCascades[iCascade]->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
+			m_shadowMapCascades[iCascade]->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_G32R32F, true, false);
 		}
+
+		m_pRT_VSM_Blur = new D3D11RenderTarget();
+		m_pRT_VSM_Blur->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_G32R32F, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::~ShadowMapPSSM()
@@ -32,6 +37,7 @@ namespace Neo
 		{
 			SAFE_RELEASE(m_shadowMapCascades[iCascade]);
 		}
+		SAFE_RELEASE(m_pRT_VSM_Blur);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Update(Camera& cam)
@@ -75,7 +81,7 @@ namespace Neo
 			AABB frusumAABB = _CalculateSplitFrustumAABB(tmpCam, fSplitPoints[i], fSplitPoints[i + 1], vFrustumPoints);
 
 			// find casters
-			std::vector<Entity*> castersInSplit = _FindCasters2(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
+			std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
 			
 			m_shadowCasters[i] = castersInSplit;
 
@@ -109,15 +115,23 @@ namespace Neo
 
 			g_env.pRenderSystem->UpdateGlobalCBuffer();
 
-			m_shadowMapCascades[iCascade]->BeforeRender(false, true);
+			m_shadowMapCascades[iCascade]->BeforeRender(true, true, SColor::WHITE);
 			g_env.pSceneMgr->GetCurScene()->RenderEntityList(m_shadowCasters[iCascade]);
 			m_shadowMapCascades[iCascade]->AfterRender();
+
+#if USE_VSM
+			_VSMBlurPass(iCascade);
+#endif
 		}
 	}
 	//------------------------------------------------------------------------------------
 	D3D11Texture* ShadowMapPSSM::GetShadowTexture(int i)
 	{
+#if USE_VSM
+		return m_shadowMapCascades[i]->GetRenderTexture();
+#else
 		return m_shadowMapCascades[i]->GetDepthTexture();
+#endif
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::_AdjustCameraNearFar(Camera& cam)
@@ -153,20 +167,24 @@ namespace Neo
 		}
 
 		// Dont forget terrain
-		VEC3 aabb_points[8];
-		g_env.pSceneMgr->GetTerrain()->GetTerrainAABB().GetPoints(aabb_points);
-
-		// for each point in AABB
-		for (int j = 0; j < 8; j++)
+		if (g_env.pSceneMgr->GetTerrain())
 		{
-			// calculate z-coordinate distance to near plane of camera
-			VEC3 vPointToCam = aabb_points[j] - cam.GetPos();
-			float fZ = Common::DotProduct_Vec3_By_Vec3(vPointToCam, vDir);
+			VEC3 aabb_points[8];
+			g_env.pSceneMgr->GetTerrain()->GetTerrainAABB().GetPoints(aabb_points);
 
-			// find boundary values
-			if (fZ > fMaxZ) fMaxZ = fZ;
-			if (fZ < fMinZ) fMinZ = fZ;
+			// for each point in AABB
+			for (int j = 0; j < 8; j++)
+			{
+				// calculate z-coordinate distance to near plane of camera
+				VEC3 vPointToCam = aabb_points[j] - cam.GetPos();
+				float fZ = Common::DotProduct_Vec3_By_Vec3(vPointToCam, vDir);
+
+				// find boundary values
+				if (fZ > fMaxZ) fMaxZ = fZ;
+				if (fZ < fMinZ) fMinZ = fZ;
+			}
 		}
+		
 
 		float fNewNear = Max(fMinZ, 1.0f);
 		float fNewFar = Max(fMaxZ, fNewNear + 1.0f);
@@ -330,7 +348,11 @@ namespace Neo
 		{
 			receiversBB.Merge(CreateClipSpaceAABB(receivers[i]->GetWorldAABB(), matLightViewProj));
 		}
-		receiversBB.Merge(g_env.pSceneMgr->GetTerrain()->GetTerrainAABB());
+
+		if (g_env.pSceneMgr->GetTerrain())
+		{
+			receiversBB.Merge(g_env.pSceneMgr->GetTerrain()->GetTerrainAABB());
+		}
 
 		// find frustum boundaries in light clip space
 		splitBB = CreateClipSpaceAABB(frustumAABB, matLightViewProj);
@@ -406,6 +428,42 @@ namespace Neo
 			return false;
 
 		return true;
+	}
+	//------------------------------------------------------------------------------------
+	void ShadowMapPSSM::_VSMBlurPass(int iCascade)
+	{
+		static bool bInit = false;
+		static Material* pMtlBlurX = nullptr;
+		static Material* pMtlBlurY = nullptr;
+		if (!bInit)
+		{
+			pMtlBlurX = MaterialManager::GetSingleton().NewMaterial("Mtl_VSM_BlurX");
+			pMtlBlurY = MaterialManager::GetSingleton().NewMaterial("Mtl_VSM_BlurY");
+			pMtlBlurX->AddRef();
+			pMtlBlurY->AddRef();
+
+			D3D11_SAMPLER_DESC samDesc = pMtlBlurX->GetSamplerStateDesc(0);
+			samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			pMtlBlurX->SetSamplerStateDesc(0, samDesc);
+			pMtlBlurY->SetSamplerStateDesc(0, samDesc);
+
+			pMtlBlurX->InitShader(GetResPath("GaussianBlur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BlurX");
+			pMtlBlurY->InitShader(GetResPath("GaussianBlur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BlurY");
+
+			bInit = true;
+		}
+
+		// BlurH
+		pMtlBlurX->SetTexture(0, m_shadowMapCascades[iCascade]->GetRenderTexture());
+
+		m_pRT_VSM_Blur->RenderScreenQuad(pMtlBlurX, false, false);
+
+		// BlurV
+		pMtlBlurY->SetTexture(0, m_pRT_VSM_Blur->GetRenderTexture());
+	
+		m_shadowMapCascades[iCascade]->RenderScreenQuad(pMtlBlurY, false, false);
 	}
 
 }

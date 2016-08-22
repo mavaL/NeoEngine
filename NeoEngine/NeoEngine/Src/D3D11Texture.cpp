@@ -387,7 +387,6 @@ namespace Neo
 
 		if (m_usage & eTextureUsage_Depth)
 		{
-			desc.Format			= DXGI_FORMAT_R32_TYPELESS;
 			desc.Usage			= D3D11_USAGE_DEFAULT;
 			desc.BindFlags		= D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
@@ -423,7 +422,7 @@ namespace Neo
 		// Create RTV
 		if (m_usage & eTextureUsage_RenderTarget)
 		{
-			V(m_pd3dDevice->CreateRenderTargetView( m_pTexture2D, NULL, &m_pRTV ));
+			CreateRTV();
 		}
 	}
 	//-------------------------------------------------------------------------------
@@ -469,9 +468,9 @@ namespace Neo
 		// Specifical for depth texture
 		if (m_usage & eTextureUsage_Depth)
 		{
-			assert(GetTextureType() == eTextureType_2D);
+			_AST(GetTextureType() == eTextureType_2D);
 
-			SMViewDesc.Format                    = DXGI_FORMAT_R32_FLOAT;
+			SMViewDesc.Format					= DXGI_FORMAT_R32_FLOAT;
 			SMViewDesc.ViewDimension             = D3D11_SRV_DIMENSION_TEXTURE2D;
 			SMViewDesc.Texture2D.MipLevels       = 1;
 			SMViewDesc.Texture2D.MostDetailedMip = 0;
@@ -491,7 +490,7 @@ namespace Neo
 				SMViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 				SMViewDesc.Texture2D.MipLevels = SMTextureDesc.MipLevels;
 				SMViewDesc.Texture2D.MostDetailedMip = 0;
-				SMViewDesc.Format = SMTextureDesc.Format;
+				SMViewDesc.Format = GetTypedFormat(SMTextureDesc.Format);
 
 				pTex = (ID3D11Resource**)&m_pTexture2D;
 			}
@@ -507,7 +506,7 @@ namespace Neo
 				SMViewDesc.Texture2DArray.MostDetailedMip = 0;
 				SMViewDesc.Texture2DArray.FirstArraySlice = 0;
 				SMViewDesc.Texture2DArray.ArraySize = SMTextureDesc.ArraySize;
-				SMViewDesc.Format = SMTextureDesc.Format;
+				SMViewDesc.Format = GetTypedFormat(SMTextureDesc.Format);
 
 				pTex = (ID3D11Resource**)&m_pTexture2D;
 			}
@@ -521,7 +520,7 @@ namespace Neo
 				SMViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 				SMViewDesc.TextureCube.MipLevels = SMTextureDesc.MipLevels;
 				SMViewDesc.TextureCube.MostDetailedMip = 0;
-				SMViewDesc.Format = SMTextureDesc.Format;
+				SMViewDesc.Format = GetTypedFormat(SMTextureDesc.Format);
 
 				pTex = (ID3D11Resource**)&m_pTexture2D;
 			}
@@ -535,7 +534,7 @@ namespace Neo
 				SMViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
 				SMViewDesc.Texture3D.MipLevels = SMTextureDesc.MipLevels;
 				SMViewDesc.Texture3D.MostDetailedMip = 0;
-				SMViewDesc.Format = SMTextureDesc.Format;
+				SMViewDesc.Format = GetTypedFormat(SMTextureDesc.Format);
 
 				pTex = (ID3D11Resource**)&m_pTexture3D;
 			}
@@ -545,6 +544,21 @@ namespace Neo
 		}
 
 		V(m_pd3dDevice->CreateShaderResourceView(*pTex, &SMViewDesc, &m_pSRV));
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11Texture::CreateRTV()
+	{
+		HRESULT hr = S_OK;
+		D3D11_RENDER_TARGET_VIEW_DESC desc;
+		D3D11_TEXTURE2D_DESC SMTextureDesc;
+
+		m_pTexture2D->GetDesc(&SMTextureDesc);
+
+		desc.Format = GetTypedFormat(SMTextureDesc.Format);
+		desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipSlice = 0;
+
+		V(m_pd3dDevice->CreateRenderTargetView(m_pTexture2D, &desc, &m_pRTV));
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11Texture::Resize( uint32 width, uint32 height )
@@ -576,6 +590,7 @@ namespace Neo
 		case DXGI_FORMAT_R8_UNORM:			format = ePF_L8; break;
 		case DXGI_FORMAT_R16_FLOAT:			format = ePF_R16F; break;
 		case DXGI_FORMAT_R32_FLOAT:			format = ePF_R32F; break;
+		case DXGI_FORMAT_R32G32_FLOAT:		format = ePF_G32R32F; break;
 
 		case DXGI_FORMAT_BC1_UNORM:
 		case DXGI_FORMAT_BC1_UNORM_SRGB:
@@ -594,6 +609,16 @@ namespace Neo
 		return format;
 	}
 	//------------------------------------------------------------------------------------
+	DXGI_FORMAT D3D11Texture::GetTypedFormat(DXGI_FORMAT format)
+	{
+		switch (format)
+		{
+		case DXGI_FORMAT_R32G32_TYPELESS:	return DXGI_FORMAT_R32G32_FLOAT;
+		case DXGI_FORMAT_R32_TYPELESS:		return DXGI_FORMAT_R32_FLOAT;
+		default:							return format;
+		}
+	}
+	//------------------------------------------------------------------------------------
 	DXGI_FORMAT D3D11Texture::ConvertToDXFormat( ePixelFormat format )
 	{
 		DXGI_FORMAT dxformat = DXGI_FORMAT_UNKNOWN;
@@ -607,6 +632,8 @@ namespace Neo
 		case ePF_L8:		dxformat = DXGI_FORMAT_R8_UNORM; break;
 		case ePF_R16F:		dxformat = DXGI_FORMAT_R16_FLOAT; break;
 		case ePF_R32F:		dxformat = DXGI_FORMAT_R32_FLOAT; break;
+		case ePF_G32R32F:	dxformat = DXGI_FORMAT_R32G32_TYPELESS; break;
+		case ePF_Depth32:	dxformat = DXGI_FORMAT_R32_TYPELESS; break;
 
 		case ePF_DXT1: dxformat = DXGI_FORMAT_BC1_UNORM; break;
 		case ePF_DXT2: dxformat = DXGI_FORMAT_BC2_UNORM; break;
@@ -615,7 +642,7 @@ namespace Neo
 		case ePF_DXT5: dxformat = DXGI_FORMAT_BC5_UNORM; break;
 
 		default:
-			//assert(0);	// Not support yet...
+			_AST(0);
 			break;
 		}
 
@@ -635,6 +662,8 @@ namespace Neo
 		case ePF_A16R16G16B16F: bytesPerPixel = 8; break;
 		case ePF_L8:		bytesPerPixel = 1; break;
 		case ePF_R16F:		bytesPerPixel = 2; break;
+		case ePF_G32R32F:	bytesPerPixel = 8; break;
+		case ePF_Depth32:	bytesPerPixel = 4; break;
 
 		case ePF_DXT1:
 		case ePF_DXT2:
@@ -643,7 +672,7 @@ namespace Neo
 		case ePF_DXT5: bytesPerPixel = 4; break;
 
 		default:
-			//assert(true);	// Not support yet...
+			_AST(0);
 			break;
 		}
 

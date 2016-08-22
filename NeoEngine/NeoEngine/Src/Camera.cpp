@@ -50,6 +50,13 @@ namespace Neo
 
 	void Camera::Update()
 	{
+		_BuildViewMatrix();
+
+		if (!GetActive())
+		{
+			return;
+		}
+
 		// Camera movement
 		const VEC3 forward = GetDirection();
 		const VEC3 right = GetRight();
@@ -70,8 +77,6 @@ namespace Neo
 		{
 			m_viewPt += right * m_moveSpeed;
 		}
-
-		_BuildViewMatrix();
 	}
 
 	void Camera::SetPosition( const VEC3& pos )
@@ -368,6 +373,8 @@ namespace Neo
 			//pitch
 			m_matRot = Common::Multiply_Mat44_By_Mat44(rotX, m_matRot);
 		}
+
+		return true;
 	}
 
 	bool Camera::OnMousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
@@ -375,7 +382,6 @@ namespace Neo
 		if (!GetManualControl() && id == OIS::MB_Left)
 		{
 			SetActive(true);
-			m_bMove[0] = m_bMove[1] = m_bMove[2] = m_bMove[3] = false;
 		}
 		return true;
 	}
@@ -385,6 +391,7 @@ namespace Neo
 		if (!GetManualControl() && id == OIS::MB_Left)
 		{
 			SetActive(false);
+			m_bMove[0] = m_bMove[1] = m_bMove[2] = m_bMove[3] = false;
 		}
 		return true;
 	}

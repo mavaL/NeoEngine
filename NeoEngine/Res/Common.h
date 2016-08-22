@@ -94,20 +94,41 @@ float3 ReconstructWorldPos(Texture2D texDepth, SamplerState samp, float2 uv)
 	return positionWorld;
 }
 
-float4 Shadow_Sample(Texture2D texShadow, SamplerComparisonState sam, float3 posW, float shadowMapTexelSize, float4x4 matShadow)
+float4 Shadow_Sample(Texture2D texShadow, SamplerState sam, float3 posW, float shadowMapTexelSize, float4x4 matShadow)
 {
 	float4 shadowPos = mul(float4(posW, 1.0f), matShadow);
 	shadowPos.xyz /= shadowPos.w;
 	shadowPos.z -= shadowDepthBias;
 	float2 shadowTexUV = shadowPos.xy;
 
-	float fLitFactor = texShadow.SampleCmpLevelZero(sam, shadowTexUV + float2(-shadowMapTexelSize, -shadowMapTexelSize), shadowPos.z);
+#ifdef USE_VSM
+	float2 moments = texShadow.SampleLevel(sam, shadowTexUV, 0).xy;
+
+	float variance = moments.y - moments.x * moments.x;
+
+	// Avoid light bleeding problem..
+	variance = max(0.00002f, variance - 0.0009f);
+
+	float diff = shadowPos.z - moments.x;
+	float fLitFactor;
+	if(diff > 0.0)
+	{
+		fLitFactor = variance / (variance + diff * diff);
+	}
+	else
+	{
+		fLitFactor = 1.0f;
+	}
+#else
+	float fz = texShadow.SampleLevel(sam, shadowTexUV, 0).x;
+	float fLitFactor = shadowPos.z <= fz;
+#endif
 
 	return float4(fLitFactor, fLitFactor, fLitFactor, 1);
 }
 
 float4	ComputeShadow(float3 posW, float4x4 matShadow, float4x4 matShadow2, float4x4 matShadow3, float shadowMapTexelSize,
-	SamplerComparisonState sam, Texture2D texShdow1, Texture2D texShdow2, Texture2D texShdow3)
+	SamplerState sam, Texture2D texShdow1, Texture2D texShdow2, Texture2D texShdow3)
 {
 #ifdef SHADOW_PSSM
 	float fEyeZ = mul(float4(posW, 1.0f), View).z;

@@ -38,6 +38,7 @@ namespace Neo
 		uint32		GetRenderFlag() const	{ return m_renderFlag; }
 		void		EnableDebugRT(eDebugRT type);
 		void		SetShadowDepthBias(float fBias);
+		float		GetShadowDepthBias() const;
 		void		SetEnableAmbientCube(bool bEnable);
 		void		SetCurRenderPhase(eRenderPhase e) { m_curRenderPhase = e; }
 		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }

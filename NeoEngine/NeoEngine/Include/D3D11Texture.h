@@ -43,6 +43,7 @@ namespace Neo
 		ID3D11Texture2D*					GetInternalTex() { return m_pTexture2D; }
 		void								CreateSRV();
 		void								CreateDSV();
+		void								CreateRTV();
 		uint32								GetWidth() const { return m_width; }
 		uint32								GetHeight() const { return m_height; }
 		uint32								GetUsage() const { return m_usage; }
@@ -53,6 +54,7 @@ namespace Neo
 
 		static ePixelFormat					ConvertFromDXFormat(DXGI_FORMAT dxformat);
 		static DXGI_FORMAT					ConvertToDXFormat(ePixelFormat format);
+		static DXGI_FORMAT					GetTypedFormat(DXGI_FORMAT format);
 		static uint32						GetBytesPerPixelFromFormat(ePixelFormat format);
 
 	private:

@@ -17,12 +17,15 @@ namespace Neo
 
 	//------------------------------------------------------------------------------------
 	ShadowMap::ShadowMap()
+		:m_pRT_ShadowMap(nullptr)
 	{
 		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
 
+#if !USE_PSSM
 		m_pRT_ShadowMap = new D3D11RenderTarget;
 		// FIXME: Shadow map doesn't really need a frame buffer.
 		m_pRT_ShadowMap->Init(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, ePF_A8R8G8B8, true, false, true);
+#endif
 
 		m_pPSSM = new ShadowMapPSSM;
 

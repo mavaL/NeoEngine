@@ -86,7 +86,7 @@ namespace Neo
 	{
 		m_pMtl = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugBone", eVertexType_General);
 
-		m_pMtl->InitShader(GetResPath("DebugSkeleton.hlsl"), GetResPath("DebugSkeleton.hlsl"), eShader_UI);
+		m_pMtl->InitShader(GetResPath("DebugSkeleton.hlsl"), eShader_UI);
 	}
 	//------------------------------------------------------------------------------------
 	SkeletonDebugger::~SkeletonDebugger()

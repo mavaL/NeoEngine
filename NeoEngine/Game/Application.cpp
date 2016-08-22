@@ -176,8 +176,8 @@ bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
 {
 	switch (arg.key)
 	{
-	case OIS::KC_ADD:		g_env.pSceneMgr->GetCamera()->AddMoveSpeed(1.0f); break;
-	case OIS::KC_SUBTRACT:	g_env.pSceneMgr->GetCamera()->AddMoveSpeed(-0.2f); break;
+	case OIS::KC_ADD:		g_env.pSceneMgr->SetShadowDepthBias(g_env.pSceneMgr->GetShadowDepthBias()+0.001); break;
+	case OIS::KC_SUBTRACT:	g_env.pSceneMgr->SetShadowDepthBias(g_env.pSceneMgr->GetShadowDepthBias()-0.001); break;
 	case OIS::KC_ESCAPE:	DestroyWindow(g_env.hwnd); break;
 	case OIS::KC_F1:
 		{

@@ -130,7 +130,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::_CreateDepthBuffer( uint32 width, uint32 height )
 	{
-		m_pDepthStencil = new D3D11Texture(width, height, nullptr, ePF_Unknown, eTextureUsage_Depth, false);	
+		m_pDepthStencil = new D3D11Texture(width, height, nullptr, ePF_Depth32, eTextureUsage_Depth, false);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)

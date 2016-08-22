@@ -74,18 +74,18 @@ namespace Neo
 		m_pRT_Inscatter->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
 
 		m_pMtl_Transmittance = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Transmittance");
-		m_pMtl_Transmittance->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "TransmittancePS");
+		m_pMtl_Transmittance->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "TransmittancePS");
 		m_pMtl_Transmittance->AddRef();
 
 		m_pMtl_InscatterDeltaS = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_InscatterDeltaS");
 		m_pMtl_InscatterDeltaS->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
-		m_pMtl_InscatterDeltaS->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "Inscatter1PS");
+		m_pMtl_InscatterDeltaS->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "Inscatter1PS");
 		m_pMtl_InscatterDeltaS->AddRef();
 
 		m_pMtl_CopyInscatter1 = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_CopyInscatter1");
 		m_pMtl_CopyInscatter1->SetTexture(0, m_pRT_InscatterDeltaS[0]->GetRenderTexture());
 		m_pMtl_CopyInscatter1->SetTexture(1, m_pRT_InscatterDeltaS[1]->GetRenderTexture());
-		m_pMtl_CopyInscatter1->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "CopyInscatter1PS");
+		m_pMtl_CopyInscatter1->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "CopyInscatter1PS");
 		m_pMtl_CopyInscatter1->AddRef();
 
 		m_pMtl_Sky = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Final");
@@ -100,7 +100,7 @@ namespace Neo
 
 		m_pMtl_Sky->SetSamplerStateDesc(0, samDesc);
 
-		m_pMtl_Sky->InitShader(GetResPath("Sky.hlsl"), GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "SkyPS");
+		m_pMtl_Sky->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "SkyPS");
 		m_pMtl_Sky->AddRef();
 	}
 	//-------------------------------------------------------------------------------

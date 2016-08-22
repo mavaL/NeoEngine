@@ -28,6 +28,8 @@ namespace Neo
 	, m_pComputeShader(nullptr)
 	, m_pVS_GBuffer(nullptr)
 	, m_pPS_GBuffer(nullptr)
+	, m_pVS_Shadow(nullptr)
+	, m_pPS_Shadow(nullptr)
 	, m_pVS_WithClipPlane(nullptr)
 	, m_pInputLayout(nullptr)
 	, m_shaderFlag(0)
@@ -64,8 +66,7 @@ namespace Neo
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool Material::InitShader(const STRING& vsFileName, const STRING& psFileName, eShader shaderType, 
-		uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro, const char* szVSEntryFunc, const char* szPSEntryFunc)
+	bool Material::InitShader(const STRING& strShaderFile, eShader shaderType, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro, const char* szVSEntryFunc, const char* szPSEntryFunc)
 	{
 		HRESULT hr = S_OK;
 		ID3DBlob* pVSBlob = NULL;
@@ -77,11 +78,14 @@ namespace Neo
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro, 1);
 
 		// Compile
-		V_RETURN(_CompileShaderFromFile(vsFileName.c_str(), szVSEntryFunc, "vs_4_0", vecMacro, &pVSBlob));
+		V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szVSEntryFunc, "vs_4_0", vecMacro, &pVSBlob));
 
 		// Create shader
 		SAFE_RELEASE(m_pVertexShader);
 		SAFE_RELEASE(m_pPixelShader);
+		SAFE_RELEASE(m_pPS_GBuffer);
+		SAFE_RELEASE(m_pVS_Shadow);
+		SAFE_RELEASE(m_pPS_Shadow);
 		SAFE_RELEASE(m_pPS_GBuffer);
 
 		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
@@ -91,10 +95,22 @@ namespace Neo
 
 		pVSBlob->Release();
 
+		// Shadow map gen tech
+		if (strShaderFile.find("Opaque.hlsl") != STRING::npos)
+		{
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ShadowMapGen", "vs_4_0", vecMacro, &pVSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_Shadow));
+			pVSBlob->Release();
+
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_ShadowMapGen", "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_Shadow));
+			pPSBlob->Release();
+		}
+
 		// Create clip plane shader
 		if (m_shaderFlag & eShaderFlag_EnableClipPlane)
 		{
-			V_RETURN(_CompileShaderFromFile( vsFileName.c_str(), "VS_ClipPlane", "vs_4_0", vecMacro, &pVSBlob ));
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ClipPlane", "vs_4_0", vecMacro, &pVSBlob));
 
 			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane ));
 
@@ -106,14 +122,14 @@ namespace Neo
 
 		if (m_shaderType == eShader_Opaque)
 		{
-			V_RETURN(_CompileShaderFromFile(psFileName.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
 			pPSBlob->Release();
 		}
 		else
 		{
 			// Not go into g-buffer
-			V_RETURN(_CompileShaderFromFile(psFileName.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader));
 			pPSBlob->Release();
 		}
@@ -275,11 +291,29 @@ namespace Neo
 			m_pRenderSystem->SetRasterState(&rasterState);
 		}
 
-		// Clip plane
-		if (m_pRenderSystem->IsClipPlaneEnabled() && m_pVS_WithClipPlane)
-			pDeviceContext->VSSetShader( m_pVS_WithClipPlane, NULL, 0 );
-		else			
-			pDeviceContext->VSSetShader( m_pVertexShader, NULL, 0 );
+		const uint32 curPhase = g_env.pSceneMgr->GetCurRenderPhase();
+
+		if (curPhase == eRenderPhase_GBuffer)
+		{
+			pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+			pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0);
+		} 
+#if USE_VSM
+		else if (curPhase == eRenderPhase_ShadowMap && (m_shaderType != eShader_PostProcess))
+		{
+			pDeviceContext->VSSetShader(m_pVS_Shadow, NULL, 0);
+			pDeviceContext->PSSetShader(m_pPS_Shadow, NULL, 0);
+		}
+#endif
+		else if (curPhase == eRenderPhase_TiledCS)
+		{
+			pDeviceContext->CSSetShader(m_pComputeShader, nullptr, 0);
+		}
+		else
+		{
+			pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+			pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+		}
 
 		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
@@ -293,15 +327,6 @@ namespace Neo
 		else
 		{
 			pDeviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-		}
-
-		const uint32 curPhase = g_env.pSceneMgr->GetCurRenderPhase();
-
-		switch (curPhase)
-		{
-		case eRenderPhase_GBuffer: pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0); break;
-		case eRenderPhase_TiledCS: pDeviceContext->CSSetShader(m_pComputeShader, nullptr, 0); break;
-		default: pDeviceContext->PSSetShader(m_pPixelShader, NULL, 0); break;
 		}
 
 		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
@@ -406,8 +431,17 @@ namespace Neo
 
 
 #if USE_PSSM
-		D3D_SHADER_MACRO macroCSM = { "SHADOW_PSSM", "" };
-		retMacros.push_back(macroCSM);
+		{
+			D3D_SHADER_MACRO macro = { "SHADOW_PSSM", "" };
+			retMacros.push_back(macro);
+		}
+#endif
+
+#if USE_VSM
+		{
+			D3D_SHADER_MACRO macro = { "USE_VSM", "" };
+			retMacros.push_back(macro);
+		}
 #endif
 
 		D3D_SHADER_MACRO macro = { 0, 0 };

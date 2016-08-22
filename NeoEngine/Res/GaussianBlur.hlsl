@@ -1,29 +1,5 @@
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-cbuffer cbufferGlobal : register( b0 )
-{
-    matrix	World;
-	matrix	View;
-	matrix	Projection;
-	matrix	WVP;
-	matrix	WorldIT;
-	matrix	ShadowTransform;
-	float4	clipPlane;
-	float4	frustumFarCorner[4];
-	float4	ambientColor;
-	float4	lightColor;
-	float3	lightDirection;
-	float3	camPos;
-	float	time;
-	float	nearZ, farZ;
-	float	shadowMapTexelSize;
-};
+#include "Common.h"
 
-cbuffer cbufferBlur : register( b1 )
-{
-	float4 texelKernel[13];
-};
 
 static const float BlurWeights[13] = 
 {
@@ -72,14 +48,24 @@ VS_OUTPUT VS( VS_INPUT input )
 // Pixel Shader
 //--------------------------------------------------------------------------------------
 Texture2D texSrc : register(t0);
-SamplerState samSrc : register(s0);
+SamplerState sam : register(s0);
 
-float4 PS( VS_OUTPUT IN ) : SV_Target
+float4 PS_BlurX( VS_OUTPUT IN ) : SV_Target
 {
 	float4 Color = 0;
 
-    for (int i = 0; i < 13; i++) 
-        Color += texSrc.Sample( samSrc, IN.uv + texelKernel[i].xy ) * BlurWeights[i];
+    for (int i = -6; i <= 6; i++) 
+		Color += texSrc.Sample(sam, IN.uv + float2(i*shadowMapTexelSize, 0)) * BlurWeights[i+6];
     
     return Color;
+}
+
+float4 PS_BlurY(VS_OUTPUT IN) : SV_Target
+{
+	float4 Color = 0;
+
+	for (int i = -6; i <= 6; i++)
+		Color += texSrc.Sample(sam, IN.uv + float2(0, i*shadowMapTexelSize)) * BlurWeights[i+6];
+
+	return Color;
 }

@@ -152,7 +152,7 @@ namespace Neo
 		m_pMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_Font");
 		m_pMaterial->AddRef();
 		m_pMaterial->SetTexture(0, new D3D11Texture(GetResPath("Font.dds")));
-		m_pMaterial->InitShader(GetResPath("Font.hlsl"), GetResPath("Font.hlsl"), eShader_UI);
+		m_pMaterial->InitShader(GetResPath("Font.hlsl"), eShader_UI);
 	}
 }
 

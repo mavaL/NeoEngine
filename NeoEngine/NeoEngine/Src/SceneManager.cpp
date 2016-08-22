@@ -99,7 +99,7 @@ namespace Neo
 
 			m_pDebugRTMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugRT");
 			m_pDebugRTMaterial->AddRef();
-			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), GetResPath("DebugRT.hlsl"), eShader_UI);
+			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), eShader_UI);
 
 			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
 		}
@@ -114,8 +114,7 @@ namespace Neo
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			m_pMtlLinearizeDepth->SetSamplerStateDesc(0, samPoint);
 
-			m_pMtlLinearizeDepth->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
-				0, 0, "VS", "LinearizeDepthPS");
+			m_pMtlLinearizeDepth->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, 0, "VS", "LinearizeDepthPS");
 		}
 
 		{
@@ -145,17 +144,18 @@ namespace Neo
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
 
-			samPoint.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-			samPoint.ComparisonFunc = D3D11_COMPARISON_LESS;
-			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-			samPoint.BorderColor[0] = samPoint.BorderColor[1] = samPoint.BorderColor[2] = samPoint.BorderColor[3] = 1;
+#if USE_VSM
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+#else
+			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+#endif
+			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 			m_pMtlCompose->SetSamplerStateDesc(2, samPoint);
 
 			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
 
-			m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
-				0, &macro, "VS", "ComposePS");
+			m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, &macro, "VS", "ComposePS");
 		}
 
 		{
@@ -169,7 +169,7 @@ namespace Neo
 			m_pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
 
 			D3D_SHADER_MACRO mac = { "TBDR", "" };
-			m_pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
+			m_pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
 		}
 
 		return true;
@@ -248,7 +248,7 @@ namespace Neo
 			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
 		}
 
-		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), GetResPath("SkinModel.hlsl"), eShader_Opaque);
+		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), eShader_Opaque);
 		pSkinModel->SetMaterial(pMaterial);
 		pSkinModel->ShowBones(false);
 
@@ -830,6 +830,11 @@ namespace Neo
 		m_pRenderSystem->GetGlobalCB().shadowDepthBias = fBias;
 	}
 	//------------------------------------------------------------------------------------
+	float SceneManager::GetShadowDepthBias() const
+	{
+		return m_pRenderSystem->GetGlobalCB().shadowDepthBias;
+	}
+	//------------------------------------------------------------------------------------
 	bool SceneManager::LoadSponzaScene(Scene* pScene)
 	{
 		WIN32_FIND_DATAA f;
@@ -869,8 +874,7 @@ namespace Neo
 	{
 		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
 
-		m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), GetResPath("DeferredShading.hlsl"), eShader_PostProcess,
-			0, bEnable ? &macro : nullptr, "VS", "ComposePS");
+		m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
 	}
 
 }

@@ -42,13 +42,13 @@ Texture2D tex7 : register(t7);
 TextureCube texCube0 : register(t10);
 TextureCube texCube1 : register(t11);
 SamplerState samPoint : register(s0);
+SamplerState samLinear : register(s1);
+SamplerState samPointBorder : register(s2);
 
 
 //--------------------------------------------------------------------------------------
 /// ComposePS
 //--------------------------------------------------------------------------------------
-SamplerState samLinear : register(s1);
-SamplerComparisonState samShadow : register(s2);
 
 float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 {
@@ -72,7 +72,7 @@ float4 ComposePS( VS_OUTPUT IN ) : SV_Target
 	oColor.xyz += cSpecular * lightColor.xyz * fNdotL;
 
 	// Shadow
-	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, tex4, tex5, tex6);
+	float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samPointBorder, tex4, tex5, tex6);
 	oColor *= vShadow;
 
 #ifdef AMBIENT_CUBE
