@@ -3,13 +3,16 @@
 	filename	ShadowMapPSSM.h
 	author:		maval
 
-	purpose:	Parallel-Split Shadow Maps + 
-				Variance Shadow Maps
+	purpose:	Parallel-Split Shadow Maps with soft shadow
 
-	references:	http://www.punkuser.net/vsm/vsm_paper.pdf
-				"Summed-Area Variance Shadow Maps"
+	references:	1. http://www.punkuser.net/vsm/vsm_paper.pdf
+				2. "Summed-Area Variance Shadow Maps"
+				3. SIGGRAPH 2009 - Lighting Research at Bungie
+				4. "Exponential Shadow Maps"
+				5. http://developer.download.nvidia.com/presentations/2008/GDC/GDC08_SoftShadowMapping.pdf
 
-	history:	1. 2016/8/22 first version. Works well on scene4, VERY BAD on scene3...
+	history:	1. 2016/8/22 vsm added. Works well on scene4, VERY BAD on scene3...
+				2. 2016/8/23 Shit vsm requires rendering shadows receivers.. Let's change to Exponential Shadow Maps..
 *********************************************************************/
 #ifndef ShadowMapPSSM_h__
 #define ShadowMapPSSM_h__
@@ -55,7 +58,7 @@ namespace Neo
 		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
 		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];
 		EntityList			m_shadowCasters[CSM_CASCADE_NUM];
-		D3D11RenderTarget*	m_pRT_VSM_Blur;
+		D3D11RenderTarget*	m_pRT_ESM_Blur;
 		float				m_fSplitSchemeWeight;	// 0 = use fully uniform split, 1 = use fully log split
 	};
 }

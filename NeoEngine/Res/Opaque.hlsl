@@ -116,7 +116,12 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 //--------------------------------------------------------------------------------------
 float4 PS_ShadowMapGen(VS_OUTPUT_ShadowMapGen IN) : SV_Target
 {
-	return float4(IN.vDepth.x, IN.vDepth.x * IN.vDepth.x, 0, 1);
+#ifdef USE_ESM
+	float fDepthExponential = exp(fESMExponentialMultiplier * IN.vDepth.x);
+	return fDepthExponential;
+#else
+	return IN.vDepth.x;
+#endif
 }
 
 //--------------------------------------------------------------------------------------

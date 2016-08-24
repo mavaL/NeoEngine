@@ -11,13 +11,13 @@ namespace Common
 
 	void AxisAlignBBox::Merge( const VEC3& pt )
 	{
-		m_minCorner.x = min(m_minCorner.x, pt.x);
-		m_minCorner.y = min(m_minCorner.y, pt.y);
-		m_minCorner.z = min(m_minCorner.z, pt.z);
+		m_minCorner.x = Min(m_minCorner.x, pt.x);
+		m_minCorner.y = Min(m_minCorner.y, pt.y);
+		m_minCorner.z = Min(m_minCorner.z, pt.z);
 
-		m_maxCorner.x = max(m_maxCorner.x, pt.x);
-		m_maxCorner.y = max(m_maxCorner.y, pt.y);
-		m_maxCorner.z = max(m_maxCorner.z, pt.z);
+		m_maxCorner.x = Max(m_maxCorner.x, pt.x);
+		m_maxCorner.y = Max(m_maxCorner.y, pt.y);
+		m_maxCorner.z = Max(m_maxCorner.z, pt.z);
 
 		//更新外接球球径
 		m_boundingRadius = Common::Vec3_Distance(m_minCorner, m_maxCorner) / 2;

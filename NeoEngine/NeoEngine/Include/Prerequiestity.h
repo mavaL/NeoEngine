@@ -20,7 +20,7 @@ const int	MAX_TEXTURE_STAGE	=	16;
 #define USE_LISPPSM				0			// Light space perspective shadow mapping
 #define USE_PSSM				1			// Parallel-Split Shadow Maps
 #define	CSM_CASCADE_NUM			3			// Cascade level
-#define USE_VSM					1			// Variance Shadow Maps
+#define USE_ESM					0			// Exponential Shadow Maps
 
 
 enum eTextureType

@@ -28,6 +28,7 @@ namespace Neo
 		void	SetPosition(const VEC3& pos);
 		void	SetUp(const VEC3& v) { m_vUp = v; }
 		void	SetDirection(const VEC3& dir);
+		void	SetLookAt(const VEC3& v);
 		void	Yaw(float angle);
 		void	Pitch(float angle);
 		void	Rotate(const VEC3& axis, float angle);

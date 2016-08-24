@@ -110,8 +110,6 @@ void SetupTestScene3(Scene* scene)
 	// Sun light
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
 	g_env.pSceneMgr->SetShadowMapSize(1024);
-	// As using VSM we dont need bias any more.
-	g_env.pSceneMgr->SetShadowDepthBias(0);
 
 	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64, 0, 358));
 	g_env.pSceneMgr->CreateSky();
@@ -165,10 +163,8 @@ void EnterTestScene3(Scene* scene)
 void SetupTestScene4(Scene* scene)
 {
 	// Sun light
-	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
+	g_env.pSceneMgr->SetupSunLight(VEC3(-0.22f, -0.37f, 0.90f), SColor(0.7f, 0.7f, 0.7f));
 	g_env.pSceneMgr->SetShadowMapSize(512);
-	// As using VSM we dont need bias any more.
-	g_env.pSceneMgr->SetShadowDepthBias(0);
 
 	// Ambient cube
 	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
@@ -176,7 +172,7 @@ void SetupTestScene4(Scene* scene)
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Shadow receiver
-	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(100.0f, 100.0f);
+	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(25.0f, 25.0f);
 	Neo::Entity* pEntity = new Neo::Entity(pMesh);
 
 	scene->AddEntity(pEntity);
@@ -197,8 +193,8 @@ void SetupTestScene4(Scene* scene)
 
 	Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("dragon.mesh"));
 
-	pCaster->SetScale(50);
-	pCaster->SetPosition(VEC3(0,-3,0));
+	pCaster->SetScale(10);
+	pCaster->SetPosition(VEC3(0,-0.5f,0));
 	scene->AddEntity(pCaster);
 	pCaster->SetMaterial(pMaterial);
 	pCaster->SetCastShadow(true);
@@ -208,11 +204,11 @@ void SetupTestScene4(Scene* scene)
 void EnterTestScene4(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(10.95f, 21.03f, -39.84f));
+	pCamera->SetPosition(VEC3(-7.60f, 2.85f, 1.87f));
 	pCamera->SetNearClip(0.1f);
-	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.25f);
-	pCamera->SetDirection(VEC3::UNIT_Z);
+	pCamera->SetFarClip(50.0f);
+	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetLookAt(VEC3::ZERO);
 }
 
 
@@ -376,10 +372,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		////// Test Scene 3: Terrain
-		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 5: Vegetation
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);

@@ -305,8 +305,8 @@ namespace Neo
 		const uint32 vertsPerSide = CELLS_PER_PATCH + 1;
 		uint32 curIdx = i * HEIGHT_MAP_SIZE * CELLS_PER_PATCH + j * CELLS_PER_PATCH;
 
-		float fMin = FLT_MAX;
-		float fMax = FLT_MIN;
+		float fMin = std::numeric_limits<float>::max();
+		float fMax = std::numeric_limits<float>::min();
 
 		for (uint32 x=0; x<vertsPerSide; ++x)
 		{
@@ -314,8 +314,8 @@ namespace Neo
 			{
 				float h = m_heightData[curIdx + y];
 
-				fMin = min(fMin, h);
-				fMax = max(fMax, h);
+				fMin = Min(fMin, h);
+				fMax = Max(fMax, h);
 			}
 
 			curIdx += HEIGHT_MAP_SIZE;
@@ -333,13 +333,13 @@ namespace Neo
 		vMin.z = m_vOrigin.y;
 		vMax.x = m_vOrigin.x + m_vDimension.x;
 		vMax.z = m_vOrigin.y + m_vDimension.y;
-		vMin.y = FLT_MAX;
-		vMax.y = FLT_MIN;
+		vMin.y = std::numeric_limits<float>::max();
+		vMax.y = std::numeric_limits<float>::min();
 
 		for (size_t i=0; i<m_patchBoundY.size(); ++i)
 		{
-			vMin.y = min(vMin.y, m_patchBoundY[i].x);
-			vMax.y = max(vMax.y, m_patchBoundY[i].y);
+			vMin.y = Min(vMin.y, m_patchBoundY[i].x);
+			vMax.y = Max(vMax.y, m_patchBoundY[i].y);
 		}
 
 		m_terrainAABB.SetNull();

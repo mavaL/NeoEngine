@@ -19,7 +19,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	ShadowMapPSSM::ShadowMapPSSM()
 		: m_fSplitSchemeWeight(0.5f)
-		, m_pRT_VSM_Blur(nullptr)
+		, m_pRT_ESM_Blur(nullptr)
 	{
 		ZeroMemory(m_shadowMapCascades, sizeof(m_shadowMapCascades));
 	}
@@ -30,7 +30,7 @@ namespace Neo
 		{
 			SAFE_RELEASE(m_shadowMapCascades[iCascade]);
 		}
-		SAFE_RELEASE(m_pRT_VSM_Blur);
+		SAFE_RELEASE(m_pRT_ESM_Blur);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::SetShadowMapSize(uint32 nSize)
@@ -39,16 +39,16 @@ namespace Neo
 		{
 			SAFE_RELEASE(m_shadowMapCascades[iCascade]);
 		}
-		SAFE_RELEASE(m_pRT_VSM_Blur);
+		SAFE_RELEASE(m_pRT_ESM_Blur);
 
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
 			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
-			m_shadowMapCascades[iCascade]->Init(nSize, nSize, ePF_G32R32F, true, false, false, true);
+			m_shadowMapCascades[iCascade]->Init(nSize, nSize, ePF_R32F, true, false, false, true);
 		}
 
-		m_pRT_VSM_Blur = new D3D11RenderTarget();
-		m_pRT_VSM_Blur->Init(nSize, nSize, ePF_G32R32F, false, false);
+		m_pRT_ESM_Blur = new D3D11RenderTarget();
+		m_pRT_ESM_Blur->Init(nSize, nSize, ePF_R32F, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Update(Camera& cam)
@@ -93,8 +93,8 @@ namespace Neo
 			AABB frusumAABB = _CalculateSplitFrustumAABB(tmpCam, fSplitPoints[i], fSplitPoints[i + 1], vFrustumPoints);
 
 			// find casters
-			//std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
-			std::vector<Entity*> castersInSplit = _FindCasters2(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
+			std::vector<Entity*> castersInSplit = _FindCasters(tmpCam, frusumAABB, vLightDir);
+			//std::vector<Entity*> castersInSplit = _FindCasters2(tmpCam, fSplitPoints[i], fSplitPoints[i + 1]);
 			
 			m_shadowCasters[i] = castersInSplit;
 
@@ -128,11 +128,11 @@ namespace Neo
 
 			g_env.pRenderSystem->UpdateGlobalCBuffer();
 
-			m_shadowMapCascades[iCascade]->BeforeRender(true, true, SColor::WHITE);
+			m_shadowMapCascades[iCascade]->BeforeRender(true, true, SColor(FLT_MAX, FLT_MAX, FLT_MAX, 1));
 			g_env.pSceneMgr->GetCurScene()->RenderEntityList(m_shadowCasters[iCascade]);
 			m_shadowMapCascades[iCascade]->AfterRender();
 
-#if USE_VSM
+#if USE_ESM
 			_VSMBlurPass(iCascade);
 #endif
 
@@ -142,11 +142,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	D3D11Texture* ShadowMapPSSM::GetShadowTexture(int i)
 	{
-#if USE_VSM
 		return m_shadowMapCascades[i]->GetRenderTexture();
-#else
-		return m_shadowMapCascades[i]->GetDepthTexture();
-#endif
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::_AdjustCameraNearFar(Camera& cam)
@@ -288,7 +284,13 @@ namespace Neo
 		for (uint32 i = 0; i < lstEntity.size(); i++)
 		{
 			Entity *pObject = lstEntity[i];
-			if (!pObject->GetCastShadow()) 
+
+			if (!pObject->GetCastShadow()
+#if USE_ESM
+				// ESM requires rendering shadow receivers..
+				&& !pObject->GetReceiveShadow()
+#endif
+				) 
 				continue;
 
 			// do intersection test
@@ -297,6 +299,7 @@ namespace Neo
 
 			casters.push_back(pObject);
 		}
+
 		return casters;
 	}
 	//------------------------------------------------------------------------------------
@@ -464,8 +467,8 @@ namespace Neo
 			pMtlBlurX->SetSamplerStateDesc(0, samDesc);
 			pMtlBlurY->SetSamplerStateDesc(0, samDesc);
 
-			pMtlBlurX->InitShader(GetResPath("GaussianBlur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BlurX");
-			pMtlBlurY->InitShader(GetResPath("GaussianBlur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BlurY");
+			pMtlBlurX->InitShader(GetResPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurX");
+			pMtlBlurY->InitShader(GetResPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurY");
 
 			bInit = true;
 		}
@@ -473,10 +476,10 @@ namespace Neo
 		// BlurH
 		pMtlBlurX->SetTexture(0, m_shadowMapCascades[iCascade]->GetRenderTexture());
 
-		m_pRT_VSM_Blur->RenderScreenQuad(pMtlBlurX, false, false);
+		m_pRT_ESM_Blur->RenderScreenQuad(pMtlBlurX, false, false);
 
 		// BlurV
-		pMtlBlurY->SetTexture(0, m_pRT_VSM_Blur->GetRenderTexture());
+		pMtlBlurY->SetTexture(0, m_pRT_ESM_Blur->GetRenderTexture());
 	
 		m_shadowMapCascades[iCascade]->RenderScreenQuad(pMtlBlurY, false, false);
 	}

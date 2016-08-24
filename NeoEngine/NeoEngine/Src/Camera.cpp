@@ -436,6 +436,11 @@ namespace Neo
 
 		return true;
 	}
+	//------------------------------------------------------------------------------------
+	void Camera::SetLookAt(const VEC3& v)
+	{
+		SetDirection(v - m_viewPt);
+	}
 
 }
 

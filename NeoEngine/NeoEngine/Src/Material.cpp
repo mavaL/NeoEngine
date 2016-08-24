@@ -299,13 +299,11 @@ namespace Neo
 			pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
 			pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0);
 		} 
-#if USE_VSM
 		else if (curPhase == eRenderPhase_ShadowMap && (m_shaderType != eShader_PostProcess))
 		{
 			pDeviceContext->VSSetShader(m_pVS_Shadow, NULL, 0);
 			pDeviceContext->PSSetShader(m_pPS_Shadow, NULL, 0);
 		}
-#endif
 		else if (curPhase == eRenderPhase_TiledCS)
 		{
 			pDeviceContext->CSSetShader(m_pComputeShader, nullptr, 0);
@@ -438,9 +436,9 @@ namespace Neo
 		}
 #endif
 
-#if USE_VSM
+#if USE_ESM
 		{
-			D3D_SHADER_MACRO macro = { "USE_VSM", "" };
+			D3D_SHADER_MACRO macro = { "USE_ESM", "" };
 			retMacros.push_back(macro);
 		}
 #endif

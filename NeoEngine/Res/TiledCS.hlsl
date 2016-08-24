@@ -165,11 +165,10 @@ void CS(
 		float4 albedo = texAlbedo.SampleLevel(samPoint, texUV, 0.0f);
 
 		// Sun light
-		float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, 
-			shadowMapTexelSize, samShadow, texShadow1, texShadow2, texShadow3);
+		//float4 vShadow = ComputeShadow(vWorldPos, ShadowTransform, ShadowTransform2, ShadowTransform3, shadowMapTexelSize, samShadow, texShadow1, texShadow2, texShadow3);
 
 		oColor.xyz = albedo.xyz * cDiffuse.xyz + cSpecular;
-		oColor *= vShadow;
+		//oColor *= vShadow;
 
 		// Ambient
 		float4 vAmbientDiff, vAmbientSpec;

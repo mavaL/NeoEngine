@@ -134,7 +134,7 @@ namespace Neo
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
 
-#if USE_VSM
+#if USE_ESM
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 #else
 			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
@@ -373,13 +373,18 @@ namespace Neo
 			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
 			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
 
-			const uint32 nShadowCasters = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
-			sprintf_s(szBuf, sizeof(szBuf), "CasterInCascade 0 : %d", nShadowCasters);
+			sprintf_s(szBuf, sizeof(szBuf), "LightDir : (%.2f, %.2f, %.2f)", m_sunLight.lightDir.x, m_sunLight.lightDir.y, m_sunLight.lightDir.z);
 			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
+
+			const uint32 nShadowCasters0 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
+			const uint32 nShadowCasters1 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(1);
+			const uint32 nShadowCasters2 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(2);
+			sprintf_s(szBuf, sizeof(szBuf), "CasterIn Cascade0: %d, Cascade1: %d, Cascade2: %d", nShadowCasters0, nShadowCasters1, nShadowCasters2);
+			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
 
 			if (m_pHero)
 			{
-				m_pRenderSystem->DrawText(m_strHeroStateChange, IPOINT(10, 55), Neo::SColor::YELLOW);
+				m_pRenderSystem->DrawText(m_strHeroStateChange, IPOINT(10, 70), Neo::SColor::YELLOW);
 			}
 
 			// Debug RT

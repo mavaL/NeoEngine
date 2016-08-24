@@ -339,8 +339,8 @@ namespace Neo
 			desc.MipLevels = 1;
 			while((wid > 1) || (hei > 1))
 			{
-				wid = max(wid / 2, 1);
-				hei = max(hei / 2, 1);
+				wid = Max(wid / 2, 1);
+				hei = Max(hei / 2, 1);
 				++desc.MipLevels;
 			}
 

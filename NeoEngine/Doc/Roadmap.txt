@@ -25,3 +25,10 @@ Did nothing on NeoEngine this month..
 
 <2016.6>
 Changing rendering pipeline to full HDR tile-based deferred shading and PBR.	[WIP]
+
+<2016.8>
+PSSM needs to improve.. references:
+1. GPU gems source code chapter 8
+2. SIGGRAPH 2009 - Lighting Research at Bungie.pdf
+3. Playing with Real-Time Shadows.pdf
+4. http://developer.download.nvidia.com/presentations/2008/GDC/GDC08_SoftShadowMapping.pdf

@@ -1,4 +1,5 @@
 static const float PI = 3.141592657f;
+static const float fESMExponentialMultiplier = 80.0f;
 #define MAX_BONE_NUM	100
 
 
@@ -99,28 +100,16 @@ float4 Shadow_Sample(Texture2D texShadow, SamplerState sam, float3 posW, float s
 	float4 shadowPos = mul(float4(posW, 1.0f), matShadow);
 	float fLinearZ = shadowPos.z;
 	shadowPos.xyz /= shadowPos.w;
-	fLinearZ -= shadowDepthBias;
 	float2 shadowTexUV = shadowPos.xy;
 
-#ifdef USE_VSM
-	float2 moments = texShadow.SampleLevel(sam, shadowTexUV, 0).xy;
-
-	float variance = moments.y - moments.x * moments.x;
-
-	// Avoid light bleeding problem..
-	variance = max(smoothstep(0.0009f, 1.0f, variance), 0.00002f);
-
-	float diff = fLinearZ - moments.x;
-	float fLitFactor;
-	if(diff > 0.0)
-	{
-		fLitFactor = variance / (variance + diff * diff);
-	}
-	else
-	{
-		fLitFactor = 1.0f;
-	}
+#ifdef USE_ESM
+	// Filtered look up using mip mapping
+	float fOccluderExponential = texShadow.Sample(sam, shadowTexUV).r;
+	float fReceiverExponential = exp( -fESMExponentialMultiplier * fLinearZ);
+	float fESMShadowTest = fOccluderExponential * fReceiverExponential;
+	float fLitFactor = saturate(fESMShadowTest);
 #else
+	fLinearZ -= shadowDepthBias;
 	float fz = texShadow.SampleLevel(sam, shadowTexUV, 0).x;
 	float fLitFactor = fLinearZ <= fz;
 #endif

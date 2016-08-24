@@ -333,9 +333,6 @@
     <CustomBuild Include="..\Res\Font.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\Res\GaussianBlur.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
     <CustomBuild Include="..\Res\Sky.hlsl">
       <Filter>Shader</Filter>
     </CustomBuild>
@@ -375,6 +372,9 @@
       <Filter>Shader</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Terrain.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Blur.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
   </ItemGroup>

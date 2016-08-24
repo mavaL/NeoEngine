@@ -209,8 +209,8 @@ namespace Neo
 			AABB aabb_es = g_env.pSceneMgr->GetCurScene()->GetSceneShadowReceiverAABB();
 			aabb_es.Transform(matCameraView);
 
-			float nz = max(ZNEAR_MIN, aabb_es.m_minCorner.z);
-			float fz = min(ZFAR_MAX, aabb_es.m_maxCorner.z);
+			float nz = Max(ZNEAR_MIN, aabb_es.m_minCorner.z);
+			float fz = Min(ZFAR_MAX, aabb_es.m_maxCorner.z);
 
 			float Nopt0 = nz + sqrtf(nz * fz);
 			float Nopt1 = ZNEAR_MIN + sqrtf(ZNEAR_MIN*ZFAR_MAX);
@@ -230,9 +230,9 @@ namespace Neo
 			{
 				VEC3 tmp = bodyB_ls.getPoint(i) - lightSpaceOrigin;
 				assert(tmp.z > 0.f);
-				maxx = max(maxx, fabsf(tmp.x / tmp.z));
-				maxy = max(maxy, fabsf(tmp.y / tmp.z));
-				maxz = max(maxz, tmp.z);
+				maxx = Max(maxx, fabsf(tmp.x / tmp.z));
+				maxy = Max(maxy, fabsf(tmp.y / tmp.z));
+				maxz = Max(maxz, tmp.z);
 			}
 
 			MAT44 lsTranslate, lsPerspective;
