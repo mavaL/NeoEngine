@@ -20,7 +20,7 @@ const int	MAX_TEXTURE_STAGE	=	16;
 #define USE_LISPPSM				0			// Light space perspective shadow mapping
 #define USE_PSSM				1			// Parallel-Split Shadow Maps
 #define	CSM_CASCADE_NUM			3			// Cascade level
-#define USE_ESM					0			// Exponential Shadow Maps
+#define USE_ESM					1			// Exponential Shadow Maps
 
 
 enum eTextureType
@@ -59,24 +59,25 @@ enum eVertexType
 // Use for render target to control which part to render
 enum eRenderPhase
 {
-	eRenderPhase_ShadowMap	= 1 << 0,
-	eRenderPhase_GBuffer	= 1 << 1,
-	eRenderPhase_TiledCS	= 1	<< 2,
-	eRenderPhase_SSAO		= 1 << 3,
-	eRenderPhase_Compose	= 1 << 4,
-	eRenderPhase_Forward	= 1 << 5,
-	eRenderPhase_Water		= 1 << 6,
-	eRenderPhase_FinalScene	= 1 << 7,
-	eRenderPhase_UI			= 1 << 8,
-	eRenderPhase_None		= 1 << 9,
+	eRenderPhase_ShadowMap			= 1 << 0,
+	eRenderPhase_GBuffer			= 1 << 1,
+	eRenderPhase_TiledCS			= 1	<< 2,
+	eRenderPhase_SSAO				= 1 << 3,
+	eRenderPhase_Compose			= 1 << 4,
+	eRenderPhase_Forward			= 1 << 5,
+	eRenderPhase_Transparent		= 1 << 6,
+	eRenderPhase_FinalScene			= 1 << 7,
+	eRenderPhase_UI					= 1 << 8,
+	eRenderPhase_None				= 1 << 9,
 
-	eRenderPhase_All = eRenderPhase_GBuffer | eRenderPhase_Water | eRenderPhase_UI | eRenderPhase_SSAO
+	eRenderPhase_All = eRenderPhase_GBuffer | eRenderPhase_UI | eRenderPhase_SSAO
 };
 
 enum eShader
 {
 	eShader_Opaque,
 	eShader_Transparent,
+	eShader_Forward,
 	eShader_PostProcess,
 	eShader_UI,
 };

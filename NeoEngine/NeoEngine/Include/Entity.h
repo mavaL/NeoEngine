@@ -26,6 +26,7 @@ namespace Neo
 		virtual void	DebugRender() {}
 
 		void			SetMaterial(Material* pMaterial);
+		Material*		GetMaterial();
 		void			SetPosition(const VEC3& pos);
 		void			SetRotation(const QUATERNION& quat);
 		void			SetScale(float scale);

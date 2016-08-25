@@ -62,6 +62,7 @@ namespace Neo
 		ID3D11SamplerState*		GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
 		const STRING&			GetName() const { return m_name; }
+		eShader					GetShaderType() const { return m_shaderType; }
 
 	private:
 		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 

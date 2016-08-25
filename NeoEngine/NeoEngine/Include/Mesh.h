@@ -87,6 +87,7 @@ namespace Neo
 		uint32		GetSubMeshCount() const;
 		void		SetMaterial(Material* pMaterial);
 		Material*	GetMaterial()	{ return m_pMaterial; }
+		bool		BuildTangents();
 
 		void		Render();
 

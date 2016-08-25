@@ -39,7 +39,6 @@ namespace Neo
 	, m_pMeshLoader(new MeshLoader)
 	, m_debugRT(eDebugRT_None)
 	, m_pShadowMap(new ShadowMap)
-	, m_renderFlag(eRenderPhase_All)
 	, m_pRT_Compose(nullptr)
 	, m_pRT_Depth(nullptr)
 	, m_pTBDR(nullptr)
@@ -275,7 +274,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SceneManager::Render(Material* pMaterial)
 	{
-		RenderPipline(m_renderFlag, pMaterial);
+		RenderPipline(eRenderPhase_All, pMaterial);
 
 		static bool bInitTestCases = false;
 		if (!bInitTestCases)
@@ -305,7 +304,7 @@ namespace Neo
 		//================================================================================
 		/// GBuffer phase
 		//================================================================================
-		_RenderGBuffer(phaseFlag);
+		_RenderGBuffer();
 
 		//================================================================================
 		/// Linearize depth pass
@@ -334,12 +333,27 @@ namespace Neo
 		{
 			m_pSky->Render();
 		}
+
+		//================================================================================
+		/// Forward objects
+		//================================================================================
+		m_curRenderPhase = eRenderPhase_Forward;
+
+		EntityList& sceneObjs = m_pCurScene->GetEntityList();
+		for (size_t i = 0; i < sceneObjs.size(); ++i)
+		{
+			if (sceneObjs[i]->GetMaterial()->GetShaderType() == eShader_Forward)
+			{
+				sceneObjs[i]->Render();
+			}
+		}
 		
 		//================================================================================
 		/// Render water
 		//================================================================================
 		if (m_pWater)
 		{
+			m_curRenderPhase = eRenderPhase_Transparent;
 			m_pWater->Render();
 		}
 
@@ -401,7 +415,7 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void SceneManager::_RenderGBuffer(uint32 phaseFlag)
+	void SceneManager::_RenderGBuffer()
 	{
 		m_curRenderPhase = eRenderPhase_GBuffer;
 
@@ -494,31 +508,18 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	Entity* SceneManager::CreateEntity(eEntity type, const STRING& meshname)
 	{
+		Mesh* mesh = nullptr;
 		auto iter = m_meshes.find(meshname);
 
 		if (iter == m_meshes.end())
 		{
-			Mesh* mesh = nullptr;
-			SkeletonAnim* skel = nullptr;
-
-			if (meshname.find(".obj") != STRING::npos)
-			{
-				mesh = ObjMeshLoader::LoadMesh(meshname, false, false);
-			}
-			else
-			{
-				mesh = MeshLoader::LoadMesh(meshname, false, &skel);
-
-				if (skel)
-				{
-					m_skeletons.insert(std::make_pair(mesh, skel));
-				}
-			}
-
-			iter = m_meshes.insert(std::make_pair(meshname, mesh)).first;
+			mesh = LoadMeshFromFile(meshname, meshname);
+		}
+		else
+		{
+			mesh = iter->second;
 		}
 		
-		Mesh* mesh = iter->second;
 		_AST(mesh);
 
 		Entity* pEntity = nullptr;
@@ -896,6 +897,30 @@ namespace Neo
 	uint32 SceneManager::GetShadowMapSize() const
 	{
 		return m_nShadowMapSize;
+	}
+	//------------------------------------------------------------------------------------
+	Mesh* SceneManager::LoadMeshFromFile(const STRING& meshname, const STRING& filename)
+	{
+		Mesh* mesh = nullptr;
+		SkeletonAnim* skel = nullptr;
+
+		if (filename.find(".obj") != STRING::npos)
+		{
+			mesh = ObjMeshLoader::LoadMesh(filename, false, false);
+		}
+		else
+		{
+			mesh = MeshLoader::LoadMesh(filename, false, &skel);
+
+			if (skel)
+			{
+				m_skeletons.insert(std::make_pair(mesh, skel));
+			}
+		}
+
+		m_meshes.insert(std::make_pair(meshname, mesh));
+
+		return mesh;
 	}
 
 }

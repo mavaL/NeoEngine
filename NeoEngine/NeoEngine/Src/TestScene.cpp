@@ -28,32 +28,6 @@ using namespace Neo;
 	m_scenes.push_back(pScene);										\
 }
 
-void SetupTestScene1(Scene* scene)
-{
-	Entity* pEntity =  g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("skull.mesh"));
-
-	QUATERNION quat(VEC3::UNIT_Y, 90);
-	pEntity->SetRotation(quat);
-
-	Neo::Material* pMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_01");
-
-	pMaterial->SetTexture(0, new D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableSSAO);
-
-	pEntity->SetMaterial(pMaterial);
-
-	scene->AddEntity(pEntity);
-}
-
-void EnterTestScene1(Scene* scene)
-{
-	g_env.pSceneMgr->GetCamera()->SetPosition(VEC3(0,0,-200));
-	g_env.pSceneMgr->GetCamera()->SetMoveSpeed(0.5f);
-	g_env.pSceneMgr->GetCamera()->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->EnableDebugRT(eDebugRT_SSAO);
-	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All);
-}
 
 void SetupTestScene2(Scene* scene)
 {
@@ -100,8 +74,6 @@ void EnterTestScene2(Scene* scene)
 	pCamera->SetFarClip(100000.0f);
 	pCamera->SetMoveSpeed(2.0f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
-
-	g_env.pSceneMgr->SetRenderFlag(eRenderPhase_All & ~eRenderPhase_SSAO);
 }
 
 
@@ -219,19 +191,19 @@ void SetupTestScene6(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Add 100 point lights to scene
-	for (int i = 0; i < 10; ++i)
-	{
-		for (int j = 0; j < 10; ++j)
-		{
-			Neo::SPointLight light;
-			light.color.Set(RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5));
-			light.fRadius = RandomRange(3.0f, 8.0f, 100);
-			light.vPos.Set(-100+20*i, 1, -100+20*j);
-			light.fAtten = RandomRange(2.0f, 7.0f, 100);
+	//for (int i = 0; i < 10; ++i)
+	//{
+	//	for (int j = 0; j < 10; ++j)
+	//	{
+	//		Neo::SPointLight light;
+	//		light.color.Set(RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5), RandomRange(0.3f, 1.0f, 5));
+	//		light.fRadius = RandomRange(3.0f, 8.0f, 100);
+	//		light.vPos.Set(-100+20*i, 1, -100+20*j);
+	//		light.fAtten = RandomRange(2.0f, 7.0f, 100);
 
-			g_env.pSceneMgr->AddPointLight(light);
-		}
-	}
+	//		g_env.pSceneMgr->AddPointLight(light);
+	//	}
+	//}
 
 	// A plane floor with normal mapping
 	float halfW = 200.0f / 2;
@@ -240,9 +212,9 @@ void SetupTestScene6(Scene* scene)
 	SVertex vert[4] =
 	{
 		SVertex(VEC3(-halfW, 0, +halfH), VEC2(0, 0)),
-		SVertex(VEC3(+halfW, 0, +halfH), VEC2(1, 0)),
-		SVertex(VEC3(+halfW, 0, -halfH), VEC2(1, 1)),
-		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 1)),
+		SVertex(VEC3(+halfW, 0, +halfH), VEC2(10, 0)),
+		SVertex(VEC3(+halfW, 0, -halfH), VEC2(10, 10)),
+		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 10)),
 	};
 
 	DWORD dwIndex[6] = { 0, 1, 3, 1, 2, 3 };
@@ -262,8 +234,8 @@ void SetupTestScene6(Scene* scene)
 
 
 	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor", eVertexType_NormalMap);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
-	pMaterial->SetTexture(1, new Neo::D3D11Texture(GetResPath("floor_bump.png")));
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("road002_diff.dds"), eTextureType_2D, 0, true));
+	pMaterial->SetTexture(1, new Neo::D3D11Texture(GetResPath("road002_ddn.dds")));
 
 	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
 	pMaterial->SetSamplerStateDesc(0, samDesc);
@@ -280,9 +252,9 @@ void SetupTestScene6(Scene* scene)
 		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
 
 	// Another test sphere entity
-	pEntity = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
-	pEntity->SetPosition(VEC3(0, 2, 0));
-	scene->AddEntity(pEntity);
+	Neo::Entity* pSpheres = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere_group.obj"));
+	pSpheres->SetPosition(VEC3(0, 2, 0));
+	scene->AddEntity(pSpheres);
 
 	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_sphere", eVertexType_General, 10);
 
@@ -294,7 +266,28 @@ void SetupTestScene6(Scene* scene)
 	}
 
 	pMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
-	pEntity->SetMaterial(pMaterial);
+	pSpheres->SetMaterial(pMaterial);
+
+	// GGX anisotropic
+
+	Mesh* pSphereMesh = g_env.pSceneMgr->LoadMeshFromFile("sphere_group_anisotropic", GetResPath("sphere_group.obj"));
+	pSphereMesh->BuildTangents();
+
+	Neo::Entity* pSpheres2 = new Neo::Entity(pSphereMesh);
+	pSpheres2->SetPosition(VEC3(0, 2, 20));
+	scene->AddEntity(pSpheres2);
+
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX", eVertexType_NormalMap, 10);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath("White1x1.png")));
+		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
+		pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
+	}
+
+	pMaterial->InitShader(GetResPath("Anisotropic.hlsl"), eShader_Forward);
+	pSpheres2->SetMaterial(pMaterial);
 }
 
 void EnterTestScene6(Scene* scene)
@@ -303,7 +296,7 @@ void EnterTestScene6(Scene* scene)
 	pCamera->SetPosition(VEC3(0, 5, 0));
 	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
-	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetMoveSpeed(0.2f);
 	pCamera->SetDirection(VEC3::UNIT_Z);
 }
 
@@ -365,9 +358,6 @@ namespace Neo
 {
 	void SceneManager::_InitAllScene()
 	{
-		//// Test Scene 1: mesh, SSAO post effect
-		//ADD_TEST_SCENE(SetupTestScene1, EnterTestScene1);
-
 		////// Test Scene 2: Sky, Water
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
@@ -375,13 +365,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
-
-		//// Test Scene 5: Vegetation
-		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);

@@ -154,6 +154,11 @@ namespace Neo
 		m_pMesh->SetMaterial(pMaterial);
 	}
 	//------------------------------------------------------------------------------------
+	Material* Entity::GetMaterial()
+	{
+		return m_pMesh->GetMaterial();
+	}
+	//------------------------------------------------------------------------------------
 	void Entity::UpdateAABB()
 	{
 		_UpdateTransform();

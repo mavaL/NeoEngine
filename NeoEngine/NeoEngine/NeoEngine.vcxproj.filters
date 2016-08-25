@@ -377,5 +377,8 @@
     <FxCompile Include="..\Res\Blur.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Res\Anisotropic.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

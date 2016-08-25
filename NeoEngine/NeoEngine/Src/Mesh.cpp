@@ -3,6 +3,7 @@
 #include "D3D11RenderSystem.h"
 #include "Material.h"
 #include "TangentSpaceCalculation.h"
+#include "SceneManager.h"
 
 namespace Neo
 {
@@ -57,6 +58,17 @@ namespace Neo
 		pMaterial->AddRef();
 	}
 	//------------------------------------------------------------------------------------
+	bool Mesh::BuildTangents()
+	{
+		for (size_t i = 0; i < m_submeshes.size(); ++i)
+		{
+			if (!m_submeshes[i]->BuildTangents())
+				return false;
+		}
+		return true;
+	}
+
+	//------------------------------------------------------------------------------------
 	SubMesh::SubMesh()
 		: m_pVertexBuf(nullptr)
 		, m_pIndexBuf(nullptr)
@@ -110,8 +122,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	bool SubMesh::BuildTangents()
 	{
-		_AST(m_vertData.GetVertType() == eVertexType_NormalMap);
-
 		SVertex* pVerts = m_vertData.GetVertex();
 		const DWORD nTri = m_nIndexCnt / 3;
 		CTangentCalcProxy inputProxy;

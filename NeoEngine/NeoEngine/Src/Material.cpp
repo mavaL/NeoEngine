@@ -97,7 +97,8 @@ namespace Neo
 
 		// Shadow map gen tech
 		if (strShaderFile.find("Opaque.hlsl") != STRING::npos ||
-			strShaderFile.find("SkinModel.hlsl") != STRING::npos)
+			strShaderFile.find("SkinModel.hlsl") != STRING::npos ||
+			shaderType == eShader_Forward)
 		{
 			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ShadowMapGen", "vs_4_0", vecMacro, &pVSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_Shadow));
@@ -233,7 +234,7 @@ namespace Neo
 				{
 					// Stream 0
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT		, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					// Stream 1
 					{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },

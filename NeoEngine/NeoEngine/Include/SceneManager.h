@@ -33,9 +33,7 @@ namespace Neo
 
 		// Create entity from loaded mesh
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
-
-		void		SetRenderFlag(uint32 flag) { m_renderFlag = flag; }
-		uint32		GetRenderFlag() const	{ return m_renderFlag; }
+		Mesh*		LoadMeshFromFile(const STRING& meshname, const STRING& filename);
 		void		EnableDebugRT(eDebugRT type);
 		void		SetShadowDepthBias(float fBias);
 		float		GetShadowDepthBias() const;
@@ -76,7 +74,7 @@ namespace Neo
 
 	private:
 		void		_InitAllScene();
-		void		_RenderGBuffer(uint32 phaseFlag);
+		void		_RenderGBuffer();
 		void		_LinearizeDepth();
 		void		_CompositionPass();
 		void		_PointLightPass();
@@ -92,7 +90,6 @@ namespace Neo
 		D3D11RenderTarget*		m_pRT_Compose;
 		D3D11RenderTarget*		m_pRT_Depth;
 
-		uint32			m_renderFlag;	// Render phase control flag
 		uint32			m_nShadowMapSize;
 		eRenderPhase	m_curRenderPhase;
 		Camera*			m_camera;

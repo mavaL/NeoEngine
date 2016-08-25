@@ -6,6 +6,7 @@
 #include "SceneManager.h"
 #include "Terrain.h"
 #include "Entity.h"
+#include "Material.h"
 
 namespace Neo
 {
@@ -80,7 +81,10 @@ namespace Neo
 	{
 		for (size_t i = 0; i < m_lstEntity.size(); ++i)
 		{
-			m_lstEntity[i]->Render();
+			if (m_lstEntity[i]->GetMaterial()->GetShaderType() == eShader_Opaque)
+			{
+				m_lstEntity[i]->Render();
+			}
 		}
 	}
 	//------------------------------------------------------------------------------------
