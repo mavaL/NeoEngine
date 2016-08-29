@@ -55,7 +55,7 @@ namespace Neo
 		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
 		bool		InitComputeShader(const STRING& filename);
 
-		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc);
+		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVertexTexture = false);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
@@ -97,6 +97,7 @@ namespace Neo
 		std::vector<SubMaterial>	m_vecSubMtls;
 		D3D11_SAMPLER_DESC			m_samplerStateDesc[MAX_TEXTURE_STAGE];
 		ID3D11SamplerState*			m_pSamplerState[MAX_TEXTURE_STAGE];
+		bool						m_bVertexTexture[MAX_TEXTURE_STAGE];
 	};
 }
 

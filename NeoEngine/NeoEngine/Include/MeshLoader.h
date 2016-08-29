@@ -16,7 +16,7 @@ namespace Neo
 	{
 	public:
 		static Mesh*	LoadMesh(const STRING& filename, bool bMaterial = false, SkeletonAnim** pSkelAnim = nullptr);
-		static bool		SaveMesh(Mesh* pMesh);
+		static bool		SaveMesh(Mesh* pMesh, const STRING& filename);
 
 	private:
 		static bool		_LoadVertex_General(TiXmlElement* vertNode, int nVert, SubMesh* pSubMesh, bool bNormalMap, DWORD* pIndexData, uint32 nIndex);

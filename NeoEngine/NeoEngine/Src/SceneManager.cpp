@@ -339,14 +339,8 @@ namespace Neo
 		//================================================================================
 		m_curRenderPhase = eRenderPhase_Forward;
 
-		EntityList& sceneObjs = m_pCurScene->GetEntityList();
-		for (size_t i = 0; i < sceneObjs.size(); ++i)
-		{
-			if (sceneObjs[i]->GetMaterial()->GetShaderType() == eShader_Forward)
-			{
-				sceneObjs[i]->Render();
-			}
-		}
+		_RenderForwardObjs();
+		
 		
 		//================================================================================
 		/// Render water
@@ -469,6 +463,88 @@ namespace Neo
 		m_pRenderSystem->SetActiveTexture(4, nullptr);
 		m_pRenderSystem->SetActiveTexture(5, nullptr);
 		m_pRenderSystem->SetActiveTexture(6, nullptr);
+	}
+	//------------------------------------------------------------------------------------
+	_declspec(align(16))
+	struct cBufferFur
+	{
+		VEC4	vCombParams;
+		VEC4	vModelCamPos;
+		VEC4	vModelLightDir;	
+		float	shellIncrement;
+		int		iShell;
+	};
+
+	void SceneManager::_RenderForwardObjs()
+	{
+		static ID3D11Buffer* pCB_Fur = nullptr;
+		if (!pCB_Fur)
+		{
+			HRESULT hr = S_OK;
+			D3D11_BUFFER_DESC bd;
+			ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
+			bd.Usage = D3D11_USAGE_DEFAULT;
+			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			bd.CPUAccessFlags = 0;
+			bd.ByteWidth = sizeof(cBufferFur);
+
+			V(m_pRenderSystem->GetDevice()->CreateBuffer(&bd, NULL, &pCB_Fur));
+		}
+
+		EntityList& sceneObjs = m_pCurScene->GetEntityList();
+		for (size_t i = 0; i < sceneObjs.size(); ++i)
+		{
+			Entity* pEntity = sceneObjs[i];
+			const eShader shader = pEntity->GetMaterial()->GetShaderType();
+
+			if (shader == eShader_Forward)
+			{
+				pEntity->Render();
+			}
+			else if (shader == eShader_Fur)
+			{
+				// TODO: material sorting
+				cBufferFur cbFur;
+				VEC3 vCombDir(1.0f, -0.3f, 0.0f);
+				vCombDir.Normalize();
+				cbFur.vCombParams.Set(vCombDir.x, vCombDir.y, vCombDir.z, 0.0f);
+				cbFur.shellIncrement = 0.25f;
+
+				MAT44 matInvWorld = pEntity->GetWorldMatrix().Inverse();
+				cbFur.vModelCamPos = Common::Transform_Vec3_By_Mat44(m_camera->GetPos(), matInvWorld, true);
+				cbFur.vModelLightDir = Common::Transform_Vec3_By_Mat44(-m_sunLight.lightDir, matInvWorld, false);
+
+				SStateBlend blendState = m_pRenderSystem->GetCurBlendState();
+				BOOL old = blendState.Desc.RenderTarget[0].BlendEnable;
+
+				blendState.Desc.RenderTarget[0].BlendEnable = TRUE;
+				blendState.Desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+				blendState.Desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+
+				m_pRenderSystem->SetBlendState(&blendState);
+
+				// Turn off depth write
+				SStateDepth depthState = m_pRenderSystem->GetCurDepthState();
+				auto oldDepth = depthState.Desc.DepthWriteMask;
+				depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+
+				m_pRenderSystem->SetDepthState(&depthState);
+
+				for (int iShell = 1; iShell <= 15; ++iShell)
+				{
+					cbFur.iShell = iShell;
+					m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
+					m_pRenderSystem->GetDeviceContext()->VSSetConstantBuffers(10, 1, &pCB_Fur);
+
+					pEntity->Render();
+				}
+
+				blendState.Desc.RenderTarget[0].BlendEnable = old;
+				depthState.Desc.DepthWriteMask = oldDepth;
+				m_pRenderSystem->SetBlendState(&blendState);
+				m_pRenderSystem->SetDepthState(&depthState);
+			}
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_HDRFinalScenePass()

@@ -81,7 +81,9 @@ namespace Neo
 	{
 		for (size_t i = 0; i < m_lstEntity.size(); ++i)
 		{
-			if (m_lstEntity[i]->GetMaterial()->GetShaderType() == eShader_Opaque)
+			const eShader type = m_lstEntity[i]->GetMaterial()->GetShaderType();
+
+			if (type == eShader_Opaque || type == eShader_Fur)
 			{
 				m_lstEntity[i]->Render();
 			}

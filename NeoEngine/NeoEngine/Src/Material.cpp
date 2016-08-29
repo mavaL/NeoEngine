@@ -39,6 +39,7 @@ namespace Neo
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
 			m_pSamplerState[i] = nullptr;
+			m_bVertexTexture[i] = false;
 
 			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
 			// Default wrap mode
@@ -98,7 +99,8 @@ namespace Neo
 		// Shadow map gen tech
 		if (strShaderFile.find("Opaque.hlsl") != STRING::npos ||
 			strShaderFile.find("SkinModel.hlsl") != STRING::npos ||
-			shaderType == eShader_Forward)
+			shaderType == eShader_Forward ||
+			shaderType == eShader_Fur)
 		{
 			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ShadowMapGen", "vs_4_0", vecMacro, &pVSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_Shadow));
@@ -126,6 +128,20 @@ namespace Neo
 		{
 			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
 			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
+			pPSBlob->Release();
+		}
+		else if (m_shaderType == eShader_Fur)
+		{
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS", "vs_4_0", vecMacro, &pVSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_GBuffer));
+			pVSBlob->Release();
+
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
+			pPSBlob->Release();
+
+			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szPSEntryFunc, "ps_4_0", vecMacro, &pPSBlob));
+			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader));
 			pPSBlob->Release();
 		}
 		else
@@ -235,6 +251,7 @@ namespace Neo
 					// Stream 0
 					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					// Stream 1
 					{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 					{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -297,7 +314,14 @@ namespace Neo
 
 		if (curPhase == eRenderPhase_GBuffer)
 		{
-			pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+			if (m_shaderType == eShader_Fur)
+			{
+				pDeviceContext->VSSetShader(m_pVS_GBuffer, NULL, 0);
+			} 
+			else
+			{
+				pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+			}
 			pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0);
 		} 
 		else if (curPhase == eRenderPhase_ShadowMap && (m_shaderType != eShader_PostProcess))
@@ -333,22 +357,24 @@ namespace Neo
 		{
 			if (m_pSamplerState[i])
 			{
-				g_env.pRenderSystem->SetActiveSamplerState(i, m_pSamplerState[i]);
+				g_env.pRenderSystem->SetActiveSamplerState(i, m_pSamplerState[i], m_bVertexTexture[i]);
 			}
 		}
 		
 		m_vecSubMtls[iSubMtl].Activate();
 	}
 	//------------------------------------------------------------------------------------
-	void Material::SetSamplerStateDesc( int stage, const D3D11_SAMPLER_DESC& desc )
+	void Material::SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVertexTexture)
 	{
-		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+		_AST(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
 		SAFE_RELEASE(m_pSamplerState[stage]);
 
 		m_samplerStateDesc[stage] = desc;
-		HRESULT hr = m_pRenderSystem->GetDevice()->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]);
-		assert(SUCCEEDED(hr) && "Failed to CreateSamplerState!");
+		m_bVertexTexture[stage] = bVertexTexture;
+
+		HRESULT hr = S_OK;
+		V(m_pRenderSystem->GetDevice()->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]));
 	}
 	//-------------------------------------------------------------------------------
 	void Material::TurnOffTessellation()

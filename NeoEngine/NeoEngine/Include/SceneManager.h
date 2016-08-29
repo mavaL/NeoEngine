@@ -78,6 +78,7 @@ namespace Neo
 		void		_LinearizeDepth();
 		void		_CompositionPass();
 		void		_PointLightPass();
+		void		_RenderForwardObjs();
 		void		_HDRFinalScenePass();
 
 		std::vector<Scene*>		m_scenes;	

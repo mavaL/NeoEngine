@@ -585,9 +585,10 @@ namespace Neo
 		switch(dxformat)
 		{
 		case DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT_B8G8R8X8_UNORM:
 		case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
 		case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
-		case DXGI_FORMAT_R8G8B8A8_UNORM:	
+		case DXGI_FORMAT_R8G8B8A8_UNORM:
 			format = ePF_A8R8G8B8; 
 			break;
 		case DXGI_FORMAT_R16_UNORM:			format = ePF_L16; break;
@@ -602,7 +603,10 @@ namespace Neo
 			format = ePF_DXT1; 
 			break;
 		case DXGI_FORMAT_BC2_UNORM: format = ePF_DXT2; break;
-		case DXGI_FORMAT_BC3_UNORM: format = ePF_DXT3; break;
+		case DXGI_FORMAT_BC3_UNORM:
+		case DXGI_FORMAT_BC3_UNORM_SRGB:
+			format = ePF_DXT3; 
+			break;
 		case DXGI_FORMAT_BC4_UNORM: format = ePF_DXT4; break;
 		case DXGI_FORMAT_BC5_UNORM: format = ePF_DXT5; break;
 

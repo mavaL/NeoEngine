@@ -119,7 +119,7 @@ namespace Neo
 
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture);
-		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler);
+		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVertexTexture = false);
 		// This texture will be recreated after window resized.
 		void		AddResizableTexture(D3D11Texture* pTexture);
 

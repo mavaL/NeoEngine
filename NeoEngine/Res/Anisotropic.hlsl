@@ -131,7 +131,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 
 	float4 vAmbient = float4(0.2f, 0.2f, 0.2f, 1.0f);	// Forward rendering uses simple ambient lighting
 	float4 oColor = texDiffuse.Sample(samLinear, IN.uv) * (cDiffuse + vAmbient);
-	oColor.xyz = cSpecular * lightColor.xyz * fNdotL;
+	oColor.xyz += cSpecular * lightColor.xyz * fNdotL;
 
 	return oColor;
 }

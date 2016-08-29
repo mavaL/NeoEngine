@@ -380,5 +380,8 @@
     <FxCompile Include="..\Res\Anisotropic.hlsl">
       <Filter>Shader</Filter>
     </FxCompile>
+    <FxCompile Include="..\Res\Fur\Fur.hlsl">
+      <Filter>Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -314,14 +314,16 @@ namespace Neo
 			{
 				m_pDeviceContext->HSSetShaderResources(stage, 1, &pSRV);
 			} 
-			else if (pTexture->GetUsage() & eTextureUsage_DomainShader)
+			if (pTexture->GetUsage() & eTextureUsage_DomainShader)
 			{
 				m_pDeviceContext->DSSetShaderResources(stage, 1, &pSRV);
 			}
-			else
+			if (pTexture->GetUsage() & eTextureUsage_VertexShader)
 			{
-				m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
+				m_pDeviceContext->VSSetShaderResources(stage, 1, &pSRV);
 			}
+
+			m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
 		}
 		else
 		{
@@ -330,12 +332,16 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetActiveSamplerState(int stage, ID3D11SamplerState* sampler)
+	void D3D11RenderSystem::SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVertexTexture)
 	{
 		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
 		m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
 
+		if (bVertexTexture)
+		{
+			m_pDeviceContext->VSSetSamplers(stage, 1, &sampler);
+		}
 	}
 	//------------------------------------------------------------------------------------
 	D3D11RenderTarget* D3D11RenderSystem::CreateRenderTarget()

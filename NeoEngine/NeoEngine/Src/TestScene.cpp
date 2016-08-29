@@ -13,6 +13,7 @@
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
+#include "MeshLoader.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
 #include "ShadowMapPSSM.h"
@@ -174,6 +175,106 @@ void SetupTestScene4(Scene* scene)
 }
 
 void EnterTestScene4(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(-7.60f, 2.85f, 1.87f));
+	pCamera->SetNearClip(0.1f);
+	pCamera->SetFarClip(50.0f);
+	pCamera->SetMoveSpeed(0.1f);
+	pCamera->SetLookAt(VEC3::ZERO);
+}
+
+void SetupTestScene5(Scene* scene)
+{
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(-2, -1, -2), SColor(0.7f, 0.7f, 0.7f));
+	g_env.pSceneMgr->SetShadowMapSize(512);
+
+	// Ambient cube
+	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap),
+		new Neo::D3D11Texture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap));
+
+	// Floor
+	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(25.0f, 25.0f, 5);
+	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+
+	scene->AddEntity(pEntity);
+	pEntity->SetCastShadow(false);
+
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01");
+
+	D3D11_SAMPLER_DESC& sam = pMaterial->GetSamplerStateDesc(0);
+	sam.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sam.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	pMaterial->SetSamplerStateDesc(0, sam);
+
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("road002_diff.dds"), eTextureType_2D, 0, true));
+	pMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
+	pEntity->SetMaterial(pMaterial);
+
+
+	// Fur cat
+	StringVector g_furTextureNames;
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture00.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture01.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture02.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture03.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture04.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture05.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture06.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture07.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture08.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture09.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture10.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture11.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture12.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture13.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture14.dds");
+	g_furTextureNames.push_back("../../../Res/Fur/FurTexture/FurTexture15.dds");
+
+	StringVector g_furOffsetNames;
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset00.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset01.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset02.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset03.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset04.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset05.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset06.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset07.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset08.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset09.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset10.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset11.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset12.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset13.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset14.dds");
+	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset15.dds");
+
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Fur", eVertexType_NormalMap);
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Fur\\catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader, true));
+	pMaterial->SetTexture(3, new Neo::D3D11Texture(g_furTextureNames, false));
+	pMaterial->SetTexture(4, new Neo::D3D11Texture(g_furOffsetNames, false));
+
+	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
+	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	pMaterial->SetSamplerStateDesc(0, samDesc, true);
+
+	pMaterial->InitShader(GetResPath("Fur\\Fur.hlsl"), eShader_Fur, 0, nullptr, "VS_Fur");
+
+	pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\cat.mesh"), true);
+	Neo::Entity* pCaster = new Neo::Entity(pMesh);
+	pCaster->SetScale(0.1f);
+	pCaster->SetPosition(VEC3(0,0.5,0));
+	scene->AddEntity(pCaster);
+	pCaster->SetMaterial(pMaterial);
+	pCaster->SetCastShadow(true);
+	pCaster->SetReceiveShadow(false);
+
+}
+
+void EnterTestScene5(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetPosition(VEC3(-7.60f, 2.85f, 1.87f));
@@ -367,8 +468,11 @@ namespace Neo
 		//// Test Scene 4: Shadow testing
 		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
+		//// Test Scene 5: Fur and hair rendering
+		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);

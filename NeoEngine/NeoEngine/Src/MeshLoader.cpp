@@ -107,7 +107,7 @@ namespace Neo
 
 		if (bSaveMesh)
 		{
-			SaveMesh(pMesh);
+			SaveMesh(pMesh, filename);
 		}
 		
 		return pMesh;
@@ -232,10 +232,10 @@ namespace Neo
 		return bSaveMesh;
 	}
 	//------------------------------------------------------------------------------------
-	bool MeshLoader::SaveMesh(Mesh* pMesh)
+	bool MeshLoader::SaveMesh(Mesh* pMesh, const STRING& filename)
 	{
-		const char* filename = pMesh->GetFileName().c_str();
-		bool bOk = ::DeleteFileA(filename);
+		bool bOk = true;
+		::DeleteFileA(filename.c_str());
 
 		TiXmlDocument* doc = new TiXmlDocument;
 		TiXmlElement* pMeshNode = new TiXmlElement("mesh");
@@ -322,7 +322,7 @@ namespace Neo
 
 		}
 
-		bOk = doc->SaveFile(filename);
+		bOk = doc->SaveFile(filename.c_str());
 
 		return bOk;
 	}

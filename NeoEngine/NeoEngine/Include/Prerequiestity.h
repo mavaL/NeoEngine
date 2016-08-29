@@ -13,13 +13,14 @@
 
 
 const int	MAX_TEXTURE_STAGE	=	16;
+const int	CSM_CASCADE_NUM		=	3;
+const int	FUR_SHELL_LAYER		=	15;
 
 
 
 #define USE_SIMD				0			// «∑Ò π”√SIMD
 #define USE_LISPPSM				0			// Light space perspective shadow mapping
 #define USE_PSSM				1			// Parallel-Split Shadow Maps
-#define	CSM_CASCADE_NUM			3			// Cascade level
 #define USE_ESM					1			// Exponential Shadow Maps
 
 
@@ -38,9 +39,10 @@ enum eTextureUsage
 	eTextureUsage_RenderTarget	= 1 << 2,
 	eTextureUsage_DomainShader	= 1 << 3,		// Bind to domain shader
 	eTextureUsage_HullShader	= 1 << 4,		// Bind to hull shader
-	eTextureUsage_RecreateOnWndResized = 1 << 5,
-	eTextureUsage_Depth			= 1 << 6,
-	eTextureUsage_AutoGenMips	= 1 << 7,
+	eTextureUsage_VertexShader	= 1 << 5,		// Bind to vertex shader
+	eTextureUsage_RecreateOnWndResized = 1 << 6,
+	eTextureUsage_Depth			= 1 << 7,
+	eTextureUsage_AutoGenMips	= 1 << 8,
 };
 
 enum eEntity
@@ -78,6 +80,7 @@ enum eShader
 	eShader_Opaque,
 	eShader_Transparent,
 	eShader_Forward,
+	eShader_Fur,
 	eShader_PostProcess,
 	eShader_UI,
 };
