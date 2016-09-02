@@ -79,6 +79,7 @@ namespace Neo
 		void		_CompositionPass();
 		void		_PointLightPass();
 		void		_RenderForwardObjs();
+		void		_FurPass(Entity* pEntity);
 		void		_HDRFinalScenePass();
 
 		std::vector<Scene*>		m_scenes;	

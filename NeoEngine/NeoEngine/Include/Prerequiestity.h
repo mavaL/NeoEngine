@@ -39,10 +39,11 @@ enum eTextureUsage
 	eTextureUsage_RenderTarget	= 1 << 2,
 	eTextureUsage_DomainShader	= 1 << 3,		// Bind to domain shader
 	eTextureUsage_HullShader	= 1 << 4,		// Bind to hull shader
-	eTextureUsage_VertexShader	= 1 << 5,		// Bind to vertex shader
-	eTextureUsage_RecreateOnWndResized = 1 << 6,
-	eTextureUsage_Depth			= 1 << 7,
-	eTextureUsage_AutoGenMips	= 1 << 8,
+	eTextureUsage_VertexShader = 1 << 5,		// Bind to vertex shader
+	eTextureUsage_GeometryShader = 1 << 6,		// Bind to vertex shader
+	eTextureUsage_RecreateOnWndResized = 1 << 7,
+	eTextureUsage_Depth			= 1 << 8,
+	eTextureUsage_AutoGenMips	= 1 << 9,
 };
 
 enum eEntity

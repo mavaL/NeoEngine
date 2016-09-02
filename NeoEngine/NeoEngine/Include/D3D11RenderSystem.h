@@ -119,7 +119,7 @@ namespace Neo
 
 		// Set texture to device
 		void		SetActiveTexture(int stage, D3D11Texture* pTexture);
-		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVertexTexture = false);
+		void		SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVS = false, bool bGS = false);
 		// This texture will be recreated after window resized.
 		void		AddResizableTexture(D3D11Texture* pTexture);
 
@@ -135,8 +135,8 @@ namespace Neo
 		bool		IsClipPlaneEnabled() const { return m_bClipPlaneEnabled; }
 
 		// Update constant buffer to device
-		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bComputeShader = false);
-		void		UpdateMaterialCBuffer(bool bTessellate = false, bool bComputeShader = false);
+		void		UpdateGlobalCBuffer(bool bTessellate = false, bool bCS = false, bool bGS = false);
+		void		UpdateMaterialCBuffer(bool bTessellate = false, bool bCS = false, bool bGS = false);
 		void		UpdateSkinCBuffer();
 		void		UpdateTerrainCBuffer();
 		

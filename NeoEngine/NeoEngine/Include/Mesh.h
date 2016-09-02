@@ -46,6 +46,7 @@ namespace Neo
 		bool		InitVertData(eVertexType type, const SVertex* pVerts, int nVert, bool bStatic);
 		bool		InitTangentData(const STangentData* pVerts, int nVert);
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
+		bool		InitAdjIndexData(const DWORD* pIdx, int nIdx);
 		bool		InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert);
 		bool		BuildTangents();
 
@@ -54,9 +55,11 @@ namespace Neo
 
 		const VertexData&	GetVertData() const { return m_vertData; }
 		DWORD				GetIndexCount() const { return m_nIndexCnt; }
+		DWORD				GetAdjIndexCount() const { return m_nAdjIndexCnt; }
 		DWORD*				GetIndexData() const { return m_pIndexData; }
+		DWORD*				GetAdjIndexData() const { return m_pAdjIndexData; }
 
-		void		Render();		
+		void		Render(D3D11_PRIMITIVE_TOPOLOGY prim);		
 
 	private:
 		STRING			m_name;
@@ -70,6 +73,10 @@ namespace Neo
 		ID3D11Buffer*	m_pIndexBuf;
 		DWORD*			m_pIndexData;
 		DWORD			m_nIndexCnt;
+
+		ID3D11Buffer*	m_pAdjIndexBuf;
+		DWORD*			m_pAdjIndexData;
+		DWORD			m_nAdjIndexCnt;
 	};
 
 	typedef std::vector<SubMesh*>	SubMeshes;
@@ -87,14 +94,19 @@ namespace Neo
 		uint32		GetSubMeshCount() const;
 		void		SetMaterial(Material* pMaterial);
 		Material*	GetMaterial()	{ return m_pMaterial; }
+		void		SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY type)	{ m_primType = type; }
+		D3D11_PRIMITIVE_TOPOLOGY		GetPrimitiveType() const	{ return m_primType; }
 		bool		BuildTangents();
+		void		ConvertToTriAdjIndices();
+		void		ConvertToLineAdjIndices();
 
 		void		Render();
 
 	private:
-		STRING		m_filename;
-		SubMeshes	m_submeshes;
-		Material*	m_pMaterial;
+		STRING						m_filename;
+		SubMeshes					m_submeshes;
+		Material*					m_pMaterial;
+		D3D11_PRIMITIVE_TOPOLOGY	m_primType;
 	};
 }
 

@@ -84,6 +84,7 @@
     </ClInclude>
     <FxCompile Include="..\Res\Anisotropic.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Res\Blur.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -256,6 +257,7 @@
     <ClCompile Include="Src\MaterialManager.cpp" />
     <ClCompile Include="Src\MathDef.cpp" />
     <ClCompile Include="Src\Mesh.cpp" />
+    <ClCompile Include="Src\MeshAdjacency.cpp" />
     <ClCompile Include="Src\MeshLoader.cpp" />
     <ClCompile Include="Src\ObjMeshLoader.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />

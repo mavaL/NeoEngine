@@ -322,6 +322,9 @@
     <ClCompile Include="Src\Shadow\ShadowMapPSSM.cpp">
       <Filter>源文件\Shadow</Filter>
     </ClCompile>
+    <ClCompile Include="Src\MeshAdjacency.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\Res\SSAO.hlsl">

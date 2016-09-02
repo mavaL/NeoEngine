@@ -152,7 +152,7 @@ namespace Neo
  		}		m_pMesh = new Mesh;
 		SubMesh* pSubMesh = new SubMesh;
  		pSubMesh->InitVertData(eVertexType_General, vert, nVerts, true);
- 		pSubMesh->InitIndexData(pIndices, nIndex, true);		m_pMesh->AddSubMesh(pSubMesh);		m_pEntity = new Entity(m_pMesh, false);		m_pEntity->SetCastShadow(false);
+ 		pSubMesh->InitIndexData(pIndices, nIndex, true);		m_pMesh->AddSubMesh(pSubMesh);		m_pMesh->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);		m_pEntity = new Entity(m_pMesh, false);		m_pEntity->SetCastShadow(false);
  		SAFE_DELETE_ARRAY(vert);
  		SAFE_DELETE_ARRAY(pIndices);
 	}

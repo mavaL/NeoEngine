@@ -322,6 +322,10 @@ namespace Neo
 			{
 				m_pDeviceContext->VSSetShaderResources(stage, 1, &pSRV);
 			}
+			if (pTexture->GetUsage() & eTextureUsage_GeometryShader)
+			{
+				m_pDeviceContext->GSSetShaderResources(stage, 1, &pSRV);
+			}
 
 			m_pDeviceContext->PSSetShaderResources(stage, 1, &pSRV);
 		}
@@ -332,15 +336,19 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVertexTexture)
+	void D3D11RenderSystem::SetActiveSamplerState(int stage, ID3D11SamplerState* sampler, bool bVS, bool bGS)
 	{
 		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
 		m_pDeviceContext->PSSetSamplers(stage, 1, &sampler);
 
-		if (bVertexTexture)
+		if (bVS)
 		{
 			m_pDeviceContext->VSSetSamplers(stage, 1, &sampler);
+		}
+		if (bGS)
+		{
+			m_pDeviceContext->GSSetSamplers(stage, 1, &sampler);
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -459,7 +467,7 @@ namespace Neo
 		m_cBufferGlobal.matInvView = matView.Inverse().Transpose();
 		m_cBufferGlobal.matViewProj = m_cBufferGlobal.matProj * m_cBufferGlobal.matView;
 
-		UpdateGlobalCBuffer();
+		UpdateGlobalCBuffer(true, true, true);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetViewport( const D3D11_VIEWPORT& vp )
@@ -478,7 +486,7 @@ namespace Neo
 		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::UpdateGlobalCBuffer(bool bTessellate, bool bComputeShader)
+	void D3D11RenderSystem::UpdateGlobalCBuffer(bool bTessellate, bool bCS, bool bGS)
 	{
 		m_pDeviceContext->UpdateSubresource( m_pGlobalCBuf, 0, NULL, &m_cBufferGlobal, 0, 0 );
 		m_pDeviceContext->VSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
@@ -490,13 +498,18 @@ namespace Neo
 			m_pDeviceContext->DSSetConstantBuffers( 0, 1, &m_pGlobalCBuf );
 		}
 
-		if (bComputeShader)
+		if (bCS)
 		{
 			m_pDeviceContext->CSSetConstantBuffers(0, 1, &m_pGlobalCBuf);
 		}
+
+		if (bGS)
+		{
+			m_pDeviceContext->GSSetConstantBuffers(0, 1, &m_pGlobalCBuf);
+		}
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::UpdateMaterialCBuffer(bool bTessellate, bool bComputeShader)
+	void D3D11RenderSystem::UpdateMaterialCBuffer(bool bTessellate, bool bCS, bool bGS)
 	{
 		m_pDeviceContext->UpdateSubresource(m_pMaterialCB, 0, NULL, &m_cBufferMaterial, 0, 0);
 		m_pDeviceContext->VSSetConstantBuffers(1, 1, &m_pMaterialCB);
@@ -508,9 +521,14 @@ namespace Neo
 			m_pDeviceContext->DSSetConstantBuffers(1, 1, &m_pMaterialCB);
 		}
 
-		if (bComputeShader)
+		if (bCS)
 		{
 			m_pDeviceContext->CSSetConstantBuffers(1, 1, &m_pMaterialCB);
+		}
+
+		if (bGS)
+		{
+			m_pDeviceContext->GSSetConstantBuffers(1, 1, &m_pMaterialCB);
 		}
 	}
 	//------------------------------------------------------------------------------------

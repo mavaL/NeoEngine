@@ -11,6 +11,7 @@ namespace Neo
 	Mesh::Mesh(const char* szfilename)
 		: m_pMaterial(nullptr)
 		, m_filename(szfilename)
+		, m_primType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	{
 
 	}
@@ -30,19 +31,21 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Mesh::Render()
 	{
+		g_env.pRenderSystem->GetDeviceContext()->IASetPrimitiveTopology(GetPrimitiveType());
+
 		for (size_t i = 0; i < m_submeshes.size(); ++i)
 		{
 			if (m_pMaterial)
 			{
 				m_pMaterial->Activate(i);
 			}
-			m_submeshes[i]->Render();
+			m_submeshes[i]->Render(GetPrimitiveType());
 		}
 	}
 	//------------------------------------------------------------------------------------
 	SubMesh* Mesh::GetSubMesh(size_t i)
 	{
-		assert(i < m_submeshes.size());
+		_AST(i < m_submeshes.size());
 		return m_submeshes[i];
 	}
 	//------------------------------------------------------------------------------------
@@ -67,13 +70,15 @@ namespace Neo
 		}
 		return true;
 	}
-
 	//------------------------------------------------------------------------------------
 	SubMesh::SubMesh()
 		: m_pVertexBuf(nullptr)
 		, m_pIndexBuf(nullptr)
 		, m_nIndexCnt(0)
 		, m_pIndexData(nullptr)
+		, m_pAdjIndexBuf(nullptr)
+		, m_nAdjIndexCnt(0)
+		, m_pAdjIndexData(nullptr)
 		, m_pVB_Tangent(nullptr)
 		, m_pVB_BoneWeights(nullptr)
 	{
@@ -86,12 +91,14 @@ namespace Neo
 		SAFE_RELEASE(m_pVB_Tangent);
 		SAFE_RELEASE(m_pVB_BoneWeights);
 		SAFE_RELEASE(m_pIndexBuf);
-		SAFE_DELETE(m_pIndexData);
+		SAFE_RELEASE(m_pAdjIndexBuf);
+		SAFE_DELETE_ARRAY(m_pIndexData);
+		SAFE_DELETE_ARRAY(m_pAdjIndexData);
 	}
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitVertData(eVertexType type, const SVertex* pVerts, int nVert, bool bStatic)
 	{
-		assert(pVerts);
+		_AST(pVerts);
 
 		SAFE_RELEASE(m_pVertexBuf);
 
@@ -319,7 +326,35 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	void SubMesh::Render()
+	bool SubMesh::InitAdjIndexData(const DWORD* pIdx, int nIdx)
+	{
+		SAFE_RELEASE(m_pAdjIndexBuf);
+		SAFE_DELETE_ARRAY(m_pAdjIndexData);
+
+		m_pAdjIndexData = new DWORD[nIdx];
+		CopyMemory(m_pAdjIndexData, pIdx, sizeof(DWORD) * nIdx);
+
+		// Create index buffer
+		D3D11_BUFFER_DESC bd;
+		ZeroMemory(&bd, sizeof(bd));
+		bd.ByteWidth = sizeof(DWORD) * nIdx;
+		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+		bd.CPUAccessFlags = 0;
+		bd.Usage = D3D11_USAGE_IMMUTABLE;
+
+		D3D11_SUBRESOURCE_DATA InitData;
+		ZeroMemory(&InitData, sizeof(InitData));
+		InitData.pSysMem = pIdx;
+
+		HRESULT hr = S_OK;
+		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pAdjIndexBuf));
+
+		m_nAdjIndexCnt = nIdx;
+
+		return true;
+	}
+	//------------------------------------------------------------------------------------
+	void SubMesh::Render(D3D11_PRIMITIVE_TOPOLOGY prim)
 	{
 		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
 
@@ -340,7 +375,12 @@ namespace Neo
 			pDeviceContext->IASetVertexBuffers(2, 1, &m_pVB_BoneWeights, &stride, &offset);
 		}
 
-		if (m_pIndexBuf)
+		if (prim == D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ)
+		{
+			pDeviceContext->IASetIndexBuffer(m_pAdjIndexBuf, DXGI_FORMAT_R32_UINT, 0);
+			pDeviceContext->DrawIndexed(m_nAdjIndexCnt, 0, 0);
+		}
+		else if (m_pIndexBuf)
 		{
 			pDeviceContext->IASetIndexBuffer(m_pIndexBuf, DXGI_FORMAT_R32_UINT, 0);
 			pDeviceContext->DrawIndexed(m_nIndexCnt, 0, 0);

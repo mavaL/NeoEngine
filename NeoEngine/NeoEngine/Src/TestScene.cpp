@@ -252,18 +252,24 @@ void SetupTestScene5(Scene* scene)
 	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset15.dds");
 
 	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Fur", eVertexType_NormalMap);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Fur\\catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader, true));
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Fur\\catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader | eTextureUsage_GeometryShader, true));
 	pMaterial->SetTexture(3, new Neo::D3D11Texture(g_furTextureNames, false));
 	pMaterial->SetTexture(4, new Neo::D3D11Texture(g_furOffsetNames, false));
+	pMaterial->SetTexture(5, new Neo::D3D11Texture(GetResPath("Fur/FurTexture/FurTextureFin.dds")));
+	pMaterial->SetTexture(6, new Neo::D3D11Texture(GetResPath("Fur/FurTexture/FurTextureOffsetFin.dds")));
 
 	D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
 	samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	pMaterial->SetSamplerStateDesc(0, samDesc, true);
+	pMaterial->SetSamplerStateDesc(0, samDesc, true, true);
 
-	pMaterial->InitShader(GetResPath("Fur\\Fur.hlsl"), eShader_Fur, 0, nullptr, "VS_Fur");
+	pMaterial->InitShader(GetResPath("Fur\\Fur.hlsl"), eShader_Fur, 0, nullptr, "VS_Fins", "PS_Fins", "VS_Shells", "PS_Shells");
+	pMaterial->InitGeometryShader(GetResPath("Fur\\Fur.hlsl"));
 
 	pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\cat.mesh"), true);
+	// Needed for fin rendering
+	pMesh->ConvertToLineAdjIndices();
+
 	Neo::Entity* pCaster = new Neo::Entity(pMesh);
 	pCaster->SetScale(0.1f);
 	pCaster->SetPosition(VEC3(0,0.5,0));

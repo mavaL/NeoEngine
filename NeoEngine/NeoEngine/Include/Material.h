@@ -28,7 +28,7 @@ namespace Neo
 		SubMaterial();
 		~SubMaterial();
 
-		void		Activate();
+		void		Activate(bool bCS = false, bool bGS = false);
 		void		SetTexture(int stage, D3D11Texture* pTexture);
 
 		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
@@ -43,21 +43,28 @@ namespace Neo
 		~Material();
 
 	public:
+		void		SetActivePass(uint32 iPass, bool bEnableGS = false);
 		void		Activate(uint32 iSubMtl = 0);
 		void		TurnOffTessellation();
 		void		TurnOffComputeShader();
+		void		TurnOffGeometryShader();
 		// NB: Called before InitShader..
 		void		SetVertexType(eVertexType type) { m_vertType = type; }
 		void		SetTexture(int stage, D3D11Texture* pTexture);
+
 		// NB: Should be called after all texture stages have been setup
-		bool		InitShader(const STRING& strShaderFile, eShader shaderType, 
-			uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, const char* szVSEntryFunc = "VS", const char* szPSEntryFunc = "PS");
+		bool		InitShader(const STRING& strShaderFile, eShader shaderType, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, 
+			const char* szVS1 = "VS", const char* szPS1 = "PS",
+			const char* szVS2 = nullptr, const char* szPS2 = nullptr);
+
 		bool		InitTessellationShader(const STRING& filename, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr);
 		bool		InitComputeShader(const STRING& filename);
+		bool		InitGeometryShader(const STRING& filename);
 
-		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVertexTexture = false);
+		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVS = false, bool bCS = false);
 		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
+		D3D11_CULL_MODE			GetCullMode() const	{ return m_cullMode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
 		ID3D11SamplerState*		GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
@@ -72,15 +79,20 @@ namespace Neo
 
 		STRING						m_name;
 		D3D11RenderSystem*			m_pRenderSystem;
+		uint32						m_iActivePass;
 	
 		ID3D11HullShader*			m_pHullShader;
 		ID3D11DomainShader*			m_pDomainShader;
+		ID3D11GeometryShader*		m_pGeometryShader;
 		ID3D11ComputeShader*		m_pComputeShader;
 		ID3D11VertexShader*			m_pVS_WithClipPlane;
 		ID3D11InputLayout*			m_pInputLayout;			// Why keep it here? Because it's depend on m_vsCode
 
 		ID3D11VertexShader*			m_pVertexShader;
 		ID3D11PixelShader*			m_pPixelShader;
+		// TODO: multi-passes
+		ID3D11VertexShader*			m_pVS_2;
+		ID3D11PixelShader*			m_pPS_2;
 
 		ID3D11VertexShader*			m_pVS_GBuffer;
 		ID3D11PixelShader*			m_pPS_GBuffer;
@@ -93,11 +105,13 @@ namespace Neo
 		D3D11_CULL_MODE				m_cullMode;
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
+		bool						m_bEnableGS;
 
 		std::vector<SubMaterial>	m_vecSubMtls;
 		D3D11_SAMPLER_DESC			m_samplerStateDesc[MAX_TEXTURE_STAGE];
 		ID3D11SamplerState*			m_pSamplerState[MAX_TEXTURE_STAGE];
-		bool						m_bVertexTexture[MAX_TEXTURE_STAGE];
+		bool						m_bSamplerVS[MAX_TEXTURE_STAGE];
+		bool						m_bSamplerGS[MAX_TEXTURE_STAGE];
 	};
 }
 
