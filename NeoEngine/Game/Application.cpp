@@ -159,7 +159,7 @@ void Application::Run()
 			// Render a frame during idle time (no messages are waiting)
 			Neo::SceneManager* pSceneMgr = g_env.pSceneMgr;
 
-			pSceneMgr->GetCamera()->Update();
+			pSceneMgr->GetCamera()->Update(fDeltaTime);
 			pSceneMgr->Update(fDeltaTime);
 			m_pRenderSystem->Update(fDeltaTime);
 			

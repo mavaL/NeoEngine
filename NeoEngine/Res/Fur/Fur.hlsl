@@ -5,7 +5,7 @@ author:		maval
 purpose:	Fur rendering
 
 references:	1. http://developer.download.nvidia.com/SDK/10/direct3d/Source/Fur/doc/FurShellsAndFins.pdf
-			2. http://blog.csdn.net/noahzuo/article/details/51162472
+			2. http://amd-dev.wpengine.netdna-cdn.com/wordpress/media/2012/10/Scheuermann_HairRendering.pdf
 			3. http://www.froyok.fr/documents/fur_sheppard.pdf
 *********************************************************************/
 
@@ -35,24 +35,13 @@ cbuffer cbFur	:	register(b10)
 	int		iShell;
 };
 
-//--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float4 Pos : POSITION;
+	float4 Pos : POSITION;
 	float4 tangent : TANGENT;
 	float3 binormal : BINORMAL;
 	float3 normal : NORMAL;
 	float2 uv  : TEXCOORD0;
-};
-
-struct VS_OUTPUT
-{
-    float4 Pos			: SV_POSITION;
-	float2 uv			: TEXCOORD0;
-	float3 normal		: TEXCOORD1;
-	float3 LightVector  : TEXCOORD2;
-	float3 ViewVector   : TEXCOORD3;
-	float3 CombVector   : TEXCOORD4;
 };
 
 //--------------------------------------------------------------------------------------
@@ -234,6 +223,16 @@ float4 PS_Fins(GS_OUTPUT_FINS IN) : SV_Target
 // Shells rendering
 //--------------------------------------------------------------------------------------
 
+struct VS_OUTPUT
+{
+	float4 Pos			: SV_POSITION;
+	float2 uv			: TEXCOORD0;
+	float3 normal		: TEXCOORD1;
+	float3 LightVector  : TEXCOORD2;
+	float3 ViewVector   : TEXCOORD3;
+	float3 CombVector   : TEXCOORD4;
+};
+
 VS_OUTPUT VS_Shells(VS_INPUT IN)
 {
     VS_OUTPUT OUT = (VS_OUTPUT)0;
@@ -244,28 +243,26 @@ VS_OUTPUT VS_Shells(VS_INPUT IN)
 	if (lengthFraction < 0.2) lengthFraction = 0.2;
 	float3 CombVector = vCombParams.w * vCombParams.xyz;
 
-	float3 vModelPos = IN.Pos.xyz + (IN.normal + CombVector)*shellIncrement*iShell*lengthFraction;
+	float3 vShellOffset = normalize(IN.normal + CombVector);
+	float3 vModelPos = IN.Pos.xyz + vShellOffset*shellIncrement*iShell*lengthFraction;
 	float4 vWorldPos = mul(float4(vModelPos, 1), World);
 
 	OUT.Pos = mul(vWorldPos, ViewProj);
-	OUT.normal.xyz = mul(IN.normal, (float3x3)WorldIT);
+	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 	OUT.uv = IN.uv;
+
+	//float3x3 matTSToObj = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	float3x3 matTSToObj = float3x3(IN.tangent.xyz, cross(IN.normal, IN.tangent.xyz), IN.normal);
 
 	//transform the light and eye vectors to tangent space for per pixel lighting 
 	float3 eyeVector = vModelCamPos.xyz - vModelPos;
-	OUT.ViewVector.x = dot(IN.tangent, eyeVector);
-	OUT.ViewVector.y = dot(IN.binormal, eyeVector);
-	OUT.ViewVector.z = dot(IN.normal, eyeVector);
+	OUT.ViewVector = mul(matTSToObj, eyeVector);
 
-	float3 lightVector = vModelLightDir.xyz - vModelPos;
-	OUT.LightVector.x = dot(IN.tangent, lightVector);
-	OUT.LightVector.y = dot(IN.binormal, lightVector);
-	OUT.LightVector.z = dot(IN.normal, lightVector);
+	float3 lightVector = vModelLightDir.xyz;
+	OUT.LightVector = mul(matTSToObj, lightVector);
 	//transform the comb vector aswell, since this is going to be needed for 
 	//transforming the fur tangent in the lighting calculations
-	OUT.CombVector.x = dot(IN.tangent, CombVector);
-	OUT.CombVector.y = dot(IN.binormal, CombVector);
-	OUT.CombVector.z = dot(IN.normal, CombVector);
+	OUT.CombVector = mul(matTSToObj, CombVector);
 
 	return OUT;
 }
@@ -299,21 +296,20 @@ float4 PS_Shells(VS_OUTPUT IN) : SV_Target
     //kajiya and kay lighting
     float3 lightVector  = normalize(IN.LightVector);
     float3 viewVector   = normalize(IN.ViewVector);
-    float3 tangentVector= normalize((tangentAndAlpha.rgb - 0.5f) * 2.0f); //this is the tangent to the strand of fur
+	float3 tangentVector = Expand(tangentAndAlpha.xyz); //this is the tangent to the strand of fur
 	tangentVector = normalize(tangentVector + IN.CombVector);
-    float TdotL = dot( tangentVector , lightVector);
-    float TdotE = dot( tangentVector , viewVector);
+	float TdotL = dot(tangentVector, lightVector);
+	float TdotE = dot(tangentVector, viewVector);
     float sinTL = sqrt( 1 - TdotL*TdotL );
     float sinTE = sqrt( 1 - TdotE*TdotE );
 
-	outputColor.xyz = ka*outputColor.xyz + kd*sinTL*outputColor.xyz + 
-        ks*pow( abs((TdotL*TdotE + sinTL*sinTE)),specPower).xxx;
-	outputColor.xyz *= lightColor.xyz;
+	outputColor.xyz = kd*sinTL*outputColor.xyz*lightColor.xyz +
+		ks*pow(abs((TdotL*TdotE + sinTL*sinTE)), specPower)*lightColor.xyz;
       
     //banks selfshadowing:
     float minShadow = 0.8f;
 	float shadow = (float(shellNum) / float(numShells))*(1 - minShadow) + minShadow;
-    outputColor.xyz *= shadow * lightColor.xyz;
+    outputColor.xyz *= shadow;
       
     return outputColor;
 }
@@ -322,9 +318,16 @@ float4 PS_Shells(VS_OUTPUT IN) : SV_Target
 // g-buffer generation
 //--------------------------------------------------------------------------------------
 
-VS_OUTPUT VS(VS_INPUT IN)
+struct VS_OUTPUT_GBuffer
 {
-	VS_OUTPUT OUT = (VS_OUTPUT)0;
+	float4 Pos			: SV_POSITION;
+	float2 uv			: TEXCOORD0;
+	float3 normal		: TEXCOORD1;
+};
+
+VS_OUTPUT_GBuffer VS(VS_INPUT IN)
+{
+	VS_OUTPUT_GBuffer OUT = (VS_OUTPUT_GBuffer)0;
 
 	float4 vWorldPos = mul(IN.Pos, World);
 	float4 posH = mul(vWorldPos, ViewProj);
@@ -336,7 +339,7 @@ VS_OUTPUT VS(VS_INPUT IN)
 	return OUT;
 }
 
-gbuffer_output PS_GBuffer(VS_OUTPUT IN)
+gbuffer_output PS_GBuffer(VS_OUTPUT_GBuffer IN)
 {
 	gbuffer_output output = (gbuffer_output)0;
 

@@ -20,7 +20,7 @@ namespace Neo
 		Camera(float fNear, float fFar, float fov, float fAspectRatio, bool bFixYaw);
 
 	public:
-		void	Update();
+		void	Update(float dt);
 
 		void	SetNearClip(float n);
 		void	SetFarClip(float f);

@@ -252,7 +252,7 @@ void SetupTestScene5(Scene* scene)
 	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset15.dds");
 
 	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Fur", eVertexType_NormalMap);
-	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Fur\\catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader | eTextureUsage_GeometryShader, true));
+	pMaterial->SetTexture(0, new Neo::D3D11Texture(GetResPath("Fur/catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader | eTextureUsage_GeometryShader, true));
 	pMaterial->SetTexture(3, new Neo::D3D11Texture(g_furTextureNames, false));
 	pMaterial->SetTexture(4, new Neo::D3D11Texture(g_furOffsetNames, false));
 	pMaterial->SetTexture(5, new Neo::D3D11Texture(GetResPath("Fur/FurTexture/FurTextureFin.dds")));
@@ -266,24 +266,45 @@ void SetupTestScene5(Scene* scene)
 	pMaterial->InitShader(GetResPath("Fur\\Fur.hlsl"), eShader_Fur, 0, nullptr, "VS_Fins", "PS_Fins", "VS_Shells", "PS_Shells");
 	pMaterial->InitGeometryShader(GetResPath("Fur\\Fur.hlsl"));
 
-	pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\cat.mesh"), true);
-	// Needed for fin rendering
-	pMesh->ConvertToLineAdjIndices();
+	{
+		pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\cat.mesh"), true);
+		// Needed for fin rendering
+		pMesh->ConvertToLineAdjIndices();
 
-	Neo::Entity* pCaster = new Neo::Entity(pMesh);
-	pCaster->SetScale(0.1f);
-	pCaster->SetPosition(VEC3(0,0.5,0));
-	scene->AddEntity(pCaster);
-	pCaster->SetMaterial(pMaterial);
-	pCaster->SetCastShadow(true);
-	pCaster->SetReceiveShadow(false);
+		Neo::Entity* pCaster = new Neo::Entity(pMesh);
+		pCaster->SetScale(0.1f);
+		pCaster->SetPosition(VEC3(0, 0.5, 0));
+		scene->AddEntity(pCaster);
+		pCaster->SetMaterial(pMaterial);
+		pCaster->SetCastShadow(true);
+		pCaster->SetReceiveShadow(false);
 
+		FurCustomRenderData* pFurData = new FurCustomRenderData;
+		pCaster->SetCustomRenderData(pFurData);
+	}
+	
+	{
+		pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\knot.mesh"), true);
+		pMesh->ConvertToLineAdjIndices();
+
+		Neo::Entity* pCaster = new Neo::Entity(pMesh);
+		pCaster->SetScale(0.03f);
+		pCaster->SetPosition(VEC3(8, 5, -2));
+		scene->AddEntity(pCaster);
+		pCaster->SetMaterial(pMaterial);
+		pCaster->SetCastShadow(true);
+		pCaster->SetReceiveShadow(false);
+
+		FurCustomRenderData* pFurData = new FurCustomRenderData;
+		pFurData->shellIncrement = 1.f;
+		pCaster->SetCustomRenderData(pFurData);
+	}
 }
 
 void EnterTestScene5(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(-7.60f, 2.85f, 1.87f));
+	pCamera->SetPosition(VEC3(0,5,-15));
 	pCamera->SetNearClip(0.1f);
 	pCamera->SetFarClip(50.0f);
 	pCamera->SetMoveSpeed(0.1f);

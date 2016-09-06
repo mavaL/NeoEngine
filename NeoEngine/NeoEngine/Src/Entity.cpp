@@ -7,14 +7,15 @@ namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	Entity::Entity(Mesh* pMesh, bool bUpdateAABB)
-		:m_position(VEC3::ZERO)
-		,m_rotation(QUATERNION::IDENTITY)
-		,m_scale(1,1,1)
-		,m_bMatrixInvalid(true)
-		,m_pMesh(pMesh)
-		,m_bCastShadow(true)
-		,m_bReceiveShadow(true)
-		,m_bUpdateAABB(bUpdateAABB)
+		: m_position(VEC3::ZERO)
+		, m_rotation(QUATERNION::IDENTITY)
+		, m_scale(1, 1, 1)
+		, m_bMatrixInvalid(true)
+		, m_pMesh(pMesh)
+		, m_bCastShadow(true)
+		, m_bReceiveShadow(true)
+		, m_bUpdateAABB(bUpdateAABB)
+		, m_pCustomRenderData(nullptr)
 	{
 		if (m_bUpdateAABB)
 		{
@@ -24,6 +25,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	Entity::~Entity()
 	{
+		SAFE_DELETE(m_pCustomRenderData);
 	}
 	//------------------------------------------------------------------------------------
 	void Entity::SetPosition( const VEC3& pos )

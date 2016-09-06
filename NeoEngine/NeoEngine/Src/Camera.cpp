@@ -51,7 +51,7 @@ namespace Neo
 		g_env.pInputSystem->m_KeyReleasedSignal += Common::slot(this, &Camera::OnKeyReleased);
 	}
 
-	void Camera::Update()
+	void Camera::Update(float dt)
 	{
 		_BuildViewMatrix();
 

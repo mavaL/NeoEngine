@@ -431,6 +431,7 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void Material::TurnOffGeometryShader()
 	{
+		m_bEnableGS = false;
 		m_pRenderSystem->GetDeviceContext()->GSSetShader(nullptr, nullptr, 0);
 	}
 	//------------------------------------------------------------------------------------

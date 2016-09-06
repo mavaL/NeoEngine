@@ -516,10 +516,12 @@ namespace Neo
 		cBufferFur cbFur;
 		VEC3 vCombDir(1.0f, -0.3f, 0.0f);
 		vCombDir.Normalize();
-		cbFur.vCombParams.Set(vCombDir.x, vCombDir.y, vCombDir.z, 0.0f);
-		cbFur.shellIncrement = 0.3f;
-		cbFur.shellTexTiling = 10;
-		cbFur.fFinMaxOpacity = 0.6f;
+		cbFur.vCombParams.Set(vCombDir.x, vCombDir.y, vCombDir.z, 0);
+		
+		FurCustomRenderData* pFurData = (FurCustomRenderData*)pEntity->GetCustomRenderData();
+		cbFur.shellIncrement = pFurData->shellIncrement;
+		cbFur.fFinMaxOpacity = pFurData->fFinMaxOpacity;
+		cbFur.shellTexTiling = pFurData->shellTexTiling;
 
 		MAT44 matInvWorld = pEntity->GetWorldMatrix().Inverse();
 		cbFur.vModelCamPos = Common::Transform_Vec3_By_Mat44(m_camera->GetPos(), matInvWorld, true);
@@ -543,34 +545,40 @@ namespace Neo
 		m_pRenderSystem->SetDepthState(&depthState);
 
 		// Render fins
-		pEntity->GetMaterial()->SetActivePass(0, true);
-
-		// No culling for the fins..
-		D3D11_CULL_MODE oldCull = pEntity->GetMaterial()->GetCullMode();
-		pEntity->GetMaterial()->SetCullMode(D3D11_CULL_NONE);
-
-		pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
-
-		m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
-		m_pRenderSystem->GetDeviceContext()->GSSetConstantBuffers(10, 1, &pCB_Fur);
-
-		pEntity->Render();
-
-		pEntity->GetMaterial()->TurnOffGeometryShader();
-		pEntity->GetMaterial()->SetCullMode(oldCull);
-		pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		// Render shells
-		pEntity->GetMaterial()->SetActivePass(1);
-
-		for (int iShell = 1; iShell <= FUR_SHELL_LAYER; ++iShell)
+		if (pFurData->bRenderFins)
 		{
-			cbFur.iShell = iShell;
+			pEntity->GetMaterial()->SetActivePass(0, true);
+
+			// No culling for the fins..
+			D3D11_CULL_MODE oldCull = pEntity->GetMaterial()->GetCullMode();
+			pEntity->GetMaterial()->SetCullMode(D3D11_CULL_NONE);
+
+			pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
+
 			m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
-			m_pRenderSystem->GetDeviceContext()->VSSetConstantBuffers(10, 1, &pCB_Fur);
-			m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &pCB_Fur);
+			m_pRenderSystem->GetDeviceContext()->GSSetConstantBuffers(10, 1, &pCB_Fur);
 
 			pEntity->Render();
+
+			pEntity->GetMaterial()->TurnOffGeometryShader();
+			pEntity->GetMaterial()->SetCullMode(oldCull);
+			pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		}
+
+		// Render shells
+		if (pFurData->bRenderShells)
+		{
+			pEntity->GetMaterial()->SetActivePass(1);
+
+			for (int iShell = 1; iShell <= FUR_SHELL_LAYER; ++iShell)
+			{
+				cbFur.iShell = iShell;
+				m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
+				m_pRenderSystem->GetDeviceContext()->VSSetConstantBuffers(10, 1, &pCB_Fur);
+				m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &pCB_Fur);
+
+				pEntity->Render();
+			}
 		}
 
 		blendState.Desc.RenderTarget[0].BlendEnable = old;

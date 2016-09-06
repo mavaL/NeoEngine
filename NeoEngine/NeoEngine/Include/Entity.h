@@ -14,6 +14,24 @@
 
 namespace Neo
 {
+	struct FurCustomRenderData 
+	{
+		FurCustomRenderData()
+		{
+			bRenderFins = true;
+			bRenderShells = true;
+			fFinMaxOpacity = 0.6f;
+			shellTexTiling = 10;
+			shellIncrement = 0.3f;
+		}
+
+		float	fFinMaxOpacity;
+		float	shellIncrement;
+		float	shellTexTiling;
+		bool	bRenderFins;
+		bool	bRenderShells;
+	};
+	//------------------------------------------------------------------------------------
 	class Entity
 	{
 	public:
@@ -31,6 +49,8 @@ namespace Neo
 		void			SetRotation(const QUATERNION& quat);
 		void			SetScale(float scale);
 		void			SetScale(float x, float y, float z);
+		void			SetCustomRenderData(void* pData) { m_pCustomRenderData = pData; }
+		void*			GetCustomRenderData() { return m_pCustomRenderData; }
 		void			UpdateAABB();
 
 		const VEC3&		GetPosition() { return m_position; }
@@ -57,6 +77,7 @@ namespace Neo
 
 	protected:
 		Mesh*			m_pMesh;
+		void*			m_pCustomRenderData;
 
 		VEC3			m_position;
 		QUATERNION		m_rotation;
