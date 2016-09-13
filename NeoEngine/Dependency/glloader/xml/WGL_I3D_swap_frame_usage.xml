@@ -1,0 +1,20 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_I3D_swap_frame_usage" reg_no="255">
+	<functions>
+		<function name="wglGetFrameUsageI3D" return="BOOL">
+			<params>
+				<param type="float*" name="pUsage"/>
+			</params>
+		</function>
+		<function name="wglBeginFrameTrackingI3D" return="BOOL"/>
+		<function name="wglEndFrameTrackingI3D" return="BOOL"/>
+		<function name="wglQueryFrameTrackingI3D" return="BOOL">
+			<params>
+				<param type="DWORD*" name="pFrameCount"/>
+				<param type="DWORD*" name="pMissedFrames"/>
+				<param type="float*" name="pLastMissedUsage"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

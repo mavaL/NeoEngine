@@ -1,15 +1,15 @@
 #include "stdafx.h"
 #include "ShadowMap.h"
-#include "D3D11RenderTarget.h"
-#include "D3D11RenderSystem.h"
+#include "RenderTarget.h"
+#include "RenderSystem.h"
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "ConvexBody.h"
 #include "ShadowMapLispPSM.h"
-
 #include "ShadowMapPSSM.h"
-#include <d3dx9.h>
+#include "Renderer.h"
+#include <d3dx9math.h>
 
 
 namespace Neo
@@ -17,22 +17,22 @@ namespace Neo
 
 	//------------------------------------------------------------------------------------
 	ShadowMap::ShadowMap()
-		:m_pRT_ShadowMap(nullptr)
+		: m_pRT_ShadowMap(nullptr)
+		, m_pRenderSys(g_env.pRenderer->GetRenderSys())
 	{
-		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
-
 		m_pPSSM = new ShadowMapPSSM;
 
-		D3D11_SAMPLER_DESC samDesc = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-		samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-		samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-		pRenderSystem->GetDevice()->CreateSamplerState(&samDesc, &m_pShadowSampler);
+		SSamplerDesc samDesc;
+		samDesc.Filter = SF_COMPARISON_MIN_MAG_MIP_POINT;
+		samDesc.ComparisonFunc = eCompareFunc_LESS;
+
+		m_pShadowSampler = m_pRenderSys->CreateSamplerState(samDesc);
 	}
 	//------------------------------------------------------------------------------------
 	ShadowMap::~ShadowMap()
 	{
 		SAFE_RELEASE(m_pRT_ShadowMap);
-		SAFE_RELEASE(m_pShadowSampler);
+		SAFE_DELETE(m_pShadowSampler);
 		SAFE_DELETE(m_pPSSM);
 	}
 	//------------------------------------------------------------------------------------
@@ -42,17 +42,13 @@ namespace Neo
 		m_pPSSM->SetShadowMapSize(nSize);
 #else
 		SAFE_RELEASE(m_pRT_ShadowMap);
-
-		m_pRT_ShadowMap = new D3D11RenderTarget;
-		// FIXME: Shadow map doesn't really need a frame buffer.
-		m_pRT_ShadowMap->Init(nSize, nSize, ePF_A8R8G8B8, true, false, true);
+		m_pRT_ShadowMap = g_env.pRenderer->CreateRenderTarget(nSize, nSize, 1, ePF_A8R8G8B8, eRenderTargetUsage_OwnDepthTex | eRenderTargetUsage_NoColorTex);
 #endif
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMap::Render()
 	{
-		D3D11RenderSystem* pRenderSystem = g_env.pRenderSystem;
-		cBufferGlobal& cb = pRenderSystem->GetGlobalCB();
+		cBufferGlobal& cb = g_env.pRenderer->GetGlobalCB();
 
 #if USE_PSSM
 		m_pPSSM->Render();
@@ -72,7 +68,7 @@ namespace Neo
 		cb.matProj = m_matLightProj.Transpose();
 		cb.matViewProj = cb.matProj * cb.matView;
 		
-		pRenderSystem->UpdateGlobalCBuffer();
+		g_env.pRenderer->UpdateGlobalCBuffer();
 
 		m_pRT_ShadowMap->BeforeRender(false, true);
 		g_env.pSceneMgr->GetCurScene()->RenderEntityList(shadowCasters);
@@ -86,10 +82,10 @@ namespace Neo
 		cb.matProj = cam->GetProjMatrix().Transpose();
 		cb.matViewProj = cb.matProj * cb.matView;
 
-		pRenderSystem->UpdateGlobalCBuffer();
+		g_env.pRenderer->UpdateGlobalCBuffer();
 	}
 	//------------------------------------------------------------------------------------
-	D3D11Texture* ShadowMap::GetShadowTexture()
+	Texture* ShadowMap::GetShadowTexture()
 	{
 		return m_pRT_ShadowMap->GetDepthTexture();
 	}

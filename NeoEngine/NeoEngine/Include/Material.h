@@ -11,6 +11,8 @@
 #include "Prerequiestity.h"
 #include "Color.h"
 #include "IRefCount.h"
+#include "RenderDefine.h"
+#include "RenderState.h"
 
 namespace Neo
 {
@@ -29,9 +31,9 @@ namespace Neo
 		~SubMaterial();
 
 		void		Activate(bool bCS = false, bool bGS = false);
-		void		SetTexture(int stage, D3D11Texture* pTexture);
+		void		SetTexture(int stage, Texture* pTexture);
 
-		D3D11Texture*		m_pTexture[MAX_TEXTURE_STAGE];
+		Texture*			m_pTexture[MAX_TEXTURE_STAGE];
 		VEC3				specular;
 		float				glossiness;
 	};
@@ -50,7 +52,7 @@ namespace Neo
 		void		TurnOffGeometryShader();
 		// NB: Called before InitShader..
 		void		SetVertexType(eVertexType type) { m_vertType = type; }
-		void		SetTexture(int stage, D3D11Texture* pTexture);
+		void		SetTexture(int stage, Texture* pTexture);
 
 		// NB: Should be called after all texture stages have been setup
 		bool		InitShader(const STRING& strShaderFile, eShader shaderType, uint32 shaderFalg = 0, const D3D_SHADER_MACRO* pMacro = nullptr, 
@@ -61,57 +63,57 @@ namespace Neo
 		bool		InitComputeShader(const STRING& filename);
 		bool		InitGeometryShader(const STRING& filename);
 
-		void					SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVS = false, bool bCS = false);
-		D3D11_SAMPLER_DESC&		GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
-		void					SetCullMode(D3D11_CULL_MODE mode)	{ m_cullMode = mode; }
-		D3D11_CULL_MODE			GetCullMode() const	{ return m_cullMode; }
+		void					SetSamplerStateDesc(int stage, const SSamplerDesc& desc, bool bVS = false, bool bCS = false, bool bTessellation = false);
+		SSamplerDesc&			GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
+		void					SetCullMode(eCullMode mode)	{ m_cullMode = mode; }
+		eCullMode				GetCullMode() const	{ return m_cullMode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
-		ID3D11SamplerState*		GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
+		SamplerState*			GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
 		const STRING&			GetName() const { return m_name; }
 		eShader					GetShaderType() const { return m_shaderType; }
+		Shader*					GetCS() const		{ return m_pComputeShader; }
+		Shader*					GetGS() const		{ return m_pGeometryShader; }
+		Shader*					GetHS() const		{ return m_pHullShader; }
+		Shader*					GetDS() const		{ return m_pDomainShader; }
 
-	private:
-		bool		_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-			const std::vector<D3D_SHADER_MACRO>& vecMacro, ID3DBlob** ppBlobOut );		
-		void		_CreateVertexLayout();
+	private:	
 		std::vector<D3D_SHADER_MACRO> _InternelInitShader(const D3D_SHADER_MACRO* pMacro, uint32 nMacro);
 
 		STRING						m_name;
-		D3D11RenderSystem*			m_pRenderSystem;
+		RenderSystem*				m_pRenderSystem;
 		uint32						m_iActivePass;
 	
-		ID3D11HullShader*			m_pHullShader;
-		ID3D11DomainShader*			m_pDomainShader;
-		ID3D11GeometryShader*		m_pGeometryShader;
-		ID3D11ComputeShader*		m_pComputeShader;
-		ID3D11VertexShader*			m_pVS_WithClipPlane;
-		ID3D11InputLayout*			m_pInputLayout;			// Why keep it here? Because it's depend on m_vsCode
+		Shader*						m_pHullShader;
+		Shader*						m_pDomainShader;
+		Shader*						m_pGeometryShader;
+		Shader*						m_pComputeShader;
+		Shader*						m_pVS_WithClipPlane;
 
-		ID3D11VertexShader*			m_pVertexShader;
-		ID3D11PixelShader*			m_pPixelShader;
+		Shader*						m_pVertexShader;
+		Shader*						m_pPixelShader;
 		// TODO: multi-passes
-		ID3D11VertexShader*			m_pVS_2;
-		ID3D11PixelShader*			m_pPS_2;
+		Shader*						m_pVS_2;
+		Shader*						m_pPS_2;
 
-		ID3D11VertexShader*			m_pVS_GBuffer;
-		ID3D11PixelShader*			m_pPS_GBuffer;
+		Shader*						m_pVS_GBuffer;
+		Shader*						m_pPS_GBuffer;
 
-		ID3D11VertexShader*			m_pVS_Shadow;
-		ID3D11PixelShader*			m_pPS_Shadow;
+		Shader*						m_pVS_Shadow;
+		Shader*						m_pPS_Shadow;
 
-		std::vector<char>			m_vsCode;				// Cached for creating vertex layout
 		uint32						m_shaderFlag;
-		D3D11_CULL_MODE				m_cullMode;
+		eCullMode					m_cullMode;
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
 		bool						m_bEnableGS;
 
 		std::vector<SubMaterial>	m_vecSubMtls;
-		D3D11_SAMPLER_DESC			m_samplerStateDesc[MAX_TEXTURE_STAGE];
-		ID3D11SamplerState*			m_pSamplerState[MAX_TEXTURE_STAGE];
+		SSamplerDesc				m_samplerStateDesc[MAX_TEXTURE_STAGE];
+		SamplerState*				m_pSamplerState[MAX_TEXTURE_STAGE];
 		bool						m_bSamplerVS[MAX_TEXTURE_STAGE];
 		bool						m_bSamplerGS[MAX_TEXTURE_STAGE];
+		bool						m_bSamplerTess[MAX_TEXTURE_STAGE];
 	};
 }
 

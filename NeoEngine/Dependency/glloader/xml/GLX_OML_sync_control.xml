@@ -1,0 +1,54 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_OML_sync_control" reg_no="238">
+	<functions>
+		<function name="glXGetSyncValuesOML" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="int64_t*" name="ust"/>
+				<param type="int64_t*" name="msc"/>
+				<param type="int64_t*" name="sbc"/>
+			</params>
+		</function>
+		<function name="glXGetMscRateOML" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="int32_t*" name="numerator"/>
+				<param type="int32_t*" name="denominator"/>
+			</params>
+		</function>
+		<function name="glXSwapBuffersMscOML" return="int64_t">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="int64_t" name="target_msc"/>
+				<param type="int64_t" name="divisor"/>
+				<param type="int64_t" name="remainder"/>
+			</params>
+		</function>
+		<function name="glXWaitForMscOML" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="int64_t" name="target_msc"/>
+				<param type="int64_t" name="divisor"/>
+				<param type="int64_t" name="remainder"/>
+				<param type="int64_t*" name="ust"/>
+				<param type="int64_t*" name="msc"/>
+				<param type="int64_t*" name="sbc"/>
+			</params>
+		</function>
+		<function name="glXWaitForSbcOML" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="int64_t" name="target_sbc"/>
+				<param type="int64_t*" name="ust"/>
+				<param type="int64_t*" name="msc"/>
+				<param type="int64_t*" name="sbc"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

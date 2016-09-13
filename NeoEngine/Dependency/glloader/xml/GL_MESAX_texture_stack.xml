@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_MESAX_texture_stack" reg_no="318">
+	<tokens>
+		<token name="GL_TEXTURE_1D_STACK_MESAX" value="0x8759"/>
+		<token name="GL_TEXTURE_2D_STACK_MESAX" value="0x875A"/>
+		<token name="GL_PROXY_TEXTURE_1D_STACK_MESAX" value="0x875B"/>
+		<token name="GL_PROXY_TEXTURE_2D_STACK_MESAX" value="0x875C"/>
+		<token name="GL_TEXTURE_1D_STACK_BINDING_MESAX" value="0x875D"/>
+		<token name="GL_TEXTURE_2D_STACK_BINDING_MESAX" value="0x875E"/>
+	</tokens>
+</gl_extension>

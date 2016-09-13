@@ -1,0 +1,390 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SUN_vertex" reg_no="166">
+	<functions>
+		<function name="glColor4ubVertex2fSUN" return="void">
+			<params>
+				<param type="GLubyte" name="r"/>
+				<param type="GLubyte" name="g"/>
+				<param type="GLubyte" name="b"/>
+				<param type="GLubyte" name="a"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+			</params>
+		</function>
+		<function name="glColor4ubVertex2fvSUN" return="void">
+			<params>
+				<param type="const GLubyte*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glColor4ubVertex3fSUN" return="void">
+			<params>
+				<param type="GLubyte" name="r"/>
+				<param type="GLubyte" name="g"/>
+				<param type="GLubyte" name="b"/>
+				<param type="GLubyte" name="a"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glColor4ubVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLubyte*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glColor3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glColor3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glColor4fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="a"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glColor4fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord4fVertex4fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="p"/>
+				<param type="GLfloat" name="q"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+				<param type="GLfloat" name="w"/>
+			</params>
+		</function>
+		<function name="glTexCoord4fVertex4fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor4ubVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLubyte" name="r"/>
+				<param type="GLubyte" name="g"/>
+				<param type="GLubyte" name="b"/>
+				<param type="GLubyte" name="a"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor4ubVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLubyte*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor4fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="a"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glTexCoord2fColor4fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord4fColor4fNormal3fVertex4fSUN" return="void">
+			<params>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="p"/>
+				<param type="GLfloat" name="q"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="a"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+				<param type="GLfloat" name="w"/>
+			</params>
+		</function>
+		<function name="glTexCoord4fColor4fNormal3fVertex4fvSUN" return="void">
+			<params>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor4ubVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLubyte" name="r"/>
+				<param type="GLubyte" name="g"/>
+				<param type="GLubyte" name="b"/>
+				<param type="GLubyte" name="a"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor4ubVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLubyte*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor4fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="a"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiColor4fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fSUN" return="void">
+			<params>
+				<param type="GLuint" name="rc"/>
+				<param type="GLfloat" name="s"/>
+				<param type="GLfloat" name="t"/>
+				<param type="GLfloat" name="r"/>
+				<param type="GLfloat" name="g"/>
+				<param type="GLfloat" name="b"/>
+				<param type="GLfloat" name="a"/>
+				<param type="GLfloat" name="nx"/>
+				<param type="GLfloat" name="ny"/>
+				<param type="GLfloat" name="nz"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glReplacementCodeuiTexCoord2fColor4fNormal3fVertex3fvSUN" return="void">
+			<params>
+				<param type="const GLuint*" name="rc"/>
+				<param type="const GLfloat*" name="tc"/>
+				<param type="const GLfloat*" name="c"/>
+				<param type="const GLfloat*" name="n"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

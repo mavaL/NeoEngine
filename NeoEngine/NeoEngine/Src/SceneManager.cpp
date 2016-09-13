@@ -7,21 +7,22 @@
 #include "Scene.h"
 #include "MeshLoader.h"
 #include "ObjMeshLoader.h"
-#include "D3D11RenderTarget.h"
-#include "D3D11Texture.h"
-#include "D3D11RenderSystem.h"
+#include "RenderTarget.h"
+#include "Texture.h"
+#include "RenderSystem.h"
 #include "Material.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
 #include "Mesh.h"
 #include "TiledRenderer.h"
 #include "StructuredBuffer.h"
-
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
 #include "ShadowMapPSSM.h"
+#include "Buffer.h"
+#include "Renderer.h"
 
 
 namespace Neo
@@ -30,7 +31,7 @@ namespace Neo
 
 	//------------------------------------------------------------------------------------
 	SceneManager::SceneManager()
-	: m_pRenderSystem(g_env.pRenderSystem)
+	: m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	, m_camera(nullptr)
 	, m_pCurScene(nullptr)
 	, m_pTerrain(nullptr)
@@ -55,22 +56,16 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	bool SceneManager::Init()
 	{
-		const uint32 nScreenWidth = m_pRenderSystem->GetWndWidth();
-		const uint32 nScreenHeight = m_pRenderSystem->GetWndHeight();
+		const uint32 nScreenWidth = g_env.pRenderer->GetWndWidth();
+		const uint32 nScreenHeight = g_env.pRenderer->GetWndHeight();
 
-		m_pTexEnvBRDF = new D3D11Texture(GetResPath("EnvironmentBRDF.dds"));
+		m_pTexEnvBRDF = m_pRenderSystem->LoadTexture(GetResPath("EnvironmentBRDF.dds"));
 
-		m_pRT_Normal = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Albedo = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Specular = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Compose = m_pRenderSystem->CreateRenderTarget();
-		m_pRT_Depth = m_pRenderSystem->CreateRenderTarget();
-
-		m_pRT_Normal->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
-		m_pRT_Albedo->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
-		m_pRT_Specular->Init(nScreenWidth, nScreenHeight, ePF_A8R8G8B8, false);
-		m_pRT_Compose->Init(nScreenWidth, nScreenHeight, ePF_A16R16G16B16F, false);
-		m_pRT_Depth->Init(nScreenWidth, nScreenHeight, ePF_R32F, false);
+		m_pRT_Normal = g_env.pRenderer->CreateRenderTarget(nScreenWidth, nScreenHeight, 1, ePF_A8R8G8B8, 0);
+		m_pRT_Albedo = g_env.pRenderer->CreateRenderTarget(nScreenWidth, nScreenHeight, 1, ePF_A8R8G8B8, 0);
+		m_pRT_Specular = g_env.pRenderer->CreateRenderTarget(nScreenWidth, nScreenHeight, 1, ePF_A8R8G8B8, 0);
+		m_pRT_Compose = g_env.pRenderer->CreateRenderTarget(nScreenWidth, nScreenHeight, 1, ePF_A16R16G16B16F, 0);
+		m_pRT_Depth = g_env.pRenderer->CreateRenderTarget(nScreenWidth, nScreenHeight, 1, ePF_R32F, 0);
 
 		m_camera = new Camera;
 		m_camera->SetAspectRatio(nScreenWidth / (float)nScreenHeight);
@@ -101,7 +96,7 @@ namespace Neo
 
 			m_pDebugRTMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugRT");
 			m_pDebugRTMaterial->AddRef();
-			m_pDebugRTMaterial->InitShader(GetResPath("DebugRT.hlsl"), eShader_UI);
+			m_pDebugRTMaterial->InitShader(GetShaderPath("DebugRT.hlsl"), eShader_UI);
 
 			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
 		}
@@ -110,41 +105,38 @@ namespace Neo
 			m_pMtlLinearizeDepth = MaterialManager::GetSingleton().NewMaterial("Mtl_LinearDepth");
 			m_pMtlLinearizeDepth->AddRef();
 
-			m_pMtlLinearizeDepth->SetTexture(0, m_pRenderSystem->GetDepthTexture());
+			m_pMtlLinearizeDepth->SetTexture(0, m_pRenderSystem->GetDepthBuffer());
 
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			SSamplerDesc samPoint;
+			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 			m_pMtlLinearizeDepth->SetSamplerStateDesc(0, samPoint);
 
-			m_pMtlLinearizeDepth->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, 0, "VS", "LinearizeDepthPS");
+			m_pMtlLinearizeDepth->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, 0, "VS", "LinearizeDepthPS");
 		}
 
 		{
 			m_pMtlCompose = MaterialManager::GetSingleton().NewMaterial("Mtl_DeferredShadingCompose");
 			m_pMtlCompose->AddRef();
 
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			samPoint.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			SSamplerDesc samPoint;
+			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 			m_pMtlCompose->SetSamplerStateDesc(0, samPoint);
 
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			samPoint.Filter = SF_MIN_MAG_MIP_LINEAR;
 			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
 
 #if USE_ESM
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			samPoint.Filter = SF_MIN_MAG_MIP_LINEAR;
 #else
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 #endif
-			samPoint.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			samPoint.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			samPoint.AddressU = eTextureAddressMode_CLAMP;
+			samPoint.AddressV = eTextureAddressMode_CLAMP;
 			m_pMtlCompose->SetSamplerStateDesc(2, samPoint);
 
 			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
 
-			m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, &macro, "VS", "ComposePS");
+			m_pMtlCompose->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, &macro, "VS", "ComposePS");
 		}
 
 		{
@@ -153,12 +145,12 @@ namespace Neo
 
 			m_pMtlFinalScene->SetTexture(0, m_pRT_Compose->GetRenderTexture());
 
-			D3D11_SAMPLER_DESC samPoint = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			samPoint.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			SSamplerDesc samPoint;
+			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 			m_pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
 
 			D3D_SHADER_MACRO mac = { "TBDR", "" };
-			m_pMtlFinalScene->InitShader(GetResPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
+			m_pMtlFinalScene->InitShader(GetShaderPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
 		}
 
 		return true;
@@ -232,12 +224,14 @@ namespace Neo
 
 		for (uint32 i = 0; i < pSkinModel->GetMesh()->GetSubMeshCount(); ++i)
 		{
-			pMaterial->GetSubMaterial(i).SetTexture(0, new Neo::D3D11Texture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true));
+			Texture* pTexDiff = m_pRenderSystem->LoadTexture(GetResPath(strTexNames[i]), eTextureType_2D, 0, true);
+
+			pMaterial->GetSubMaterial(i).SetTexture(0, pTexDiff);
 			pMaterial->GetSubMaterial(i).glossiness = vSpecGloss[i].w;
 			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
 		}
 
-		pMaterial->InitShader(GetResPath("SkinModel.hlsl"), eShader_Opaque);
+		pMaterial->InitShader(GetShaderPath("SkinModel.hlsl"), eShader_Opaque);
 		pSkinModel->SetMaterial(pMaterial);
 		pSkinModel->ShowBones(false);
 
@@ -326,7 +320,7 @@ namespace Neo
 		}
 
 		// Restore depth buffer, as some forward objects may need it.
-		m_pRenderSystem->SetRenderTarget(&m_pRT_Compose, m_pRenderSystem->GetDepthTexture(), 1, false, false);
+		m_pRenderSystem->SetRenderTarget(&m_pRT_Compose, m_pRenderSystem->GetDepthBuffer(), 1, false, false);
 
 		// Sky
 		if (m_pSky)
@@ -361,11 +355,11 @@ namespace Neo
 		//================================================================================
 		if (phaseFlag & eRenderPhase_UI)
 		{
-			SStateDepth oldDepthState = m_pRenderSystem->GetCurDepthState();
+			SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
 			SStateDepth depthState = oldDepthState;
-			depthState.Desc.DepthEnable = FALSE;
+			depthState.Desc.DepthEnable = false;
 			depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			m_pRenderSystem->SetDepthState(&depthState);
+			g_env.pRenderer->SetDepthState(&depthState);
 
 			auto& lstEntity = m_pCurScene->GetEntityList();
 			for (uint32 i = 0; i < lstEntity.size(); ++i)
@@ -375,24 +369,24 @@ namespace Neo
 
 			char szBuf[512];
 			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %.2f", g_env.pFrameStat->lastFPS);
-			m_pRenderSystem->DrawText(szBuf, IPOINT(10,10), Neo::SColor::YELLOW);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 10), Neo::SColor::YELLOW);
 
 			const VEC3& vCamPos = m_camera->GetPos();
 			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
-			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
 
 			sprintf_s(szBuf, sizeof(szBuf), "LightDir : (%.2f, %.2f, %.2f)", m_sunLight.lightDir.x, m_sunLight.lightDir.y, m_sunLight.lightDir.z);
-			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
 
 			const uint32 nShadowCasters0 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
 			const uint32 nShadowCasters1 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(1);
 			const uint32 nShadowCasters2 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(2);
 			sprintf_s(szBuf, sizeof(szBuf), "CasterIn Cascade0: %d, Cascade1: %d, Cascade2: %d", nShadowCasters0, nShadowCasters1, nShadowCasters2);
-			m_pRenderSystem->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
 
 			if (m_pHero)
 			{
-				m_pRenderSystem->DrawText(m_strHeroStateChange, IPOINT(10, 70), Neo::SColor::YELLOW);
+				g_env.pRenderer->DrawText(m_strHeroStateChange, IPOINT(10, 70), Neo::SColor::YELLOW);
 			}
 
 			// Debug RT
@@ -405,7 +399,7 @@ namespace Neo
 				m_pDebugRTMesh->Render();
 			}
 
-			m_pRenderSystem->SetDepthState(&oldDepthState);
+			g_env.pRenderer->SetDepthState(&oldDepthState);
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -413,12 +407,12 @@ namespace Neo
 	{
 		m_curRenderPhase = eRenderPhase_GBuffer;
 
-		m_pRenderSystem->UnbindTexture(m_pRT_Normal->GetRenderTexture());
-		m_pRenderSystem->UnbindTexture(m_pRT_Albedo->GetRenderTexture());
-		m_pRenderSystem->UnbindTexture(m_pRT_Specular->GetRenderTexture());
+		g_env.pRenderer->UnbindTexture(m_pRT_Normal->GetRenderTexture());
+		g_env.pRenderer->UnbindTexture(m_pRT_Albedo->GetRenderTexture());
+		g_env.pRenderer->UnbindTexture(m_pRT_Specular->GetRenderTexture());
 
-		D3D11RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
-		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDepthTexture(), 3);
+		RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
+		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDepthBuffer(), 3);
 
 		// Terrain
 		if (m_pTerrain)
@@ -428,7 +422,7 @@ namespace Neo
 
 		m_pCurScene->RenderOpaque();
 
-		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthTexture(), 3, false, false);
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_LinearizeDepth()
@@ -459,10 +453,10 @@ namespace Neo
 
 		m_pRT_Compose->RenderScreenQuad(m_pMtlCompose, false, false);
 
-		m_pRenderSystem->SetActiveTexture(3, nullptr);
-		m_pRenderSystem->SetActiveTexture(4, nullptr);
-		m_pRenderSystem->SetActiveTexture(5, nullptr);
-		m_pRenderSystem->SetActiveTexture(6, nullptr);
+		g_env.pRenderer->SetActiveTexture(3, nullptr);
+		g_env.pRenderer->SetActiveTexture(4, nullptr);
+		g_env.pRenderer->SetActiveTexture(5, nullptr);
+		g_env.pRenderer->SetActiveTexture(6, nullptr);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_RenderForwardObjs()
@@ -499,18 +493,10 @@ namespace Neo
 
 	void SceneManager::_FurPass(Entity* pEntity)
 	{
-		static ID3D11Buffer* pCB_Fur = nullptr;
+		static ConstantBuffer* pCB_Fur = nullptr;
 		if (!pCB_Fur)
 		{
-			HRESULT hr = S_OK;
-			D3D11_BUFFER_DESC bd;
-			ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
-			bd.Usage = D3D11_USAGE_DEFAULT;
-			bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			bd.CPUAccessFlags = 0;
-			bd.ByteWidth = sizeof(cBufferFur);
-
-			V(m_pRenderSystem->GetDevice()->CreateBuffer(&bd, NULL, &pCB_Fur));
+			pCB_Fur = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferFur));
 		}
 
 		cBufferFur cbFur;
@@ -528,21 +514,21 @@ namespace Neo
 		cbFur.vModelLightDir = Common::Transform_Vec3_By_Mat44(-m_sunLight.lightDir, matInvWorld, false);
 
 		// Enable alpha blend
-		SStateBlend blendState = m_pRenderSystem->GetCurBlendState();
-		BOOL old = blendState.Desc.RenderTarget[0].BlendEnable;
+		SStateBlend blendState = g_env.pRenderer->GetCurBlendState();
+		bool old = blendState.Desc.RenderTarget[0].BlendEnable;
 
-		blendState.Desc.RenderTarget[0].BlendEnable = TRUE;
-		blendState.Desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendState.Desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].BlendEnable = true;
+		blendState.Desc.RenderTarget[0].SrcBlend = eBlend_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].DestBlend = eBlend_INV_SRC_ALPHA;
 
-		m_pRenderSystem->SetBlendState(&blendState);
+		g_env.pRenderer->SetBlendState(&blendState);
 
 		// Turn off depth write
-		SStateDepth depthState = m_pRenderSystem->GetCurDepthState();
+		SStateDepth depthState = g_env.pRenderer->GetCurDepthState();
 		auto oldDepth = depthState.Desc.DepthWriteMask;
-		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthState.Desc.DepthWriteMask = false;
 
-		m_pRenderSystem->SetDepthState(&depthState);
+		g_env.pRenderer->SetDepthState(&depthState);
 
 		// Render fins
 		if (pFurData->bRenderFins)
@@ -550,19 +536,19 @@ namespace Neo
 			pEntity->GetMaterial()->SetActivePass(0, true);
 
 			// No culling for the fins..
-			D3D11_CULL_MODE oldCull = pEntity->GetMaterial()->GetCullMode();
-			pEntity->GetMaterial()->SetCullMode(D3D11_CULL_NONE);
+			eCullMode oldCull = pEntity->GetMaterial()->GetCullMode();
+			pEntity->GetMaterial()->SetCullMode(eCull_NONE);
 
-			pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ);
+			pEntity->GetMesh()->SetPrimitiveType(ePrimitive_LineList_Adj);
 
-			m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
-			m_pRenderSystem->GetDeviceContext()->GSSetConstantBuffers(10, 1, &pCB_Fur);
+			pCB_Fur->UpdateBuf(&cbFur);
+			pCB_Fur->Apply(10, false, false, true);
 
 			pEntity->Render();
 
 			pEntity->GetMaterial()->TurnOffGeometryShader();
 			pEntity->GetMaterial()->SetCullMode(oldCull);
-			pEntity->GetMesh()->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			pEntity->GetMesh()->SetPrimitiveType(ePrimitive_TriangleList);
 		}
 
 		// Render shells
@@ -573,9 +559,8 @@ namespace Neo
 			for (int iShell = 1; iShell <= FUR_SHELL_LAYER; ++iShell)
 			{
 				cbFur.iShell = iShell;
-				m_pRenderSystem->GetDeviceContext()->UpdateSubresource(pCB_Fur, 0, NULL, &cbFur, 0, 0);
-				m_pRenderSystem->GetDeviceContext()->VSSetConstantBuffers(10, 1, &pCB_Fur);
-				m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &pCB_Fur);
+				pCB_Fur->UpdateBuf(&cbFur);
+				pCB_Fur->Apply(10, true, true);
 
 				pEntity->Render();
 			}
@@ -583,8 +568,8 @@ namespace Neo
 
 		blendState.Desc.RenderTarget[0].BlendEnable = old;
 		depthState.Desc.DepthWriteMask = oldDepth;
-		m_pRenderSystem->SetBlendState(&blendState);
-		m_pRenderSystem->SetDepthState(&depthState);
+		g_env.pRenderer->SetBlendState(&blendState);
+		g_env.pRenderer->SetDepthState(&depthState);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_HDRFinalScenePass()
@@ -593,26 +578,26 @@ namespace Neo
 
 		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 1, false, false);
 
-		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, m_pRenderSystem->GetWndWidth(), m_pRenderSystem->GetWndHeight());
-		m_pRenderSystem->SetViewport(vp);
+		SViewport vp = { 0.0f, 0.0f, (float)g_env.pRenderer->GetWndWidth(), (float)g_env.pRenderer->GetWndHeight(), 0, 1 };
+		m_pRenderSystem->SetViewport(&vp);
 
 		m_pMtlFinalScene->Activate();
 
-		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
-		if (g_bTiled)
-		{
-			ID3D11ShaderResourceView* pLitBufferSRV = m_pTBDR->GetLitBuffer()->GetShaderResource();
+		//ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
+		//if (g_bTiled)
+		//{
+		//	ID3D11ShaderResourceView* pLitBufferSRV = m_pTBDR->GetLitBuffer()->GetShaderResource();
 
-			pDeviceContext->PSSetShaderResources(0, 1, &pLitBufferSRV);
-		}
+		//	pDeviceContext->PSSetShaderResources(0, 1, &pLitBufferSRV);
+		//}
 
-		D3D11RenderTarget::m_pQuadEntity->Render();
+		RenderTarget::m_pQuadEntity->Render();
 
-		if (g_bTiled)
-		{
-			ID3D11ShaderResourceView* pNull = nullptr;
-			pDeviceContext->PSSetShaderResources(0, 1, &pNull);
-		}
+		//if (g_bTiled)
+		//{
+		//	ID3D11ShaderResourceView* pNull = nullptr;
+		//	pDeviceContext->PSSetShaderResources(0, 1, &pNull);
+		//}
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()
@@ -951,12 +936,12 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetShadowDepthBias(float fBias)
 	{
-		m_pRenderSystem->GetGlobalCB().shadowDepthBias = fBias;
+		g_env.pRenderer->GetGlobalCB().shadowDepthBias = fBias;
 	}
 	//------------------------------------------------------------------------------------
 	float SceneManager::GetShadowDepthBias() const
 	{
-		return m_pRenderSystem->GetGlobalCB().shadowDepthBias;
+		return g_env.pRenderer->GetGlobalCB().shadowDepthBias;
 	}
 	//------------------------------------------------------------------------------------
 	bool SceneManager::LoadSponzaScene(Scene* pScene)
@@ -998,7 +983,7 @@ namespace Neo
 	{
 		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
 
-		m_pMtlCompose->InitShader(GetResPath("DeferredShading.hlsl"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
+		m_pMtlCompose->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetShadowMapSize(uint32 nSize)

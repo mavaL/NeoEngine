@@ -1,0 +1,112 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_gpu_shader4" reg_no="326">
+	<tokens>
+		<token name="GL_SAMPLER_1D_ARRAY_EXT" value="0x8DC0"/>
+		<token name="GL_SAMPLER_2D_ARRAY_EXT" value="0x8DC1"/>
+		<token name="GL_SAMPLER_BUFFER_EXT" value="0x8DC2"/>
+		<token name="GL_SAMPLER_1D_ARRAY_SHADOW_EXT" value="0x8DC3"/>
+		<token name="GL_SAMPLER_2D_ARRAY_SHADOW_EXT" value="0x8DC4"/>
+		<token name="GL_SAMPLER_CUBE_SHADOW_EXT" value="0x8DC5"/>
+		<token name="GL_UNSIGNED_INT_VEC2_EXT" value="0x8DC6"/>
+		<token name="GL_UNSIGNED_INT_VEC3_EXT" value="0x8DC7"/>
+		<token name="GL_UNSIGNED_INT_VEC4_EXT" value="0x8DC8"/>
+		<token name="GL_INT_SAMPLER_1D_EXT" value="0x8DC9"/>
+		<token name="GL_INT_SAMPLER_2D_EXT" value="0x8DCA"/>
+		<token name="GL_INT_SAMPLER_3D_EXT" value="0x8DCB"/>
+		<token name="GL_INT_SAMPLER_CUBE_EXT" value="0x8DCC"/>
+		<token name="GL_INT_SAMPLER_2D_RECT_EXT" value="0x8DCD"/>
+		<token name="GL_INT_SAMPLER_1D_ARRAY_EXT" value="0x8DCE"/>
+		<token name="GL_INT_SAMPLER_2D_ARRAY_EXT" value="0x8DCF"/>
+		<token name="GL_INT_SAMPLER_BUFFER_EXT" value="0x8DD0"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_1D_EXT" value="0x8DD1"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_2D_EXT" value="0x8DD2"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_3D_EXT" value="0x8DD3"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_CUBE_EXT" value="0x8DD4"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_2D_RECT_EXT" value="0x8DD5"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_1D_ARRAY_EXT" value="0x8DD6"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_2D_ARRAY_EXT" value="0x8DD7"/>
+		<token name="GL_UNSIGNED_INT_SAMPLER_BUFFER_EXT" value="0x8DD8"/>
+	</tokens>
+
+	<functions>
+		<function name="glGetUniformuivEXT" return="void">
+			<params>
+				<param type="GLuint" name="program"/>
+				<param type="GLint" name="location"/>
+				<param type="GLuint*" name="params"/>
+			</params>
+		</function>
+		<function name="glBindFragDataLocationEXT" return="void">
+			<params>
+				<param type="GLuint" name="program"/>
+				<param type="GLuint" name="color"/>
+				<param type="const GLchar*" name="name"/>
+			</params>
+		</function>
+		<function name="glGetFragDataLocationEXT" return="GLint">
+			<params>
+				<param type="GLuint" name="program"/>
+				<param type="const GLchar*" name="name"/>
+			</params>
+		</function>
+		<function name="glUniform1uiEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLuint" name="v0"/>
+			</params>
+		</function>
+		<function name="glUniform2uiEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLuint" name="v0"/>
+				<param type="GLuint" name="v1"/>
+			</params>
+		</function>
+		<function name="glUniform3uiEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLuint" name="v0"/>
+				<param type="GLuint" name="v1"/>
+				<param type="GLuint" name="v2"/>
+			</params>
+		</function>
+		<function name="glUniform4uiEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLuint" name="v0"/>
+				<param type="GLuint" name="v1"/>
+				<param type="GLuint" name="v2"/>
+				<param type="GLuint" name="v3"/>
+			</params>
+		</function>
+		<function name="glUniform1uivEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLuint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform2uivEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLuint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform3uivEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLuint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform4uivEXT" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLuint*" name="value"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

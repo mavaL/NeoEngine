@@ -10,6 +10,7 @@
 
 #include "Prerequiestity.h"
 #include "Singleton.h"
+#include "RenderDefine.h"
 
 namespace Neo
 {

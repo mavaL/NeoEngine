@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_ARB_multisample" reg_no="5">
+	<tokens>
+		<token name="GLX_SAMPLE_BUFFERS_ARB" value="100000"/>
+		<token name="GLX_SAMPLES_ARB" value="100001"/>
+	</tokens>
+
+	<additionals>
+		<ext name="GLX_SGIS_multisample"/>
+	</additionals>
+</gl_extension>

@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIX_visual_select_group" reg_no="234">
+	<tokens>
+		<token name="GLX_VISUAL_SELECT_GROUP_SGIX" value="0x8028"/>
+	</tokens>
+</gl_extension>

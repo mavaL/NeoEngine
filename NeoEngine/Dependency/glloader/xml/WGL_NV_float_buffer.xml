@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_NV_float_buffer" reg_no="281">
+	<tokens>
+		<token name="WGL_FLOAT_COMPONENTS_NV" value="0x20B0"/>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_R_NV" value="0x20B1"/>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RG_NV" value="0x20B2"/>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RGB_NV" value="0x20B3"/>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_FLOAT_RGBA_NV" value="0x20B4"/>
+		<token name="WGL_TEXTURE_FLOAT_R_NV" value="0x20B5"/>
+		<token name="WGL_TEXTURE_FLOAT_RG_NV" value="0x20B6"/>
+		<token name="WGL_TEXTURE_FLOAT_RGB_NV" value="0x20B7"/>
+		<token name="WGL_TEXTURE_FLOAT_RGBA_NV" value="0x20B8"/>
+	</tokens>
+</gl_extension>

@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_color_subtable" reg_no="74">
+	<functions>
+		<function name="glColorSubTableEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLsizei" name="start"/>
+				<param type="GLsizei" name="count"/>
+				<param type="GLenum" name="format"/>
+				<param type="GLenum" name="type"/>
+				<param type="const GLvoid*" name="data"/>
+			</params>
+		</function>
+		<function name="glCopyColorSubTableEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLsizei" name="start"/>
+				<param type="GLint" name="x"/>
+				<param type="GLint" name="y"/>
+				<param type="GLsizei" name="width"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

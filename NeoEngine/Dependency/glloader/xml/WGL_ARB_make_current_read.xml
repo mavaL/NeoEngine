@@ -1,0 +1,26 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_ARB_make_current_read" reg_no="10">
+	<tokens>
+		<token name="ERROR_INVALID_PIXEL_TYPE_ARB" value="0x2043"/>
+		<token name="ERROR_INCOMPATIBLE_DEVICE_CONTEXTS_ARB" value="0x2054"/>
+	</tokens>
+
+	<functions>
+		<function name="wglMakeContextCurrentARB" return="BOOL">
+			<params>
+				<param type="HDC" name="hDrawDC"/>
+				<param type="HDC" name="hReadDC"/>
+				<param type="HGLRC" name="hglrc"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_make_current_read" name="wglMakeContextCurrentEXT"/>
+			</mappings>
+		</function>
+		<function name="wglGetCurrentReadDCARB" return="HDC">
+			<mappings>
+				<mapping from="WGL_EXT_make_current_read" name="wglGetCurrentReadDCEXT"/>
+			</mappings>
+		</function>
+	</functions>
+</gl_extension>

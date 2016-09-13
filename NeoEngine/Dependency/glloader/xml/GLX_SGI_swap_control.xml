@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGI_swap_control" reg_no="40">
+	<functions>
+		<function name="glXSwapIntervalSGI" return="int">
+			<params>
+				<param type="int" name="interval"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

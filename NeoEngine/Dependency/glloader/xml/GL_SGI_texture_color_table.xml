@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGI_texture_color_table" reg_no="17">
+	<tokens>
+		<token name="GL_TEXTURE_COLOR_TABLE_SGI" value="0x80BC"/>
+		<token name="GL_PROXY_TEXTURE_COLOR_TABLE_SGI" value="0x80BD"/>
+	</tokens>
+</gl_extension>

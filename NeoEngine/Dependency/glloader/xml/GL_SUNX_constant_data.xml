@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SUNX_constant_data" reg_no="163">
+	<tokens>
+		<token name="GL_UNPACK_CONSTANT_DATA_SUNX" value="0x81D5"/>
+		<token name="GL_TEXTURE_CONSTANT_DATA_SUNX" value="0x81D6"/>
+	</tokens>
+
+	<functions>
+		<function name="glFinishTextureSUNX" return="void"/>
+	</functions>
+</gl_extension>

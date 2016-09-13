@@ -46,14 +46,14 @@ namespace Neo
 		void		_CalcAABB();
 
 
-		D3D11RenderSystem*	m_pRenderSystem;
+		RenderSystem*		m_pRenderSystem;
 		Mesh*				m_pMesh;
 		Entity*				m_pEntity;
 		AABB				m_terrainAABB;
-		D3D11Texture*		m_pHeightMap;
-		D3D11Texture*		m_pLayerTexArray;
-		D3D11Texture*		m_pBlendMap;
-		D3D11Texture*		m_pDensityMap;
+		Texture*			m_pHeightMap;
+		Texture*			m_pLayerTexArray;
+		Texture*			m_pBlendMap;
+		Texture*			m_pDensityMap;
 		std::vector<float>	m_heightData;
 		std::vector<VEC2>	m_patchBoundY;
 		VEC2				m_vOrigin;

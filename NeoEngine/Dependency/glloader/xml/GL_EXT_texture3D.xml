@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_texture3D" reg_no="6">
+	<tokens>
+		<token name="GL_PACK_SKIP_IMAGES_EXT" value="0x806B"/>
+		<token name="GL_PACK_IMAGE_HEIGHT_EXT" value="0x806C"/>
+		<token name="GL_UNPACK_SKIP_IMAGES_EXT" value="0x806D"/>
+		<token name="GL_UNPACK_IMAGE_HEIGHT_EXT" value="0x806E"/>
+		<token name="GL_TEXTURE_3D_EXT" value="0x806F"/>
+		<token name="GL_PROXY_TEXTURE_3D_EXT" value="0x8070"/>
+		<token name="GL_TEXTURE_DEPTH_EXT" value="0x8071"/>
+		<token name="GL_TEXTURE_WRAP_R_EXT" value="0x8072"/>
+		<token name="GL_MAX_3D_TEXTURE_SIZE_EXT" value="0x8073"/>
+	</tokens>
+
+	<functions>
+		<function name="glTexImage3DEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLint" name="level"/>
+				<param type="GLenum" name="internalformat"/>
+				<param type="GLsizei" name="width"/>
+				<param type="GLsizei" name="height"/>
+				<param type="GLsizei" name="depth"/>
+				<param type="GLint" name="border"/>
+				<param type="GLenum" name="format"/>
+				<param type="GLenum" name="type"/>
+				<param type="const GLvoid*" name="pixels"/>
+			</params>
+		</function>
+		<function name="glTexSubImage3DEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLint" name="level"/>
+				<param type="GLint" name="xoffset"/>
+				<param type="GLint" name="yoffset"/>
+				<param type="GLint" name="zoffset"/>
+				<param type="GLsizei" name="width"/>
+				<param type="GLsizei" name="height"/>
+				<param type="GLsizei" name="depth"/>
+				<param type="GLenum" name="format"/>
+				<param type="GLenum" name="type"/>
+				<param type="const GLvoid*" name="pixels"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

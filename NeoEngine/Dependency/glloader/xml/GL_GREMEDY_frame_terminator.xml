@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_GREMEDY_frame_terminator" reg_no="345">
+	<functions>
+		<function name="glFrameTerminatorGREMEDY" return="void"/>
+	</functions>
+</gl_extension>

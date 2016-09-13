@@ -1,0 +1,50 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_occlusion_query" reg_no="261">
+	<tokens>
+		<token name="GL_PIXEL_COUNTER_BITS_NV" value="0x8864"/>
+		<token name="GL_CURRENT_OCCLUSION_QUERY_ID_NV" value="0x8865"/>
+		<token name="GL_PIXEL_COUNT_NV" value="0x8866"/>
+		<token name="GL_PIXEL_COUNT_AVAILABLE_NV" value="0x8867"/>
+	</tokens>
+
+	<functions>
+		<function name="glGenOcclusionQueriesNV" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="GLuint*" name="ids"/>
+			</params>
+		</function>
+		<function name="glDeleteOcclusionQueriesNV" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLuint*" name="ids"/>
+			</params>
+		</function>
+		<function name="glIsOcclusionQueryNV" return="GLboolean">
+			<params>
+				<param type="GLuint" name="id"/>
+			</params>
+		</function>
+		<function name="glBeginOcclusionQueryNV" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+			</params>
+		</function>
+		<function name="glEndOcclusionQueryNV" return="void"/>
+		<function name="glGetOcclusionQueryivNV" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetOcclusionQueryuivNV" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLuint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

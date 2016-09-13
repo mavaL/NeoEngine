@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_flush_raster" reg_no="61">
+	<functions>
+		<function name="glFlushRasterSGIX" return="void"/>
+	</functions>
+</gl_extension>

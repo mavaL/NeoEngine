@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIS_blended_overlay" reg_no="142">
+	<tokens>
+		<token name="GLX_BLENDED_RGBA_SGIS" value="0x8025"/>
+	</tokens>
+</gl_extension>

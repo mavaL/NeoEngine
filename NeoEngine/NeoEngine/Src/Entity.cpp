@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Entity.h"
-#include "D3D11RenderSystem.h"
+#include "Renderer.h"
 #include "Mesh.h"
 
 namespace Neo
@@ -145,8 +145,8 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Entity::Render()
 	{
-		g_env.pRenderSystem->GetMaterialCB().matWorld = GetWorldMatrix().Transpose();
-		g_env.pRenderSystem->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
+		g_env.pRenderer->GetMaterialCB().matWorld = GetWorldMatrix().Transpose();
+		g_env.pRenderer->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
 
 		m_pMesh->Render();
 	}

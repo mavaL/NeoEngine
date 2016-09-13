@@ -10,6 +10,7 @@
 
 #include "Prerequiestity.h"
 #include "Light.h"
+#include "RenderDefine.h"
 
 namespace Neo
 {
@@ -53,10 +54,10 @@ namespace Neo
 		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
 		const SDirectionLight&		GetSunLight() const { return m_sunLight; }
-		D3D11RenderTarget*			GetNormalRT() { return m_pRT_Normal; }
-		D3D11RenderTarget*			GetAlbedoRT() { return m_pRT_Albedo; }
-		D3D11RenderTarget*			GetSpecRT() { return m_pRT_Specular; }
-		D3D11RenderTarget*			GetDepthRT() { return m_pRT_Depth; }
+		RenderTarget*				GetNormalRT() { return m_pRT_Normal; }
+		RenderTarget*				GetAlbedoRT() { return m_pRT_Albedo; }
+		RenderTarget*				GetSpecRT() { return m_pRT_Specular; }
+		RenderTarget*				GetDepthRT() { return m_pRT_Depth; }
 		SSAO*						GetSSAO()		{ return m_pSSAO; }
 		Terrain*					GetTerrain()	{ return m_pTerrain; }
 		Sky*						GetSky()		{ return m_pSky; }
@@ -64,7 +65,7 @@ namespace Neo
 		ShadowMap*					GetShadowMap()	{ return m_pShadowMap; }
 		AmbientCube*				GetAmbientCube() { return m_pAmbientCube; }
 		const PointLightVector&		GetPointLights() const { return m_vecPointLights; }
-		D3D11Texture*				GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
+		Texture*					GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
@@ -85,12 +86,12 @@ namespace Neo
 		std::vector<Scene*>		m_scenes;	
 		Scene*					m_pCurScene;
 
-		D3D11RenderSystem*		m_pRenderSystem;
-		D3D11RenderTarget*		m_pRT_Normal;
-		D3D11RenderTarget*		m_pRT_Albedo;
-		D3D11RenderTarget*		m_pRT_Specular;
-		D3D11RenderTarget*		m_pRT_Compose;
-		D3D11RenderTarget*		m_pRT_Depth;
+		RenderSystem*	m_pRenderSystem;
+		RenderTarget*	m_pRT_Normal;
+		RenderTarget*	m_pRT_Albedo;
+		RenderTarget*	m_pRT_Specular;
+		RenderTarget*	m_pRT_Compose;
+		RenderTarget*	m_pRT_Depth;
 
 		uint32			m_nShadowMapSize;
 		eRenderPhase	m_curRenderPhase;
@@ -105,7 +106,7 @@ namespace Neo
 		SSAO*			m_pSSAO;
 		TileBasedDeferredRenderer*	m_pTBDR;
 		ThirdPersonCharacter*	m_pHero;
-		D3D11Texture*	m_pTexEnvBRDF;
+		Texture*		m_pTexEnvBRDF;
 		Material*		m_pMtlCompose;
 		Material*		m_pMtlLinearizeDepth;
 		Material*		m_pMtlFinalScene;

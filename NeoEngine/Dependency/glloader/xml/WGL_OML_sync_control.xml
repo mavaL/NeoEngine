@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_OML_sync_control" reg_no="242">
+	<functions>
+		<function name="wglGetSyncValuesOML" return="BOOL">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="INT64*" name="ust"/>
+				<param type="INT64*" name="msc"/>
+				<param type="INT64*" name="sbc"/>
+			</params>
+		</function>
+		<function name="wglGetMscRateOML" return="BOOL">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="INT32*" name="numerator"/>
+				<param type="INT32*" name="denominator"/>
+			</params>
+		</function>
+		<function name="wglSwapBuffersMscOML" return="INT64">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="INT64" name="target_msc"/>
+				<param type="INT64" name="divisor"/>
+				<param type="INT64" name="remainder"/>
+			</params>
+		</function>
+		<function name="wglSwapLayerBuffersMscOML" return="INT64">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="int" name="fuPlanes"/>
+				<param type="INT64" name="target_msc"/>
+				<param type="INT64" name="divisor"/>
+				<param type="INT64" name="remainder"/>
+			</params>
+		</function>
+		<function name="wglWaitForMscOML" return="BOOL">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="INT64" name="target_msc"/>
+				<param type="INT64" name="divisor"/>
+				<param type="INT64" name="remainder"/>
+				<param type="INT64*" name="ust"/>
+				<param type="INT64*" name="msc"/>
+				<param type="INT64*" name="sbc"/>
+			</params>
+		</function>
+		<function name="wglWaitForSbcOML" return="BOOL">
+			<params>
+				<param type="HDC" name="hdc"/>
+				<param type="INT64" name="target_sbc"/>
+				<param type="INT64*" name="ust"/>
+				<param type="INT64*" name="msc"/>
+				<param type="INT64*" name="sbc"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

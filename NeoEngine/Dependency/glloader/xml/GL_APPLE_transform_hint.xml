@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_transform_hint" reg_no="160">
+	<tokens>
+		<token name="GL_TRANSFORM_HINT_APPLE" value="0x85B1"/>
+	</tokens>
+</gl_extension>

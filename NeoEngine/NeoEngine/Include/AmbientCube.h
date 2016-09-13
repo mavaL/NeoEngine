@@ -28,14 +28,14 @@ namespace Neo
 		// Generate a base cubemap for later CubeMapGen use.
 		bool			GenerateHDRCubeMap(const VEC3& pos, const STRING& filename, Scene* pScene);
 		// Setup run-time cubemap
-		void			SetupCubeMap(D3D11Texture* pIEM, D3D11Texture* pREM);
+		void			SetupCubeMap(Texture* pIEM, Texture* pREM);
 
-		D3D11Texture*	GetIrradianceTexture() { return m_pTexIrradiance; }
-		D3D11Texture*	GetRadianceTexture() { return m_pTexRadiance; }
+		Texture*		GetIrradianceTexture() { return m_pTexIrradiance; }
+		Texture*		GetRadianceTexture() { return m_pTexRadiance; }
 
 	private:
-		D3D11Texture*	m_pTexIrradiance;	// IEM
-		D3D11Texture*	m_pTexRadiance;		// REM
+		Texture*		m_pTexIrradiance;	// IEM
+		Texture*		m_pTexRadiance;		// REM
 	};
 }
 

@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "SkinModel.h"
 #include "Mesh.h"
-#include "D3D11RenderSystem.h"
+#include "RenderSystem.h"
 #include "Material.h"
 #include "MaterialManager.h"
+#include "Renderer.h"
 
 namespace Neo
 {
@@ -246,7 +247,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SkinModel::Update(float dt)
 	{
-		cBufferSkin& cSkin = g_env.pRenderSystem->GetSkinCB();
+		cBufferSkin& cSkin = g_env.pRenderer->GetSkinCB();
 
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
 		{
@@ -269,7 +270,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SkinModel::Render()
 	{
-		cBufferSkin& cSkin = g_env.pRenderSystem->GetSkinCB();
+		cBufferSkin& cSkin = g_env.pRenderer->GetSkinCB();
 
 		for (uint32 i = 0; i < m_pSkeleton->m_vecBones.size(); ++i)
 		{
@@ -284,7 +285,7 @@ namespace Neo
 			cSkin.matSkin[pBone->m_id] = pBone->m_matCombine.Transpose();
 		}
 
-		g_env.pRenderSystem->UpdateSkinCBuffer();
+		g_env.pRenderer->UpdateSkinCBuffer();
 
 		Entity::Render();
 	}

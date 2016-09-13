@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_instruments" reg_no="55">
+	<tokens>
+		<token name="GL_INSTRUMENT_BUFFER_POINTER_SGIX" value="0x8180"/>
+		<token name="GL_INSTRUMENT_MEASUREMENTS_SGIX" value="0x8181"/>
+	</tokens>
+
+	<functions>
+		<function name="glGetInstrumentsSGIX" return="GLint"/>
+		<function name="glInstrumentsBufferSGIX" return="void">
+			<params>
+				<param type="GLsizei" name="size"/>
+				<param type="GLint*" name="buffer"/>
+			</params>
+		</function>
+		<function name="glPollInstrumentsSGIX" return="GLint">
+			<params>
+				<param type="GLint*" name="marker_p"/>
+			</params>
+		</function>
+		<function name="glReadInstrumentsSGIX" return="void">
+			<params>
+				<param type="GLint" name="marker"/>
+			</params>
+		</function>
+		<function name="glStartInstrumentsSGIX" return="void"/>
+		<function name="glStopInstrumentsSGIX" return="void">
+			<params>
+				<param type="GLint" name="marker"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

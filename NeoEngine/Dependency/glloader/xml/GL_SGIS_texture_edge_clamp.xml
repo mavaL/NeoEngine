@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIS_texture_edge_clamp" reg_no="35">
+	<tokens>
+		<token name="GL_CLAMP_TO_EDGE_SGIS" value="0x812F"/>
+	</tokens>
+</gl_extension>

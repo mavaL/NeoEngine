@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_client_storage" reg_no="270">
+	<tokens>
+		<token name="GL_UNPACK_CLIENT_STORAGE_APPLE" value="0x85B2"/>
+	</tokens>
+</gl_extension>

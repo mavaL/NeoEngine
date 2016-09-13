@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_VERSION_1_2">
+	<functions>
+		<function name="glXGetCurrentDisplay" return="Display*"/>
+	</functions>
+</gl_extension>

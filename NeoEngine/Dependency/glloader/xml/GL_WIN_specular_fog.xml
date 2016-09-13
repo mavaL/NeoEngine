@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_WIN_specular_fog" reg_no="114">
+	<tokens>
+		<token name="GL_FOG_SPECULAR_TEXTURE_WIN" value="0x80EC"/>
+	</tokens>
+</gl_extension>

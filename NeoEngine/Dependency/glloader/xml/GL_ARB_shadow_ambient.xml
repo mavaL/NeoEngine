@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ARB_shadow_ambient" reg_no="24">
+	<tokens>
+		<token name="GL_TEXTURE_COMPARE_FAIL_VALUE_ARB" value="0x80BF"/>
+	</tokens>
+
+	<additionals>
+		<ext name="GL_SGIX_shadow_ambient"/>
+	</additionals>
+</gl_extension>

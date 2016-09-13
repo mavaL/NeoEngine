@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_depth_bounds_test" reg_no="297">
+	<tokens>
+		<token name="GL_DEPTH_BOUNDS_TEST_EXT" value="0x8890"/>
+		<token name="GL_DEPTH_BOUNDS_EXT" value="0x8891"/>
+	</tokens>
+
+	<functions>
+		<function name="glDepthBoundsEXT" return="void">
+			<params>
+				<param type="GLclampd" name="zmin"/>
+				<param type="GLclampd" name="zmax"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

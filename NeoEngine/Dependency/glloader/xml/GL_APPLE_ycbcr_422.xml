@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_ycbcr_422" reg_no="275">
+	<tokens>
+		<token name="GL_YCBCR_422_APPLE" value="0x85B9"/>
+		<token name="GL_UNSIGNED_SHORT_8_8_APPLE" value="0x85BA"/>
+		<token name="GL_UNSIGNED_SHORT_8_8_REV_APPLE" value="0x85BB"/>
+	</tokens>
+</gl_extension>

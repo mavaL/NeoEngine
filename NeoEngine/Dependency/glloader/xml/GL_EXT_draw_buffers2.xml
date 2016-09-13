@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_draw_buffers2" reg_no="340">
+	<functions>
+		<function name="glColorMaskIndexedEXT" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLboolean" name="r"/>
+				<param type="GLboolean" name="g"/>
+				<param type="GLboolean" name="b"/>
+				<param type="GLboolean" name="a"/>
+			</params>
+		</function>
+		<function name="glGetBooleanIndexedvEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLboolean*" name="data"/>
+			</params>
+		</function>
+		<function name="glGetIntegerIndexedvEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLint*" name="data"/>
+			</params>
+		</function>
+		<function name="glEnableIndexedEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+			</params>
+		</function>
+		<function name="glDisableIndexedEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+			</params>
+		</function>
+		<function name="glIsEnabledIndexedEXT" return="GLboolean">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

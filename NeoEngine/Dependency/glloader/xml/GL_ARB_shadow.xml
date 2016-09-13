@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ARB_shadow" reg_no="23">
+	<tokens>
+		<token name="GL_TEXTURE_COMPARE_MODE_ARB" value="0x884C"/>
+		<token name="GL_TEXTURE_COMPARE_FUNC_ARB" value="0x884D"/>
+		<token name="GL_COMPARE_R_TO_TEXTURE_ARB" value="0x884E"/>
+	</tokens>
+</gl_extension>

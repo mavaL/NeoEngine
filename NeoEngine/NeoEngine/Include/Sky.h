@@ -34,7 +34,6 @@ namespace Neo
 
 		void		_InitMaterials();
 		void		_Precompute();
-		void		_InitConstantBuffer();
 		void		_SetLayer(uint32 i);
 
 	private:
@@ -47,11 +46,11 @@ namespace Neo
 		};
 
 	private:
-		D3D11RenderSystem*	m_pRenderSystem;
+		RenderSystem*		m_pRenderSystem;
 
-		D3D11RenderTarget*	m_pRT_Transmittance;
-		D3D11RenderTarget*	m_pRT_InscatterDeltaS[2];
-		D3D11RenderTarget*	m_pRT_Inscatter;
+		RenderTarget*		m_pRT_Transmittance;
+		RenderTarget*		m_pRT_InscatterDeltaS[2];
+		RenderTarget*		m_pRT_Inscatter;
 
 		Material*			m_pMtl_Transmittance;
 		Material*			m_pMtl_InscatterDeltaS;
@@ -59,7 +58,7 @@ namespace Neo
 		Material*			m_pMtl_Sky;
 
 		cBufferInscatter1	m_cbInscatter1;
-		ID3D11Buffer*		m_pCB_Inscatter1;
+		ConstantBuffer*		m_pCB_Inscatter1;
 	};
 }
 

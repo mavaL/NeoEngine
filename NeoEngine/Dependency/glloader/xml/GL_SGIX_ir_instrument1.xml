@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_ir_instrument1" reg_no="81">
+	<tokens>
+		<token name="GL_IR_INSTRUMENT1_SGIX" value="0x817F"/>
+	</tokens>
+</gl_extension>

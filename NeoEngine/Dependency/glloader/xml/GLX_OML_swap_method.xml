@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_OML_swap_method" reg_no="237">
+	<tokens>
+		<token name="GLX_SWAP_METHOD_OML" value="0x8060"/>
+		<token name="GLX_SWAP_EXCHANGE_OML" value="0x8061"/>
+		<token name="GLX_SWAP_COPY_OML" value="0x8062"/>
+		<token name="GLX_SWAP_UNDEFINED_OML" value="0x8063"/>
+	</tokens>
+</gl_extension>

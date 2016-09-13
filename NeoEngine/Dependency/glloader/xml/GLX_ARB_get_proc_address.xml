@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_ARB_get_proc_address" reg_no="2">
+	<typedefs>
+		<typedef type="void" synonym="(*__GLXextFuncPtr)(void)"/>
+	</typedefs>
+
+	<functions>
+		<function name="glXGetProcAddressARB" return="__GLXextFuncPtr" link="static">
+			<params>
+				<param type="const GLubyte*" name="procName"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

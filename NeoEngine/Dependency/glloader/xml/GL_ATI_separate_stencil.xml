@@ -1,0 +1,29 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_separate_stencil" reg_no="289">
+	<tokens>
+		<token name="GL_STENCIL_BACK_FUNC_ATI" value="0x8800"/>
+		<token name="GL_STENCIL_BACK_FAIL_ATI" value="0x8801"/>
+		<token name="GL_STENCIL_BACK_PASS_DEPTH_FAIL_ATI" value="0x8802"/>
+		<token name="GL_STENCIL_BACK_PASS_DEPTH_PASS_ATI" value="0x8803"/>
+	</tokens>
+
+	<functions>
+		<function name="glStencilOpSeparateATI" return="void">
+			<params>
+				<param type="GLenum" name="face"/>
+				<param type="GLenum" name="sfail"/>
+				<param type="GLenum" name="dpfail"/>
+				<param type="GLenum" name="dppass"/>
+			</params>
+		</function>
+		<function name="glStencilFuncSeparateATI" return="void">
+			<params>
+				<param type="GLenum" name="frontfunc"/>
+				<param type="GLenum" name="backfunc"/>
+				<param type="GLint" name="ref"/>
+				<param type="GLuint" name="mask"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

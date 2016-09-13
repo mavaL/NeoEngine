@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLES_OES_shader_binary">
+	<tokens>
+		<token name="GL_PLATFORM_BINARY_OES" value="0x8D63"/>
+	</tokens>
+
+	<functions>
+		<function name="glShaderBinaryOES" return="void">
+			<params>
+				<param type="GLint" name="n"/>
+				<param type="GLuint*" name="shaders"/>
+				<param type="GLenum" name="binaryformat"/>
+				<param type="const void*" name="binary"/>
+				<param type="GLint" name="length"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

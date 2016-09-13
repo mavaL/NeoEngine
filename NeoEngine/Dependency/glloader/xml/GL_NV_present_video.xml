@@ -1,0 +1,75 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_present_video" reg_no="347">
+	<tokens>
+		<token name="GL_FRAME_NV" value="0x8E26"/>
+		<token name="GL_FIELDS_NV" value="0x8E27"/>
+		<token name="GL_CURRENT_TIME_NV" value="0x8E28"/>
+		<token name="GL_NUM_FILL_STREAMS_NV" value="0x8E29"/>
+		<token name="GL_PRESENT_TIME_NV" value="0x8E2A"/>
+		<token name="GL_PRESENT_DURATION_NV" value="0x8E2B"/>
+	</tokens>
+
+	<functions>
+		<function name="glPresentFrameKeyedNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLuint64" name="minPresentTime"/>
+				<param type="GLuint" name="beginPresentTimeId"/>
+				<param type="GLuint" name="presentDurationId"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLenum" name="target0"/>
+				<param type="GLuint" name="fill0"/>
+				<param type="GLuint" name="key0"/>
+				<param type="GLenum" name="target1"/>
+				<param type="GLuint" name="fill1"/>
+				<param type="GLuint" name="key1"/>
+			</params>
+		</function>
+		<function name="glPresentFrameDualFillNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLuint64" name="minPresentTime"/>
+				<param type="GLuint" name="beginPresentTimeId"/>
+				<param type="GLuint" name="presentDurationId"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLenum" name="target0"/>
+				<param type="GLuint" name="fill0"/>
+				<param type="GLenum" name="target1"/>
+				<param type="GLuint" name="fill1"/>
+				<param type="GLenum" name="target2"/>
+				<param type="GLuint" name="fill2"/>
+				<param type="GLenum" name="target3"/>
+				<param type="GLuint" name="fill3"/>
+			</params>
+		</function>
+		<function name="glGetVideoivNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVideouivNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLuint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVideoi64vNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint64*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVideoui64vNV" return="void">
+			<params>
+				<param type="GLuint" name="video_slot"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLuint64*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

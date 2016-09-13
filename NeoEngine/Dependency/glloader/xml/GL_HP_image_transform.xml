@@ -1,0 +1,66 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_HP_image_transform" reg_no="66">
+	<tokens>
+		<token name="GL_IMAGE_SCALE_X_HP" value="0x8155"/>
+		<token name="GL_IMAGE_SCALE_Y_HP" value="0x8156"/>
+		<token name="GL_IMAGE_TRANSLATE_X_HP" value="0x8157"/>
+		<token name="GL_IMAGE_TRANSLATE_Y_HP" value="0x8158"/>
+		<token name="GL_IMAGE_ROTATE_ANGLE_HP" value="0x8159"/>
+		<token name="GL_IMAGE_ROTATE_ORIGIN_X_HP" value="0x815A"/>
+		<token name="GL_IMAGE_ROTATE_ORIGIN_Y_HP" value="0x815B"/>
+		<token name="GL_IMAGE_MAG_FILTER_HP" value="0x815C"/>
+		<token name="GL_IMAGE_MIN_FILTER_HP" value="0x815D"/>
+		<token name="GL_IMAGE_CUBIC_WEIGHT_HP" value="0x815E"/>
+		<token name="GL_CUBIC_HP" value="0x815F"/>
+		<token name="GL_AVERAGE_HP" value="0x8160"/>
+		<token name="GL_IMAGE_TRANSFORM_2D_HP" value="0x8161"/>
+		<token name="GL_POST_IMAGE_TRANSFORM_COLOR_TABLE_HP" value="0x8162"/>
+		<token name="GL_PROXY_POST_IMAGE_TRANSFORM_COLOR_TABLE_HP" value="0x8163"/>
+	</tokens>
+
+	<functions>
+		<function name="glImageTransformParameteriHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glImageTransformParameterfHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat" name="param"/>
+			</params>
+		</function>
+		<function name="glImageTransformParameterivHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glImageTransformParameterfvHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetImageTransformParameterivHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetImageTransformParameterfvHP" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

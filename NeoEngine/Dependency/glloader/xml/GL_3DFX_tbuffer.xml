@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_3DFX_tbuffer" reg_no="208">
+	<functions>
+		<function name="glTbufferMask3DFX" return="void">
+			<params>
+				<param type="GLuint" name="mask"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

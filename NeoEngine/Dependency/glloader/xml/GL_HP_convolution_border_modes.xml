@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_HP_convolution_border_modes" reg_no="67">
+	<tokens>
+		<token name="GL_IGNORE_BORDER_HP" value="0x8150"/>
+		<token name="GL_CONSTANT_BORDER_HP" value="0x8151"/>
+		<token name="GL_REPLICATE_BORDER_HP" value="0x8153"/>
+		<token name="GL_CONVOLUTION_BORDER_COLOR_HP" value="0x8154"/>
+	</tokens>
+</gl_extension>

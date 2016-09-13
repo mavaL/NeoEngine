@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_3DFX_texture_compression_FXT1" reg_no="206">
+	<tokens>
+		<token name="GL_COMPRESSED_RGB_FXT1_3DFX" value="0x86B0"/>
+		<token name="GL_COMPRESSED_RGBA_FXT1_3DFX" value="0x86B1"/>
+	</tokens>
+</gl_extension>

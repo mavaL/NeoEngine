@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_flush_buffer_range" reg_no="321">
+	<tokens>
+		<token name="GL_BUFFER_SERIALIZED_MODIFY_APPLE" value="0x8A12"/>
+		<token name="GL_BUFFER_FLUSHING_UNMAP_APPLE" value="0x8A13"/>
+	</tokens>
+
+	<functions>
+		<function name="glBufferParameteriAPPLE" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glFlushMappedBufferRangeAPPLE" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLintptr" name="offset"/>
+				<param type="GLsizeiptr" name="size"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

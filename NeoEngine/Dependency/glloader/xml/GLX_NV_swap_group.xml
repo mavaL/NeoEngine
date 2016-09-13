@@ -1,0 +1,49 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_NV_swap_group" reg_no="350">
+	<functions>
+		<function name="glXJoinSwapGroupNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="GLuint" name="group"/>
+			</params>
+		</function>
+		<function name="glXBindSwapBarrierNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLuint" name="group"/>
+				<param type="GLuint" name="barrier"/>
+			</params>
+		</function>
+		<function name="glXQuerySwapGroupNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="GLuint*" name="group"/>
+				<param type="GLuint*" name="barrier"/>
+			</params>
+		</function>
+		<function name="glXQueryMaxSwapGroupsNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="screen"/>
+				<param type="GLuint*" name="maxGroups"/>
+				<param type="GLuint*" name="maxBarriers"/>
+			</params>
+		</function>
+		<function name="glXQueryFrameCountNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="screen"/>
+				<param type="GLuint*" name="count"/>
+			</params>
+		</function>
+		<function name="glXResetFrameCountNV" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="screen"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

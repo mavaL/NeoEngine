@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_EXT_extensions_string" reg_no="168">
+	<functions>
+		<function name="wglGetExtensionsStringEXT" return="const char*"/>
+	</functions>
+</gl_extension>

@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "AmbientCube.h"
-#include "D3D11Texture.h"
-#include "D3D11RenderSystem.h"
+#include "Texture.h"
+#include "D3D11/D3D11RenderSystem.h"
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "Terrain.h"
 #include "Sky.h"
+#include "Renderer.h"
 
 namespace Neo
 {
@@ -24,8 +25,8 @@ namespace Neo
 	bool AmbientCube::GenerateHDRCubeMap(const VEC3& pos, const STRING& filename, Scene* pScene)
 	{
 		const uint32 ENV_MAP_SIZE = 256;
-		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
-		ID3D11Device* pDevice = g_env.pRenderSystem->GetDevice();
+		ID3D11DeviceContext* pDeviceContext = g_pRenderSys->GetDeviceContext();
+		ID3D11Device* pDevice = g_pRenderSys->GetDevice();
 		ID3D11Texture2D* pCubeMap = nullptr;
 		ID3D11Texture2D* pDepthTex = nullptr;
 		ID3D11DepthStencilView* pDSV = nullptr;
@@ -99,7 +100,7 @@ namespace Neo
 			camCube.SetUp(vUp[i]);
 			camCube.SetDirection(vLookDirection[i]);
 			camCube._BuildViewMatrix();
-			g_env.pRenderSystem->Update(0);
+			g_env.pRenderer->Update(0);
 
 			pScene->RenderOpaque();
 
@@ -117,21 +118,21 @@ namespace Neo
 			}
 		}
 
-		g_env.pRenderSystem->EndScene();
+		g_pRenderSys->SwapBuffer();
 		V(D3DX11SaveTextureToFileA(pDeviceContext, pCubeMap, D3DX11_IFF_DDS, filename.c_str()));
 
 		// Restore
 		g_env.pSceneMgr->SetCurRenderPhase(eRenderPhase_None);
 		g_env.pSceneMgr->SetCamera(pSceneCam);
 		g_env.pSceneMgr->SetEnableAmbientCube(true);
-		g_env.pRenderSystem->SetRenderTarget(nullptr, g_env.pRenderSystem->GetDepthTexture(), 1, false, false);
-		g_env.pRenderSystem->RestoreViewport();
+		g_pRenderSys->SetRenderTarget(nullptr, g_pRenderSys->GetDepthBuffer(), 1, false, false);
+		g_env.pRenderer->RestoreViewport();
 		SAFE_RELEASE(pCubeMap);
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	void AmbientCube::SetupCubeMap(D3D11Texture* pIEM, D3D11Texture* pREM)
+	void AmbientCube::SetupCubeMap(Texture* pIEM, Texture* pREM)
 	{
 		m_pTexIrradiance = pIEM;
 		m_pTexRadiance = pREM;

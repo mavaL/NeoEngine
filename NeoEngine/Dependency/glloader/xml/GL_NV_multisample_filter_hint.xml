@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_multisample_filter_hint" reg_no="259">
+	<tokens>
+		<token name="GL_MULTISAMPLE_FILTER_HINT_NV" value="0x8534"/>
+	</tokens>
+</gl_extension>

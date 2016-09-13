@@ -1,0 +1,76 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIX_pbuffer" reg_no="50">
+	<typedefs>
+		<typedef type="XID" synonym="GLXPbufferSGIX"/>
+		<typedef type="struct { int event_type; int draw_type; unsigned long serial; Bool send_event; Display* display; GLXDrawable drawable; unsigned int buffer_mask; unsigned int aux_buffer; int x, y; int width, height; int count; }" synonym="GLXPbufferClobberEventSGIX"/>
+	</typedefs>
+
+	<tokens>
+		<token name="GLX_PBUFFER_BIT_SGIX" value="0x00000004"/>
+		<token name="GLX_BUFFER_CLOBBER_MASK_SGIX" value="0x08000000"/>
+		<token name="GLX_FRONT_LEFT_BUFFER_BIT_SGIX" value="0x00000001"/>
+		<token name="GLX_FRONT_RIGHT_BUFFER_BIT_SGIX" value="0x00000002"/>
+		<token name="GLX_BACK_LEFT_BUFFER_BIT_SGIX" value="0x00000004"/>
+		<token name="GLX_BACK_RIGHT_BUFFER_BIT_SGIX" value="0x00000008"/>
+		<token name="GLX_AUX_BUFFERS_BIT_SGIX" value="0x00000010"/>
+		<token name="GLX_DEPTH_BUFFER_BIT_SGIX" value="0x00000020"/>
+		<token name="GLX_STENCIL_BUFFER_BIT_SGIX" value="0x00000040"/>
+		<token name="GLX_ACCUM_BUFFER_BIT_SGIX" value="0x00000080"/>
+		<token name="GLX_SAMPLE_BUFFERS_BIT_SGIX" value="0x00000100"/>
+		<token name="GLX_MAX_PBUFFER_WIDTH_SGIX" value="0x8016"/>
+		<token name="GLX_MAX_PBUFFER_HEIGHT_SGIX" value="0x8017"/>
+		<token name="GLX_MAX_PBUFFER_PIXELS_SGIX" value="0x8018"/>
+		<token name="GLX_OPTIMAL_PBUFFER_WIDTH_SGIX" value="0x8019"/>
+		<token name="GLX_OPTIMAL_PBUFFER_HEIGHT_SGIX" value="0x801A"/>
+		<token name="GLX_PRESERVED_CONTENTS_SGIX" value="0x801B"/>
+		<token name="GLX_LARGEST_PBUFFER_SGIX" value="0x801C"/>
+		<token name="GLX_WIDTH_SGIX" value="0x801D"/>
+		<token name="GLX_HEIGHT_SGIX" value="0x801E"/>
+		<token name="GLX_EVENT_MASK_SGIX" value="0x801F"/>
+		<token name="GLX_DAMAGED_SGIX" value="0x8020"/>
+		<token name="GLX_SAVED_SGIX" value="0x8021"/>
+		<token name="GLX_WINDOW_SGIX" value="0x8022"/>
+		<token name="GLX_PBUFFER_SGIX" value="0x8023"/>
+	</tokens>
+
+	<functions>
+		<function name="glXCreateGLXPbufferSGIX" return="GLXPbufferSGIX">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXFBConfigSGIX" name="config"/>
+				<param type="unsigned int" name="width"/>
+				<param type="unsigned int" name="height"/>
+				<param type="int*" name="attrib_list"/>
+			</params>
+		</function>
+		<function name="glXDestroyGLXPbufferSGIX" return="void">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXPbufferSGIX" name="pbuf"/>
+			</params>
+		</function>
+		<function name="glXQueryGLXPbufferSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXPbufferSGIX" name="pbuf"/>
+				<param type="int" name="attribute"/>
+				<param type="unsigned int*" name="value"/>
+			</params>
+		</function>
+		<function name="glXSelectEventSGIX" return="void">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="unsigned long" name="mask"/>
+			</params>
+		</function>
+		<function name="glXGetSelectedEventSGIX" return="void">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="drawable"/>
+				<param type="unsigned long*" name="mask"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

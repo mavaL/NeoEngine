@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_async_histogram" reg_no="134">
+	<tokens>
+		<token name="GL_ASYNC_HISTOGRAM_SGIX" value="0x832C"/>
+		<token name="GL_MAX_ASYNC_HISTOGRAM_SGIX" value="0x832D"/>
+	</tokens>
+</gl_extension>

@@ -3,9 +3,10 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "MaterialManager.h"
-#include "D3D11Texture.h"
+#include "Texture.h"
 #include "Entity.h"
 #include "Scene.h"
+#include "Renderer.h"
 
 using namespace std;
 
@@ -273,12 +274,9 @@ namespace Neo
 			{
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_DiffuseMap, new D3D11Texture(GetResPath(texName)));
+				pNewMaterial->SetTexture(eTexSlot_DiffuseMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_DiffuseMap);
-				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_DiffuseMap);
 				pNewMaterial->SetSamplerStateDesc(eTexSlot_DiffuseMap, samDesc);
 			}
 			else if (strcmp(command.c_str(), "bump") == 0)
@@ -287,23 +285,19 @@ namespace Neo
 
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_NormalMap, new D3D11Texture(GetResPath(texName)));
+				pNewMaterial->SetTexture(eTexSlot_NormalMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
-				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
 				pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
 			}
 			else if (strcmp(command.c_str(), "spec") == 0)
 			{
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_SpecMap, new D3D11Texture(GetResPath(texName)));
+				pNewMaterial->SetTexture(eTexSlot_SpecMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				D3D11_SAMPLER_DESC samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_SpecMap);
-				samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-				samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_SpecMap);
+				pNewMaterial->SetSamplerStateDesc(eTexSlot_SpecMap, samDesc);
 			}
 			else if (strcmp(command.c_str(), "Ks") == 0)
 			{

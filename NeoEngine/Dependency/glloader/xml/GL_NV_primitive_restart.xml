@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_primitive_restart" reg_no="285">
+	<tokens>
+		<token name="GL_PRIMITIVE_RESTART_NV" value="0x8558"/>
+		<token name="GL_PRIMITIVE_RESTART_INDEX_NV" value="0x8559"/>
+	</tokens>
+
+	<functions>
+		<function name="glPrimitiveRestartNV" return="void"/>
+		<function name="glPrimitiveRestartIndexNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

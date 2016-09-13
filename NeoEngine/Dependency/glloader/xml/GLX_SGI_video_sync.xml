@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGI_video_sync" reg_no="41">
+	<functions>
+		<function name="glXGetVideoSyncSGI" return="int">
+			<params>
+				<param type="unsigned int*" name="count"/>
+			</params>
+		</function>
+		<function name="glXWaitVideoSyncSGI" return="int">
+			<params>
+				<param type="int" name="divisor"/>
+				<param type="int" name="remainder"/>
+				<param type="unsigned int*" name="count"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

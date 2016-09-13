@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_texture_expand_normal" reg_no="286">
+	<tokens>
+		<token name="GL_TEXTURE_UNSIGNED_REMAP_MODE_NV" value="0x888F"/>
+	</tokens>
+</gl_extension>

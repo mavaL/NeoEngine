@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_MESA_resize_buffers" reg_no="196">
+	<functions>
+		<function name="glResizeBuffersMESA" return="void"/>
+	</functions>
+</gl_extension>

@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_packed_depth_stencil" reg_no="312">
+	<tokens>
+		<token name="GL_DEPTH_STENCIL_EXT" value="0x84F9"/>
+		<token name="GL_UNSIGNED_INT_24_8_EXT" value="0x84FA"/>
+		<token name="GL_DEPTH24_STENCIL8_EXT" value="0x88F0"/>
+		<token name="GL_TEXTURE_STENCIL_SIZE_EXT" value="0x88F1"/>
+	</tokens>
+</gl_extension>

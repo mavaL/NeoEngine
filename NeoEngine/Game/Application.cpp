@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Application.h"
 #include "Scene.h"
-#include "D3D11RenderSystem.h"
+#include "Renderer.h"
 #include "MathDef.h"
 #include "SceneManager.h"
 #include "Camera.h"
@@ -14,7 +14,6 @@ static const uint32	SCREEN_HEIGHT	=	864;
 //----------------------------------------------------------------------------------------
 Application::Application()
 : m_hInstance(nullptr)
-, m_pRenderSystem(nullptr)
 {
 
 }
@@ -32,10 +31,8 @@ void Application::Init()
 		return;
 	}
 
-	m_pRenderSystem = new Neo::D3D11RenderSystem;
-	g_env.pRenderSystem = m_pRenderSystem;
-
-	if(!m_pRenderSystem->Init(SCREEN_WIDTH, SCREEN_HEIGHT, g_env.hwnd))
+	g_env.pRenderer = new Neo::Renderer;
+	if (!g_env.pRenderer->Init(SCREEN_WIDTH, SCREEN_HEIGHT, g_env.hwnd))
 	{
 		assert(0);
 		return;
@@ -54,8 +51,8 @@ void Application::Init()
 void Application::ShutDown()
 {
 	SAFE_DELETE(g_env.pSceneMgr);
-	m_pRenderSystem->ShutDown();
-	SAFE_DELETE(m_pRenderSystem);
+	g_env.pRenderer->ShutDown();
+	SAFE_DELETE(g_env.pRenderer);
 }
 //----------------------------------------------------------------------------------------
 bool Application::_InitWindow()
@@ -64,7 +61,7 @@ bool Application::_InitWindow()
 	WNDCLASSEX wcex;
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
+	wcex.style			= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wcex.lpfnWndProc	= WndProc;
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
@@ -72,7 +69,7 @@ bool Application::_InitWindow()
 	wcex.hIcon			= nullptr;
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(GetStockObject(BLACK_BRUSH));
-	wcex.lpszMenuName	= /*MAKEINTRESOURCE(IDC_THISISASOFTRENDERER)*/nullptr;
+	wcex.lpszMenuName	= nullptr;
 	wcex.lpszClassName	= "NeoEngineWndClass";
 	wcex.hIconSm		= nullptr;
 
@@ -100,6 +97,39 @@ bool Application::_InitWindow()
 		windowLeft, windowTop, realWidth, realHeight, NULL, NULL, hInst, NULL);
 
 	if (!hWnd)
+		return false;
+
+	PIXELFORMATDESCRIPTOR pfd =						// pfd Tells Windows How We Want Things To Be
+	{
+		sizeof(PIXELFORMATDESCRIPTOR),				// Size Of This Pixel Format Descriptor
+		1,											// Version Number
+		PFD_DRAW_TO_WINDOW |						// Format Must Support Window
+		PFD_SUPPORT_OPENGL |						// Format Must Support OpenGL
+		PFD_DOUBLEBUFFER,							// Must Support Double Buffering
+		PFD_TYPE_RGBA,								// Request An RGBA Format
+		32,											// Select Our Color Depth
+		0, 0, 0, 0, 0, 0,							// Color Bits Ignored
+		0,											// No Alpha Buffer
+		0,											// Shift Bit Ignored
+		0,											// No Accumulation Buffer
+		0, 0, 0, 0,									// Accumulation Bits Ignored
+		16,											// 16Bit Z-Buffer (Depth Buffer)  
+		0,											// No Stencil Buffer
+		0,											// No Auxiliary Buffer
+		PFD_MAIN_PLANE,								// Main Drawing Layer
+		0,											// Reserved
+		0, 0, 0										// Layer Masks Ignored
+	};
+
+	HDC hDC;
+	if (!(hDC = GetDC(hWnd)))
+		return false;
+
+	unsigned int PixelFormat;
+	if (!(PixelFormat = ChoosePixelFormat(hDC, &pfd)))
+		return false;
+
+	if (!SetPixelFormat(hDC, PixelFormat, &pfd))
 		return false;
 
 	g_env.hwnd = hWnd;
@@ -161,11 +191,10 @@ void Application::Run()
 
 			pSceneMgr->GetCamera()->Update(fDeltaTime);
 			pSceneMgr->Update(fDeltaTime);
-			m_pRenderSystem->Update(fDeltaTime);
+			g_env.pRenderer->Update(fDeltaTime);
 			
-			m_pRenderSystem->BeginScene();
 			pSceneMgr->Render();
-			m_pRenderSystem->EndScene();
+			g_env.pRenderer->GetRenderSys()->SwapBuffer();
 
 			lastTime = curTime;
 		}

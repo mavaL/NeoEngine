@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_polygon_offset" reg_no="3">
+	<tokens>
+		<token name="GL_POLYGON_OFFSET_EXT" value="0x8037"/>
+		<token name="GL_POLYGON_OFFSET_FACTOR_EXT" value="0x8038"/>
+		<token name="GL_POLYGON_OFFSET_BIAS_EXT" value="0x8039"/>
+	</tokens>
+
+	<functions>
+		<function name="glPolygonOffsetEXT" return="void">
+			<params>
+				<param type="GLfloat" name="factor"/>
+				<param type="GLfloat" name="bias"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

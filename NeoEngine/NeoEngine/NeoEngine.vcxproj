@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -79,36 +79,19 @@
   <ItemGroup>
     <ClInclude Include="..\Dependency\tinyxml\tinystr.h" />
     <ClInclude Include="..\Dependency\tinyxml\tinyxml.h" />
-    <ClInclude Include="..\Res\Common.h">
+    <ClInclude Include="..\Res\Shaders\D3D11\Common.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <FxCompile Include="..\Res\Anisotropic.hlsl">
+    <ClInclude Include="..\Res\Shaders\D3D11\DeferredShadingCommon.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\Blur.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\DebugSkeleton.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\DeferredShadingCommon.h">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
+    </ClInclude>
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\AmbientCube.h" />
     <ClInclude Include="Include\Camera.h" />
     <ClInclude Include="Include\ConvexBody.h" />
-    <ClInclude Include="Include\D3D11RenderSystem.h" />
     <ClInclude Include="Include\Color.h" />
-    <ClInclude Include="Include\D3D11RenderTarget.h" />
-    <ClInclude Include="Include\D3D11Texture.h" />
     <ClInclude Include="Include\dds.h" />
     <ClInclude Include="Include\DDSTextureLoader.h" />
     <ClInclude Include="Include\Entity.h" />
@@ -127,6 +110,23 @@
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Polygon.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
+    <ClInclude Include="Include\RenderAPI\Buffer.h" />
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Buffer.h" />
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11RenderSystem.h" />
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11RenderTarget.h" />
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Shader.h" />
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Texture.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLBuffer.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderSystem.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderTarget.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLTexture.h" />
+    <ClInclude Include="Include\RenderAPI\RenderDefine.h" />
+    <ClInclude Include="Include\RenderAPI\RenderState.h" />
+    <ClInclude Include="Include\RenderAPI\RenderSystem.h" />
+    <ClInclude Include="Include\RenderAPI\RenderTarget.h" />
+    <ClInclude Include="Include\RenderAPI\Shader.h" />
+    <ClInclude Include="Include\RenderAPI\Texture.h" />
+    <ClInclude Include="Include\Renderer.h" />
     <ClInclude Include="Include\RenderState.h" />
     <ClInclude Include="Include\Scene.h" />
     <ClInclude Include="Include\SceneManager.h" />
@@ -151,77 +151,6 @@
     <ClInclude Include="Include\Water.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Res\ClipPlaneWrapper.hlsl">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(RelativeDir)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RelativeDir)\%(Filename).fxo</Outputs>
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
-    <CustomBuild Include="..\Res\DebugRT.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\BilateralBlur.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutputPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutputPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Font.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <FxCompile Include="..\Res\Fur\Fur.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\Opaque.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <CustomBuild Include="..\Res\Sky.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\SSAO.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_Depth.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_Final.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
-      <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">fxc /Fc /Od /Zi /T fx_5_0 /Fo "%(OutPath)\%(Filename).fxo" "%(FullPath)"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(OutPath)\%(Filename).fxo</Outputs>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </CustomBuild>
-    <None Include="..\Res\WhiteNoLight.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </None>
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -245,9 +174,6 @@
     <ClCompile Include="Src\AmbientCube.cpp" />
     <ClCompile Include="Src\Camera.cpp" />
     <ClCompile Include="Src\ConvexBody.cpp" />
-    <ClCompile Include="Src\D3D11RenderSystem.cpp" />
-    <ClCompile Include="Src\D3D11RenderTarget.cpp" />
-    <ClCompile Include="Src\D3D11Texture.cpp" />
     <ClCompile Include="Src\DDSTextureLoader.cpp" />
     <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
@@ -262,6 +188,18 @@
     <ClCompile Include="Src\ObjMeshLoader.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />
     <ClCompile Include="Src\Polygon.cpp" />
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Buffer.cpp" />
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11RenderSystem.cpp" />
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11RenderTarget.cpp" />
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Shader.cpp" />
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Texture.cpp" />
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLBuffer.cpp" />
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderSystem.cpp" />
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderTarget.cpp" />
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLTexture.cpp" />
+    <ClCompile Include="Src\RenderAPI\RenderTarget.cpp" />
+    <ClCompile Include="Src\RenderAPI\Texture.cpp" />
+    <ClCompile Include="Src\Renderer.cpp" />
     <ClCompile Include="Src\Scene.cpp" />
     <ClCompile Include="Src\SceneManager.cpp" />
     <ClCompile Include="Src\Shadow\ShadowMap.cpp" />
@@ -284,32 +222,92 @@
     <ClCompile Include="Src\Water.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Res\DeferredShading.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\HDR.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Effect</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\SkinModel.hlsl">
+    <FxCompile Include="..\Res\Shaders\D3D11\Anisotropic.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\Res\Terrain.hlsl">
+    <FxCompile Include="..\Res\Shaders\D3D11\BilateralBlur.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\Res\TiledCS.hlsl">
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">CS</EntryPointName>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    <FxCompile Include="..\Res\Shaders\D3D11\Blur.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\ClipPlaneWrapper.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\DebugRT.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\DebugSkeleton.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\DeferredShading.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Font.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Fur.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\HDR.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Opaque.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\SkinModel.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Sky.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\SSAO.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Terrain.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Terrain_Depth.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\TiledCS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Depth.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Final.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_RefractionMask.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Scene.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\WhiteNoLight.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

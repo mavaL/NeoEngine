@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_clip_volume_hint" reg_no="79">
+	<tokens>
+		<token name="GL_CLIP_VOLUME_CLIPPING_HINT_EXT" value="0x80F0"/>
+	</tokens>
+</gl_extension>

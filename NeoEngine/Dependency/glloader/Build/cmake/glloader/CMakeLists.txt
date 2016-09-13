@@ -1,0 +1,4 @@
+IF(NOT (ANDROID OR IOS))
+	SETUP_GLLOADER(glloader)
+ENDIF()
+

@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_INGR_interlace_read" reg_no="175">
+	<tokens>
+		<token name="GL_INTERLACE_READ_INGR" value="0x8568"/>
+	</tokens>
+</gl_extension>

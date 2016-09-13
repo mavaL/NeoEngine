@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_light_texture" reg_no="117">
+	<tokens>
+		<token name="GL_FRAGMENT_MATERIAL_EXT" value="0x8349"/>
+		<token name="GL_FRAGMENT_NORMAL_EXT" value="0x834A"/>
+		<token name="GL_FRAGMENT_COLOR_EXT" value="0x834C"/>
+		<token name="GL_ATTENUATION_EXT" value="0x834D"/>
+		<token name="GL_SHADOW_ATTENUATION_EXT" value="0x834E"/>
+		<token name="GL_TEXTURE_APPLICATION_MODE_EXT" value="0x834F"/>
+		<token name="GL_TEXTURE_LIGHT_EXT" value="0x8350"/>
+		<token name="GL_TEXTURE_MATERIAL_FACE_EXT" value="0x8351"/>
+		<token name="GL_TEXTURE_MATERIAL_PARAMETER_EXT" value="0x8352"/>
+		<token name="GL_FRAGMENT_DEPTH_EXT" value="0x8452"/>
+	</tokens>
+
+	<functions>
+		<function name="glApplyTextureEXT" return="void">
+			<params>
+				<param type="GLenum" name="mode"/>
+			</params>
+		</function>
+		<function name="glTextureLightEXT" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+			</params>
+		</function>
+		<function name="glTextureMaterialEXT" return="void">
+			<params>
+				<param type="GLenum" name="face"/>
+				<param type="GLenum" name="mode"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

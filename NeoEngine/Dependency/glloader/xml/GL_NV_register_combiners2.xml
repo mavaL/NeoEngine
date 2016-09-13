@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_register_combiners2" reg_no="227">
+	<tokens>
+		<token name="GL_PER_STAGE_CONSTANTS_NV" value="0x8535"/>
+	</tokens>
+
+	<functions>
+		<function name="glCombinerStageParameterfvNV" return="void">
+			<params>
+				<param type="GLenum" name="stage"/>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetCombinerStageParameterfvNV" return="void">
+			<params>
+				<param type="GLenum" name="stage"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,47 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_NV_gpu_affinity" reg_no="355">
+	<typedefs>
+		<typedef type="struct HGPUNV__ { int unused; }" synonym="*HGPUNV"/>
+		<typedef type="struct { DWORD cb; CHAR DeviceName[32]; CHAR DeviceString[128]; DWORD Flags; RECT rcVirtualScreen; }" synonym="GPU_DEVICE"/>
+		<typedef type="GPU_DEVICE*" synonym="PGPU_DEVICE"/>
+	</typedefs>
+
+	<tokens>
+		<token name="WGL_ERROR_INCOMPATIBLE_AFFINITY_MASKS_NV" value="0x20D0"/>
+		<token name="WGL_ERROR_MISSING_AFFINITY_MASK_NV" value="0x20D1"/>
+	</tokens>
+
+	<functions>
+		<function name="wglEnumGpusNV" return="BOOL">
+			<params>
+				<param type="UINT" name="iGpuIndex"/>
+				<param type="HGPUNV*" name="phGpu"/>
+			</params>
+		</function>
+		<function name="wglEnumGpuDevicesNV" return="BOOL">
+			<params>
+				<param type="HGPUNV" name="hGpu"/>
+				<param type="UINT" name="iDeviceIndex"/>
+				<param type="PGPU_DEVICE" name="lpGpuDevice"/>
+			</params>
+		</function>
+		<function name="wglCreateAffinityDCNV" return="HDC">
+			<params>
+				<param type="const HGPUNV*" name="phGpuList"/>
+			</params>
+		</function>
+		<function name="wglEnumGpusFromAffinityDCNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hAffinityDC"/>
+				<param type="UINT" name="iGpuIndex"/>
+				<param type="HGPUNV*" name="hGpu"/>
+			</params>
+		</function>
+		<function name="wglDeleteDCNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hdc"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

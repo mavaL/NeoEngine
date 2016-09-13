@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_texture_shared_exponent" reg_no="333">
+	<tokens>
+		<token name="GL_RGB9_E5_EXT" value="0x8C3D"/>
+		<token name="GL_UNSIGNED_INT_5_9_9_9_REV_EXT" value="0x8C3E"/>
+		<token name="GL_TEXTURE_SHARED_SIZE_EXT" value="0x8C3F"/>
+	</tokens>
+</gl_extension>

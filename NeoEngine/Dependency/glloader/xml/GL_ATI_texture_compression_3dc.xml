@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_texture_compression_3dc">
+	<tokens>
+		<token name="GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI" value="0x8837"/>
+	</tokens>
+</gl_extension>

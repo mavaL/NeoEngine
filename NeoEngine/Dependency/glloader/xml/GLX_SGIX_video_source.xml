@@ -1,0 +1,26 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIX_video_source" reg_no="43" predefined="_VL_H">
+	<typedefs>
+		<typedef type="XID" synonym="GLXVideoSourceSGIX"/>
+	</typedefs>
+
+	<functions>
+		<function name="glXCreateGLXVideoSourceSGIX" return="GLXVideoSourceSGIX">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="VLServer" name="server"/>
+				<param type="VLPath" name="path"/>
+				<param type="int" name="nodeClass"/>
+				<param type="VLNode" name="drainNode"/>
+			</params>
+		</function>
+		<function name="glXDestroyGLXVideoSourceSGIX" return="void">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXVideoSourceSGIX" name="glxvideosource"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

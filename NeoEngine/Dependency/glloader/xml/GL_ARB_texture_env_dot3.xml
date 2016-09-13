@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ARB_texture_env_dot3" reg_no="19">
+	<tokens>
+		<token name="GL_DOT3_RGB_ARB" value="0x86AE"/>
+		<token name="GL_DOT3_RGBA_ARB" value="0x86AF"/>
+	</tokens>
+</gl_extension>

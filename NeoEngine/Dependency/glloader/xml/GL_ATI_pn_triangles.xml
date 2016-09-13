@@ -1,0 +1,30 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_pn_triangles" reg_no="246">
+	<tokens>
+		<token name="GL_PN_TRIANGLES_ATI" value="0x87F0"/>
+		<token name="GL_MAX_PN_TRIANGLES_TESSELATION_LEVEL_ATI" value="0x87F1"/>
+		<token name="GL_PN_TRIANGLES_POINT_MODE_ATI" value="0x87F2"/>
+		<token name="GL_PN_TRIANGLES_NORMAL_MODE_ATI" value="0x87F3"/>
+		<token name="GL_PN_TRIANGLES_TESSELATION_LEVEL_ATI" value="0x87F4"/>
+		<token name="GL_PN_TRIANGLES_POINT_MODE_LINEAR_ATI" value="0x87F5"/>
+		<token name="GL_PN_TRIANGLES_POINT_MODE_CUBIC_ATI" value="0x87F6"/>
+		<token name="GL_PN_TRIANGLES_NORMAL_MODE_LINEAR_ATI" value="0x87F7"/>
+		<token name="GL_PN_TRIANGLES_NORMAL_MODE_QUADRATIC_ATI" value="0x87F8"/>
+	</tokens>
+
+	<functions>
+		<function name="glPNTrianglesiATI" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glPNTrianglesfATI" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat" name="param"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

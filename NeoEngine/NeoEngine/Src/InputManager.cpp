@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "InputManager.h"
-#include "D3D11RenderSystem.h"
+#include "Renderer.h"
 #include <sstream>
 
 namespace Neo
@@ -41,8 +41,8 @@ namespace Neo
 		}
 
 		OIS::MouseState& mouseState = const_cast<OIS::MouseState&>(mMouse->getMouseState());
-		mouseState.width = g_env.pRenderSystem->GetWndWidth();
-		mouseState.height = g_env.pRenderSystem->GetWndHeight();
+		mouseState.width = g_env.pRenderer->GetWndWidth();
+		mouseState.height = g_env.pRenderer->GetWndHeight();
 		mouseState.X.abs = mouseState.width / 2;
 		mouseState.Y.abs = mouseState.height / 2;
 

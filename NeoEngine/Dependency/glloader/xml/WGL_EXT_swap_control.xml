@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_EXT_swap_control" reg_no="172">
+	<functions>
+		<function name="wglSwapIntervalEXT" return="BOOL">
+			<params>
+				<param type="int" name="interval"/>
+			</params>
+		</function>
+		<function name="wglGetSwapIntervalEXT" return="int"/>
+	</functions>
+</gl_extension>

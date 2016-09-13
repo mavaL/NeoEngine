@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_texgen_reflection" reg_no="179">
+	<tokens>
+		<token name="GL_NORMAL_MAP_NV" value="0x8511"/>
+		<token name="GL_REFLECTION_MAP_NV" value="0x8512"/>
+	</tokens>
+</gl_extension>

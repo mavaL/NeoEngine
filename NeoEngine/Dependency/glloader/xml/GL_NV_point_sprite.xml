@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_point_sprite" reg_no="262">
+	<tokens>
+		<token name="GL_POINT_SPRITE_NV" value="0x8861"/>
+		<token name="GL_COORD_REPLACE_NV" value="0x8862"/>
+		<token name="GL_POINT_SPRITE_R_MODE_NV" value="0x8863"/>
+	</tokens>
+
+	<functions>
+		<function name="glPointParameteriNV" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glPointParameterivNV" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

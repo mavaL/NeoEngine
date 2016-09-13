@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_VERSION_1_4">
+	<tokens>
+		<token name="GLX_SAMPLE_BUFFERS" value="100000"/>
+		<token name="GLX_SAMPLES" value="100001"/>
+	</tokens>
+
+	<functions>
+		<function name="glXGetProcAddress" return="__GLXextFuncPtr" link="static">
+			<params>
+				<param type="const GLubyte*" name="procName"/>
+			</params>
+			<mappings>
+				<mapping from="GLX_ARB_get_proc_address" name="glXGetProcAddressARB"/>
+			</mappings>
+		</function>
+	</functions>
+</gl_extension>

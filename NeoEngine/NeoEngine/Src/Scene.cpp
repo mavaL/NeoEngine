@@ -2,7 +2,7 @@
 #include "Scene.h"
 #include "Water.h"
 #include "Sky.h"
-#include "D3D11RenderSystem.h"
+#include "RenderSystem.h"
 #include "SceneManager.h"
 #include "Terrain.h"
 #include "Entity.h"

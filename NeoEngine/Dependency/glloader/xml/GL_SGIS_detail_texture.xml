@@ -1,0 +1,30 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIS_detail_texture" reg_no="21">
+	<tokens>
+		<token name="GL_DETAIL_TEXTURE_2D_SGIS" value="0x8095"/>
+		<token name="GL_DETAIL_TEXTURE_2D_BINDING_SGIS" value="0x8096"/>
+		<token name="GL_LINEAR_DETAIL_SGIS" value="0x8097"/>
+		<token name="GL_LINEAR_DETAIL_ALPHA_SGIS" value="0x8098"/>
+		<token name="GL_LINEAR_DETAIL_COLOR_SGIS" value="0x8099"/>
+		<token name="GL_DETAIL_TEXTURE_LEVEL_SGIS" value="0x809A"/>
+		<token name="GL_DETAIL_TEXTURE_MODE_SGIS" value="0x809B"/>
+		<token name="GL_DETAIL_TEXTURE_FUNC_POINTS_SGIS" value="0x809C"/>
+	</tokens>
+
+	<functions>
+		<function name="glDetailTexFuncSGIS" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLfloat*" name="points"/>
+			</params>
+		</function>
+		<function name="glGetDetailTexFuncSGIS" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLfloat*" name="points"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

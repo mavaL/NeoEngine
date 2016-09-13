@@ -59,22 +59,22 @@ namespace Neo
 		DWORD*				GetIndexData() const { return m_pIndexData; }
 		DWORD*				GetAdjIndexData() const { return m_pAdjIndexData; }
 
-		void		Render(D3D11_PRIMITIVE_TOPOLOGY prim);		
+		void		Render(ePrimitive prim);
 
 	private:
 		STRING			m_name;
 
-		ID3D11Buffer*	m_pVertexBuf;
-		ID3D11Buffer*	m_pVB_Tangent;
-		ID3D11Buffer*	m_pVB_BoneWeights;
+		VertexBuffer*	m_pVertexBuf;
+		VertexBuffer*	m_pVB_Tangent;
+		VertexBuffer*	m_pVB_BoneWeights;
 
 		VertexData		m_vertData;
 
-		ID3D11Buffer*	m_pIndexBuf;
+		IndexBuffer*	m_pIndexBuf;
 		DWORD*			m_pIndexData;
 		DWORD			m_nIndexCnt;
 
-		ID3D11Buffer*	m_pAdjIndexBuf;
+		IndexBuffer*	m_pAdjIndexBuf;
 		DWORD*			m_pAdjIndexData;
 		DWORD			m_nAdjIndexCnt;
 	};
@@ -89,24 +89,24 @@ namespace Neo
 
 	public:
 		const STRING&	GetFileName() const { return m_filename; }
-		void		AddSubMesh(SubMesh* submesh);
-		SubMesh*	GetSubMesh(uint32 i);
-		uint32		GetSubMeshCount() const;
-		void		SetMaterial(Material* pMaterial);
-		Material*	GetMaterial()	{ return m_pMaterial; }
-		void		SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY type)	{ m_primType = type; }
-		D3D11_PRIMITIVE_TOPOLOGY		GetPrimitiveType() const	{ return m_primType; }
-		bool		BuildTangents();
-		void		ConvertToTriAdjIndices();
-		void		ConvertToLineAdjIndices();
+		void			AddSubMesh(SubMesh* submesh);
+		SubMesh*		GetSubMesh(uint32 i);
+		uint32			GetSubMeshCount() const;
+		void			SetMaterial(Material* pMaterial);
+		Material*		GetMaterial()	{ return m_pMaterial; }
+		void			SetPrimitiveType(ePrimitive type)	{ m_primType = type; }
+		ePrimitive		GetPrimitiveType() const	{ return m_primType; }
+		bool			BuildTangents();
+		void			ConvertToTriAdjIndices();
+		void			ConvertToLineAdjIndices();
 
-		void		Render();
+		void			Render();
 
 	private:
-		STRING						m_filename;
-		SubMeshes					m_submeshes;
-		Material*					m_pMaterial;
-		D3D11_PRIMITIVE_TOPOLOGY	m_primType;
+		STRING			m_filename;
+		SubMeshes		m_submeshes;
+		Material*		m_pMaterial;
+		ePrimitive		m_primType;
 	};
 }
 

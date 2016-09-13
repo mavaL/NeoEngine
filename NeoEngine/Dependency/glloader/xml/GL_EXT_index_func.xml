@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_index_func" reg_no="95">
+	<tokens>
+		<token name="GL_INDEX_TEST_EXT" value="0x81B5"/>
+		<token name="GL_INDEX_TEST_FUNC_EXT" value="0x81B6"/>
+		<token name="GL_INDEX_TEST_REF_EXT" value="0x81B7"/>
+	</tokens>
+
+	<functions>
+		<function name="glIndexFuncEXT" return="void">
+			<params>
+				<param type="GLenum" name="func"/>
+				<param type="GLclampf" name="ref"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,22 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_gpu_program_parameters" reg_no="320">
+	<functions>
+		<function name="glProgramEnvParameters4fvEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glProgramLocalParameters4fvEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

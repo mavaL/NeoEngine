@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_NV_float_buffer" reg_no="281">
+	<tokens>
+		<token name="GLX_FLOAT_COMPONENTS_NV" value="0x20B0"/>
+	</tokens>
+</gl_extension>

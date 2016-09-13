@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_S3_s3tc" reg_no="276">
+	<tokens>
+		<token name="GL_RGB_S3TC" value="0x83A0"/>
+		<token name="GL_RGB4_S3TC" value="0x83A1"/>
+		<token name="GL_RGBA_S3TC" value="0x83A2"/>
+		<token name="GL_RGBA4_S3TC" value="0x83A3"/>
+	</tokens>
+</gl_extension>

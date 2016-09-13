@@ -21,9 +21,9 @@ namespace Neo
 
 	public:
 		void			Update();
-		D3D11Texture*	GetSSAOMap()	{ return m_pTexSsao; }
-		D3D11Texture*	GetBlurHMap()	{ return m_pTexBlurH; }
-		D3D11Texture*	GetBlurVMap()	{ return m_pTexBlurV; }
+		Texture*		GetSSAOMap()	{ return m_pTexSsao; }
+		Texture*		GetBlurHMap()	{ return m_pTexBlurH; }
+		Texture*		GetBlurVMap()	{ return m_pTexBlurV; }
 
 	private:
 		__declspec(align(16))
@@ -32,21 +32,21 @@ namespace Neo
 			VEC4	texelKernel[11];
 		};
 
-		D3D11RenderSystem*	m_pRenderSystem;
+		RenderSystem*		m_pRenderSystem;
 
-		D3D11RenderTarget*	m_pRT_ssao;
-		D3D11Texture*		m_pTexSsao;
+		RenderTarget*		m_pRT_ssao;
+		Texture*			m_pTexSsao;
 		Material*			m_pSsaoMaterial;
 
-		D3D11RenderTarget*	m_pRT_BlurH;
-		D3D11RenderTarget*	m_pRT_BlurV;
-		D3D11Texture*		m_pTexBlurH;
-		D3D11Texture*		m_pTexBlurV;
+		RenderTarget*		m_pRT_BlurH;
+		RenderTarget*		m_pRT_BlurV;
+		Texture*			m_pTexBlurH;
+		Texture*			m_pTexBlurV;
 		Material*			m_pBlurHMaterial;
 		Material*			m_pBlurVMaterial;
 
 		cBufferBlur			m_cBufferBlur;
-		ID3D11Buffer*		m_pCB_Blur;
+		ConstantBuffer*		m_pCB_Blur;
 	};
 }
 

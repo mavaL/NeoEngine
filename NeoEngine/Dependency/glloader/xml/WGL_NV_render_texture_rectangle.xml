@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_NV_render_texture_rectangle" reg_no="264">
+	<tokens>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_RGB_NV" value="0x20A0"/>
+		<token name="WGL_BIND_TO_TEXTURE_RECTANGLE_RGBA_NV" value="0x20A1"/>
+		<token name="WGL_TEXTURE_RECTANGLE_NV" value="0x20A2"/>
+	</tokens>
+</gl_extension>

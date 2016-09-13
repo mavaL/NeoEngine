@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_async" reg_no="132">
+	<tokens>
+		<token name="GL_ASYNC_MARKER_SGIX" value="0x8329"/>
+	</tokens>
+
+	<functions>
+		<function name="glAsyncMarkerSGIX" return="void">
+			<params>
+				<param type="GLuint" name="marker"/>
+			</params>
+		</function>
+		<function name="glFinishAsyncSGIX" return="GLint">
+			<params>
+				<param type="GLuint*" name="markerp"/>
+			</params>
+		</function>
+		<function name="glPollAsyncSGIX" return="GLint">
+			<params>
+				<param type="GLuint*" name="markerp"/>
+			</params>
+		</function>
+		<function name="glGenAsyncMarkersSGIX" return="GLuint">
+			<params>
+				<param type="GLsizei" name="range"/>
+			</params>
+		</function>
+		<function name="glDeleteAsyncMarkersSGIX" return="void">
+			<params>
+				<param type="GLuint" name="marker"/>
+				<param type="GLsizei" name="range"/>
+			</params>
+		</function>
+		<function name="glIsAsyncMarkerSGIX" return="GLboolean">
+			<params>
+				<param type="GLuint" name="marker"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

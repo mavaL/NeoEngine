@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "Material.h"
-#include <D3Dcompiler.h>
-#include "D3D11RenderSystem.h"
-#include "D3D11Texture.h"
+#include "RenderSystem.h"
+#include "Texture.h"
 #include "SceneManager.h"
 #include "SSAO.h"
 #include "ShadowMap.h"
+#include "Renderer.h"
+#include "Shader.h"
 
 
 namespace Neo
@@ -19,7 +20,7 @@ namespace Neo
 
 	//-------------------------------------------------------------------------------
 	Material::Material(const STRING& name, eVertexType type, uint32 nSubMtl)
-	: m_pRenderSystem(g_env.pRenderSystem)
+	: m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	, m_name(name)
 	, m_pVertexShader(nullptr)
 	, m_pPixelShader(nullptr)
@@ -32,9 +33,10 @@ namespace Neo
 	, m_pVS_Shadow(nullptr)
 	, m_pPS_Shadow(nullptr)
 	, m_pVS_WithClipPlane(nullptr)
-	, m_pInputLayout(nullptr)
+	, m_pVS_2(nullptr)
+	, m_pPS_2(nullptr)
 	, m_shaderFlag(0)
-	, m_cullMode(D3D11_CULL_BACK)
+	, m_cullMode(eCull_BACK)
 	, m_vertType(type)
 	, m_iActivePass(0)
 	, m_bEnableGS(false)
@@ -44,12 +46,7 @@ namespace Neo
 			m_pSamplerState[i] = nullptr;
 			m_bSamplerVS[i] = false;
 			m_bSamplerGS[i] = false;
-
-			m_samplerStateDesc[i] = CD3D11_SAMPLER_DESC(CD3D11_DEFAULT());
-			// Default wrap mode
-			m_samplerStateDesc[i].AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			m_samplerStateDesc[i].AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			m_samplerStateDesc[i].AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			m_bSamplerTess[i] = false;
 		}
 
 		m_vecSubMtls.resize(nSubMtl);
@@ -57,7 +54,6 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	Material::~Material()
 	{
-		SAFE_RELEASE(m_pInputLayout);
 		SAFE_RELEASE(m_pVertexShader);
 		SAFE_RELEASE(m_pPixelShader);
 		SAFE_RELEASE(m_pHullShader);
@@ -65,27 +61,22 @@ namespace Neo
 		SAFE_RELEASE(m_pComputeShader);
 		SAFE_RELEASE(m_pGeometryShader);
 		SAFE_RELEASE(m_pVS_WithClipPlane);
+		SAFE_RELEASE(m_pVS_2);
+		SAFE_RELEASE(m_pPS_2);
 
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
-			SAFE_RELEASE(m_pSamplerState[i]);
+			SAFE_DELETE(m_pSamplerState[i]);
 		}
 	}
 	//-------------------------------------------------------------------------------
 	bool Material::InitShader(const STRING& strShaderFile, eShader shaderType, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro, 
 		const char* szVS1, const char* szPS1, const char* szVS2, const char* szPS2)
 	{
-		HRESULT hr = S_OK;
-		ID3DBlob* pVSBlob = NULL;
-		ID3DBlob* pPSBlob = NULL;
-
 		m_shaderFlag = shaderFalg;
 		m_shaderType = shaderType;
 
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(pMacro, 1);
-
-		// Compile
-		V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szVS1, "vs_4_0", vecMacro, &pVSBlob));
 
 		// Create shader
 		SAFE_RELEASE(m_pVertexShader);
@@ -94,13 +85,10 @@ namespace Neo
 		SAFE_RELEASE(m_pVS_Shadow);
 		SAFE_RELEASE(m_pPS_Shadow);
 		SAFE_RELEASE(m_pPS_GBuffer);
+		SAFE_RELEASE(m_pVS_2);
+		SAFE_RELEASE(m_pPS_2);
 
-		V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVertexShader ));
-
-		m_vsCode.resize(pVSBlob->GetBufferSize());
-		memcpy_s(&m_vsCode[0], m_vsCode.size(), pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize());
-
-		pVSBlob->Release();
+		m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
 
 		// Shadow map gen tech
 		if (strShaderFile.find("Opaque.hlsl") != STRING::npos ||
@@ -108,65 +96,36 @@ namespace Neo
 			shaderType == eShader_Forward ||
 			shaderType == eShader_Fur)
 		{
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ShadowMapGen", "vs_4_0", vecMacro, &pVSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_Shadow));
-			pVSBlob->Release();
-
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_ShadowMapGen", "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_Shadow));
-			pPSBlob->Release();
+			m_pVS_Shadow = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS_ShadowMapGen", m_vertType, vecMacro);
+			m_pPS_Shadow = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_ShadowMapGen", m_vertType, vecMacro);
 		}
 
 		// Create clip plane shader
 		if (m_shaderFlag & eShaderFlag_EnableClipPlane)
 		{
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS_ClipPlane", "vs_4_0", vecMacro, &pVSBlob));
-
-			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader( pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_WithClipPlane ));
-
-			pVSBlob->Release();
+			m_pVS_WithClipPlane = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS_ClipPlane", m_vertType, vecMacro);
 		}
-
-		// Create vertex layout
-		_CreateVertexLayout();
 
 		if (m_shaderType == eShader_Opaque)
 		{
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
-			pPSBlob->Release();
+			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
 		}
 		else if (m_shaderType == eShader_Fur)
 		{
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "VS", "vs_4_0", vecMacro, &pVSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_GBuffer));
-			pVSBlob->Release();
-
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), "PS_GBuffer", "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_GBuffer));
-			pPSBlob->Release();
-
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szPS1, "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader));
-			pPSBlob->Release();
+			m_pVS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS", m_vertType, vecMacro);
+			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
+			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 		else
 		{
 			// Not go into g-buffer
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szPS1, "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPixelShader));
-			pPSBlob->Release();
+			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 
 		if (szVS2 && szPS2)
 		{
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szVS2, "vs_4_0", vecMacro, &pVSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), NULL, &m_pVS_2));
-			pVSBlob->Release();
-
-			V_RETURN(_CompileShaderFromFile(strShaderFile.c_str(), szPS2, "ps_4_0", vecMacro, &pPSBlob));
-			V_RETURN(m_pRenderSystem->GetDevice()->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), NULL, &m_pPS_2));
-			pPSBlob->Release();
+			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
+			m_pPS_2 = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS2, m_vertType, vecMacro);
 		}
 
 		return true;
@@ -174,173 +133,56 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	bool Material::InitTessellationShader( const STRING& filename, uint32 shaderFalg, const D3D_SHADER_MACRO* pMacro )
 	{
-		HRESULT hr = S_OK;
-		ID3DBlob* pHSBlob = NULL;
-		ID3DBlob* pDSBlob = NULL;
-
 		m_shaderFlag = shaderFalg;
 
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "HS", "hs_5_0", vecMacro, &pHSBlob ));
-		V_RETURN(_CompileShaderFromFile( filename.c_str(), "DS", "ds_5_0", vecMacro, &pDSBlob ));
-
-		V_RETURN(m_pRenderSystem->GetDevice()->CreateHullShader( pHSBlob->GetBufferPointer(), pHSBlob->GetBufferSize(), NULL, &m_pHullShader ));
-		V_RETURN(m_pRenderSystem->GetDevice()->CreateDomainShader( pDSBlob->GetBufferPointer(), pDSBlob->GetBufferSize(), NULL, &m_pDomainShader ));
-
-		pHSBlob->Release();
-		pDSBlob->Release();
+		m_pHullShader = m_pRenderSystem->CreateShader(eShaderType_HS, filename, shaderFalg, "HS", m_vertType, vecMacro);
+		m_pDomainShader = m_pRenderSystem->CreateShader(eShaderType_DS, filename, shaderFalg, "DS", m_vertType, vecMacro);
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
 	bool Material::InitComputeShader(const STRING& filename)
 	{
-		HRESULT hr = S_OK;
-		ID3DBlob* pCSBlob = NULL;
-
 		std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		V_RETURN(_CompileShaderFromFile(filename.c_str(), "CS", "cs_5_0", vecMacro, &pCSBlob));
-
-		V_RETURN(m_pRenderSystem->GetDevice()->CreateComputeShader(pCSBlob->GetBufferPointer(), pCSBlob->GetBufferSize(), NULL, &m_pComputeShader));
-
-		pCSBlob->Release();
+		m_pComputeShader = m_pRenderSystem->CreateShader(eShaderType_CS, filename, 0, "CS", m_vertType, vecMacro);
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
 	bool Material::InitGeometryShader(const STRING& filename)
 	{
-		HRESULT hr = S_OK;
-		ID3DBlob* pGSBlob = NULL;
-
 		std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		V_RETURN(_CompileShaderFromFile(filename.c_str(), "GS", "gs_5_0", vecMacro, &pGSBlob));
-
-		V_RETURN(m_pRenderSystem->GetDevice()->CreateGeometryShader(pGSBlob->GetBufferPointer(), pGSBlob->GetBufferSize(), NULL, &m_pGeometryShader));
-
-		pGSBlob->Release();
+		m_pGeometryShader = m_pRenderSystem->CreateShader(eShaderType_GS, filename, 0, "GS", m_vertType, vecMacro);
 
 		return true;
-	}
-	//-------------------------------------------------------------------------------
-	bool Material::_CompileShaderFromFile( const char* szFileName, const char* szEntryPoint, const char* szShaderModel, 
-		const std::vector<D3D_SHADER_MACRO>& vecMacro, ID3DBlob** ppBlobOut )
-	{
-		HRESULT hr = S_OK;
-
-		const D3D_SHADER_MACRO* pMacro = vecMacro.size() == 1 ? nullptr : &vecMacro[0];
-
-		DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-		dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-		ID3DBlob* pErrorBlob;
-		hr = D3DX11CompileFromFile( szFileName, pMacro, NULL, szEntryPoint, szShaderModel, 
-			dwShaderFlags, 0, NULL, ppBlobOut, &pErrorBlob, NULL );
-		if( FAILED(hr) )
-		{
-			if( pErrorBlob != NULL )
-			{
-				MessageBoxA(nullptr, (char*)pErrorBlob->GetBufferPointer(), "Error", MB_OK | MB_ICONERROR);
-			}
-			if( pErrorBlob ) pErrorBlob->Release();
-			return false;
-		}
-		if( pErrorBlob ) pErrorBlob->Release();
-
-		return true;
-	}
-	//-------------------------------------------------------------------------------
-	void Material::_CreateVertexLayout()
-	{
-		HRESULT hr;
-
-		switch (m_vertType)
-		{
-		case eVertexType_General:
-			{
-				D3D11_INPUT_ELEMENT_DESC layout[] =
-				{
-					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT		, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "NORMAL"	, 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				};
-
-				SAFE_RELEASE(m_pInputLayout);
-
-				V(m_pRenderSystem->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout));
-			}
-			break;
-
-		case eVertexType_NormalMap:
-			{
-				D3D11_INPUT_ELEMENT_DESC layout[] =
-				{
-					// Stream 0
-					{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 0, 0							, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					// Stream 1
-					{ "TANGENT"	, 0, DXGI_FORMAT_R32G32B32A32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-					{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT	, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				};
-
-				SAFE_RELEASE(m_pInputLayout);
-
-				V(m_pRenderSystem->GetDevice()->CreateInputLayout( layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout ));
-			}
-			break;
-
-		case eVertexType_SkinModel:
-		{
-			D3D11_INPUT_ELEMENT_DESC layout[] =
-			{
-				// Stream 0
-				{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				// Stream 2
-				{ "BLENDINDICES", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-				{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 2, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			};
-
-			SAFE_RELEASE(m_pInputLayout);
-
-			V(m_pRenderSystem->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout));
-		}
-		break;
-
-		default: _AST(0); break;
-		}
 	}
 	//-------------------------------------------------------------------------------
 	void Material::Activate(uint32 iSubMtl)
 	{
-		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
+		Renderer* pRenderer = g_env.pRenderer;
 
 		// Cull mode
-		SStateRaster rasterState = m_pRenderSystem->GetCurRasterState();
+		SStateRaster rasterState = pRenderer->GetCurRasterState();
 
-		if (m_pRenderSystem->IsClipPlaneEnabled())
+		if (pRenderer->IsClipPlaneEnabled())
 		{
 			switch (m_cullMode)
 			{
-			case D3D11_CULL_FRONT: rasterState.Desc.CullMode = D3D11_CULL_BACK; break;
-			case D3D11_CULL_BACK: rasterState.Desc.CullMode = D3D11_CULL_FRONT; break;
+			case eCull_FRONT: rasterState.Desc.CullMode = eCull_BACK; break;
+			case eCull_BACK: rasterState.Desc.CullMode = eCull_FRONT; break;
 			default: break;
 			}
 			
-			m_pRenderSystem->SetRasterState(&rasterState);
+			pRenderer->SetRasterState(&rasterState);
 		}
 		else if (m_cullMode != rasterState.Desc.CullMode)
 		{
 			rasterState.Desc.CullMode = m_cullMode;
-			m_pRenderSystem->SetRasterState(&rasterState);
+			pRenderer->SetRasterState(&rasterState);
 		}
 
 		const uint32 curPhase = g_env.pSceneMgr->GetCurRenderPhase();
@@ -349,34 +191,34 @@ namespace Neo
 		{
 			if (m_shaderType == eShader_Fur)
 			{
-				pDeviceContext->VSSetShader(m_pVS_GBuffer, NULL, 0);
+				m_pVS_GBuffer->Activate();
 			} 
 			else
 			{
-				pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
+				m_pVertexShader->Activate();
 			}
-			pDeviceContext->PSSetShader(m_pPS_GBuffer, nullptr, 0);
+			m_pPS_GBuffer->Activate();
 		} 
 		else if (curPhase == eRenderPhase_ShadowMap && (m_shaderType != eShader_PostProcess))
 		{
-			pDeviceContext->VSSetShader(m_pVS_Shadow, NULL, 0);
-			pDeviceContext->PSSetShader(m_pPS_Shadow, NULL, 0);
+			m_pVS_Shadow->Activate();
+			m_pPS_Shadow->Activate();
 		}
 		else if (curPhase == eRenderPhase_TiledCS)
 		{
-			pDeviceContext->CSSetShader(m_pComputeShader, nullptr, 0);
+			m_pComputeShader->Activate();
 		}
 		else
 		{
 			if (m_iActivePass == 0)
 			{
-				pDeviceContext->VSSetShader(m_pVertexShader, NULL, 0);
-				pDeviceContext->PSSetShader(m_pPixelShader, nullptr, 0);
+				m_pVertexShader->Activate();
+				m_pPixelShader->Activate();
 			} 
 			else if (m_iActivePass == 1)
 			{
-				pDeviceContext->VSSetShader(m_pVS_2, NULL, 0);
-				pDeviceContext->PSSetShader(m_pPS_2, nullptr, 0);
+				m_pVS_2->Activate();
+				m_pPS_2->Activate();
 			}
 			else
 			{
@@ -386,53 +228,53 @@ namespace Neo
 
 		if (m_bEnableGS)
 		{
-			pDeviceContext->GSSetShader(m_pGeometryShader, nullptr, 0);
+			m_pGeometryShader->Activate();
 		}
-
-		pDeviceContext->IASetInputLayout( m_pInputLayout );
 
 		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
 		{
 			if (m_pSamplerState[i])
 			{
-				g_env.pRenderSystem->SetActiveSamplerState(i, m_pSamplerState[i], m_bSamplerVS[i], m_bSamplerGS[i]);
+				pRenderer->SetActiveSamplerState(i, m_pSamplerState[i], m_bSamplerVS[i], m_bSamplerGS[i], m_bSamplerTess[i]);
 			}
 		}
 		
 		m_vecSubMtls[iSubMtl].Activate(false, m_bEnableGS);
 	}
 	//------------------------------------------------------------------------------------
-	void Material::SetSamplerStateDesc(int stage, const D3D11_SAMPLER_DESC& desc, bool bVS, bool bGS)
+	void Material::SetSamplerStateDesc(int stage, const SSamplerDesc& desc, bool bVS, bool bGS, bool bTessellation)
 	{
 		_AST(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
-		SAFE_RELEASE(m_pSamplerState[stage]);
+		SAFE_DELETE(m_pSamplerState[stage]);
 
 		m_samplerStateDesc[stage] = desc;
 		m_bSamplerVS[stage] = bVS;
 		m_bSamplerGS[stage] = bGS;
+		m_bSamplerTess[stage] = bTessellation;
 
 		HRESULT hr = S_OK;
-		V(m_pRenderSystem->GetDevice()->CreateSamplerState(&m_samplerStateDesc[stage], &m_pSamplerState[stage]));
+		m_pSamplerState[stage] = m_pRenderSystem->CreateSamplerState(m_samplerStateDesc[stage]);
 	}
 	//-------------------------------------------------------------------------------
 	void Material::TurnOffTessellation()
 	{
-		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
-
-		pDeviceContext->HSSetShader(nullptr, nullptr, 0);
-		pDeviceContext->DSSetShader(nullptr, nullptr, 0);
+		_AST(m_pHullShader && m_pDomainShader);
+		m_pHullShader->DeActivate();
+		m_pDomainShader->DeActivate();
 	}
 	//-------------------------------------------------------------------------------
 	void Material::TurnOffComputeShader()
 	{
-		m_pRenderSystem->GetDeviceContext()->CSSetShader(nullptr, nullptr, 0);
+		_AST(m_pComputeShader);
+		m_pComputeShader->DeActivate();
 	}
 	//-------------------------------------------------------------------------------
 	void Material::TurnOffGeometryShader()
 	{
+		_AST(m_pGeometryShader);
 		m_bEnableGS = false;
-		m_pRenderSystem->GetDeviceContext()->GSSetShader(nullptr, nullptr, 0);
+		m_pGeometryShader->DeActivate();
 	}
 	//------------------------------------------------------------------------------------
 	std::vector<D3D_SHADER_MACRO> Material::_InternelInitShader(const D3D_SHADER_MACRO* pMacro, uint32 nMacro)
@@ -527,7 +369,7 @@ namespace Neo
 		return m_vecSubMtls[i];
 	}
 	//------------------------------------------------------------------------------------
-	void Material::SetTexture(int stage, D3D11Texture* pTexture)
+	void Material::SetTexture(int stage, Texture* pTexture)
 	{
 		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
@@ -568,17 +410,17 @@ namespace Neo
 		{
 			if (m_pTexture[i])
 			{
-				g_env.pRenderSystem->SetActiveTexture(i, m_pTexture[i]);
+				g_env.pRenderer->SetActiveTexture(i, m_pTexture[i]);
 			}
 		}
 
-		g_env.pRenderSystem->GetMaterialCB().specularGloss = VEC4(specular, glossiness);
-		g_env.pRenderSystem->UpdateMaterialCBuffer(false, bCS, bGS);
+		g_env.pRenderer->GetMaterialCB().specularGloss = VEC4(specular, glossiness);
+		g_env.pRenderer->UpdateMaterialCBuffer(false, bCS, bGS);
 	}
 	//------------------------------------------------------------------------------------
-	void SubMaterial::SetTexture(int stage, D3D11Texture* pTexture)
+	void SubMaterial::SetTexture(int stage, Texture* pTexture)
 	{
-		assert(stage >= 0 && stage < MAX_TEXTURE_STAGE);
+		_AST(stage >= 0 && stage < MAX_TEXTURE_STAGE);
 
 		SAFE_RELEASE(m_pTexture[stage]);
 		m_pTexture[stage] = pTexture;

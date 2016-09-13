@@ -31,6 +31,30 @@
     <Filter Include="源文件\Shadow">
       <UniqueIdentifier>{bcd411c9-9d82-4bb0-a96f-a9fdca9a766d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\RenderAPI">
+      <UniqueIdentifier>{101920ba-515c-4002-95aa-0bf424d91498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\RenderAPI\D3D11">
+      <UniqueIdentifier>{9ae192bb-98c3-4e09-97bc-6bd8dce9eebb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\RenderAPI\OpenGL">
+      <UniqueIdentifier>{5c1f51bb-42a2-4dc7-805b-f3bffa0e37fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\RenderAPI">
+      <UniqueIdentifier>{3ecd74ee-7940-4efb-a49d-ad99f496e2fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\RenderAPI\D3D11">
+      <UniqueIdentifier>{d8dadad9-23af-4c54-a2d1-93acfacb61e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\RenderAPI\OpenGL">
+      <UniqueIdentifier>{2b4b657c-cb94-475b-9b3f-fee11dbd2774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\d3d11">
+      <UniqueIdentifier>{09cf9aef-6597-4cea-b1c2-370e3a06c504}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader\opengl">
+      <UniqueIdentifier>{afe78440-300b-43c8-9ad3-7c9bc4091afe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AABB.h">
@@ -57,25 +81,16 @@
     <ClInclude Include="Include\stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Include\D3D11RenderSystem.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Material.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\IRefCount.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Include\D3D11Texture.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Terrain.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\Water.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\D3D11RenderTarget.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\Sky.h">
@@ -101,9 +116,6 @@
     </ClInclude>
     <ClInclude Include="Include\Singleton.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Res\Common.h">
-      <Filter>Shader</Filter>
     </ClInclude>
     <ClInclude Include="Include\Entity.h">
       <Filter>头文件</Filter>
@@ -186,16 +198,67 @@
     <ClInclude Include="Include\Shadow\ShadowMapPSSM.h">
       <Filter>头文件\Shadow</Filter>
     </ClInclude>
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11RenderSystem.h">
+      <Filter>头文件\RenderAPI\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11RenderTarget.h">
+      <Filter>头文件\RenderAPI\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Texture.h">
+      <Filter>头文件\RenderAPI\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\RenderState.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\RenderSystem.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\RenderTarget.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\Texture.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\Buffer.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderSystem.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderTarget.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLTexture.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLBuffer.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Res\Shaders\D3D11\Common.h">
+      <Filter>Shader\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Res\Shaders\D3D11\DeferredShadingCommon.h">
+      <Filter>Shader\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\RenderDefine.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Buffer.h">
+      <Filter>头文件\RenderAPI\D3D11</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\Shader.h">
+      <Filter>头文件\RenderAPI</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\D3D11\D3D11Shader.h">
+      <Filter>头文件\RenderAPI\D3D11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
       <Filter>头文件</Filter>
-    </None>
-    <None Include="..\Res\ClipPlaneWrapper.hlsl">
-      <Filter>Shader</Filter>
-    </None>
-    <None Include="..\Res\WhiteNoLight.hlsl">
-      <Filter>Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -220,22 +283,13 @@
     <ClCompile Include="Src\TestScene.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Src\D3D11RenderSystem.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Material.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\D3D11Texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Terrain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Water.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\D3D11RenderTarget.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Sky.cpp">
@@ -325,66 +379,109 @@
     <ClCompile Include="Src\MeshAdjacency.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11RenderSystem.cpp">
+      <Filter>源文件\RenderAPI\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11RenderTarget.cpp">
+      <Filter>源文件\RenderAPI\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Texture.cpp">
+      <Filter>源文件\RenderAPI\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderSystem.cpp">
+      <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderTarget.cpp">
+      <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLTexture.cpp">
+      <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLBuffer.cpp">
+      <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Renderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Buffer.cpp">
+      <Filter>源文件\RenderAPI\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\D3D11\D3D11Shader.cpp">
+      <Filter>源文件\RenderAPI\D3D11</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\RenderTarget.cpp">
+      <Filter>源文件\RenderAPI</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\RenderAPI\Texture.cpp">
+      <Filter>源文件\RenderAPI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\Res\SSAO.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\DebugRT.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Font.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Sky.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_Depth.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_Final.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\Water_RefractionMask.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-    <CustomBuild Include="..\Res\BilateralBlur.hlsl">
-      <Filter>Shader</Filter>
-    </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="..\Res\DeferredShading.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\Anisotropic.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\HDR.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\BilateralBlur.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\TiledCS.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\Blur.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Opaque.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\ClipPlaneWrapper.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\DeferredShadingCommon.h">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\DebugRT.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\SkinModel.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\DebugSkeleton.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\DebugSkeleton.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\DeferredShading.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Terrain.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\Font.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Blur.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\HDR.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Anisotropic.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\Opaque.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Fur\Fur.hlsl">
-      <Filter>Shader</Filter>
+    <FxCompile Include="..\Res\Shaders\D3D11\SkinModel.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Sky.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\SSAO.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Terrain.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Terrain_Depth.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\TiledCS.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Depth.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Final.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_RefractionMask.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Water_Scene.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\WhiteNoLight.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Fur.hlsl">
+      <Filter>Shader\d3d11</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,60 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIX_video_resize" reg_no="83">
+	<tokens>
+		<token name="GLX_SYNC_FRAME_SGIX" value="0x00000000"/>
+		<token name="GLX_SYNC_SWAP_SGIX" value="0x00000001"/>
+	</tokens>
+
+	<functions>
+		<function name="glXBindChannelToWindowSGIX" return="int">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="int" name="channel"/>
+				<param type="Window" name="window"/>
+			</params>
+		</function>
+		<function name="glXChannelRectSGIX" return="int">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="int" name="channel"/>
+				<param type="int" name="x"/>
+				<param type="int" name="y"/>
+				<param type="int" name="w"/>
+				<param type="int" name="h"/>
+			</params>
+		</function>
+		<function name="glXQueryChannelRectSGIX" return="int">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="int" name="channel"/>
+				<param type="int*" name="dx"/>
+				<param type="int*" name="dy"/>
+				<param type="int*" name="dw"/>
+				<param type="int*" name="dh"/>
+			</params>
+		</function>
+		<function name="glXQueryChannelDeltasSGIX" return="int">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="int" name="channel"/>
+				<param type="int*" name="x"/>
+				<param type="int*" name="y"/>
+				<param type="int*" name="w"/>
+				<param type="int*" name="h"/>
+			</params>
+		</function>
+		<function name="glXChannelRectSyncSGIX" return="int">
+			<params>
+				<param type="Display*" name="display"/>
+				<param type="int" name="screen"/>
+				<param type="int" name="channel"/>
+				<param type="GLenum" name="synctype"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

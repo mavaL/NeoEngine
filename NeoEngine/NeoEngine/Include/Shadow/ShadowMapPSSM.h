@@ -20,6 +20,7 @@
 
 #include "Prerequiestity.h"
 #include "MathDef.h"
+#include "RenderDefine.h"
 
 namespace Neo
 {
@@ -33,7 +34,7 @@ namespace Neo
 		void				SetShadowMapSize(uint32 nSize);
 		void				Update(Camera& cam);
 		void				Render();
-		D3D11Texture*		GetShadowTexture(int i);
+		Texture*			GetShadowTexture(int i);
 		const MAT44&		GetShadowTransform(int i) { return m_matShadowTransform[i]; }
 		const MAT44&		GetLightViewMatrix() { return m_matLightView; }
 		void				SetSplitSchemeWeight(float fWeight) { m_fSplitSchemeWeight = fWeight; }
@@ -56,9 +57,9 @@ namespace Neo
 		MAT44				m_matLightView;
 		MAT44				m_matLightProj[CSM_CASCADE_NUM];
 		MAT44				m_matShadowTransform[CSM_CASCADE_NUM];
-		D3D11RenderTarget*	m_shadowMapCascades[CSM_CASCADE_NUM];
+		RenderTarget*		m_shadowMapCascades[CSM_CASCADE_NUM];
 		EntityList			m_shadowCasters[CSM_CASCADE_NUM];
-		D3D11RenderTarget*	m_pRT_ESM_Blur;
+		RenderTarget*		m_pRT_ESM_Blur;
 		float				m_fSplitSchemeWeight;	// 0 = use fully uniform split, 1 = use fully log split
 	};
 }

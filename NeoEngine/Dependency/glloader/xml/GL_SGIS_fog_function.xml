@@ -1,0 +1,23 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIS_fog_function" reg_no="64">
+	<tokens>
+		<token name="GL_FOG_FUNC_SGIS" value="0x812A"/>
+		<token name="GL_FOG_FUNC_POINTS_SGIS" value="0x812B"/>
+		<token name="GL_MAX_FOG_FUNC_POINTS_SGIS" value="0x812C"/>
+	</tokens>
+
+	<functions>
+		<function name="glFogFuncSGIS" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLfloat*" name="points"/>
+			</params>
+		</function>
+		<function name="glGetFogFuncSGIS" return="void">
+			<params>
+				<param type="GLfloat*" name="points"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

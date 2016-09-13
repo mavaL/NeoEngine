@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_vertex_array_range" reg_no="274">
+	<tokens>
+		<token name="GL_VERTEX_ARRAY_RANGE_APPLE" value="0x851D"/>
+		<token name="GL_VERTEX_ARRAY_RANGE_LENGTH_APPLE" value="0x851E"/>
+		<token name="GL_VERTEX_ARRAY_STORAGE_HINT_APPLE" value="0x851F"/>
+		<token name="GL_VERTEX_ARRAY_RANGE_POINTER_APPLE" value="0x8521"/>
+		<token name="GL_STORAGE_CLIENT_APPLE" value="0x85B4"/>
+		<token name="GL_STORAGE_CACHED_APPLE" value="0x85BE"/>
+		<token name="GL_STORAGE_SHARED_APPLE" value="0x85BF"/>
+	</tokens>
+
+	<functions>
+		<function name="glVertexArrayRangeAPPLE" return="void">
+			<params>
+				<param type="GLsizei" name="length"/>
+				<param type="GLvoid*" name="pointer"/>
+			</params>
+		</function>
+		<function name="glFlushVertexArrayRangeAPPLE" return="void">
+			<params>
+				<param type="GLsizei" name="length"/>
+				<param type="GLvoid*" name="pointer"/>
+			</params>
+		</function>
+		<function name="glVertexArrayParameteriAPPLE" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

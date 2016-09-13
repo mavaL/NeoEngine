@@ -1,0 +1,21 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_vertex_array_range" reg_no="190">
+	<tokens>
+		<token name="GL_VERTEX_ARRAY_RANGE_NV" value="0x851D"/>
+		<token name="GL_VERTEX_ARRAY_RANGE_LENGTH_NV" value="0x851E"/>
+		<token name="GL_VERTEX_ARRAY_RANGE_VALID_NV" value="0x851F"/>
+		<token name="GL_MAX_VERTEX_ARRAY_RANGE_ELEMENT_NV" value="0x8520"/>
+		<token name="GL_VERTEX_ARRAY_RANGE_POINTER_NV" value="0x8521"/>
+	</tokens>
+
+	<functions>
+		<function name="glFlushVertexArrayRangeNV" return="void"/>
+		<function name="glVertexArrayRangeNV" return="void">
+			<params>
+				<param type="GLsizei" name="length"/>
+				<param type="GLvoid*" name="pointer"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

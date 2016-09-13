@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_vertex_attrib_array_object" reg_no="290">
+	<functions>
+		<function name="glVertexAttribArrayObjectATI" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLboolean" name="normalized"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLuint" name="offset"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribArrayObjectfvATI" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribArrayObjectivATI" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

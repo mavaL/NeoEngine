@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_EXT_fbconfig_packed_float" reg_no="328">
+	<tokens>
+		<token name="GLX_RGBA_UNSIGNED_FLOAT_TYPE_EXT" value="0x20B1"/>
+		<token name="GLX_RGBA_UNSIGNED_FLOAT_BIT_EXT" value="0x00000008"/>
+	</tokens>
+</gl_extension>

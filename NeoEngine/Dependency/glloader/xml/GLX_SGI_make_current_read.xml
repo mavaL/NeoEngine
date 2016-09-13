@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGI_make_current_read" reg_no="42">
+	<functions>
+		<function name="glXMakeCurrentReadSGI" return="Bool">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="GLXDrawable" name="draw"/>
+				<param type="GLXDrawable" name="read"/>
+				<param type="GLXContext" name="ctx"/>
+			</params>
+		</function>
+		<function name="glXGetCurrentReadDrawableSGI" return="GLXDrawable"/>
+	</functions>
+</gl_extension>

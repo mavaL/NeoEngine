@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_APPLE_specular_vector" reg_no="159">
+	<tokens>
+		<token name="GL_LIGHT_MODEL_SPECULAR_VECTOR_APPLE" value="0x85B0"/>
+	</tokens>
+</gl_extension>

@@ -1,0 +1,73 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_ARB_pbuffer" reg_no="11">
+	<typedefs>
+		<typedef type="void*" synonym="HPBUFFERARB"/>
+	</typedefs>
+
+	<tokens>
+		<token name="WGL_DRAW_TO_PBUFFER_ARB" value="0x202D"/>
+		<token name="WGL_MAX_PBUFFER_PIXELS_ARB" value="0x202E"/>
+		<token name="WGL_MAX_PBUFFER_WIDTH_ARB" value="0x202F"/>
+		<token name="WGL_MAX_PBUFFER_HEIGHT_ARB" value="0x2030"/>
+		<token name="WGL_PBUFFER_LARGEST_ARB" value="0x2033"/>
+		<token name="WGL_PBUFFER_WIDTH_ARB" value="0x2034"/>
+		<token name="WGL_PBUFFER_HEIGHT_ARB" value="0x2035"/>
+		<token name="WGL_PBUFFER_LOST_ARB" value="0x2036"/>
+		<token name="WGL_TRANSPARENT_RED_VALUE_ARB" value="0x2037"/>
+		<token name="WGL_TRANSPARENT_GREEN_VALUE_ARB" value="0x2038"/>
+		<token name="WGL_TRANSPARENT_BLUE_VALUE_ARB" value="0x2039"/>
+		<token name="WGL_TRANSPARENT_ALPHA_VALUE_ARB" value="0x203A"/>
+		<token name="WGL_TRANSPARENT_INDEX_VALUE_ARB" value="0x203B"/>
+	</tokens>
+
+	<functions>
+		<function name="wglCreatePbufferARB" return="HPBUFFERARB">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="int" name="iPixelFormat"/>
+				<param type="int" name="iWidth"/>
+				<param type="int" name="iHeight"/>
+				<param type="const int*" name="piAttribList"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_pbuffer" name="wglCreatePbufferEXT"/>
+			</mappings>
+		</function>
+		<function name="wglGetPbufferDCARB" return="HDC">
+			<params>
+				<param type="HPBUFFERARB" name="hPbuffer"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_pbuffer" name="wglGetPbufferDCEXT"/>
+			</mappings>
+		</function>
+		<function name="wglReleasePbufferDCARB" return="int">
+			<params>
+				<param type="HPBUFFERARB" name="hPbuffer"/>
+				<param type="HDC" name="hDC"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_pbuffer" name="wglReleasePbufferDCEXT"/>
+			</mappings>
+		</function>
+		<function name="wglDestroyPbufferARB" return="BOOL">
+			<params>
+				<param type="HPBUFFERARB" name="hPbuffer"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_pbuffer" name="wglDestroyPbufferEXT"/>
+			</mappings>
+		</function>
+		<function name="wglQueryPbufferARB" return="BOOL">
+			<params>
+				<param type="HPBUFFERARB" name="hPbuffer"/>
+				<param type="int" name="iAttribute"/>
+				<param type="int*" name="piValue"/>
+			</params>
+			<mappings>
+				<mapping from="WGL_EXT_pbuffer" name="wglQueryPbufferEXT"/>
+			</mappings>
+		</function>
+	</functions>
+</gl_extension>

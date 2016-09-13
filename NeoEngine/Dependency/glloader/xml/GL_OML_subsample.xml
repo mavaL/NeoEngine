@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_OML_subsample" reg_no="240">
+	<tokens>
+		<token name="GL_FORMAT_SUBSAMPLE_24_24_OML" value="0x8982"/>
+		<token name="GL_FORMAT_SUBSAMPLE_244_244_OML" value="0x8983"/>
+	</tokens>
+</gl_extension>

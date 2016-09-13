@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_GREMEDY_string_marker" reg_no="311">
+	<functions>
+		<function name="glStringMarkerGREMEDY" return="void">
+			<params>
+				<param type="GLsizei" name="len"/>
+				<param type="const GLvoid*" name="string"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

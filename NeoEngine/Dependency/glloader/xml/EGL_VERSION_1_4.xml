@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+
+<gl_extension name="EGL_VERSION_1_4">
+	<tokens>
+		<token name="EGL_MATCH_NATIVE_PIXMAP" value="0x3041"/>
+		<token name="EGL_OPENGL_BIT" value="0x0008"/>
+		<token name="EGL_MULTISAMPLE_RESOLVE" value="0x3099"/>
+		<token name="EGL_OPENGL_API" value="0x30A2"/>
+	</tokens>
+
+	<functions>
+		<function name="eglGetCurrentContext" return="EGLContext" link="static"/>
+	</functions>
+</gl_extension>

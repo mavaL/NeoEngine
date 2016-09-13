@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Font.h"
-#include "D3D11Texture.h"
-#include "D3D11RenderSystem.h"
+#include "Texture.h"
+#include "Renderer.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "Entity.h"
@@ -13,7 +13,7 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	Font::Font()
 	:m_pMaterial(nullptr)
-	,m_pRenderSystem(g_env.pRenderSystem)
+	,m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	{
 		_InitMaterial();
 
@@ -41,24 +41,24 @@ namespace Neo
 		_InitMesh(text, pos, color);
 
 		// Enable alpha blend
-		SStateBlend OldBlendState = m_pRenderSystem->GetCurBlendState();
+		SStateBlend OldBlendState = g_env.pRenderer->GetCurBlendState();
 		SStateBlend blendState = OldBlendState;
-		blendState.Desc.RenderTarget[0].BlendEnable = TRUE;
-		blendState.Desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendState.Desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].BlendEnable = true;
+		blendState.Desc.RenderTarget[0].SrcBlend = eBlend_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].DestBlend = eBlend_INV_SRC_ALPHA;
 
-		m_pRenderSystem->SetBlendState(&blendState);
+		g_env.pRenderer->SetBlendState(&blendState);
 
 		m_pEntity->Render();
 
 		// Reset render state
-		m_pRenderSystem->SetBlendState(&OldBlendState);
+		g_env.pRenderer->SetBlendState(&OldBlendState);
 	}
 	//------------------------------------------------------------------------------------
 	void Font::_InitMesh( const STRING& text, const IPOINT& pos, const SColor& color )
 	{
-		const uint32 screenW = g_env.pRenderSystem->GetWndWidth();
-		const uint32 screenH = g_env.pRenderSystem->GetWndHeight();
+		const uint32 screenW = g_env.pRenderer->GetWndWidth();
+		const uint32 screenH = g_env.pRenderer->GetWndHeight();
 
 		const VEC2	GLYGH_SIZE		=	VEC2(15.0f / screenW, 42.0f / screenH);
 		const float	GLYGH_UV_SIZEX	=	0.010526315f;
@@ -151,8 +151,8 @@ namespace Neo
 	{
 		m_pMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_Font");
 		m_pMaterial->AddRef();
-		m_pMaterial->SetTexture(0, new D3D11Texture(GetResPath("Font.dds")));
-		m_pMaterial->InitShader(GetResPath("Font.hlsl"), eShader_UI);
+		m_pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Font.dds")));
+		m_pMaterial->InitShader(GetShaderPath("Font.hlsl"), eShader_UI);
 	}
 }
 

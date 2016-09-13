@@ -1,15 +1,17 @@
 #include "stdafx.h"
 #include "Sky.h"
-#include "D3D11RenderSystem.h"
-#include "D3D11Texture.h"
+#include "RenderSystem.h"
+#include "Texture.h"
 #include "Material.h"
 #include "Camera.h"
 #include "SceneManager.h"
 #include "Mesh.h"
 #include "Entity.h"
 #include "MaterialManager.h"
-#include "D3D11RenderTarget.h"
+#include "RenderTarget.h"
 #include "InputManager.h"
+#include "Renderer.h"
+#include "Buffer.h"
 
 namespace Neo
 {
@@ -30,7 +32,7 @@ namespace Neo
 
 	//------------------------------------------------------------------------------------
 	Sky::Sky()
-	: m_pRenderSystem(g_env.pRenderSystem)
+	: m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	, m_pRT_Transmittance(nullptr)
 	, m_pMtl_Transmittance(nullptr)
 	, m_pMtl_InscatterDeltaS(nullptr)
@@ -39,7 +41,8 @@ namespace Neo
 	, m_pMtl_CopyInscatter1(nullptr)
 	, m_pMtl_Sky(nullptr)
 	{
-		_InitConstantBuffer();
+		m_pCB_Inscatter1 = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferInscatter1));
+
 		_InitMaterials();
 		_Precompute();
 
@@ -55,7 +58,7 @@ namespace Neo
 		SAFE_RELEASE(m_pRT_InscatterDeltaS[0]);
 		SAFE_RELEASE(m_pRT_InscatterDeltaS[1]);
 		SAFE_RELEASE(m_pMtl_InscatterDeltaS);
-		SAFE_RELEASE(m_pCB_Inscatter1);
+		SAFE_DELETE(m_pCB_Inscatter1);
 		SAFE_RELEASE(m_pRT_Inscatter);
 		SAFE_RELEASE(m_pMtl_CopyInscatter1);
 		SAFE_RELEASE(m_pMtl_Sky);
@@ -63,15 +66,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Sky::_InitMaterials()
 	{
-		m_pRT_Transmittance = new D3D11RenderTarget;
-		m_pRT_Transmittance->Init(TRANSMITTANCE_W, TRANSMITTANCE_H, ePF_A16R16G16B16F, false, false);
+		m_pRT_Transmittance = g_env.pRenderer->CreateRenderTarget(TRANSMITTANCE_W, TRANSMITTANCE_H, 1, ePF_A16R16G16B16F, 0);
 
-		m_pRT_InscatterDeltaS[0] = new D3D11RenderTarget;
-		m_pRT_InscatterDeltaS[1] = new D3D11RenderTarget;
-		m_pRT_Inscatter = new D3D11RenderTarget;
-		m_pRT_InscatterDeltaS[0]->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
-		m_pRT_InscatterDeltaS[1]->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
-		m_pRT_Inscatter->Init(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, false, false);
+		m_pRT_InscatterDeltaS[0] = g_env.pRenderer->CreateRenderTarget(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, 0);
+		m_pRT_InscatterDeltaS[1] = g_env.pRenderer->CreateRenderTarget(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, 0);
+		m_pRT_Inscatter = g_env.pRenderer->CreateRenderTarget(RES_MU_S * RES_NU, RES_MU, RES_R, ePF_A16R16G16B16F, 0);
 
 		m_pMtl_Transmittance = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_Transmittance");
 		m_pMtl_Transmittance->InitShader(GetResPath("Sky.hlsl"), eShader_Transparent, 0, nullptr, "VS", "TransmittancePS");
@@ -79,11 +78,11 @@ namespace Neo
 
 		m_pMtl_InscatterDeltaS = MaterialManager::GetSingleton().NewMaterial("Mtl_Sky_InscatterDeltaS");
 
-		D3D11_SAMPLER_DESC samDesc = m_pMtl_InscatterDeltaS->GetSamplerStateDesc(0);
-		samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-		samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		SSamplerDesc samDesc = m_pMtl_InscatterDeltaS->GetSamplerStateDesc(0);
+		samDesc.Filter = SF_MIN_MAG_LINEAR_MIP_POINT;
+		samDesc.AddressU = eTextureAddressMode_CLAMP;
+		samDesc.AddressV = eTextureAddressMode_CLAMP;
+		samDesc.AddressW = eTextureAddressMode_CLAMP;
 
 		m_pMtl_InscatterDeltaS->SetTexture(0, m_pRT_Transmittance->GetRenderTexture());
 		m_pMtl_InscatterDeltaS->SetSamplerStateDesc(0, samDesc);
@@ -106,31 +105,14 @@ namespace Neo
 		m_pMtl_Sky->AddRef();
 	}
 	//-------------------------------------------------------------------------------
-	void Sky::_InitConstantBuffer()
-	{
-		HRESULT hr = S_OK;
-		ID3D11Device* pDevice = m_pRenderSystem->GetDevice();
-
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.ByteWidth = sizeof(cBufferInscatter1);
-
-		V(pDevice->CreateBuffer(&bd, NULL, &m_pCB_Inscatter1));
-	}
-	//-------------------------------------------------------------------------------
 	void Sky::_Precompute()
 	{
-		ID3D11DeviceContext* pDeviceContext = m_pRenderSystem->GetDeviceContext();
-
 		// Transmittance
 		m_pRT_Transmittance->RenderScreenQuad(m_pMtl_Transmittance, false, false);
 
 		// Inscatter deltaS
-		D3D11_VIEWPORT vp = CD3D11_VIEWPORT(0.0f, 0.0f, RES_MU_S * RES_NU, RES_MU);
-		m_pRenderSystem->SetViewport(vp);
+		SViewport vp = { 0.0f, 0.0f, RES_MU_S * RES_NU, RES_MU, 0, 1 };
+		m_pRenderSystem->SetViewport(&vp);
 
 		m_pRenderSystem->SetRenderTarget(nullptr, nullptr, 1, false, false);
 		m_pMtl_InscatterDeltaS->Activate();
@@ -144,7 +126,7 @@ namespace Neo
 
 			_SetLayer(iSlice);
 
-			D3D11RenderTarget::m_pQuadEntity->Render();
+			RenderTarget::m_pQuadEntity->Render();
 		}
 
 		// CopyInscatter1
@@ -158,10 +140,10 @@ namespace Neo
 
 			_SetLayer(iSlice);
 
-			D3D11RenderTarget::m_pQuadEntity->Render();
+			RenderTarget::m_pQuadEntity->Render();
 		}
 
-		m_pRenderSystem->RestoreViewport();
+		g_env.pRenderer->RestoreViewport();
 	}
 	//-------------------------------------------------------------------------------
 	void Sky::Update()
@@ -174,16 +156,16 @@ namespace Neo
 		m_pMtl_Sky->Activate();
 
 		// Turn off depth write
-		SStateDepth depthState = m_pRenderSystem->GetCurDepthState();
+		SStateDepth depthState = g_env.pRenderer->GetCurDepthState();
 		auto old = depthState.Desc.DepthWriteMask;
-		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		m_pRenderSystem->SetDepthState(&depthState);
+		depthState.Desc.DepthWriteMask = false;
+		g_env.pRenderer->SetDepthState(&depthState);
 
-		D3D11RenderTarget::m_pQuadEntity->Render();
+		RenderTarget::m_pQuadEntity->Render();
 
 		// Restore render state
 		depthState.Desc.DepthWriteMask = old;
-		m_pRenderSystem->SetDepthState(&depthState);
+		g_env.pRenderer->SetDepthState(&depthState);
 	}
 	//------------------------------------------------------------------------------------
 	void Sky::_SetLayer(uint32 iSlice)
@@ -200,8 +182,8 @@ namespace Neo
 		m_cbInscatter1.dhdH.Set(float(dmin), float(dmax), float(dminp), float(dmaxp));
 		m_cbInscatter1.layer = iSlice;
 
-		m_pRenderSystem->GetDeviceContext()->UpdateSubresource(m_pCB_Inscatter1, 0, NULL, &m_cbInscatter1, 0, 0);
-		m_pRenderSystem->GetDeviceContext()->PSSetConstantBuffers(10, 1, &m_pCB_Inscatter1);
+		m_pCB_Inscatter1->UpdateBuf(&m_cbInscatter1);
+		m_pCB_Inscatter1->Apply(10, false, true);
 	}
 	//------------------------------------------------------------------------------------
 	static bool g_bTest = false;

@@ -33,7 +33,6 @@ private:
 
 private:
 	HINSTANCE				m_hInstance;
-	Neo::D3D11RenderSystem*	m_pRenderSystem;
 };
 
 #endif // Application_h__

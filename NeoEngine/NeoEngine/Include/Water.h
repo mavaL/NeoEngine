@@ -67,25 +67,25 @@ namespace Neo
 		};
 
 	private:
-		D3D11RenderSystem*	m_pRenderSystem;
-		D3D11Texture*		m_pTexSceneWithRefracMask;
-		D3D11RenderTarget*	m_pRT_Reflection;
-		D3D11RenderTarget*	m_pRT_Depth;
+		//RenderSystem*		m_pRenderSystem;
+		//Texture*			m_pTexSceneWithRefracMask;
+		//RenderTarget*		m_pRT_Reflection;
+		//RenderTarget*		m_pRT_Depth;
 
-		cBufferVSFinal		m_constantBufVS;
-		cBufferPSFinal		m_constantBufPS;
-		cBufferDepth		m_constantBufDepth;
-		ID3D11Buffer*		m_pCB_VS;
-		ID3D11Buffer*		m_pCB_PS;
-		ID3D11Buffer*		m_pCB_Depth;
+		//cBufferVSFinal		m_constantBufVS;
+		//cBufferPSFinal		m_constantBufPS;
+		//cBufferDepth		m_constantBufDepth;
+		//ID3D11Buffer*		m_pCB_VS;
+		//ID3D11Buffer*		m_pCB_PS;
+		//ID3D11Buffer*		m_pCB_Depth;
 
-		Material*			m_pRefracMaterial;
-		Material*			m_pWaterDepthMaterial;
-		Material*			m_pFinalComposeMaterial;
+		//Material*			m_pRefracMaterial;
+		//Material*			m_pWaterDepthMaterial;
+		//Material*			m_pFinalComposeMaterial;
 
-		Mesh*				m_waterMesh;
-		Entity*				m_pEntity;
-		Common::Plane		m_waterPlane;
+		//Mesh*				m_waterMesh;
+		//Entity*				m_pEntity;
+		//Common::Plane		m_waterPlane;
 	};
 }
 

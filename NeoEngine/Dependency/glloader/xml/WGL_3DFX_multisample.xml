@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_3DFX_multisample" reg_no="207">
+	<tokens>
+		<token name="WGL_SAMPLE_BUFFERS_3DFX" value="0x2060"/>
+		<token name="WGL_SAMPLES_3DFX" value="0x2061"/>
+	</tokens>
+</gl_extension>

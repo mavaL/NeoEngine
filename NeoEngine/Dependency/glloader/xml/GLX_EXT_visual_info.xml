@@ -1,0 +1,22 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_EXT_visual_info" reg_no="28">
+	<tokens>
+		<token name="GLX_X_VISUAL_TYPE_EXT" value="0x22"/>
+		<token name="GLX_TRANSPARENT_TYPE_EXT" value="0x23"/>
+		<token name="GLX_TRANSPARENT_INDEX_VALUE_EXT" value="0x24"/>
+		<token name="GLX_TRANSPARENT_RED_VALUE_EXT" value="0x25"/>
+		<token name="GLX_TRANSPARENT_GREEN_VALUE_EXT" value="0x26"/>
+		<token name="GLX_TRANSPARENT_BLUE_VALUE_EXT" value="0x27"/>
+		<token name="GLX_TRANSPARENT_ALPHA_VALUE_EXT" value="0x28"/>
+		<token name="GLX_NONE_EXT" value="0x8000"/>
+		<token name="GLX_TRUE_COLOR_EXT" value="0x8002"/>
+		<token name="GLX_DIRECT_COLOR_EXT" value="0x8003"/>
+		<token name="GLX_PSEUDO_COLOR_EXT" value="0x8004"/>
+		<token name="GLX_STATIC_COLOR_EXT" value="0x8005"/>
+		<token name="GLX_GRAY_SCALE_EXT" value="0x8006"/>
+		<token name="GLX_STATIC_GRAY_EXT" value="0x8007"/>
+		<token name="GLX_TRANSPARENT_RGB_EXT" value="0x8008"/>
+		<token name="GLX_TRANSPARENT_INDEX_EXT" value="0x8009"/>
+	</tokens>
+</gl_extension>

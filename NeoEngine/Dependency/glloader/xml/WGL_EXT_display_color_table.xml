@@ -1,0 +1,27 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_EXT_display_color_table" reg_no="167">
+	<functions>
+		<function name="wglCreateDisplayColorTableEXT" return="GLboolean">
+			<params>
+				<param type="GLushort" name="id"/>
+			</params>
+		</function>
+		<function name="wglLoadDisplayColorTableEXT" return="GLboolean">
+			<params>
+				<param type="const GLushort*" name="table"/>
+				<param type="GLuint" name="length"/>
+			</params>
+		</function>
+		<function name="wglBindDisplayColorTableEXT" return="GLboolean">
+			<params>
+				<param type="GLushort" name="id"/>
+			</params>
+		</function>
+		<function name="wglDestroyDisplayColorTableEXT" return="VOID">
+			<params>
+				<param type="GLushort" name="id"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

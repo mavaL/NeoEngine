@@ -69,4 +69,5 @@ inline HANDLE safe_handle(HANDLE h) { return (h == INVALID_HANDLE_VALUE) ? 0 : h
 #undef min
 #endif
 
+#include "Utility.h"
 

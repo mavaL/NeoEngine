@@ -1,0 +1,544 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_vertex_program" reg_no="233">
+	<tokens>
+		<token name="GL_VERTEX_PROGRAM_NV" value="0x8620"/>
+		<token name="GL_VERTEX_STATE_PROGRAM_NV" value="0x8621"/>
+		<token name="GL_ATTRIB_ARRAY_SIZE_NV" value="0x8623"/>
+		<token name="GL_ATTRIB_ARRAY_STRIDE_NV" value="0x8624"/>
+		<token name="GL_ATTRIB_ARRAY_TYPE_NV" value="0x8625"/>
+		<token name="GL_CURRENT_ATTRIB_NV" value="0x8626"/>
+		<token name="GL_PROGRAM_LENGTH_NV" value="0x8627"/>
+		<token name="GL_PROGRAM_STRING_NV" value="0x8628"/>
+		<token name="GL_MODELVIEW_PROJECTION_NV" value="0x8629"/>
+		<token name="GL_IDENTITY_NV" value="0x862A"/>
+		<token name="GL_INVERSE_NV" value="0x862B"/>
+		<token name="GL_TRANSPOSE_NV" value="0x862C"/>
+		<token name="GL_INVERSE_TRANSPOSE_NV" value="0x862D"/>
+		<token name="GL_MAX_TRACK_MATRIX_STACK_DEPTH_NV" value="0x862E"/>
+		<token name="GL_MAX_TRACK_MATRICES_NV" value="0x862F"/>
+		<token name="GL_MATRIX0_NV" value="0x8630"/>
+		<token name="GL_MATRIX1_NV" value="0x8631"/>
+		<token name="GL_MATRIX2_NV" value="0x8632"/>
+		<token name="GL_MATRIX3_NV" value="0x8633"/>
+		<token name="GL_MATRIX4_NV" value="0x8634"/>
+		<token name="GL_MATRIX5_NV" value="0x8635"/>
+		<token name="GL_MATRIX6_NV" value="0x8636"/>
+		<token name="GL_MATRIX7_NV" value="0x8637"/>
+		<token name="GL_CURRENT_MATRIX_STACK_DEPTH_NV" value="0x8640"/>
+		<token name="GL_CURRENT_MATRIX_NV" value="0x8641"/>
+		<token name="GL_VERTEX_PROGRAM_POINT_SIZE_NV" value="0x8642"/>
+		<token name="GL_VERTEX_PROGRAM_TWO_SIDE_NV" value="0x8643"/>
+		<token name="GL_PROGRAM_PARAMETER_NV" value="0x8644"/>
+		<token name="GL_ATTRIB_ARRAY_POINTER_NV" value="0x8645"/>
+		<token name="GL_PROGRAM_TARGET_NV" value="0x8646"/>
+		<token name="GL_PROGRAM_RESIDENT_NV" value="0x8647"/>
+		<token name="GL_TRACK_MATRIX_NV" value="0x8648"/>
+		<token name="GL_TRACK_MATRIX_TRANSFORM_NV" value="0x8649"/>
+		<token name="GL_VERTEX_PROGRAM_BINDING_NV" value="0x864A"/>
+		<token name="GL_PROGRAM_ERROR_POSITION_NV" value="0x864B"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY0_NV" value="0x8650"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY1_NV" value="0x8651"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY2_NV" value="0x8652"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY3_NV" value="0x8653"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY4_NV" value="0x8654"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY5_NV" value="0x8655"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY6_NV" value="0x8656"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY7_NV" value="0x8657"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY8_NV" value="0x8658"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY9_NV" value="0x8659"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY10_NV" value="0x865A"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY11_NV" value="0x865B"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY12_NV" value="0x865C"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY13_NV" value="0x865D"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY14_NV" value="0x865E"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY15_NV" value="0x865F"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB0_4_NV" value="0x8660"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB1_4_NV" value="0x8661"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB2_4_NV" value="0x8662"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB3_4_NV" value="0x8663"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB4_4_NV" value="0x8664"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB5_4_NV" value="0x8665"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB6_4_NV" value="0x8666"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB7_4_NV" value="0x8667"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB8_4_NV" value="0x8668"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB9_4_NV" value="0x8669"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB10_4_NV" value="0x866A"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB11_4_NV" value="0x866B"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB12_4_NV" value="0x866C"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB13_4_NV" value="0x866D"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB14_4_NV" value="0x866E"/>
+		<token name="GL_MAP1_VERTEX_ATTRIB15_4_NV" value="0x866F"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB0_4_NV" value="0x8670"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB1_4_NV" value="0x8671"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB2_4_NV" value="0x8672"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB3_4_NV" value="0x8673"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB4_4_NV" value="0x8674"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB5_4_NV" value="0x8675"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB6_4_NV" value="0x8676"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB7_4_NV" value="0x8677"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB8_4_NV" value="0x8678"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB9_4_NV" value="0x8679"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB10_4_NV" value="0x867A"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB11_4_NV" value="0x867B"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB12_4_NV" value="0x867C"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB13_4_NV" value="0x867D"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB14_4_NV" value="0x867E"/>
+		<token name="GL_MAP2_VERTEX_ATTRIB15_4_NV" value="0x867F"/>
+	</tokens>
+
+	<functions>
+		<function name="glAreProgramsResidentNV" return="GLboolean">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLuint*" name="programs"/>
+				<param type="GLboolean*" name="residences"/>
+			</params>
+		</function>
+		<function name="glBindProgramNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="id"/>
+			</params>
+		</function>
+		<function name="glDeleteProgramsNV" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLuint*" name="programs"/>
+			</params>
+		</function>
+		<function name="glExecuteProgramNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="id"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGenProgramsNV" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="GLuint*" name="programs"/>
+			</params>
+		</function>
+		<function name="glGetProgramParameterdvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLdouble*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetProgramParameterfvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetProgramivNV" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetProgramStringNV" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLubyte*" name="program"/>
+			</params>
+		</function>
+		<function name="glGetTrackMatrixivNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="address"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribdvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLdouble*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribfvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribivNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVertexAttribPointervNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLvoid**" name="pointer"/>
+			</params>
+		</function>
+		<function name="glIsProgramNV" return="GLboolean">
+			<params>
+				<param type="GLuint" name="id"/>
+			</params>
+		</function>
+		<function name="glLoadProgramNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="id"/>
+				<param type="GLsizei" name="len"/>
+				<param type="const GLubyte*" name="program"/>
+			</params>
+		</function>
+		<function name="glProgramParameter4dNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+				<param type="GLdouble" name="z"/>
+				<param type="GLdouble" name="w"/>
+			</params>
+		</function>
+		<function name="glProgramParameter4dvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glProgramParameter4fNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+				<param type="GLfloat" name="w"/>
+			</params>
+		</function>
+		<function name="glProgramParameter4fvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glProgramParameters4dvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glProgramParameters4fvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glRequestResidentProgramsNV" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLuint*" name="programs"/>
+			</params>
+		</function>
+		<function name="glTrackMatrixNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="address"/>
+				<param type="GLenum" name="matrix"/>
+				<param type="GLenum" name="transform"/>
+			</params>
+		</function>
+		<function name="glVertexAttribPointerNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLint" name="fsize"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="const GLvoid*" name="pointer"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1dNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLdouble" name="x"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1fNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLfloat" name="x"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1sNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLshort" name="x"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2dNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2fNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2sNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3dNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+				<param type="GLdouble" name="z"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3fNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3sNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+				<param type="GLshort" name="z"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4dNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+				<param type="GLdouble" name="z"/>
+				<param type="GLdouble" name="w"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4fNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+				<param type="GLfloat" name="w"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4sNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+				<param type="GLshort" name="z"/>
+				<param type="GLshort" name="w"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4ubNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLubyte" name="x"/>
+				<param type="GLubyte" name="y"/>
+				<param type="GLubyte" name="z"/>
+				<param type="GLubyte" name="w"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4ubvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLubyte*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs1dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs1fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs1svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs2dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs2fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs2svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs3dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs3fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs3svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs4dvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs4fvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs4svNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs4ubvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLubyte*" name="v"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

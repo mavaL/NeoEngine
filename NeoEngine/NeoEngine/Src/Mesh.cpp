@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Mesh.h"
-#include "D3D11RenderSystem.h"
+#include "Renderer.h"
 #include "Material.h"
 #include "TangentSpaceCalculation.h"
 #include "SceneManager.h"
@@ -11,7 +11,7 @@ namespace Neo
 	Mesh::Mesh(const char* szfilename)
 		: m_pMaterial(nullptr)
 		, m_filename(szfilename)
-		, m_primType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+		, m_primType(ePrimitive_TriangleList)
 	{
 
 	}
@@ -31,8 +31,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Mesh::Render()
 	{
-		g_env.pRenderSystem->GetDeviceContext()->IASetPrimitiveTopology(GetPrimitiveType());
-
 		for (size_t i = 0; i < m_submeshes.size(); ++i)
 		{
 			if (m_pMaterial)
@@ -87,11 +85,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	SubMesh::~SubMesh()
 	{
-		SAFE_RELEASE(m_pVertexBuf);
-		SAFE_RELEASE(m_pVB_Tangent);
-		SAFE_RELEASE(m_pVB_BoneWeights);
-		SAFE_RELEASE(m_pIndexBuf);
-		SAFE_RELEASE(m_pAdjIndexBuf);
+		SAFE_DELETE(m_pVertexBuf);
+		SAFE_DELETE(m_pVB_Tangent);
+		SAFE_DELETE(m_pVB_BoneWeights);
+		SAFE_DELETE(m_pIndexBuf);
+		SAFE_DELETE(m_pAdjIndexBuf);
 		SAFE_DELETE_ARRAY(m_pIndexData);
 		SAFE_DELETE_ARRAY(m_pAdjIndexData);
 	}
@@ -100,29 +98,11 @@ namespace Neo
 	{
 		_AST(pVerts);
 
-		SAFE_RELEASE(m_pVertexBuf);
+		SAFE_DELETE(m_pVertexBuf);
 
 		m_vertData.InitVertex(type, pVerts, nVert);
 
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.ByteWidth = sizeof(SVertex) * nVert;
-		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_IMMUTABLE;
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		ZeroMemory(&InitData, sizeof(InitData));
-		InitData.pSysMem = pVerts;
-
-		if (!bStatic)
-		{
-			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		}
-
-		HRESULT hr = S_OK;
-		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pVertexBuf));
+		m_pVertexBuf = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertex) * nVert, sizeof(SVertex), pVerts, bStatic ? 0 : eBufferUsage_Dynamic);
 
 		return true;
 	}
@@ -250,21 +230,10 @@ namespace Neo
 	{
 		m_vertData.InitTangents(pVerts, nVert);
 
-		SAFE_RELEASE(m_pVB_Tangent);
+		SAFE_DELETE(m_pVB_Tangent);
 
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.ByteWidth = sizeof(STangentData) * m_vertData.GetVertCount();
-		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_IMMUTABLE;
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		ZeroMemory(&InitData, sizeof(InitData));
-		InitData.pSysMem = m_vertData.GetTangent();
-
-		HRESULT hr = S_OK;
-		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pVB_Tangent));
+		m_pVB_Tangent = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(STangentData) * m_vertData.GetVertCount(),
+			sizeof(STangentData), m_vertData.GetTangent(), 0);
 
 		return true;
 	}
@@ -273,54 +242,22 @@ namespace Neo
 	{
 		m_vertData.InitBoneWeights(pVerts, nVert);
 
-		SAFE_RELEASE(m_pVB_BoneWeights);
+		SAFE_DELETE(m_pVB_BoneWeights);
 
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.ByteWidth = sizeof(SVertexBoneWeight) * nVert;
-		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_IMMUTABLE;
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		ZeroMemory(&InitData, sizeof(InitData));
-		InitData.pSysMem = m_vertData.GetBoneWeights();
-
-		HRESULT hr = S_OK;
-		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pVB_BoneWeights));
+		m_pVB_BoneWeights = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertexBoneWeight) * nVert, sizeof(SVertexBoneWeight), m_vertData.GetBoneWeights(), 0);
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic)
 	{
-		SAFE_RELEASE(m_pIndexBuf);
+		SAFE_DELETE(m_pIndexBuf);
 		SAFE_DELETE_ARRAY(m_pIndexData);
 
 		m_pIndexData = new DWORD[nIdx];
 		CopyMemory(m_pIndexData, pIdx, sizeof(DWORD) * nIdx);
 
-		// Create index buffer
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.ByteWidth = sizeof(DWORD) * nIdx;
-		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_IMMUTABLE;
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		ZeroMemory(&InitData, sizeof(InitData));
-		InitData.pSysMem = pIdx;
-
-		if (!bStatic)
-		{
-			bd.Usage = D3D11_USAGE_DYNAMIC;
-			bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		}
-
-		HRESULT hr = S_OK;
-		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pIndexBuf));
-
+		m_pIndexBuf = g_env.pRenderer->GetRenderSys()->CreateIndexBuffer(sizeof(DWORD) * nIdx, pIdx, bStatic ? 0 : eBufferUsage_Dynamic);
 		m_nIndexCnt = nIdx;
 
 		return true;
@@ -328,66 +265,45 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitAdjIndexData(const DWORD* pIdx, int nIdx)
 	{
-		SAFE_RELEASE(m_pAdjIndexBuf);
+		SAFE_DELETE(m_pAdjIndexBuf);
 		SAFE_DELETE_ARRAY(m_pAdjIndexData);
 
 		m_pAdjIndexData = new DWORD[nIdx];
 		CopyMemory(m_pAdjIndexData, pIdx, sizeof(DWORD) * nIdx);
 
-		// Create index buffer
-		D3D11_BUFFER_DESC bd;
-		ZeroMemory(&bd, sizeof(bd));
-		bd.ByteWidth = sizeof(DWORD) * nIdx;
-		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		bd.Usage = D3D11_USAGE_IMMUTABLE;
-
-		D3D11_SUBRESOURCE_DATA InitData;
-		ZeroMemory(&InitData, sizeof(InitData));
-		InitData.pSysMem = pIdx;
-
-		HRESULT hr = S_OK;
-		V_RETURN(g_env.pRenderSystem->GetDevice()->CreateBuffer(&bd, &InitData, &m_pAdjIndexBuf));
-
+		m_pAdjIndexBuf = g_env.pRenderer->GetRenderSys()->CreateIndexBuffer(sizeof(DWORD) * nIdx, pIdx, 0);
 		m_nAdjIndexCnt = nIdx;
 
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-	void SubMesh::Render(D3D11_PRIMITIVE_TOPOLOGY prim)
+	void SubMesh::Render(ePrimitive prim)
 	{
-		ID3D11DeviceContext* pDeviceContext = g_env.pRenderSystem->GetDeviceContext();
+		RenderSystem* pRenderSys = g_env.pRenderer->GetRenderSys();
 
-		UINT stride = sizeof(SVertex);
-		UINT offset = 0;
-
-		pDeviceContext->IASetVertexBuffers(0, 1, &m_pVertexBuf, &stride, &offset);
+		pRenderSys->SetVertexBuffer(m_pVertexBuf, 0, 0);
 
 		if (m_pVB_Tangent)
 		{
-			stride = sizeof(STangentData);
-			pDeviceContext->IASetVertexBuffers(1, 1, &m_pVB_Tangent, &stride, &offset);
+			pRenderSys->SetVertexBuffer(m_pVB_Tangent, 1, 0);
 		}
 
 		if (m_pVB_BoneWeights)
 		{
-			stride = sizeof(SVertexBoneWeight);
-			pDeviceContext->IASetVertexBuffers(2, 1, &m_pVB_BoneWeights, &stride, &offset);
+			pRenderSys->SetVertexBuffer(m_pVB_BoneWeights, 2, 0);
 		}
 
-		if (prim == D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ)
+		if (prim == ePrimitive_LineList_Adj)
 		{
-			pDeviceContext->IASetIndexBuffer(m_pAdjIndexBuf, DXGI_FORMAT_R32_UINT, 0);
-			pDeviceContext->DrawIndexed(m_nAdjIndexCnt, 0, 0);
+			pRenderSys->DrawIndexed(ePrimitive_LineList_Adj, m_pAdjIndexBuf, m_nAdjIndexCnt, 0, 0);
 		}
 		else if (m_pIndexBuf)
 		{
-			pDeviceContext->IASetIndexBuffer(m_pIndexBuf, DXGI_FORMAT_R32_UINT, 0);
-			pDeviceContext->DrawIndexed(m_nIndexCnt, 0, 0);
+			pRenderSys->DrawIndexed(ePrimitive_TriangleList, m_pIndexBuf, m_nIndexCnt, 0, 0);
 		}
 		else
 		{
-			pDeviceContext->Draw(m_vertData.GetVertCount(), 0);
+			pRenderSys->Draw(m_vertData.GetVertCount(), 0);
 		}
 	}
 

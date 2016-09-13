@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_AMD_gpu_association" reg_no="398">
+	<tokens>
+		<token name="GLX_GPU_VENDOR_AMD" value="0x1F00"/>
+		<token name="GLX_GPU_RENDERER_STRING_AMD" value="0x1F01"/>
+		<token name="GLX_GPU_OPENGL_VERSION_STRING_AMD" value="0x1F02"/>
+		<token name="GLX_GPU_FASTEST_TARGET_GPUS_AMD" value="0x21A2"/>
+		<token name="GLX_GPU_RAM_AMD" value="0x21A3"/>
+		<token name="GLX_GPU_CLOCK_AMD" value="0x21A4"/>
+		<token name="GLX_GPU_NUM_PIPES_AMD" value="0x21A5"/>
+		<token name="GLX_GPU_NUM_SIMD_AMD" value="0x21A6"/>
+		<token name="GLX_GPU_NUM_RB_AMD" value="0x21A7"/>
+		<token name="GLX_GPU_NUM_SPI_AMD" value="0x21A8"/>
+	</tokens>
+</gl_extension>

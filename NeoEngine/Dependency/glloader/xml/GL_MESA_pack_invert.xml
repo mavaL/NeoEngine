@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_MESA_pack_invert" reg_no="300">
+	<tokens>
+		<token name="GL_PACK_INVERT_MESA" value="0x8758"/>
+	</tokens>
+</gl_extension>

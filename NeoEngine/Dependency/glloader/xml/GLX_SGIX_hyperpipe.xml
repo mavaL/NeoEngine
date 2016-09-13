@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_SGIX_hyperpipe" reg_no="307">
+	<typedefs>
+		<typedef type="struct { char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; int networkId; }" synonym="GLXHyperpipeNetworkSGIX"/>
+		<typedef type="struct { char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; int channel; unsigned int participationType; int timeSlice; }" synonym="GLXHyperpipeConfigSGIX"/>
+		<typedef type="struct { char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; int srcXOrigin, srcYOrigin, srcWidth, srcHeight; int destXOrigin, destYOrigin, destWidth, destHeight; }" synonym="GLXPipeRect"/>
+		<typedef type="struct { char pipeName[GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX]; int XOrigin, YOrigin, maxHeight, maxWidth; }" synonym="GLXPipeRectLimits"/>
+	</typedefs>
+
+	<tokens>
+		<token name="GLX_HYPERPIPE_PIPE_NAME_LENGTH_SGIX" value="80"/>
+		<token name="GLX_BAD_HYPERPIPE_CONFIG_SGIX" value="91"/>
+		<token name="GLX_BAD_HYPERPIPE_SGIX" value="92"/>
+		<token name="GLX_HYPERPIPE_DISPLAY_PIPE_SGIX" value="0x00000001"/>
+		<token name="GLX_HYPERPIPE_RENDER_PIPE_SGIX" value="0x00000002"/>
+		<token name="GLX_PIPE_RECT_SGIX" value="0x00000001"/>
+		<token name="GLX_PIPE_RECT_LIMITS_SGIX" value="0x00000002"/>
+		<token name="GLX_HYPERPIPE_STEREO_SGIX" value="0x00000003"/>
+		<token name="GLX_HYPERPIPE_PIXEL_AVERAGE_SGIX" value="0x00000004"/>
+		<token name="GLX_HYPERPIPE_ID_SGIX" value="0x8030"/>
+	</tokens>
+
+	<functions>
+		<function name="glXQueryHyperpipeNetworkSGIX" return="GLXHyperpipeNetworkSGIX*">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int*" name="npipes"/>
+			</params>
+		</function>
+		<function name="glXHyperpipeConfigSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="networkId"/>
+				<param type="int" name="npipes"/>
+				<param type="GLXHyperpipeConfigSGIX*" name="cfg"/>
+				<param type="int*" name="hpId"/>
+			</params>
+		</function>
+		<function name="glXQueryHyperpipeConfigSGIX" return="GLXHyperpipeConfigSGIX*">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="hpId"/>
+				<param type="int*" name="npipes"/>
+			</params>
+		</function>
+		<function name="glXDestroyHyperpipeConfigSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="hpId"/>
+			</params>
+		</function>
+		<function name="glXBindHyperpipeSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="hpId"/>
+			</params>
+		</function>
+		<function name="glXQueryHyperpipeBestAttribSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="timeSlice"/>
+				<param type="int" name="attrib"/>
+				<param type="int" name="size"/>
+				<param type="void*" name="attribList"/>
+				<param type="void*" name="returnAttribList"/>
+			</params>
+		</function>
+		<function name="glXHyperpipeAttribSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="timeSlice"/>
+				<param type="int" name="attrib"/>
+				<param type="int" name="size"/>
+				<param type="void*" name="attribList"/>
+			</params>
+		</function>
+		<function name="glXQueryHyperpipeAttribSGIX" return="int">
+			<params>
+				<param type="Display*" name="dpy"/>
+				<param type="int" name="timeSlice"/>
+				<param type="int" name="attrib"/>
+				<param type="int" name="size"/>
+				<param type="void*" name="returnAttribList"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_packed_pixels" reg_no="23">
+	<tokens>
+		<token name="GL_UNSIGNED_BYTE_3_3_2_EXT" value="0x8032"/>
+		<token name="GL_UNSIGNED_SHORT_4_4_4_4_EXT" value="0x8033"/>
+		<token name="GL_UNSIGNED_SHORT_5_5_5_1_EXT" value="0x8034"/>
+		<token name="GL_UNSIGNED_INT_8_8_8_8_EXT" value="0x8035"/>
+		<token name="GL_UNSIGNED_INT_10_10_10_2_EXT" value="0x8036"/>
+	</tokens>
+</gl_extension>

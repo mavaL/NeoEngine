@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "Terrain.h"
 #include "Material.h"
-#include "D3D11Texture.h"
-#include "D3D11RenderSystem.h"
+#include "Texture.h"
+#include "RenderSystem.h"
 #include "SceneManager.h"
 #include "Camera.h"
 #include "ShadowMap.h"
 #include "Mesh.h"
 #include "Entity.h"
 #include "MaterialManager.h"
+#include "Renderer.h"
 
 
 namespace Neo
@@ -22,7 +23,7 @@ namespace Neo
 	Terrain::Terrain(const STRING& heightmapName)
 	:m_pMesh(nullptr)
 	,m_pEntity(nullptr)
-	,m_pRenderSystem(g_env.pRenderSystem)
+	,m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	{
 		_InitHeightMap(heightmapName, HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE);
 		_CreateDensityMap();
@@ -31,7 +32,7 @@ namespace Neo
 		_CalcAABB();
 		_InitMaterial();
 
-		cBufferTerrain& cb = m_pRenderSystem->GetTerrainCB();
+		cBufferTerrain& cb = g_env.pRenderer->GetTerrainCB();
 		
 		cb.minTessDist = 20;
 		cb.maxTessDist = 500;
@@ -76,14 +77,14 @@ namespace Neo
 		std::vector<HALF> vecHeightData(nCount);
 		std::transform(m_heightData.begin(), m_heightData.end(), vecHeightData.begin(), XMConvertFloatToHalf);
 
-		m_pHeightMap = new D3D11Texture(HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE, (char*)&vecHeightData[0],
+		m_pHeightMap = m_pRenderSystem->CreateTextureManual(HEIGHT_MAP_SIZE, HEIGHT_MAP_SIZE, (char*)&vecHeightData[0],
 			ePF_R16F, eTextureUsage_DomainShader | eTextureUsage_WriteOnly, false);
 	}
 	//------------------------------------------------------------------------------------
 	void Terrain::_CreateDensityMap()
 	{
 		// Create density map same desc as height map
-		m_pDensityMap = new D3D11Texture(m_pHeightMap->GetWidth(), m_pHeightMap->GetHeight(), 
+		m_pDensityMap = m_pRenderSystem->CreateTextureManual(m_pHeightMap->GetWidth(), m_pHeightMap->GetHeight(),
 			nullptr, m_pHeightMap->GetFormat(), eTextureUsage_HullShader | eTextureUsage_ReadWrite, false);
 
 		for (uint32 i=0; i<HEIGHT_MAP_SIZE; ++i)
@@ -152,7 +153,7 @@ namespace Neo
  		}		m_pMesh = new Mesh;
 		SubMesh* pSubMesh = new SubMesh;
  		pSubMesh->InitVertData(eVertexType_General, vert, nVerts, true);
- 		pSubMesh->InitIndexData(pIndices, nIndex, true);		m_pMesh->AddSubMesh(pSubMesh);		m_pMesh->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);		m_pEntity = new Entity(m_pMesh, false);		m_pEntity->SetCastShadow(false);
+ 		pSubMesh->InitIndexData(pIndices, nIndex, true);		m_pMesh->AddSubMesh(pSubMesh);		m_pMesh->SetPrimitiveType(ePrimitive_4_Control_Point_PatchList);		m_pEntity = new Entity(m_pMesh, false);		m_pEntity->SetCastShadow(false);
  		SAFE_DELETE_ARRAY(vert);
  		SAFE_DELETE_ARRAY(pIndices);
 	}
@@ -169,10 +170,10 @@ namespace Neo
 		vecTexNames.push_back(GetResPath("grass.dds"));
 		vecTexNames.push_back(GetResPath("Snow.dds"));
 
-		m_pLayerTexArray = new D3D11Texture(vecTexNames, true);
+		m_pLayerTexArray = g_env.pRenderer->GetRenderSys()->CreateTextureArray(vecTexNames, true);
 
 		// Load layer blend map
-		m_pBlendMap = new D3D11Texture(GetResPath("blend.dds"));
+		m_pBlendMap = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("blend.dds"));
 
 		// Setup texture stages
 		pMaterial->SetTexture(0, m_pHeightMap);
@@ -182,7 +183,7 @@ namespace Neo
 		//D3D11Texture* pNormalMap = new D3D11Texture(GetResPath("dirt_grayrocky_ddn.dds"));
 		//pMaterial->SetTexture(3, pNormalMap);
 
-		pMaterial->SetCullMode(D3D11_CULL_NONE);
+		pMaterial->SetCullMode(eCull_NONE);
 
 		// Turn GPU frustum clipping on
 		D3D_SHADER_MACRO macro[] = { "GPU_FRUSTUM_CLIP", "" };
@@ -192,21 +193,21 @@ namespace Neo
 
 
 		{
-			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(0);
-			samDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(0);
+			samDesc.Filter = SF_MIN_MAG_LINEAR_MIP_POINT;
+			samDesc.AddressU = eTextureAddressMode_CLAMP;
+			samDesc.AddressV = eTextureAddressMode_CLAMP;
 
-			pMaterial->SetSamplerStateDesc(0, samDesc);
+			pMaterial->SetSamplerStateDesc(0, samDesc, false, false, true);
 		}
 		
 		{
-			D3D11_SAMPLER_DESC& samDesc = pMaterial->GetSamplerStateDesc(1);
-			samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(1);
+			samDesc.Filter = SF_MIN_MAG_MIP_LINEAR;
+			samDesc.AddressU = eTextureAddressMode_WRAP;
+			samDesc.AddressV = eTextureAddressMode_WRAP;
 
-			pMaterial->SetSamplerStateDesc(1, samDesc);
+			pMaterial->SetSamplerStateDesc(1, samDesc, false, false, true);
 		}
 
 		m_pMesh->SetMaterial(pMaterial);
@@ -214,30 +215,19 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Terrain::Render()
 	{
-		ID3D11DeviceContext* pContext = m_pRenderSystem->GetDeviceContext();
-
 		// Update constants
 		Camera* pCam = g_env.pSceneMgr->GetCamera();
-		cBufferTerrain& cb = m_pRenderSystem->GetTerrainCB();
+		cBufferTerrain& cb = g_env.pRenderer->GetTerrainCB();
 
 		cb.m_frustumPlane[0] = pCam->GetFrustumPlane(0);
 		cb.m_frustumPlane[1] = pCam->GetFrustumPlane(1);
 		cb.m_frustumPlane[2] = pCam->GetFrustumPlane(2);
 		cb.m_frustumPlane[3] = pCam->GetFrustumPlane(3);
 
-		m_pRenderSystem->UpdateTerrainCBuffer();
-		m_pRenderSystem->UpdateGlobalCBuffer(true, false);
-
-		Material* pMtl = MaterialManager::GetSingleton().GetMaterial("Mtl_Terrain");
-		ID3D11SamplerState* pSamp[] = { pMtl->GetSamplerState(0), pMtl->GetSamplerState(1) };
-		pContext->HSSetSamplers(0, 2, pSamp);
-		pContext->DSSetSamplers(0, 2, pSamp);
+		g_env.pRenderer->UpdateTerrainCBuffer();
+		g_env.pRenderer->UpdateGlobalCBuffer(true, false);
 
 		m_pEntity->Render();
-
-		ID3D11SamplerState* pNullSamp[] = { nullptr, nullptr };
-		pContext->HSSetSamplers(0, 2, pNullSamp);
-		pContext->DSSetSamplers(0, 2, pNullSamp);
 
 		m_pMesh->GetMaterial()->TurnOffTessellation();
 	}

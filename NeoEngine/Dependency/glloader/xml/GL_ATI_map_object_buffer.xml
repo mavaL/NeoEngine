@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_map_object_buffer" reg_no="288">
+	<functions>
+		<function name="glMapObjectBufferATI" return="GLvoid*">
+			<params>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+		<function name="glUnmapObjectBufferATI" return="void">
+			<params>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_NV_present_video" reg_no="347">
+	<typedefs>
+		<typedef type="void*" synonym="HVIDEOOUTPUTDEVICENV"/>
+	</typedefs>
+
+	<tokens>
+		<token name="WGL_NUM_VIDEO_SLOTS_NV" value="0x20F0"/>
+	</tokens>
+
+	<functions>
+		<function name="wglEnumerateVideoDevicesNV" return="int">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="HVIDEOOUTPUTDEVICENV*" name="phDeviceList"/>
+			</params>
+		</function>
+		<function name="wglBindVideoDeviceNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="unsigned int" name="uVideoSlot"/>
+				<param type="HVIDEOOUTPUTDEVICENV" name="hVideoDevice"/>
+				<param type="const int*" name="piAttribList"/>
+			</params>
+		</function>
+		<function name="wglQueryCurrentContextNV" return="BOOL">
+			<params>
+				<param type="int" name="iAttribute"/>
+				<param type="int*" name="piValue"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

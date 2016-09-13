@@ -1,0 +1,43 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_NV_swap_group" reg_no="351">
+	<functions>
+		<function name="wglJoinSwapGroupNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="GLuint" name="group"/>
+			</params>
+		</function>
+		<function name="wglBindSwapBarrierNV" return="BOOL">
+			<params>
+				<param type="GLuint" name="group"/>
+				<param type="GLuint" name="barrier"/>
+			</params>
+		</function>
+		<function name="wglQuerySwapGroupNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="GLuint*" name="group"/>
+				<param type="GLuint*" name="barrier"/>
+			</params>
+		</function>
+		<function name="wglQueryMaxSwapGroupsNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="GLuint*" name="maxGroups"/>
+				<param type="GLuint*" name="maxBarriers"/>
+			</params>
+		</function>
+		<function name="wglQueryFrameCountNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="GLuint*" name="count"/>
+			</params>
+		</function>
+		<function name="wglResetFrameCountNV" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

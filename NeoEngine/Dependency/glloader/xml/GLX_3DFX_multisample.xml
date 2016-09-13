@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GLX_3DFX_multisample" reg_no="207">
+	<tokens>
+		<token name="GLX_SAMPLE_BUFFERS_3DFX" value="0x8050"/>
+		<token name="GLX_SAMPLES_3DFX" value="0x8051"/>
+	</tokens>
+</gl_extension>

@@ -1,0 +1,100 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_texture_integer" reg_no="343">
+	<tokens>
+		<token name="GL_RGBA32UI_EXT" value="0x8D70"/>
+		<token name="GL_RGB32UI_EXT" value="0x8D71"/>
+		<token name="GL_ALPHA32UI_EXT" value="0x8D72"/>
+		<token name="GL_INTENSITY32UI_EXT" value="0x8D73"/>
+		<token name="GL_LUMINANCE32UI_EXT" value="0x8D74"/>
+		<token name="GL_LUMINANCE_ALPHA32UI_EXT" value="0x8D75"/>
+		<token name="GL_RGBA16UI_EXT" value="0x8D76"/>
+		<token name="GL_RGB16UI_EXT" value="0x8D77"/>
+		<token name="GL_ALPHA16UI_EXT" value="0x8D78"/>
+		<token name="GL_INTENSITY16UI_EXT" value="0x8D79"/>
+		<token name="GL_LUMINANCE16UI_EXT" value="0x8D7A"/>
+		<token name="GL_LUMINANCE_ALPHA16UI_EXT" value="0x8D7B"/>
+		<token name="GL_RGBA8UI_EXT" value="0x8D7C"/>
+		<token name="GL_RGB8UI_EXT" value="0x8D7D"/>
+		<token name="GL_ALPHA8UI_EXT" value="0x8D7E"/>
+		<token name="GL_INTENSITY8UI_EXT" value="0x8D7F"/>
+		<token name="GL_LUMINANCE8UI_EXT" value="0x8D80"/>
+		<token name="GL_LUMINANCE_ALPHA8UI_EXT" value="0x8D81"/>
+		<token name="GL_RGBA32I_EXT" value="0x8D82"/>
+		<token name="GL_RGB32I_EXT" value="0x8D83"/>
+		<token name="GL_ALPHA32I_EXT" value="0x8D84"/>
+		<token name="GL_INTENSITY32I_EXT" value="0x8D85"/>
+		<token name="GL_LUMINANCE32I_EXT" value="0x8D86"/>
+		<token name="GL_LUMINANCE_ALPHA32I_EXT" value="0x8D87"/>
+		<token name="GL_RGBA16I_EXT" value="0x8D88"/>
+		<token name="GL_RGB16I_EXT" value="0x8D89"/>
+		<token name="GL_ALPHA16I_EXT" value="0x8D8A"/>
+		<token name="GL_INTENSITY16I_EXT" value="0x8D8B"/>
+		<token name="GL_LUMINANCE16I_EXT" value="0x8D8C"/>
+		<token name="GL_LUMINANCE_ALPHA16I_EXT" value="0x8D8D"/>
+		<token name="GL_RGBA8I_EXT" value="0x8D8E"/>
+		<token name="GL_RGB8I_EXT" value="0x8D8F"/>
+		<token name="GL_ALPHA8I_EXT" value="0x8D90"/>
+		<token name="GL_INTENSITY8I_EXT" value="0x8D91"/>
+		<token name="GL_LUMINANCE8I_EXT" value="0x8D92"/>
+		<token name="GL_LUMINANCE_ALPHA8I_EXT" value="0x8D93"/>
+		<token name="GL_RED_INTEGER_EXT" value="0x8D94"/>
+		<token name="GL_GREEN_INTEGER_EXT" value="0x8D95"/>
+		<token name="GL_BLUE_INTEGER_EXT" value="0x8D96"/>
+		<token name="GL_ALPHA_INTEGER_EXT" value="0x8D97"/>
+		<token name="GL_RGB_INTEGER_EXT" value="0x8D98"/>
+		<token name="GL_RGBA_INTEGER_EXT" value="0x8D99"/>
+		<token name="GL_BGR_INTEGER_EXT" value="0x8D9A"/>
+		<token name="GL_BGRA_INTEGER_EXT" value="0x8D9B"/>
+		<token name="GL_LUMINANCE_INTEGER_EXT" value="0x8D9C"/>
+		<token name="GL_LUMINANCE_ALPHA_INTEGER_EXT" value="0x8D9D"/>
+		<token name="GL_RGBA_INTEGER_MODE_EXT" value="0x8D9E"/>
+	</tokens>
+
+	<functions>
+		<function name="glTexParameterIivEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glTexParameterIuivEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLuint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetTexParameterIivEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetTexParameterIuivEXT" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLuint*" name="params"/>
+			</params>
+		</function>
+		<function name="glClearColorIiEXT" return="void">
+			<params>
+				<param type="GLint" name="red"/>
+				<param type="GLint" name="green"/>
+				<param type="GLint" name="blue"/>
+				<param type="GLint" name="alpha"/>
+			</params>
+		</function>
+		<function name="glClearColorIuiEXT" return="void">
+			<params>
+				<param type="GLuint" name="red"/>
+				<param type="GLuint" name="green"/>
+				<param type="GLuint" name="blue"/>
+				<param type="GLuint" name="alpha"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

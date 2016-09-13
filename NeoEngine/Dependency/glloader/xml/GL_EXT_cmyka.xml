@@ -1,0 +1,10 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_cmyka" reg_no="18">
+	<tokens>
+		<token name="GL_CMYK_EXT" value="0x800C"/>
+		<token name="GL_CMYKA_EXT" value="0x800D"/>
+		<token name="GL_PACK_CMYK_HINT_EXT" value="0x800E"/>
+		<token name="GL_UNPACK_CMYK_HINT_EXT" value="0x800F"/>
+	</tokens>
+</gl_extension>

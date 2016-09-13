@@ -12,6 +12,7 @@
 #include "Prerequiestity.h"
 #include "MathDef.h"
 #include "Color.h"
+#include "RenderDefine.h"
 
 
 namespace Neo

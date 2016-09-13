@@ -1,0 +1,40 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_sprite" reg_no="52">
+	<tokens>
+		<token name="GL_SPRITE_SGIX" value="0x8148"/>
+		<token name="GL_SPRITE_MODE_SGIX" value="0x8149"/>
+		<token name="GL_SPRITE_AXIS_SGIX" value="0x814A"/>
+		<token name="GL_SPRITE_TRANSLATION_SGIX" value="0x814B"/>
+		<token name="GL_SPRITE_AXIAL_SGIX" value="0x814C"/>
+		<token name="GL_SPRITE_OBJECT_ALIGNED_SGIX" value="0x814D"/>
+		<token name="GL_SPRITE_EYE_ALIGNED_SGIX" value="0x814E"/>
+	</tokens>
+
+	<functions>
+		<function name="glSpriteParameterfSGIX" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat" name="param"/>
+			</params>
+		</function>
+		<function name="glSpriteParameterfvSGIX" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glSpriteParameteriSGIX" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glSpriteParameterivSGIX" return="void">
+			<params>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

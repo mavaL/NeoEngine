@@ -1,0 +1,150 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_MESA_window_pos" reg_no="197">
+	<functions>
+		<function name="glWindowPos2dMESA" return="void">
+			<params>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+			</params>
+		</function>
+		<function name="glWindowPos2dvMESA" return="void">
+			<params>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos2fMESA" return="void">
+			<params>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+			</params>
+		</function>
+		<function name="glWindowPos2fvMESA" return="void">
+			<params>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos2iMESA" return="void">
+			<params>
+				<param type="GLint" name="x"/>
+				<param type="GLint" name="y"/>
+			</params>
+		</function>
+		<function name="glWindowPos2ivMESA" return="void">
+			<params>
+				<param type="const GLint*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos2sMESA" return="void">
+			<params>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+			</params>
+		</function>
+		<function name="glWindowPos2svMESA" return="void">
+			<params>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos3dMESA" return="void">
+			<params>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+				<param type="GLdouble" name="z"/>
+			</params>
+		</function>
+		<function name="glWindowPos3dvMESA" return="void">
+			<params>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos3fMESA" return="void">
+			<params>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+			</params>
+		</function>
+		<function name="glWindowPos3fvMESA" return="void">
+			<params>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos3iMESA" return="void">
+			<params>
+				<param type="GLint" name="x"/>
+				<param type="GLint" name="y"/>
+				<param type="GLint" name="z"/>
+			</params>
+		</function>
+		<function name="glWindowPos3ivMESA" return="void">
+			<params>
+				<param type="const GLint*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos3sMESA" return="void">
+			<params>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+				<param type="GLshort" name="z"/>
+			</params>
+		</function>
+		<function name="glWindowPos3svMESA" return="void">
+			<params>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos4dMESA" return="void">
+			<params>
+				<param type="GLdouble" name="x"/>
+				<param type="GLdouble" name="y"/>
+				<param type="GLdouble" name="z"/>
+				<param type="GLdouble" name="w"/>
+			</params>
+		</function>
+		<function name="glWindowPos4dvMESA" return="void">
+			<params>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos4fMESA" return="void">
+			<params>
+				<param type="GLfloat" name="x"/>
+				<param type="GLfloat" name="y"/>
+				<param type="GLfloat" name="z"/>
+				<param type="GLfloat" name="w"/>
+			</params>
+		</function>
+		<function name="glWindowPos4fvMESA" return="void">
+			<params>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos4iMESA" return="void">
+			<params>
+				<param type="GLint" name="x"/>
+				<param type="GLint" name="y"/>
+				<param type="GLint" name="z"/>
+				<param type="GLint" name="w"/>
+			</params>
+		</function>
+		<function name="glWindowPos4ivMESA" return="void">
+			<params>
+				<param type="const GLint*" name="v"/>
+			</params>
+		</function>
+		<function name="glWindowPos4sMESA" return="void">
+			<params>
+				<param type="GLshort" name="x"/>
+				<param type="GLshort" name="y"/>
+				<param type="GLshort" name="z"/>
+				<param type="GLshort" name="w"/>
+			</params>
+		</function>
+		<function name="glWindowPos4svMESA" return="void">
+			<params>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

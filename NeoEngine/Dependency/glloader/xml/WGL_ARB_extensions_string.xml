@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_ARB_extensions_string" reg_no="8">
+	<functions>
+		<function name="wglGetExtensionsStringARB" return="const char*">
+			<params>
+				<param type="HDC" name="hdc"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

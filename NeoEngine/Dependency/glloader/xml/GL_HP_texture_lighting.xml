@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_HP_texture_lighting" reg_no="111">
+	<tokens>
+		<token name="GL_TEXTURE_LIGHTING_MODE_HP" value="0x8167"/>
+		<token name="GL_TEXTURE_POST_SPECULAR_HP" value="0x8168"/>
+		<token name="GL_TEXTURE_PRE_SPECULAR_HP" value="0x8169"/>
+	</tokens>
+</gl_extension>

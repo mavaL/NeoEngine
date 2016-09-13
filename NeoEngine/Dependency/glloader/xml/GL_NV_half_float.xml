@@ -1,0 +1,301 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_NV_half_float" reg_no="283">
+	<typedefs>
+		<typedef type="unsigned short" synonym="GLhalfNV"/>
+	</typedefs>
+
+	<tokens>
+		<token name="GL_HALF_FLOAT_NV" value="0x140B"/>
+	</tokens>
+
+	<functions>
+		<function name="glVertex2hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+			</params>
+		</function>
+		<function name="glVertex2hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertex3hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+				<param type="GLhalfNV" name="z"/>
+			</params>
+		</function>
+		<function name="glVertex3hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertex4hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+				<param type="GLhalfNV" name="z"/>
+				<param type="GLhalfNV" name="w"/>
+			</params>
+		</function>
+		<function name="glVertex4hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glNormal3hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="nx"/>
+				<param type="GLhalfNV" name="ny"/>
+				<param type="GLhalfNV" name="nz"/>
+			</params>
+		</function>
+		<function name="glNormal3hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glColor3hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="red"/>
+				<param type="GLhalfNV" name="green"/>
+				<param type="GLhalfNV" name="blue"/>
+			</params>
+		</function>
+		<function name="glColor3hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glColor4hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="red"/>
+				<param type="GLhalfNV" name="green"/>
+				<param type="GLhalfNV" name="blue"/>
+				<param type="GLhalfNV" name="alpha"/>
+			</params>
+		</function>
+		<function name="glColor4hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord1hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="s"/>
+			</params>
+		</function>
+		<function name="glTexCoord1hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord2hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+			</params>
+		</function>
+		<function name="glTexCoord2hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord3hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+				<param type="GLhalfNV" name="r"/>
+			</params>
+		</function>
+		<function name="glTexCoord3hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glTexCoord4hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+				<param type="GLhalfNV" name="r"/>
+				<param type="GLhalfNV" name="q"/>
+			</params>
+		</function>
+		<function name="glTexCoord4hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord1hNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLhalfNV" name="s"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord1hvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord2hNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord2hvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord3hNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+				<param type="GLhalfNV" name="r"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord3hvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord4hNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLhalfNV" name="s"/>
+				<param type="GLhalfNV" name="t"/>
+				<param type="GLhalfNV" name="r"/>
+				<param type="GLhalfNV" name="q"/>
+			</params>
+		</function>
+		<function name="glMultiTexCoord4hvNV" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glFogCoordhNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="fog"/>
+			</params>
+		</function>
+		<function name="glFogCoordhvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="fog"/>
+			</params>
+		</function>
+		<function name="glSecondaryColor3hNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="red"/>
+				<param type="GLhalfNV" name="green"/>
+				<param type="GLhalfNV" name="blue"/>
+			</params>
+		</function>
+		<function name="glSecondaryColor3hvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexWeighthNV" return="void">
+			<params>
+				<param type="GLhalfNV" name="weight"/>
+			</params>
+		</function>
+		<function name="glVertexWeighthvNV" return="void">
+			<params>
+				<param type="const GLhalfNV*" name="weight"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1hNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLhalfNV" name="x"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib1hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2hNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib2hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3hNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+				<param type="GLhalfNV" name="z"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib3hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4hNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLhalfNV" name="x"/>
+				<param type="GLhalfNV" name="y"/>
+				<param type="GLhalfNV" name="z"/>
+				<param type="GLhalfNV" name="w"/>
+			</params>
+		</function>
+		<function name="glVertexAttrib4hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs1hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs2hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs3hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+		<function name="glVertexAttribs4hvNV" return="void">
+			<params>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLhalfNV*" name="v"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

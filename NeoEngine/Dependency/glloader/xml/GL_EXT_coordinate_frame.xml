@@ -1,0 +1,157 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_EXT_coordinate_frame" reg_no="156">
+	<tokens>
+		<token name="GL_TANGENT_ARRAY_EXT" value="0x8439"/>
+		<token name="GL_BINORMAL_ARRAY_EXT" value="0x843A"/>
+		<token name="GL_CURRENT_TANGENT_EXT" value="0x843B"/>
+		<token name="GL_CURRENT_BINORMAL_EXT" value="0x843C"/>
+		<token name="GL_TANGENT_ARRAY_TYPE_EXT" value="0x843E"/>
+		<token name="GL_TANGENT_ARRAY_STRIDE_EXT" value="0x843F"/>
+		<token name="GL_BINORMAL_ARRAY_TYPE_EXT" value="0x8440"/>
+		<token name="GL_BINORMAL_ARRAY_STRIDE_EXT" value="0x8441"/>
+		<token name="GL_TANGENT_ARRAY_POINTER_EXT" value="0x8442"/>
+		<token name="GL_BINORMAL_ARRAY_POINTER_EXT" value="0x8443"/>
+		<token name="GL_MAP1_TANGENT_EXT" value="0x8444"/>
+		<token name="GL_MAP2_TANGENT_EXT" value="0x8445"/>
+		<token name="GL_MAP1_BINORMAL_EXT" value="0x8446"/>
+		<token name="GL_MAP2_BINORMAL_EXT" value="0x8447"/>
+	</tokens>
+
+	<functions>
+		<function name="glTangent3bEXT" return="void">
+			<params>
+				<param type="GLbyte" name="tx"/>
+				<param type="GLbyte" name="ty"/>
+				<param type="GLbyte" name="tz"/>
+			</params>
+		</function>
+		<function name="glTangent3bvEXT" return="void">
+			<params>
+				<param type="const GLbyte*" name="v"/>
+			</params>
+		</function>
+		<function name="glTangent3dEXT" return="void">
+			<params>
+				<param type="GLdouble" name="tx"/>
+				<param type="GLdouble" name="ty"/>
+				<param type="GLdouble" name="tz"/>
+			</params>
+		</function>
+		<function name="glTangent3dvEXT" return="void">
+			<params>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glTangent3fEXT" return="void">
+			<params>
+				<param type="GLfloat" name="tx"/>
+				<param type="GLfloat" name="ty"/>
+				<param type="GLfloat" name="tz"/>
+			</params>
+		</function>
+		<function name="glTangent3fvEXT" return="void">
+			<params>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glTangent3iEXT" return="void">
+			<params>
+				<param type="GLint" name="tx"/>
+				<param type="GLint" name="ty"/>
+				<param type="GLint" name="tz"/>
+			</params>
+		</function>
+		<function name="glTangent3ivEXT" return="void">
+			<params>
+				<param type="const GLint*" name="v"/>
+			</params>
+		</function>
+		<function name="glTangent3sEXT" return="void">
+			<params>
+				<param type="GLshort" name="tx"/>
+				<param type="GLshort" name="ty"/>
+				<param type="GLshort" name="tz"/>
+			</params>
+		</function>
+		<function name="glTangent3svEXT" return="void">
+			<params>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glBinormal3bEXT" return="void">
+			<params>
+				<param type="GLbyte" name="bx"/>
+				<param type="GLbyte" name="by"/>
+				<param type="GLbyte" name="bz"/>
+			</params>
+		</function>
+		<function name="glBinormal3bvEXT" return="void">
+			<params>
+				<param type="const GLbyte*" name="v"/>
+			</params>
+		</function>
+		<function name="glBinormal3dEXT" return="void">
+			<params>
+				<param type="GLdouble" name="bx"/>
+				<param type="GLdouble" name="by"/>
+				<param type="GLdouble" name="bz"/>
+			</params>
+		</function>
+		<function name="glBinormal3dvEXT" return="void">
+			<params>
+				<param type="const GLdouble*" name="v"/>
+			</params>
+		</function>
+		<function name="glBinormal3fEXT" return="void">
+			<params>
+				<param type="GLfloat" name="bx"/>
+				<param type="GLfloat" name="by"/>
+				<param type="GLfloat" name="bz"/>
+			</params>
+		</function>
+		<function name="glBinormal3fvEXT" return="void">
+			<params>
+				<param type="const GLfloat*" name="v"/>
+			</params>
+		</function>
+		<function name="glBinormal3iEXT" return="void">
+			<params>
+				<param type="GLint" name="bx"/>
+				<param type="GLint" name="by"/>
+				<param type="GLint" name="bz"/>
+			</params>
+		</function>
+		<function name="glBinormal3ivEXT" return="void">
+			<params>
+				<param type="const GLint*" name="v"/>
+			</params>
+		</function>
+		<function name="glBinormal3sEXT" return="void">
+			<params>
+				<param type="GLshort" name="bx"/>
+				<param type="GLshort" name="by"/>
+				<param type="GLshort" name="bz"/>
+			</params>
+		</function>
+		<function name="glBinormal3svEXT" return="void">
+			<params>
+				<param type="const GLshort*" name="v"/>
+			</params>
+		</function>
+		<function name="glTangentPointerEXT" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="const GLvoid*" name="pointer"/>
+			</params>
+		</function>
+		<function name="glBinormalPointerEXT" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="const GLvoid*" name="pointer"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

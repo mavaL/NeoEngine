@@ -1,0 +1,92 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_IBM_vertex_array_lists" reg_no="201">
+	<tokens>
+		<token name="GL_VERTEX_ARRAY_LIST_IBM" value="103070"/>
+		<token name="GL_NORMAL_ARRAY_LIST_IBM" value="103071"/>
+		<token name="GL_COLOR_ARRAY_LIST_IBM" value="103072"/>
+		<token name="GL_INDEX_ARRAY_LIST_IBM" value="103073"/>
+		<token name="GL_TEXTURE_COORD_ARRAY_LIST_IBM" value="103074"/>
+		<token name="GL_EDGE_FLAG_ARRAY_LIST_IBM" value="103075"/>
+		<token name="GL_FOG_COORDINATE_ARRAY_LIST_IBM" value="103076"/>
+		<token name="GL_SECONDARY_COLOR_ARRAY_LIST_IBM" value="103077"/>
+		<token name="GL_VERTEX_ARRAY_LIST_STRIDE_IBM" value="103080"/>
+		<token name="GL_NORMAL_ARRAY_LIST_STRIDE_IBM" value="103081"/>
+		<token name="GL_COLOR_ARRAY_LIST_STRIDE_IBM" value="103082"/>
+		<token name="GL_INDEX_ARRAY_LIST_STRIDE_IBM" value="103083"/>
+		<token name="GL_TEXTURE_COORD_ARRAY_LIST_STRIDE_IBM" value="103084"/>
+		<token name="GL_EDGE_FLAG_ARRAY_LIST_STRIDE_IBM" value="103085"/>
+		<token name="GL_FOG_COORDINATE_ARRAY_LIST_STRIDE_IBM" value="103086"/>
+		<token name="GL_SECONDARY_COLOR_ARRAY_LIST_STRIDE_IBM" value="103087"/>
+	</tokens>
+
+	<functions>
+		<function name="glColorPointerListIBM" return="void">
+			<params>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glSecondaryColorPointerListIBM" return="void">
+			<params>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glEdgeFlagPointerListIBM" return="void">
+			<params>
+				<param type="GLint" name="stride"/>
+				<param type="const GLboolean**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glFogCoordPointerListIBM" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glIndexPointerListIBM" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glNormalPointerListIBM" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glTexCoordPointerListIBM" return="void">
+			<params>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+		<function name="glVertexPointerListIBM" return="void">
+			<params>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLint" name="stride"/>
+				<param type="const GLvoid**" name="pointer"/>
+				<param type="GLint" name="ptrstride"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

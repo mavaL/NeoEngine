@@ -1,0 +1,117 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ARB_vertex_buffer_object" reg_no="28">
+	<typedefs>
+		<typedef type="ptrdiff_t" synonym="GLintptrARB"/>
+		<typedef type="ptrdiff_t" synonym="GLsizeiptrARB"/>
+	</typedefs>
+
+	<tokens>
+		<token name="GL_BUFFER_SIZE_ARB" value="0x8764"/>
+		<token name="GL_BUFFER_USAGE_ARB" value="0x8765"/>
+		<token name="GL_ARRAY_BUFFER_ARB" value="0x8892"/>
+		<token name="GL_ELEMENT_ARRAY_BUFFER_ARB" value="0x8893"/>
+		<token name="GL_ARRAY_BUFFER_BINDING_ARB" value="0x8894"/>
+		<token name="GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB" value="0x8895"/>
+		<token name="GL_VERTEX_ARRAY_BUFFER_BINDING_ARB" value="0x8896"/>
+		<token name="GL_NORMAL_ARRAY_BUFFER_BINDING_ARB" value="0x8897"/>
+		<token name="GL_COLOR_ARRAY_BUFFER_BINDING_ARB" value="0x8898"/>
+		<token name="GL_INDEX_ARRAY_BUFFER_BINDING_ARB" value="0x8899"/>
+		<token name="GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB" value="0x889A"/>
+		<token name="GL_EDGE_FLAG_ARRAY_BUFFER_BINDING_ARB" value="0x889B"/>
+		<token name="GL_SECONDARY_COLOR_ARRAY_BUFFER_BINDING_ARB" value="0x889C"/>
+		<token name="GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB" value="0x889D"/>
+		<token name="GL_WEIGHT_ARRAY_BUFFER_BINDING_ARB" value="0x889E"/>
+		<token name="GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING_ARB" value="0x889F"/>
+		<token name="GL_READ_ONLY_ARB" value="0x88B8"/>
+		<token name="GL_WRITE_ONLY_ARB" value="0x88B9"/>
+		<token name="GL_READ_WRITE_ARB" value="0x88BA"/>
+		<token name="GL_BUFFER_ACCESS_ARB" value="0x88BB"/>
+		<token name="GL_BUFFER_MAPPED_ARB" value="0x88BC"/>
+		<token name="GL_BUFFER_MAP_POINTER_ARB" value="0x88BD"/>
+		<token name="GL_STREAM_DRAW_ARB" value="0x88E0"/>
+		<token name="GL_STREAM_READ_ARB" value="0x88E1"/>
+		<token name="GL_STREAM_COPY_ARB" value="0x88E2"/>
+		<token name="GL_STATIC_DRAW_ARB" value="0x88E4"/>
+		<token name="GL_STATIC_READ_ARB" value="0x88E5"/>
+		<token name="GL_STATIC_COPY_ARB" value="0x88E6"/>
+		<token name="GL_DYNAMIC_DRAW_ARB" value="0x88E8"/>
+		<token name="GL_DYNAMIC_READ_ARB" value="0x88E9"/>
+		<token name="GL_DYNAMIC_COPY_ARB" value="0x88EA"/>
+	</tokens>
+
+	<functions>
+		<function name="glBindBufferARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+		<function name="glDeleteBuffersARB" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="const GLuint*" name="buffers"/>
+			</params>
+		</function>
+		<function name="glGenBuffersARB" return="void">
+			<params>
+				<param type="GLsizei" name="n"/>
+				<param type="GLuint*" name="buffers"/>
+			</params>
+		</function>
+		<function name="glIsBufferARB" return="GLboolean">
+			<params>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+		<function name="glBufferDataARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLsizeiptrARB" name="size"/>
+				<param type="const GLvoid*" name="data"/>
+				<param type="GLenum" name="usage"/>
+			</params>
+		</function>
+		<function name="glBufferSubDataARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLintptrARB" name="offset"/>
+				<param type="GLsizeiptrARB" name="size"/>
+				<param type="const GLvoid*" name="data"/>
+			</params>
+		</function>
+		<function name="glGetBufferSubDataARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLintptrARB" name="offset"/>
+				<param type="GLsizeiptrARB" name="size"/>
+				<param type="GLvoid*" name="data"/>
+			</params>
+		</function>
+		<function name="glMapBufferARB" return="GLvoid*">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="access"/>
+			</params>
+		</function>
+		<function name="glUnmapBufferARB" return="GLboolean">
+			<params>
+				<param type="GLenum" name="target"/>
+			</params>
+		</function>
+		<function name="glGetBufferParameterivARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetBufferPointervARB" return="void">
+			<params>
+				<param type="GLenum" name="target"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLvoid**" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

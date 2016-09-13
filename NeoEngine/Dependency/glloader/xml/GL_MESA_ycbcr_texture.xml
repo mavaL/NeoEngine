@@ -1,0 +1,9 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_MESA_ycbcr_texture" reg_no="301">
+	<tokens>
+		<token name="GL_UNSIGNED_SHORT_8_8_MESA" value="0x85BA"/>
+		<token name="GL_UNSIGNED_SHORT_8_8_REV_MESA" value="0x85BB"/>
+		<token name="GL_YCBCR_MESA" value="0x8757"/>
+	</tokens>
+</gl_extension>

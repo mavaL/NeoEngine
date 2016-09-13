@@ -1,0 +1,104 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_vertex_array_object" reg_no="247">
+	<tokens>
+		<token name="GL_STATIC_ATI" value="0x8760"/>
+		<token name="GL_DYNAMIC_ATI" value="0x8761"/>
+		<token name="GL_PRESERVE_ATI" value="0x8762"/>
+		<token name="GL_DISCARD_ATI" value="0x8763"/>
+		<token name="GL_OBJECT_BUFFER_SIZE_ATI" value="0x8764"/>
+		<token name="GL_OBJECT_BUFFER_USAGE_ATI" value="0x8765"/>
+		<token name="GL_ARRAY_OBJECT_BUFFER_ATI" value="0x8766"/>
+		<token name="GL_ARRAY_OBJECT_OFFSET_ATI" value="0x8767"/>
+	</tokens>
+
+	<functions>
+		<function name="glNewObjectBufferATI" return="GLuint">
+			<params>
+				<param type="GLsizei" name="size"/>
+				<param type="const GLvoid*" name="pointer"/>
+				<param type="GLenum" name="usage"/>
+			</params>
+		</function>
+		<function name="glIsObjectBufferATI" return="GLboolean">
+			<params>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+		<function name="glUpdateObjectBufferATI" return="void">
+			<params>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLuint" name="offset"/>
+				<param type="GLsizei" name="size"/>
+				<param type="const GLvoid*" name="pointer"/>
+				<param type="GLenum" name="preserve"/>
+			</params>
+		</function>
+		<function name="glGetObjectBufferfvATI" return="void">
+			<params>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetObjectBufferivATI" return="void">
+			<params>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glFreeObjectBufferATI" return="void">
+			<params>
+				<param type="GLuint" name="buffer"/>
+			</params>
+		</function>
+		<function name="glArrayObjectATI" return="void">
+			<params>
+				<param type="GLenum" name="array"/>
+				<param type="GLint" name="size"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLuint" name="offset"/>
+			</params>
+		</function>
+		<function name="glGetArrayObjectfvATI" return="void">
+			<params>
+				<param type="GLenum" name="array"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetArrayObjectivATI" return="void">
+			<params>
+				<param type="GLenum" name="array"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glVariantArrayObjectATI" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="type"/>
+				<param type="GLsizei" name="stride"/>
+				<param type="GLuint" name="buffer"/>
+				<param type="GLuint" name="offset"/>
+			</params>
+		</function>
+		<function name="glGetVariantArrayObjectfvATI" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetVariantArrayObjectivATI" return="void">
+			<params>
+				<param type="GLuint" name="id"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

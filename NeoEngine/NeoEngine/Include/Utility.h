@@ -18,6 +18,17 @@ inline std::string	GetResPath(const std::string& filename)
 	return std::move(filepath);
 }
 
+inline std::string	GetShaderPath(const std::string& filename)
+{
+#if USE_OPENGL
+	std::string filepath("../../../res/shaders/opengl/");
+#else
+	std::string filepath("../../../Res/shaders/d3d11/");
+#endif
+	filepath += filename;
+	return std::move(filepath);
+}
+
 // Return a random number in [0, 1]
 inline float RandomFloat(int range)
 {
@@ -82,22 +93,6 @@ std::string		UnicodeToEngine(const std::wstring& src);
 
 #ifndef SAFE_DELETE_ARRAY
 #define SAFE_DELETE_ARRAY(p) if(p) { delete []p; p=nullptr; }
-#endif
-
-#if defined(DEBUG) || defined(_DEBUG)
-#ifndef V
-#define V(x)           { hr = (x); _AST(SUCCEEDED(hr)); }
-#endif
-#ifndef V_RETURN
-#define V_RETURN(x)    { hr = (x); if( FAILED(hr) ) { _AST(0); return false; } }
-#endif
-#else
-#ifndef V
-#define V(x)           { hr = (x); }
-#endif
-#ifndef V_RETURN
-#define V_RETURN(x)    { hr = (x); }
-#endif
 #endif
 
 #endif // Common_h__

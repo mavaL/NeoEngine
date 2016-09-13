@@ -1,0 +1,52 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_list_priority" reg_no="80">
+	<tokens>
+		<token name="GL_LIST_PRIORITY_SGIX" value="0x8182"/>
+	</tokens>
+
+	<functions>
+		<function name="glGetListParameterfvSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetListParameterivSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glListParameterfSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat" name="param"/>
+			</params>
+		</function>
+		<function name="glListParameterfvSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glListParameteriSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint" name="param"/>
+			</params>
+		</function>
+		<function name="glListParameterivSGIX" return="void">
+			<params>
+				<param type="GLuint" name="list"/>
+				<param type="GLenum" name="pname"/>
+				<param type="const GLint*" name="params"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_SGIX_reference_plane" reg_no="60">
+	<tokens>
+		<token name="GL_REFERENCE_PLANE_SGIX" value="0x817D"/>
+		<token name="GL_REFERENCE_PLANE_EQUATION_SGIX" value="0x817E"/>
+	</tokens>
+
+	<functions>
+		<function name="glReferencePlaneSGIX" return="void">
+			<params>
+				<param type="const GLdouble*" name="equation"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

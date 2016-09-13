@@ -34,6 +34,8 @@ namespace Neo
 		float	fAtten;
 	};
 
+	typedef std::vector<SPointLight>	PointLightVector;
+
 	////////////////////////////////////////////////////
 	///	Light structure for tiled CS
 	struct SPointLightCS

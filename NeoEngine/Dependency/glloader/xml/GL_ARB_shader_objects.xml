@@ -1,0 +1,313 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ARB_shader_objects" reg_no="30">
+	<typedefs>
+		<typedef type="char" synonym="GLcharARB"/>
+		<typedef type="unsigned int" synonym="GLhandleARB"/>
+	</typedefs>
+
+	<tokens>
+		<token name="GL_PROGRAM_OBJECT_ARB" value="0x8B40"/>
+		<token name="GL_SHADER_OBJECT_ARB" value="0x8B48"/>
+		<token name="GL_OBJECT_TYPE_ARB" value="0x8B4E"/>
+		<token name="GL_OBJECT_SUBTYPE_ARB" value="0x8B4F"/>
+		<token name="GL_FLOAT_VEC2_ARB" value="0x8B50"/>
+		<token name="GL_FLOAT_VEC3_ARB" value="0x8B51"/>
+		<token name="GL_FLOAT_VEC4_ARB" value="0x8B52"/>
+		<token name="GL_INT_VEC2_ARB" value="0x8B53"/>
+		<token name="GL_INT_VEC3_ARB" value="0x8B54"/>
+		<token name="GL_INT_VEC4_ARB" value="0x8B55"/>
+		<token name="GL_BOOL_ARB" value="0x8B56"/>
+		<token name="GL_BOOL_VEC2_ARB" value="0x8B57"/>
+		<token name="GL_BOOL_VEC3_ARB" value="0x8B58"/>
+		<token name="GL_BOOL_VEC4_ARB" value="0x8B59"/>
+		<token name="GL_FLOAT_MAT2_ARB" value="0x8B5A"/>
+		<token name="GL_FLOAT_MAT3_ARB" value="0x8B5B"/>
+		<token name="GL_FLOAT_MAT4_ARB" value="0x8B5C"/>
+		<token name="GL_SAMPLER_1D_ARB" value="0x8B5D"/>
+		<token name="GL_SAMPLER_2D_ARB" value="0x8B5E"/>
+		<token name="GL_SAMPLER_3D_ARB" value="0x8B5F"/>
+		<token name="GL_SAMPLER_CUBE_ARB" value="0x8B60"/>
+		<token name="GL_SAMPLER_1D_SHADOW_ARB" value="0x8B61"/>
+		<token name="GL_SAMPLER_2D_SHADOW_ARB" value="0x8B62"/>
+		<token name="GL_SAMPLER_2D_RECT_ARB" value="0x8B63"/>
+		<token name="GL_SAMPLER_2D_RECT_SHADOW_ARB" value="0x8B64"/>
+		<token name="GL_OBJECT_DELETE_STATUS_ARB" value="0x8B80"/>
+		<token name="GL_OBJECT_COMPILE_STATUS_ARB" value="0x8B81"/>
+		<token name="GL_OBJECT_LINK_STATUS_ARB" value="0x8B82"/>
+		<token name="GL_OBJECT_VALIDATE_STATUS_ARB" value="0x8B83"/>
+		<token name="GL_OBJECT_INFO_LOG_LENGTH_ARB" value="0x8B84"/>
+		<token name="GL_OBJECT_ATTACHED_OBJECTS_ARB" value="0x8B85"/>
+		<token name="GL_OBJECT_ACTIVE_UNIFORMS_ARB" value="0x8B86"/>
+		<token name="GL_OBJECT_ACTIVE_UNIFORM_MAX_LENGTH_ARB" value="0x8B87"/>
+		<token name="GL_OBJECT_SHADER_SOURCE_LENGTH_ARB" value="0x8B88"/>
+	</tokens>
+
+	<functions>
+		<function name="glDeleteObjectARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="obj"/>
+			</params>
+		</function>
+		<function name="glGetHandleARB" return="GLhandleARB">
+			<params>
+				<param type="GLenum" name="pname"/>
+			</params>
+		</function>
+		<function name="glDetachObjectARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="containerObj"/>
+				<param type="GLhandleARB" name="attachedObj"/>
+			</params>
+		</function>
+		<function name="glCreateShaderObjectARB" return="GLhandleARB">
+			<params>
+				<param type="GLenum" name="shaderType"/>
+			</params>
+		</function>
+		<function name="glShaderSourceARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="shaderObj"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLcharARB**" name="string"/>
+				<param type="const GLint*" name="length"/>
+			</params>
+		</function>
+		<function name="glCompileShaderARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="shaderObj"/>
+			</params>
+		</function>
+		<function name="glCreateProgramObjectARB" return="GLhandleARB"/>
+		<function name="glAttachObjectARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="containerObj"/>
+				<param type="GLhandleARB" name="obj"/>
+			</params>
+		</function>
+		<function name="glLinkProgramARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+			</params>
+		</function>
+		<function name="glUseProgramObjectARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+			</params>
+		</function>
+		<function name="glValidateProgramARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+			</params>
+		</function>
+		<function name="glUniform1fARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLfloat" name="v0"/>
+			</params>
+		</function>
+		<function name="glUniform2fARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLfloat" name="v0"/>
+				<param type="GLfloat" name="v1"/>
+			</params>
+		</function>
+		<function name="glUniform3fARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLfloat" name="v0"/>
+				<param type="GLfloat" name="v1"/>
+				<param type="GLfloat" name="v2"/>
+			</params>
+		</function>
+		<function name="glUniform4fARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLfloat" name="v0"/>
+				<param type="GLfloat" name="v1"/>
+				<param type="GLfloat" name="v2"/>
+				<param type="GLfloat" name="v3"/>
+			</params>
+		</function>
+		<function name="glUniform1iARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLint" name="v0"/>
+			</params>
+		</function>
+		<function name="glUniform2iARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLint" name="v0"/>
+				<param type="GLint" name="v1"/>
+			</params>
+		</function>
+		<function name="glUniform3iARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLint" name="v0"/>
+				<param type="GLint" name="v1"/>
+				<param type="GLint" name="v2"/>
+			</params>
+		</function>
+		<function name="glUniform4iARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLint" name="v0"/>
+				<param type="GLint" name="v1"/>
+				<param type="GLint" name="v2"/>
+				<param type="GLint" name="v3"/>
+			</params>
+		</function>
+		<function name="glUniform1fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform2fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform3fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform4fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform1ivARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform2ivARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform3ivARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniform4ivARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="const GLint*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniformMatrix2fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="GLboolean" name="transpose"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniformMatrix3fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="GLboolean" name="transpose"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glUniformMatrix4fvARB" return="void">
+			<params>
+				<param type="GLint" name="location"/>
+				<param type="GLsizei" name="count"/>
+				<param type="GLboolean" name="transpose"/>
+				<param type="const GLfloat*" name="value"/>
+			</params>
+		</function>
+		<function name="glGetObjectParameterfvARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="obj"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetObjectParameterivARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="obj"/>
+				<param type="GLenum" name="pname"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetInfoLogARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="obj"/>
+				<param type="GLsizei" name="maxLength"/>
+				<param type="GLsizei*" name="length"/>
+				<param type="GLcharARB*" name="infoLog"/>
+			</params>
+		</function>
+		<function name="glGetAttachedObjectsARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="containerObj"/>
+				<param type="GLsizei" name="maxCount"/>
+				<param type="GLsizei*" name="count"/>
+				<param type="GLhandleARB*" name="obj"/>
+			</params>
+		</function>
+		<function name="glGetUniformLocationARB" return="GLint">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+				<param type="const GLcharARB*" name="name"/>
+			</params>
+		</function>
+		<function name="glGetActiveUniformARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+				<param type="GLuint" name="index"/>
+				<param type="GLsizei" name="maxLength"/>
+				<param type="GLsizei*" name="length"/>
+				<param type="GLint*" name="size"/>
+				<param type="GLenum*" name="type"/>
+				<param type="GLcharARB*" name="name"/>
+			</params>
+		</function>
+		<function name="glGetUniformfvARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+				<param type="GLint" name="location"/>
+				<param type="GLfloat*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetUniformivARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="programObj"/>
+				<param type="GLint" name="location"/>
+				<param type="GLint*" name="params"/>
+			</params>
+		</function>
+		<function name="glGetShaderSourceARB" return="void">
+			<params>
+				<param type="GLhandleARB" name="obj"/>
+				<param type="GLsizei" name="maxLength"/>
+				<param type="GLsizei*" name="length"/>
+				<param type="GLcharARB*" name="source"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,8 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_HP_occlusion_test" reg_no="137">
+	<tokens>
+		<token name="GL_OCCLUSION_TEST_HP" value="0x8165"/>
+		<token name="GL_OCCLUSION_TEST_RESULT_HP" value="0x8166"/>
+	</tokens>
+</gl_extension>

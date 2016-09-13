@@ -4,8 +4,8 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "Camera.h"
-#include "D3D11RenderTarget.h"
-#include "D3D11RenderSystem.h"
+#include "RenderTarget.h"
+#include "RenderSystem.h"
 #include "Utility.h"
 #include "Entity.h"
 #include "Terrain.h"
@@ -13,6 +13,8 @@
 #include "ThirdPersonCharacter.h"
 #include "Material.h"
 #include "MaterialManager.h"
+#include "Renderer.h"
+#include "Texture.h"
 
 namespace Neo
 {
@@ -43,12 +45,10 @@ namespace Neo
 
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
 		{
-			m_shadowMapCascades[iCascade] = new D3D11RenderTarget();
-			m_shadowMapCascades[iCascade]->Init(nSize, nSize, ePF_R32F, true, false, false, true);
+			m_shadowMapCascades[iCascade] = g_env.pRenderer->CreateRenderTarget(nSize, nSize, 1, ePF_R32F, eRenderTargetUsage_OwnDepthTex | eRenderTargetUsage_GenMips);
 		}
 
-		m_pRT_ESM_Blur = new D3D11RenderTarget();
-		m_pRT_ESM_Blur->Init(nSize, nSize, ePF_R32F, false, false);
+		m_pRT_ESM_Blur = g_env.pRenderer->CreateRenderTarget(nSize, nSize, 1, ePF_R32F, 0);
 	}
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Update(Camera& cam)
@@ -61,7 +61,7 @@ namespace Neo
 		float fSplitPoints[CSM_CASCADE_NUM + 1] = { 0 };
 		_CalculateSplitPositions(tmpCam, fSplitPoints);
 
-		cBufferGlobal& cb = g_env.pRenderSystem->GetGlobalCB();
+		cBufferGlobal& cb = g_env.pRenderer->GetGlobalCB();
 		cb.shadowSplitDists[0] = fSplitPoints[0];
 		cb.shadowSplitDists[1] = fSplitPoints[1];
 		cb.shadowSplitDists[2] = fSplitPoints[2];
@@ -117,7 +117,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void ShadowMapPSSM::Render()
 	{
-		cBufferGlobal& cb = g_env.pRenderSystem->GetGlobalCB();
+		cBufferGlobal& cb = g_env.pRenderer->GetGlobalCB();
 
 		// Render for each cascade
 		for (int iCascade = 0; iCascade < CSM_CASCADE_NUM; ++iCascade)
@@ -126,7 +126,7 @@ namespace Neo
 			cb.matProj = m_matLightProj[iCascade].Transpose();
 			cb.matViewProj = cb.matProj * cb.matView;
 
-			g_env.pRenderSystem->UpdateGlobalCBuffer();
+			g_env.pRenderer->UpdateGlobalCBuffer();
 
 			m_shadowMapCascades[iCascade]->BeforeRender(true, true, SColor(FLT_MAX, FLT_MAX, FLT_MAX, 1));
 			g_env.pSceneMgr->GetCurScene()->RenderEntityList(m_shadowCasters[iCascade]);
@@ -136,11 +136,11 @@ namespace Neo
 			_VSMBlurPass(iCascade);
 #endif
 
-			m_shadowMapCascades[iCascade]->GenerateMips();
+			m_shadowMapCascades[iCascade]->GetRenderTexture()->GenMipMaps();
 		}
 	}
 	//------------------------------------------------------------------------------------
-	D3D11Texture* ShadowMapPSSM::GetShadowTexture(int i)
+	Texture* ShadowMapPSSM::GetShadowTexture(int i)
 	{
 		return m_shadowMapCascades[i]->GetRenderTexture();
 	}
@@ -460,15 +460,15 @@ namespace Neo
 			pMtlBlurX->AddRef();
 			pMtlBlurY->AddRef();
 
-			D3D11_SAMPLER_DESC samDesc = pMtlBlurX->GetSamplerStateDesc(0);
-			samDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			samDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			samDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			SSamplerDesc samDesc = pMtlBlurX->GetSamplerStateDesc(0);
+			samDesc.Filter = SF_MIN_MAG_MIP_POINT;
+			samDesc.AddressU = eTextureAddressMode_CLAMP;
+			samDesc.AddressV = eTextureAddressMode_CLAMP;
 			pMtlBlurX->SetSamplerStateDesc(0, samDesc);
 			pMtlBlurY->SetSamplerStateDesc(0, samDesc);
 
-			pMtlBlurX->InitShader(GetResPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurX");
-			pMtlBlurY->InitShader(GetResPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurY");
+			pMtlBlurX->InitShader(GetShaderPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurX");
+			pMtlBlurY->InitShader(GetShaderPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurY");
 
 			bInit = true;
 		}

@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_I3D_swap_frame_lock" reg_no="254">
+	<functions>
+		<function name="wglEnableFrameLockI3D" return="BOOL"/>
+		<function name="wglDisableFrameLockI3D" return="BOOL"/>
+		<function name="wglIsEnabledFrameLockI3D" return="BOOL">
+			<params>
+				<param type="BOOL*" name="pFlag"/>
+			</params>
+		</function>
+		<function name="wglQueryFrameLockMasterI3D" return="BOOL">
+			<params>
+				<param type="BOOL*" name="pFlag"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

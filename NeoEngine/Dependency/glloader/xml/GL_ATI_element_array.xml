@@ -1,0 +1,32 @@
+<?xml version='1.0'?>
+
+<gl_extension name="GL_ATI_element_array" reg_no="256">
+	<tokens>
+		<token name="GL_ELEMENT_ARRAY_ATI" value="0x8768"/>
+		<token name="GL_ELEMENT_ARRAY_TYPE_ATI" value="0x8769"/>
+		<token name="GL_ELEMENT_ARRAY_POINTER_ATI" value="0x876A"/>
+	</tokens>
+
+	<functions>
+		<function name="glElementPointerATI" return="void">
+			<params>
+				<param type="GLenum" name="type"/>
+				<param type="const GLvoid*" name="pointer"/>
+			</params>
+		</function>
+		<function name="glDrawElementArrayATI" return="void">
+			<params>
+				<param type="GLenum" name="mode"/>
+				<param type="GLsizei" name="count"/>
+			</params>
+		</function>
+		<function name="glDrawRangeElementArrayATI" return="void">
+			<params>
+				<param type="GLenum" name="mode"/>
+				<param type="GLuint" name="start"/>
+				<param type="GLuint" name="end"/>
+				<param type="GLsizei" name="count"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>

@@ -1,0 +1,40 @@
+<?xml version='1.0'?>
+
+<gl_extension name="WGL_I3D_image_buffer" reg_no="253">
+	<tokens>
+		<token name="WGL_IMAGE_BUFFER_MIN_ACCESS_I3D" value="0x00000001"/>
+		<token name="WGL_IMAGE_BUFFER_LOCK_I3D" value="0x00000002"/>
+	</tokens>
+
+	<functions>
+		<function name="wglCreateImageBufferI3D" return="LPVOID">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="DWORD" name="dwSize"/>
+				<param type="UINT" name="uFlags"/>
+			</params>
+		</function>
+		<function name="wglDestroyImageBufferI3D" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="LPVOID" name="pAddress"/>
+			</params>
+		</function>
+		<function name="wglAssociateImageBufferEventsI3D" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="const HANDLE*" name="pEvent"/>
+				<param type="const LPVOID*" name="pAddress"/>
+				<param type="const DWORD*" name="pSize"/>
+				<param type="UINT" name="count"/>
+			</params>
+		</function>
+		<function name="wglReleaseImageBufferEventsI3D" return="BOOL">
+			<params>
+				<param type="HDC" name="hDC"/>
+				<param type="const LPVOID*" name="pAddress"/>
+				<param type="UINT" name="count"/>
+			</params>
+		</function>
+	</functions>
+</gl_extension>
