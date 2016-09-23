@@ -22,9 +22,6 @@ namespace Neo
 		~D3D11RenderTarget();
 
 	public:
-		virtual void		RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
-
-	public:
 		// 2D rendering
 		void			Init(uint32 width, uint32 height, ePixelFormat format, uint32 usage);
 		// Volume rendering

@@ -103,6 +103,7 @@ namespace Neo
 		m_vertData.InitVertex(type, pVerts, nVert);
 
 		m_pVertexBuf = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertex) * nVert, sizeof(SVertex), pVerts, bStatic ? 0 : eBufferUsage_Dynamic);
+		m_pVertexBuf->m_vertType = type;
 
 		return true;
 	}

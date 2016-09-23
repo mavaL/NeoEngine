@@ -29,4 +29,5 @@ PSSM needs to improve.. references:
 Added fur rendering using fins and shells method.
 
 <2016.9.7>
-Working on adding desktop OpenGL renderer to NeoEngine.
+Working on adding desktop OpenGL renderer to NeoEngine. 
+ --Reference: "OpenGL Programming Guide, Eighth Edition"

@@ -143,7 +143,6 @@ namespace Neo
 		ConstantBuffer*				m_pGlobalCBuf;
 		ConstantBuffer*				m_pMaterialCB;
 		ConstantBuffer*				m_pSkinCB;
-		bool						m_bClipPlaneEnabled;
 
 		std::vector<SStateBlend>	m_blendStates;
 		std::vector<SStateDepth>	m_depthStates;
@@ -153,6 +152,7 @@ namespace Neo
 		uint32						m_iCurRasterState;
 
 		Font*						m_pFont;
+		bool						m_bClipPlaneEnabled;
 	};
 }
 

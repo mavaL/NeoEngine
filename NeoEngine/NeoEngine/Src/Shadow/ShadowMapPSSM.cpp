@@ -100,6 +100,7 @@ namespace Neo
 
 			// calculate crop matrix
 			MAT44 matCrop = _CalculateCropMatrix(tmpCam, g_env.pSceneMgr->GetCurScene()->GetEntityList(), castersInSplit, frusumAABB, lightView * lightProj);
+
 			// combine
 			m_matLightProj[i] = lightView * lightProj * matCrop;
 
@@ -467,8 +468,8 @@ namespace Neo
 			pMtlBlurX->SetSamplerStateDesc(0, samDesc);
 			pMtlBlurY->SetSamplerStateDesc(0, samDesc);
 
-			pMtlBlurX->InitShader(GetShaderPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurX");
-			pMtlBlurY->InitShader(GetShaderPath("Blur.hlsl"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurY");
+			pMtlBlurX->InitShader(("boxblur_x"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurX");
+			pMtlBlurY->InitShader(("boxblur_y"), eShader_PostProcess, 0, nullptr, "VS", "PS_BoxBlurY");
 
 			bInit = true;
 		}

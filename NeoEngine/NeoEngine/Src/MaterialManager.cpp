@@ -10,8 +10,8 @@ namespace Neo
 	MaterialManager::MaterialManager()
 	{
 		Material* pMaterial = NewMaterial("Mtl_DefaultWhite");
-		pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.png")));
-		pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+		pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds")));
+		pMaterial->InitShader(("Opaque"), eShader_Opaque);
 	}
 	//------------------------------------------------------------------------------------
 	MaterialManager::~MaterialManager()

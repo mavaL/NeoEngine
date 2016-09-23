@@ -160,6 +160,15 @@ namespace Neo
 		m_matProj.m32 = -m_farClip*m_nearClip/(m_farClip-m_nearClip);
 		m_matProj.m33 = 0;
 
+#if USE_OPENGL
+		// Adjust ndc z range for opengl. [9/23/2016 maval]
+		MAT44 matAdjust;
+		matAdjust.SetScale(VEC3(1, 1, 2));
+		matAdjust.SetTranslation(VEC3(0, 0, -1));
+
+		m_matProj = m_matProj * matAdjust;
+#endif
+
 		m_bFrustumCornersDirty = true;
 		m_bFrustumPlanesDirty = true;
 

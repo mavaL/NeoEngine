@@ -48,6 +48,7 @@ namespace Neo
 
 #if USE_OPENGL
 		m_pRenderSys = new GLRenderSystem;
+		_AST(((GLRenderSystem*)m_pRenderSys)->Init(wndWidth, wndHeight, hwnd));
 #else
 		m_pRenderSys = new D3D11RenderSystem;
 		_AST(((D3D11RenderSystem*)m_pRenderSys)->Init(wndWidth, wndHeight, hwnd));
@@ -100,10 +101,10 @@ namespace Neo
 		SetViewport(&m_viewport);
 
 		// Create constant buffers
-		m_pGlobalCBuf = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferGlobal));
-		m_pMaterialCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferMaterial));
-		m_pSkinCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferSkin));
-		m_pTerrainCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferTerrain));
+		m_pGlobalCBuf = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferGlobal), 1);
+		m_pMaterialCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferMaterial), 2);
+		m_pSkinCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferSkin), 3);
+		m_pTerrainCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferTerrain), 4);
 
 		m_pFont = new Font;
 

@@ -51,7 +51,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/glloader/include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;_DEBUG;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/glloader/include;../Dependency/ois/includes;./Include;./Include/Shadow;./Include/RenderAPI</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -87,6 +87,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="..\Res\Shaders\OpenGL\common.h" />
     <ClInclude Include="Include\AABB.h" />
     <ClInclude Include="Include\AmbientCube.h" />
     <ClInclude Include="Include\Camera.h" />
@@ -116,9 +117,11 @@
     <ClInclude Include="Include\RenderAPI\D3D11\D3D11RenderTarget.h" />
     <ClInclude Include="Include\RenderAPI\D3D11\D3D11Shader.h" />
     <ClInclude Include="Include\RenderAPI\D3D11\D3D11Texture.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLAPI.h" />
     <ClInclude Include="Include\RenderAPI\OpenGL\GLBuffer.h" />
     <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderSystem.h" />
     <ClInclude Include="Include\RenderAPI\OpenGL\GLRenderTarget.h" />
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLShader.h" />
     <ClInclude Include="Include\RenderAPI\OpenGL\GLTexture.h" />
     <ClInclude Include="Include\RenderAPI\RenderDefine.h" />
     <ClInclude Include="Include\RenderAPI\RenderState.h" />
@@ -151,6 +154,19 @@
     <ClInclude Include="Include\Water.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Res\Shaders\OpenGL\boxblur_x.ps" />
+    <None Include="..\Res\Shaders\OpenGL\boxblur_y.ps" />
+    <None Include="..\Res\Shaders\OpenGL\compose.ps" />
+    <None Include="..\Res\Shaders\OpenGL\font.ps" />
+    <None Include="..\Res\Shaders\OpenGL\font.vs" />
+    <None Include="..\Res\Shaders\OpenGL\hdr.ps" />
+    <None Include="..\Res\Shaders\OpenGL\linearizedepth.ps" />
+    <None Include="..\Res\Shaders\OpenGL\opaque.vs" />
+    <None Include="..\Res\Shaders\OpenGL\opaque_forward.ps" />
+    <None Include="..\Res\Shaders\OpenGL\opaque_gbuffer.ps" />
+    <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.ps" />
+    <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.vs" />
+    <None Include="..\Res\Shaders\OpenGL\postprocess.vs" />
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -196,6 +212,7 @@
     <ClCompile Include="Src\RenderAPI\OpenGL\GLBuffer.cpp" />
     <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderSystem.cpp" />
     <ClCompile Include="Src\RenderAPI\OpenGL\GLRenderTarget.cpp" />
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLShader.cpp" />
     <ClCompile Include="Src\RenderAPI\OpenGL\GLTexture.cpp" />
     <ClCompile Include="Src\RenderAPI\RenderTarget.cpp" />
     <ClCompile Include="Src\RenderAPI\Texture.cpp" />
@@ -222,6 +239,15 @@
     <ClCompile Include="Src\Water.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="..\Res\Shaders\OpenGL\boxblur_x.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\boxblur_y.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\compose.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\font.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\hdr.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\linearizedepth.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\opaque.xml" />
+  </ItemGroup>
+  <ItemGroup>
     <FxCompile Include="..\Res\Shaders\D3D11\Anisotropic.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -238,15 +264,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Compose.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\DebugRT.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\DebugSkeleton.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="..\Res\Shaders\D3D11\DeferredShading.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
@@ -259,6 +285,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\HDR.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\LinearizeDepth.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>

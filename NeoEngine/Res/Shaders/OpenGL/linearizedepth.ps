@@ -1,0 +1,26 @@
+
+
+uniform sampler2D		tex0;
+
+in vec2 oUv;
+
+layout(location = 0) out vec4 Frag0;
+
+//--------------------------------------------------------------------------------------
+/// LinearizeDepthPS
+//--------------------------------------------------------------------------------------
+float DeviceDepthToLinear(float fDepth)
+{
+    float x = farZ / (farZ - nearZ);
+	float y = nearZ / (nearZ - farZ);
+
+	return y / (fDepth - x);
+}
+
+void main()
+{
+	float fDevDepth = texture(tex0, oUv).x;
+	float fz = DeviceDepthToLinear(fDevDepth);
+
+	Frag0 = vec4(fz, fz, fz, fz);
+}

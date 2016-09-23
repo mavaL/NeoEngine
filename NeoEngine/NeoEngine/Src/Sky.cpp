@@ -41,7 +41,7 @@ namespace Neo
 	, m_pMtl_CopyInscatter1(nullptr)
 	, m_pMtl_Sky(nullptr)
 	{
-		m_pCB_Inscatter1 = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferInscatter1));
+		m_pCB_Inscatter1 = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferInscatter1), 10);
 
 		_InitMaterials();
 		_Precompute();

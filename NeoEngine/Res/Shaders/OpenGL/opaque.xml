@@ -1,0 +1,3 @@
+<shadowmap_gen vs="opaque_shadowmapgen.vs" ps="opaque_shadowmapgen.ps"/>
+<gbuffer vs="opaque.vs" ps="opaque_gbuffer.ps"/>
+<forward vs="opaque.vs" ps="opaque_forward.ps"/>

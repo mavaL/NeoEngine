@@ -26,15 +26,13 @@ namespace Neo
 		static Mesh*		m_pQuadMesh;
 
 	public:
-		virtual void		RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f) = 0;
-
-	public:
 		void				BeforeRender(bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
 		void				AfterRender();
 		void				SetActiveSlice(uint32 i);
 		void*				GetRTV();
 		Texture*			GetRenderTexture()	{ return m_pRenderTexture; }
 		Texture*			GetDepthTexture()	{ return m_pDepthStencil; }
+		void				RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor = SColor::BLACK, float fz = 1.0f);
 
 	protected:
 		RenderSystem*		m_pRenderSystem;

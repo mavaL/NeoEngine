@@ -49,6 +49,12 @@
 #include <tinyxml/tinystr.h>
 #include <tinyxml/tinyxml.h>
 
+// opengl
+#include <glloader/glloader.h>
+
+#include "Prerequiestity.h"
+
+
 #ifdef _DEBUG
 	#define _AST(a)		if(!(a)) { __debugbreak(); }
 #else

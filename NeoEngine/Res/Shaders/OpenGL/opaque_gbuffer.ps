@@ -1,0 +1,47 @@
+
+uniform sampler2D	tex0;			//tex0;
+uniform sampler2D	tex1;			//tex1;
+uniform sampler2D	tex2;			//tex2;
+
+in vec2 oUv;
+in vec3 oWPos;
+
+#ifdef NORMAL_MAP
+	in vec4 oTangent;
+	in vec3 oBinormal;
+#else
+	in vec3 oNormal;
+#endif
+
+layout(location = 0) out vec4 Frag0;
+layout(location = 1) out vec4 Frag1;
+layout(location = 2) out vec4 Frag2;
+
+//--------------------------------------------------------------------------------------
+// PS for g-buffer generation
+//--------------------------------------------------------------------------------------
+void main()
+{
+#ifdef NORMAL_MAP
+	mat3 matTSToWS = mat3(oTangent.xyz, oBinormal, cross(oTangent.xyz, oBinormal) * oTangent.w);
+	vec3 vNormalTS = GetNormalFromTexture(tex1, oUv);
+	vec3 vWorldNormal = normalize(vNormalTS * matTSToWS);
+
+	Frag0.xyz = vWorldNormal * 0.5f + 0.5f;
+#else
+	Frag0.xyz = normalize(oNormal) * 0.5f + 0.5f;
+#endif
+	Frag0.w = 1.0f;
+
+#ifdef SPEC_MAP
+	Frag2.xyz = texture(tex2, oUv).xyz;
+	Frag2.w = specularGloss.w;
+#else
+	Frag2 = specularGloss;
+#endif
+
+	// Avoid precision problem, decode in ComposePass.
+	vec4 albedo = texture(tex0, oUv);
+	albedo.xyz = sqrt(albedo.xyz);
+	Frag1 = albedo;
+}

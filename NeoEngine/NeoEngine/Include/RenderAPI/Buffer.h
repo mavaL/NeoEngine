@@ -11,6 +11,7 @@
 
 #include "Prerequiestity.h"
 #include "IRefCount.h"
+#include "RenderDefine.h"
 
 namespace Neo
 {
@@ -68,7 +69,7 @@ namespace Neo
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(Buffer* pBuf) :m_pBuf(pBuf) {}
+		VertexBuffer(Buffer* pBuf) :m_pBuf(pBuf), m_vertType(eVertexType_General) {}
 		virtual ~VertexBuffer() { m_pBuf->Release(); }
 
 	public:
@@ -82,13 +83,14 @@ namespace Neo
 			return m_pBuf->GetInternel();
 		}
 
-		uint32	GetStride() const
+		uint32			GetStride() const
 		{
 			return m_pBuf->GetStride();
 		}
 
-	protected:
-		Buffer*		m_pBuf;
+		Buffer*			m_pBuf;
+		eVertexType		m_vertType;
+
 	};
 }
 

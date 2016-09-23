@@ -50,6 +50,7 @@ namespace Neo
 	, m_pMtlFinalScene(nullptr)
 	, m_pHero(nullptr)
 	, m_nShadowMapSize(0)
+	, m_pDebugRTMaterial(nullptr)
 	{
 		
 	}
@@ -94,11 +95,11 @@ namespace Neo
 
 			m_pDebugRTMesh->AddSubMesh(pSubMesh);
 
-			m_pDebugRTMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugRT");
-			m_pDebugRTMaterial->AddRef();
-			m_pDebugRTMaterial->InitShader(GetShaderPath("DebugRT.hlsl"), eShader_UI);
+			//m_pDebugRTMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_DebugRT");
+			//m_pDebugRTMaterial->AddRef();
+			//m_pDebugRTMaterial->InitShader(("DebugRT"), eShader_UI);
 
-			m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
+			//m_pDebugRTMesh->SetMaterial(m_pDebugRTMaterial);
 		}
 
 		{
@@ -111,7 +112,7 @@ namespace Neo
 			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 			m_pMtlLinearizeDepth->SetSamplerStateDesc(0, samPoint);
 
-			m_pMtlLinearizeDepth->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, 0, "VS", "LinearizeDepthPS");
+			m_pMtlLinearizeDepth->InitShader(("LinearizeDepth"), eShader_PostProcess, 0, 0, "VS", "LinearizeDepthPS");
 		}
 
 		{
@@ -121,6 +122,7 @@ namespace Neo
 			SSamplerDesc samPoint;
 			samPoint.Filter = SF_MIN_MAG_MIP_POINT;
 			m_pMtlCompose->SetSamplerStateDesc(0, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(3, samPoint);
 
 			samPoint.Filter = SF_MIN_MAG_MIP_LINEAR;
 			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
@@ -133,10 +135,13 @@ namespace Neo
 			samPoint.AddressU = eTextureAddressMode_CLAMP;
 			samPoint.AddressV = eTextureAddressMode_CLAMP;
 			m_pMtlCompose->SetSamplerStateDesc(2, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(4, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(5, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(6, samPoint);
 
 			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
 
-			m_pMtlCompose->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, &macro, "VS", "ComposePS");
+			m_pMtlCompose->InitShader(("Compose"), eShader_PostProcess, 0, m_pAmbientCube->IsEnabled() ? &macro : nullptr, "VS", "ComposePS");
 		}
 
 		{
@@ -150,7 +155,7 @@ namespace Neo
 			m_pMtlFinalScene->SetSamplerStateDesc(0, samPoint);
 
 			D3D_SHADER_MACRO mac = { "TBDR", "" };
-			m_pMtlFinalScene->InitShader(GetShaderPath("HDR.hlsl"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
+			m_pMtlFinalScene->InitShader(("HDR"), eShader_PostProcess, 0, g_bTiled ? &mac : nullptr);
 		}
 
 		return true;
@@ -231,7 +236,7 @@ namespace Neo
 			pMaterial->GetSubMaterial(i).specular = vSpecGloss[i].vec3;
 		}
 
-		pMaterial->InitShader(GetShaderPath("SkinModel.hlsl"), eShader_Opaque);
+		pMaterial->InitShader(("SkinModel"), eShader_Opaque);
 		pSkinModel->SetMaterial(pMaterial);
 		pSkinModel->ShowBones(false);
 
@@ -496,7 +501,7 @@ namespace Neo
 		static ConstantBuffer* pCB_Fur = nullptr;
 		if (!pCB_Fur)
 		{
-			pCB_Fur = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferFur));
+			pCB_Fur = m_pRenderSystem->CreateConstantBuffer(sizeof(cBufferFur), 10);
 		}
 
 		cBufferFur cbFur;
@@ -671,7 +676,7 @@ namespace Neo
 	//----------------------------------------------------------------------------------------
 	void SceneManager::ToggleScene()
 	{
-		EnableDebugRT(eDebugRT_None);
+		//EnableDebugRT(eDebugRT_None);
 
 		static int curScene = -1;
 		++curScene;
@@ -983,7 +988,7 @@ namespace Neo
 	{
 		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
 
-		m_pMtlCompose->InitShader(GetShaderPath("DeferredShading.hlsl"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
+		m_pMtlCompose->InitShader(("DeferredShading"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetShadowMapSize(uint32 nSize)

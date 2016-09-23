@@ -11,11 +11,11 @@
 
 
 
-#define		USE_OPENGL				0			// Desktop OpenGL
-#define		USE_SIMD				0			//  «∑Ò π”√SIMD
+#define		USE_OPENGL				1			// Desktop OpenGL
+#define		USE_SIMD				0			// SIMD
 #define		USE_LISPPSM				0			// Light space perspective shadow mapping
 #define		USE_PSSM				1			// Parallel-Split Shadow Maps
-#define		USE_ESM					1			// Exponential Shadow Maps
+#define		USE_ESM					0			// Exponential Shadow Maps
 
 
 /// Forward declaration
@@ -88,6 +88,8 @@ namespace Neo
 	class	SamplerState;
 	class	VertexBuffer;
 	class	IndexBuffer;
+	class	GLRenderTarget;
+	class	GLVertexBuffer;
 }
 
 

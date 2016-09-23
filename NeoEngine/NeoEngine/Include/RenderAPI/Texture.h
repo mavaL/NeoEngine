@@ -18,6 +18,7 @@ namespace Neo
 	class Texture : public IRefCount
 	{
 	public:
+		Texture() {}
 		Texture(eTextureType type, uint32 nWidth, uint32 nHeight, uint32 nDepth, ePixelFormat format, uint32 nUsage, bool bMips);
 		virtual ~Texture() {}
 

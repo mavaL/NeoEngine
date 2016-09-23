@@ -237,12 +237,6 @@
     <ClInclude Include="Include\Renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\Res\Shaders\D3D11\Common.h">
-      <Filter>Shader\d3d11</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Res\Shaders\D3D11\DeferredShadingCommon.h">
-      <Filter>Shader\d3d11</Filter>
-    </ClInclude>
     <ClInclude Include="Include\RenderAPI\RenderDefine.h">
       <Filter>头文件\RenderAPI</Filter>
     </ClInclude>
@@ -255,10 +249,64 @@
     <ClInclude Include="Include\RenderAPI\D3D11\D3D11Shader.h">
       <Filter>头文件\RenderAPI\D3D11</Filter>
     </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLAPI.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\RenderAPI\OpenGL\GLShader.h">
+      <Filter>头文件\RenderAPI\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Res\Shaders\OpenGL\common.h">
+      <Filter>Shader\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Res\Shaders\D3D11\Common.h">
+      <Filter>Shader\d3d11</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Res\Shaders\D3D11\DeferredShadingCommon.h">
+      <Filter>Shader\d3d11</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
       <Filter>头文件</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\opaque.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\opaque_forward.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\opaque_gbuffer.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\font.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\font.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\linearizedepth.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\postprocess.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\compose.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\hdr.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\boxblur_x.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\boxblur_y.ps">
+      <Filter>Shader\opengl</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -415,6 +463,32 @@
     <ClCompile Include="Src\RenderAPI\Texture.cpp">
       <Filter>源文件\RenderAPI</Filter>
     </ClCompile>
+    <ClCompile Include="Src\RenderAPI\OpenGL\GLShader.cpp">
+      <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\Res\Shaders\OpenGL\opaque.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\font.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\linearizedepth.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\compose.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\hdr.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\boxblur_x.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\boxblur_y.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Res\Shaders\D3D11\Anisotropic.hlsl">
@@ -429,19 +503,25 @@
     <FxCompile Include="..\Res\Shaders\D3D11\ClipPlaneWrapper.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Compose.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\DebugRT.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\DebugSkeleton.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Shaders\D3D11\DeferredShading.hlsl">
-      <Filter>Shader\d3d11</Filter>
-    </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\Font.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Fur.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\HDR.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\LinearizeDepth.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\Opaque.hlsl">
@@ -478,9 +558,6 @@
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\WhiteNoLight.hlsl">
-      <Filter>Shader\d3d11</Filter>
-    </FxCompile>
-    <FxCompile Include="..\Res\Shaders\D3D11\Fur.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
   </ItemGroup>

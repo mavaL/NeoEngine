@@ -22,10 +22,11 @@ inline std::string	GetShaderPath(const std::string& filename)
 {
 #if USE_OPENGL
 	std::string filepath("../../../res/shaders/opengl/");
+	filepath += filename;
 #else
 	std::string filepath("../../../Res/shaders/d3d11/");
+	filepath += filename + ".hlsl";
 #endif
-	filepath += filename;
 	return std::move(filepath);
 }
 

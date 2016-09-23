@@ -88,44 +88,38 @@ namespace Neo
 		SAFE_RELEASE(m_pVS_2);
 		SAFE_RELEASE(m_pPS_2);
 
-		m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
-
 		// Shadow map gen tech
-		if (strShaderFile.find("Opaque.hlsl") != STRING::npos ||
-			strShaderFile.find("SkinModel.hlsl") != STRING::npos ||
+		if (strShaderFile.find("Opaque") != STRING::npos ||
+			strShaderFile.find("SkinModel") != STRING::npos ||
 			shaderType == eShader_Forward ||
 			shaderType == eShader_Fur)
 		{
-			m_pVS_Shadow = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS_ShadowMapGen", m_vertType, vecMacro);
-			m_pPS_Shadow = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_ShadowMapGen", m_vertType, vecMacro);
-		}
-
-		// Create clip plane shader
-		if (m_shaderFlag & eShaderFlag_EnableClipPlane)
-		{
-			m_pVS_WithClipPlane = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS_ClipPlane", m_vertType, vecMacro);
+			m_pVS_Shadow = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "VS_ShadowMapGen", m_vertType, vecMacro);
+			m_pPS_Shadow = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "PS_ShadowMapGen", m_vertType, vecMacro);
 		}
 
 		if (m_shaderType == eShader_Opaque)
 		{
-			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
+			m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
+			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
 		}
 		else if (m_shaderType == eShader_Fur)
 		{
-			m_pVS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, "VS", m_vertType, vecMacro);
-			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
-			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
+			m_pVS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, "VS", m_vertType, vecMacro);
+			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
+			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_Forward, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 		else
 		{
 			// Not go into g-buffer
-			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
+			m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
+			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_Forward, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 
 		if (szVS2 && szPS2)
 		{
-			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
-			m_pPS_2 = m_pRenderSystem->CreateShader(eShaderType_PS, strShaderFile, shaderFalg, szPS2, m_vertType, vecMacro);
+			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_None, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
+			m_pPS_2 = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_None, strShaderFile, shaderFalg, szPS2, m_vertType, vecMacro);
 		}
 
 		return true;
@@ -137,8 +131,8 @@ namespace Neo
 
 		const std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		m_pHullShader = m_pRenderSystem->CreateShader(eShaderType_HS, filename, shaderFalg, "HS", m_vertType, vecMacro);
-		m_pDomainShader = m_pRenderSystem->CreateShader(eShaderType_DS, filename, shaderFalg, "DS", m_vertType, vecMacro);
+		m_pHullShader = m_pRenderSystem->CreateShader(eShaderType_HS, eRenderPhase_None, filename, shaderFalg, "HS", m_vertType, vecMacro);
+		m_pDomainShader = m_pRenderSystem->CreateShader(eShaderType_DS, eRenderPhase_None, filename, shaderFalg, "DS", m_vertType, vecMacro);
 
 		return true;
 	}
@@ -147,7 +141,7 @@ namespace Neo
 	{
 		std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		m_pComputeShader = m_pRenderSystem->CreateShader(eShaderType_CS, filename, 0, "CS", m_vertType, vecMacro);
+		m_pComputeShader = m_pRenderSystem->CreateShader(eShaderType_CS, eRenderPhase_None, filename, 0, "CS", m_vertType, vecMacro);
 
 		return true;
 	}
@@ -156,7 +150,7 @@ namespace Neo
 	{
 		std::vector<D3D_SHADER_MACRO> vecMacro = _InternelInitShader(nullptr, 0);
 
-		m_pGeometryShader = m_pRenderSystem->CreateShader(eShaderType_GS, filename, 0, "GS", m_vertType, vecMacro);
+		m_pGeometryShader = m_pRenderSystem->CreateShader(eShaderType_GS, eRenderPhase_None, filename, 0, "GS", m_vertType, vecMacro);
 
 		return true;
 	}

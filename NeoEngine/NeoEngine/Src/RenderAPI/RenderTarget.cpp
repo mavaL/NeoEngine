@@ -7,6 +7,8 @@
 #include "Camera.h"
 #include "SceneManager.h"
 #include "Texture.h"
+#include "Material.h"
+
 
 namespace Neo
 {
@@ -75,7 +77,11 @@ namespace Neo
 
 		RenderTarget* pRT = this;
 
-		g_env.pRenderer->UnbindTexture(m_pRenderTexture);
+		if (m_pRenderTexture)
+		{
+			g_env.pRenderer->UnbindTexture(m_pRenderTexture);
+		}
+
 		m_pRenderSystem->SetRenderTarget(&pRT, m_pDepthStencil, 1, bClearColor, bClearZ, clearColor);
 	}
 	//------------------------------------------------------------------------------------
@@ -113,5 +119,24 @@ namespace Neo
 		}
 		return nullptr;
 	}
+	//------------------------------------------------------------------------------------
+	void RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
+	{
+		BeforeRender(bClearColor, bClearZ, clearColor, fz);
 
+		// Turn off z buffer
+		SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
+		SStateDepth depthState = oldDepthState;
+		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthState.Desc.DepthEnable = FALSE;
+		g_env.pRenderer->SetDepthState(&depthState);
+
+		pMaterial->Activate();
+		m_pQuadEntity->Render();
+
+		AfterRender();
+
+		// Restore render state
+		g_env.pRenderer->SetDepthState(&oldDepthState);
+	}
 }

@@ -4,7 +4,6 @@
 #include "D3D11/D3D11Texture.h"
 #include "SceneManager.h"
 #include "Camera.h"
-#include "Material.h"
 #include "Renderer.h"
 #include "Entity.h"
 
@@ -96,26 +95,6 @@ namespace Neo
 	void D3D11RenderTarget::_CreateDepthBuffer( uint32 width, uint32 height )
 	{
 		m_pDepthStencil = new D3D11Texture(width, height, nullptr, ePF_Depth32, eTextureUsage_Depth, false);
-	}
-	//------------------------------------------------------------------------------------
-	void D3D11RenderTarget::RenderScreenQuad(Material* pMaterial, bool bClearColor, bool bClearZ, const SColor& clearColor, float fz)
-	{
-		BeforeRender(bClearColor, bClearZ, clearColor, fz);
-
-		// Turn off z buffer
-		SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
-		SStateDepth depthState = oldDepthState;
-		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-		depthState.Desc.DepthEnable = FALSE;
-		g_env.pRenderer->SetDepthState(&depthState);
-
-		pMaterial->Activate();
-		m_pQuadEntity->Render();	
-
-		AfterRender();
-
-		// Restore render state
-		g_env.pRenderer->SetDepthState(&oldDepthState);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderTarget::OnWindowResized()

@@ -10,6 +10,7 @@
 #include "ShadowMapPSSM.h"
 #include "Renderer.h"
 #include <d3dx9math.h>
+#include "Entity.h"
 
 
 namespace Neo

@@ -1,0 +1,17 @@
+
+
+in vec4 vDepth;
+layout(location = 0) out vec4 Frag0;
+
+//--------------------------------------------------------------------------------------
+// PS for shadow map generation
+//--------------------------------------------------------------------------------------
+void main()
+{
+#ifdef USE_ESM
+	float fDepthExponential = exp(fESMExponentialMultiplier * vDepth.x);
+	Frag0 = fDepthExponential.xxxx;
+#else
+	Frag0 = vDepth.xxxx;
+#endif
+}

@@ -34,11 +34,11 @@ namespace Neo
 		virtual	void			ApplyDepthState(SStateDepth* pState);
 		virtual void			SetViewport(const SViewport* vp);
 		virtual void			SwapBuffer();
-		virtual ConstantBuffer*	CreateConstantBuffer(uint32 nSize);
+		virtual ConstantBuffer*	CreateConstantBuffer(uint32 nSize, uint32 nSlot);
 		virtual void			SetTexture(uint32 iStage, Texture* pTexture, uint32 usage = 0);
 		virtual SamplerState*	CreateSamplerState(const SSamplerDesc& desc);
 		virtual void			SetSamplerState(uint32 iStage, SamplerState* pSampler, bool bVS = false, bool bGS = false, bool bTessellation = false);
-		virtual Shader*			CreateShader(eShaderType type, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros);
+		virtual Shader*			CreateShader(eShaderType type, eRenderPhase phase, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros);
 		virtual Texture*		LoadTexture(const STRING& filename, eTextureType type = eTextureType_2D, uint32 usage = 0, bool bSRGB = false);
 		virtual RenderTarget*	CreateRenderTarget(uint32 nWidth, uint32 nHeight, uint32 nDepth, ePixelFormat format, uint32 usage);
 		virtual Texture*		GetDepthBuffer();

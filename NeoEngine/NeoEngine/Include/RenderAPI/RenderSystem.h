@@ -28,13 +28,13 @@ namespace Neo
 		virtual void			SwapBuffer() = 0;
 		virtual Texture*		GetDepthBuffer() = 0;
 
-		virtual ConstantBuffer*	CreateConstantBuffer(uint32 nSize) = 0;
+		virtual ConstantBuffer*	CreateConstantBuffer(uint32 nSize, uint32 nSlot) = 0;
 		virtual VertexBuffer*	CreateVertexBuffer(uint32 nSize, uint32 nStride, const void* pData, uint32 nUsage) = 0;
 		virtual IndexBuffer*	CreateIndexBuffer(uint32 nSize, const void* pData, uint32 nUsage) = 0;
 		virtual void			SetTexture(uint32 iStage, Texture* pTexture, uint32 usage = 0) = 0;
 		virtual SamplerState*	CreateSamplerState(const SSamplerDesc& desc) = 0;
 		virtual void			SetSamplerState(uint32 iStage, SamplerState* pSampler, bool bVS = false, bool bGS = false, bool bTessellation = false) = 0;
-		virtual Shader*			CreateShader(eShaderType type, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros) = 0;
+		virtual Shader*			CreateShader(eShaderType type, eRenderPhase phase, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros) = 0;
 		virtual RenderTarget*	CreateRenderTarget(uint32 nWidth, uint32 nHeight, uint32 nDepth, ePixelFormat format, uint32 usage) = 0;
 		virtual void			DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation) = 0;
 		virtual void			Draw(uint32 nVertCnt, uint32 nStartVertLocation) = 0;

@@ -428,7 +428,7 @@ namespace Neo
 		m_pDeviceContext->OMSetDepthStencilState((ID3D11DepthStencilState*)pState->pDeviceState, 1);
 	}
 	//------------------------------------------------------------------------------------
-	ConstantBuffer* D3D11RenderSystem::CreateConstantBuffer(uint32 nSize)
+	ConstantBuffer* D3D11RenderSystem::CreateConstantBuffer(uint32 nSize, uint32 nSlot)
 	{
 		D3D11Buffer* pBuf = new D3D11Buffer(nSize, 0, eBufferUsage_ConstantBuf);
 
@@ -524,18 +524,19 @@ namespace Neo
 		return new D3D11SamplerState(pDeviceSamp);
 	}
 	//------------------------------------------------------------------------------------
-	Shader* D3D11RenderSystem::CreateShader(eShaderType type, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros)
+	Shader* D3D11RenderSystem::CreateShader(eShaderType type, eRenderPhase phase, const STRING& filename, uint32 flags, const STRING& strEntryFunc, eVertexType vertType, const std::vector<D3D_SHADER_MACRO>& vecMacros)
 	{
 		D3D11Shader* pShader = nullptr;
+		STRING strShaderFile = GetShaderPath(filename);
 
 		switch (type)
 		{
-		case eShaderType_VS: pShader = new D3D11VertexShader(filename.c_str(), flags, strEntryFunc.c_str(), vertType, vecMacros); break;
-		case eShaderType_PS: pShader = new D3D11PixelShader(filename.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
-		case eShaderType_GS: pShader = new D3D11GeometryShader(filename.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
-		case eShaderType_CS: pShader = new D3D11ComputeShader(filename.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
-		case eShaderType_HS: pShader = new D3D11HullShader(filename.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
-		case eShaderType_DS: pShader = new D3D11DomainShader(filename.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
+		case eShaderType_VS: pShader = new D3D11VertexShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vertType, vecMacros); break;
+		case eShaderType_PS: pShader = new D3D11PixelShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
+		case eShaderType_GS: pShader = new D3D11GeometryShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
+		case eShaderType_CS: pShader = new D3D11ComputeShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
+		case eShaderType_HS: pShader = new D3D11HullShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
+		case eShaderType_DS: pShader = new D3D11DomainShader(strShaderFile.c_str(), flags, strEntryFunc.c_str(), vecMacros); break;
 		default: _AST(0);
 		}
 

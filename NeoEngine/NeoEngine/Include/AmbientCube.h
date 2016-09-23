@@ -32,6 +32,7 @@ namespace Neo
 
 		Texture*		GetIrradianceTexture() { return m_pTexIrradiance; }
 		Texture*		GetRadianceTexture() { return m_pTexRadiance; }
+		bool			IsEnabled() const	{ return m_pTexIrradiance && m_pTexRadiance; }
 
 	private:
 		Texture*		m_pTexIrradiance;	// IEM

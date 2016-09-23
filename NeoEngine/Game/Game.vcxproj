@@ -64,12 +64,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;../NeoEngine/Include;../NeoEngine/Include/Shadow;../NeoEngine/Include/RenderAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/glloader/include;../Dependency/ois/includes;../NeoEngine/Include;../NeoEngine/Include/Shadow;../NeoEngine/Include/RenderAPI</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dx11d.lib;d3dx9.lib;dxguid.lib;dinput8.lib;ois_d.lib;NeoEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);../Dependency/DXSDK/Lib/x86;../Dependency/ois/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;opengl32.lib;glloader_vc120_d.lib;d3dx11d.lib;d3dx9.lib;dxguid.lib;dinput8.lib;ois_d.lib;NeoEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);../Dependency/DXSDK/Lib/x86;../Dependency/ois/lib;../Dependency/glloader/lib/win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -77,13 +77,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/ois/includes;../NeoEngine/Include;../NeoEngine/Include/Shadow;../NeoEngine/Include/RenderAPI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Dependency;../Dependency/DXSDK/Include;../Dependency/glloader/include;../Dependency/ois/includes;../NeoEngine/Include;../NeoEngine/Include/Shadow;../NeoEngine/Include/RenderAPI</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dx9.lib;dxguid.lib;dinput8.lib;ois.lib;NeoEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);../Dependency/DXSDK/Lib/x86;../Dependency/ois/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;opengl32.lib;glloader_vc120_d.lib;d3dx11.lib;d3dx9.lib;dxguid.lib;dinput8.lib;ois.lib;NeoEngine.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OutDir);../Dependency/DXSDK/Lib/x86;../Dependency/ois/lib;../Dependency/glloader/lib/win_x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

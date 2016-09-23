@@ -35,7 +35,7 @@ void SetupTestScene2(Scene* scene)
 {
 	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01");
 	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("lion.bmp")));
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque, eShaderFlag_EnableClipPlane);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque, eShaderFlag_EnableClipPlane);
 
 	/// Create a cube to observe reflection
 	{
@@ -101,7 +101,7 @@ void SetupTestScene3(Scene* scene)
 	// Some wood pallets
 	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_wood");
 	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("WoodPallet.dds"), eTextureType_2D, 0, true));
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 
 	for (int i = 0; i < 5; ++i)
 	{
@@ -143,10 +143,10 @@ void SetupTestScene4(Scene* scene)
 	g_env.pSceneMgr->SetShadowMapSize(512);
 
 	// Ambient cube
-	Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
-	Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
+	//Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
+	//Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
 
-	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
+	//g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
 
 	// Shadow receiver
 	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(25.0f, 25.0f);
@@ -156,17 +156,17 @@ void SetupTestScene4(Scene* scene)
 	pEntity->SetCastShadow(false);
 
 	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_01");
-	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.png")));
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds")));
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);
 
 
 	// Shadow caster
 	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_02");
-	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.png")));
+	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds")));
 	pMaterial->GetSubMaterial(0).specular.Set(0.9f, 0.9f, 0.9f);
 	pMaterial->GetSubMaterial(0).glossiness = 0.7f;
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 
 	Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("dragon.mesh"));
 
@@ -215,7 +215,7 @@ void SetupTestScene5(Scene* scene)
 	pMaterial->SetSamplerStateDesc(0, sam);
 
 	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("road002_diff.dds"), eTextureType_2D, 0, true));
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 	pEntity->SetMaterial(pMaterial);
 
 
@@ -268,8 +268,8 @@ void SetupTestScene5(Scene* scene)
 	samDesc.AddressV = eTextureAddressMode_WRAP;
 	pMaterial->SetSamplerStateDesc(0, samDesc, true, true);
 
-	pMaterial->InitShader(GetShaderPath("Fur.hlsl"), eShader_Fur, 0, nullptr, "VS_Fins", "PS_Fins", "VS_Shells", "PS_Shells");
-	pMaterial->InitGeometryShader(GetShaderPath("Fur.hlsl"));
+	pMaterial->InitShader(("Fur"), eShader_Fur, 0, nullptr, "VS_Fins", "PS_Fins", "VS_Shells", "PS_Shells");
+	pMaterial->InitGeometryShader(("Fur"));
 
 	{
 		pMesh = MeshLoader::LoadMesh(GetResPath("Fur\\cat.mesh"), true);
@@ -373,14 +373,14 @@ void SetupTestScene6(Scene* scene)
 	SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(0);
 	pMaterial->SetSamplerStateDesc(0, samDesc);
 
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 
 	pEntity->SetMaterial(pMaterial);
 
 	// Ambient cube
 	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"), scene);
 	_AST(bOk);
-	
+
 	Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
 	Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
 
@@ -395,12 +395,12 @@ void SetupTestScene6(Scene* scene)
 
 	for (int i = 0; i < 10; ++i)
 	{
-		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Black1x1.png")));
+		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Black1x1.dds")));
 		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
 		pMaterial->GetSubMaterial(i).specular.Set(1,1,1);
 	}
 
-	pMaterial->InitShader(GetShaderPath("Opaque.hlsl"), eShader_Opaque);
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
 	pSpheres->SetMaterial(pMaterial);
 
 	// GGX anisotropic
@@ -416,12 +416,12 @@ void SetupTestScene6(Scene* scene)
 
 	for (int i = 0; i < 10; ++i)
 	{
-		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.png")));
+		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds")));
 		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
 		pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
 	}
 
-	pMaterial->InitShader(GetShaderPath("Anisotropic.hlsl"), eShader_Forward);
+	pMaterial->InitShader(("Anisotropic"), eShader_Forward);
 	pSpheres2->SetMaterial(pMaterial);
 }
 
@@ -471,7 +471,7 @@ void SetupTestScene7(Scene* scene)
 
 		for (int i = 0; i < 10; ++i)
 		{
-			pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Black1x1.png")));
+			pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Black1x1.dds")));
 			pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
 			pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
 		}
@@ -501,10 +501,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		// Test Scene 5: Fur and hair rendering
-		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
 		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);

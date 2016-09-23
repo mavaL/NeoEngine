@@ -1,0 +1,36 @@
+
+uniform sampler2D tex0;
+
+
+in vec2 oUv;
+
+layout(location = 0) out vec4 Frag0;
+
+//--------------------------------------------------------------------------------------
+// Box Blur n * n
+//--------------------------------------------------------------------------------------
+uniform cbufferCustom0
+{
+	float	fFilterWidth;
+};
+
+float BoxFilterStart(float fWidth)  //Assumes filter is odd
+{
+	return ((fWidth - 1.0f) / 2.0f);
+}
+
+#define ESM_BLUR_WIDTH	5
+
+void main()
+{
+	float fStartOffset = BoxFilterStart(ESM_BLUR_WIDTH);
+	vec2 fTexelOffset = vec2(0, shadowMapTexelSize);
+    
+    vec2 fTexStart = oUv - ( fStartOffset * fTexelOffset );
+    vec4 color = vec4(0);
+    
+	for (int i = 0; i < ESM_BLUR_WIDTH; ++i)
+		color += texture(tex0, vec2(fTexStart + fTexelOffset * i));
+    
+	Frag0 = color / ESM_BLUR_WIDTH;
+}

@@ -128,6 +128,7 @@ namespace Neo
 		ePF_DXT4,
 		ePF_DXT5,
 		ePF_Depth32,
+		ePF_Num,
 		ePF_Unknown
 	};
 
