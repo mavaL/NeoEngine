@@ -45,10 +45,12 @@ namespace Neo
 		static GLPixelFormat NativePixelFormat[ePF_Num];
 		if (!GLPixelFormat::sInitialized)
 		{
-			NativePixelFormat[ePF_A8R8G8B8].Setup(GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, GL_SRGB8_ALPHA8, 0, 1);
+			NativePixelFormat[ePF_A8R8G8B8].Setup(GL_RGBA8, GL_BGRA, GL_UNSIGNED_BYTE, GL_SRGB8_ALPHA8, 0, 1);
 			NativePixelFormat[ePF_A16R16G16B16F].Setup(GL_RGBA16F, GL_RGBA, GL_HALF_FLOAT, GL_NONE, 0, 2);
 			NativePixelFormat[ePF_Depth32].Setup(GL_DEPTH24_STENCIL8, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, GL_NONE, 0, 4);
 			NativePixelFormat[ePF_R32F].Setup(GL_R32F, GL_RED, GL_FLOAT, GL_NONE, 0, 4);
+			NativePixelFormat[ePF_DXT1].Setup(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_BGRA, GL_UNSIGNED_BYTE, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, 1, 8);
+			NativePixelFormat[ePF_DXT5].Setup(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_BGRA, GL_UNSIGNED_BYTE, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, 1, 16);
 
 			GLPixelFormat::sInitialized = true;
 		}
@@ -76,6 +78,7 @@ namespace Neo
 		case ePF_A8R8G8B8:	return 4;
 		case ePF_A16R16G16B16F:	return 8;
 		case ePF_Depth32:	return 4;
+		case ePF_R32F:	return 4;
 		default: _AST(0);
 		}
 		return 0;
@@ -84,13 +87,34 @@ namespace Neo
 	uint32	CalcTexDataSize(uint32 nWidth, uint32 nHeight, uint32 nMips, ePixelFormat format)
 	{
 		_AST(nMips >= 1);
+
+		uint32 nBytesPerBlock = 0;
+		uint32 nBytesPerPixel = 0;
+		if (format == ePF_DXT5)
+		{
+			nBytesPerBlock = 16;
+		}
+		else if (format == ePF_DXT1)
+		{
+			nBytesPerBlock = 8;
+		}
+		else
+		{
+			nBytesPerPixel = GetBytesPerPixel(format);
+		}
 		
 		uint32 nSize = 0;
-		uint32 nBytesPerPixel = GetBytesPerPixel(format);
 
 		for (uint32 i = 0; i < nMips; ++i)
 		{
-			nSize += nWidth * nHeight * nBytesPerPixel;
+			if (format == ePF_DXT5 || format == ePF_DXT1)
+			{
+				nSize += ((nWidth + 3) / 4) * ((nHeight + 3) / 4) * nBytesPerBlock;
+			} 
+			else
+			{
+				nSize += nWidth * nHeight * nBytesPerPixel;
+			}
 			nWidth >>= 1;
 			nHeight >>= 1;
 		}
@@ -115,7 +139,7 @@ namespace Neo
 		m_bMipMap = header->mipMapCount > 0;
 		m_usage = usage;
 
-		bool forceSRGB = bSRGB || (header->reserved1[0] != 0);
+		m_bsRGB = bSRGB || (header->reserved1[0] != 0);
 
 		DXGI_FORMAT dxformat = GetDXGIFormat(header->ddspf);
 		_AST(dxformat != DXGI_FORMAT_UNKNOWN);
@@ -124,16 +148,20 @@ namespace Neo
 		{
 		case DXGI_FORMAT_B8G8R8X8_UNORM:
 		case DXGI_FORMAT_B8G8R8A8_UNORM: m_texFormat = ePF_A8R8G8B8; break;
+		case DXGI_FORMAT_BC3_UNORM: m_texFormat = ePF_DXT5; break;
+		case DXGI_FORMAT_BC1_UNORM: m_texFormat = ePF_DXT1; break;
 		default: _AST(0);
 		}
 
-		_Init(m_width, m_height, bitData, m_texFormat, usage, m_bMipMap);
+		_Init(m_width, m_height, bitData, m_texFormat, usage, header->mipMapCount ? header->mipMapCount : 1);
 	}
 	//------------------------------------------------------------------------------------
 	GLTexture::GLTexture(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, bool bMipMap)
 		: Texture(eTextureType_2D, width, height, 1, format, usage, bMipMap)
+		, m_bsRGB(false)
 	{
-		_Init(width, height, pTexData, format, usage, bMipMap);
+		const uint32 nMips = bMipMap ? CalcTexMipNum(width, height) : 1;
+		_Init(width, height, pTexData, format, usage, nMips);
 	}
 	//------------------------------------------------------------------------------------
 	GLTexture::~GLTexture()
@@ -141,50 +169,87 @@ namespace Neo
 		OpenGLAPI::DeleteTextures(1, &m_id);
 	}
 	//------------------------------------------------------------------------------------
-	void GLTexture::_Init(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, bool bMipMap)
+	void GLTexture::_Init(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, uint32 nMips)
 	{
 		const char* pData = (const char*)pTexData;
-		const uint32 nMips = bMipMap ? CalcTexMipNum(width, height) : 1;
 		const GLPixelFormat& nativeFormat = GetNativePixelFormat(format);
 
-		OpenGLAPI::GenTextures(1, &m_id);
-		OpenGLAPI::BindTexture(GL_TEXTURE_2D, m_id);
-
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, bMipMap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, nMips - 1);
-		OpenGLAPI::TexParameter(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-
-		uint32 w = width;
-		uint32 h = height;
-
-		for (uint32 iMips = 0; iMips < nMips; ++iMips)
+		GLenum texType = GL_TEXTURE_2D;
+		uint32 nFace = 1;
+		if (m_texType == eTextureType_CubeMap)
 		{
-			w = w < 1 ? 1 : w;
-			h = h < 1 ? 1 : h;
-
-			OpenGLAPI::PixelStorage(GL_UNPACK_ALIGNMENT, std::min<int>(w, 8));
-			OpenGLAPI::TexImage2D(
-				GL_TEXTURE_2D,
-				iMips,
-				nativeFormat.InternalFormat,
-				w, h,
-				0,
-				nativeFormat.Format,
-				nativeFormat.Type,
-				pData
-				);
-
-			if (pData)
-			{
-				pData += CalcTexDataSize(w, h, 1, format);
-			}
-
-			w >>= 1;
-			h >>= 1;
+			texType = GL_TEXTURE_CUBE_MAP;
+			nFace = 6;
 		}
+
+		OpenGLAPI::GenTextures(1, &m_id);
+		OpenGLAPI::BindTexture(texType, m_id);
+
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_MIN_FILTER, m_bMipMap ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_MAX_LEVEL, nMips - 1);
+		OpenGLAPI::TexParameter(texType, GL_TEXTURE_BASE_LEVEL, 0);
+		OpenGLAPI::TexParameter(texType, GL_GENERATE_MIPMAP, GL_FALSE);
+
+		for (uint32 iFace = 0; iFace < nFace; ++iFace)
+		{
+			uint32 w = width;
+			uint32 h = height;
+
+			for (uint32 iMips = 0; iMips < nMips; ++iMips)
+			{
+				w = w < 1 ? 1 : w;
+				h = h < 1 ? 1 : h;
+
+				OpenGLAPI::PixelStorage(GL_UNPACK_ALIGNMENT, std::min<int>(w, 8));
+
+				const int nSize = CalcTexDataSize(w, h, 1, format);
+
+				if (nativeFormat.bIsCompressed)
+				{
+					OpenGLAPI::CompressedImage2D(
+						texType == GL_TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + iFace,
+						iMips,
+						m_bsRGB ? nativeFormat.SrgbFormat : nativeFormat.InternalFormat,
+						w, h,
+						0,
+						nSize,
+						pData
+						);
+				} 
+				else
+				{
+					OpenGLAPI::TexImage2D(
+						texType == GL_TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + iFace,
+						iMips,
+						m_bsRGB ? nativeFormat.SrgbFormat : nativeFormat.InternalFormat,
+						w, h,
+						0,
+						nativeFormat.Format,
+						nativeFormat.Type,
+						pData
+						);
+				}
+
+				if (pData)
+				{
+					pData += nSize;
+				}
+
+				w >>= 1;
+				h >>= 1;
+			}
+		}
+
+		if (m_usage & eTextureUsage_AutoGenMips)
+		{
+			OpenGLAPI::GenerateMipmap(GL_TEXTURE_2D);
+		}
+
+		OpenGLAPI::BindTexture(texType, 0);
 	}
 	//------------------------------------------------------------------------------------
 	void GLTexture::GenMipMaps()
@@ -199,8 +264,9 @@ namespace Neo
 	{
 		OpenGLAPI::GenSamplers(1, &m_id);
 
+		GLenum magFilter = GetGLFilterType(desc.Filter);
 		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_MIN_FILTER, GetGLFilterType(desc.Filter));
-		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_MAG_FILTER, GetGLFilterType(desc.Filter));
+		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_MAG_FILTER, magFilter == GL_LINEAR_MIPMAP_LINEAR ? GL_LINEAR : magFilter);
 		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_WRAP_S, GetGLTexAddressMode(desc.AddressU));
 		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_WRAP_T, GetGLTexAddressMode(desc.AddressV));
 		OpenGLAPI::SetSamplerParameter(m_id, GL_TEXTURE_WRAP_R, GetGLTexAddressMode(desc.AddressW));

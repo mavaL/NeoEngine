@@ -126,6 +126,9 @@ namespace Neo
 
 			samPoint.Filter = SF_MIN_MAG_MIP_LINEAR;
 			m_pMtlCompose->SetSamplerStateDesc(1, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(7, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(10, samPoint);
+			m_pMtlCompose->SetSamplerStateDesc(11, samPoint);
 
 #if USE_ESM
 			samPoint.Filter = SF_MIN_MAG_MIP_LINEAR;
@@ -138,10 +141,6 @@ namespace Neo
 			m_pMtlCompose->SetSamplerStateDesc(4, samPoint);
 			m_pMtlCompose->SetSamplerStateDesc(5, samPoint);
 			m_pMtlCompose->SetSamplerStateDesc(6, samPoint);
-
-			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
-
-			m_pMtlCompose->InitShader(("Compose"), eShader_PostProcess, 0, m_pAmbientCube->IsEnabled() ? &macro : nullptr, "VS", "ComposePS");
 		}
 
 		{
@@ -440,6 +439,14 @@ namespace Neo
 	void SceneManager::_CompositionPass()
 	{
 		m_curRenderPhase = eRenderPhase_Compose;
+
+		static bool bInit = false;
+		if (!bInit)
+		{
+			D3D_SHADER_MACRO macro = { "AMBIENT_CUBE", "" };
+			m_pMtlCompose->InitShader(("Compose"), eShader_PostProcess, 0, m_pAmbientCube->IsEnabled() ? &macro : nullptr, "VS", "ComposePS");
+			bInit = true;
+		}
 
 		m_pMtlCompose->SetTexture(0, m_pRT_Albedo->GetRenderTexture());
 		m_pMtlCompose->SetTexture(1, m_pRT_Normal->GetRenderTexture());
@@ -982,13 +989,6 @@ namespace Neo
 		::FindClose(h);
 
 		return true;
-	}
-	//------------------------------------------------------------------------------------
-	void SceneManager::SetEnableAmbientCube(bool bEnable)
-	{
-		D3D_SHADER_MACRO macro = {"AMBIENT_CUBE", ""};
-
-		m_pMtlCompose->InitShader(("DeferredShading"), eShader_PostProcess, 0, bEnable ? &macro : nullptr, "VS", "ComposePS");
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetShadowMapSize(uint32 nSize)

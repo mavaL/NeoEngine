@@ -61,8 +61,6 @@ namespace Neo
 			V(pDevice->CreateDepthStencilView(pDepthTex, &descDSV, &pDSV));
 		}
 
-		g_env.pSceneMgr->SetEnableAmbientCube(false);
-
 		// Setup camera for cube map rendering
 		Camera* pSceneCam = g_env.pSceneMgr->GetCamera();
 		Camera camCube(pSceneCam->GetNearClip(), pSceneCam->GetFarClip(), 90, 1, false);
@@ -124,7 +122,6 @@ namespace Neo
 		// Restore
 		g_env.pSceneMgr->SetCurRenderPhase(eRenderPhase_None);
 		g_env.pSceneMgr->SetCamera(pSceneCam);
-		g_env.pSceneMgr->SetEnableAmbientCube(true);
 		g_pRenderSys->SetRenderTarget(nullptr, g_pRenderSys->GetDepthBuffer(), 1, false, false);
 		g_env.pRenderer->RestoreViewport();
 		SAFE_RELEASE(pCubeMap);

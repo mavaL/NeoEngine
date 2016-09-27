@@ -50,5 +50,5 @@ float4 LinearizeDepthPS(VS_OUTPUT IN) : SV_Target
 	float fDevDepth = tex0.Sample(samPoint, IN.uv).x;
 	float fz = DeviceDepthToLinear(fDevDepth);
 
-	return float4(fDevDepth, fDevDepth, fDevDepth, fDevDepth);
+	return float4(fz, fz, fz, fz);
 }

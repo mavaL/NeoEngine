@@ -115,7 +115,10 @@ namespace Neo
 			break;
 		}
 
-		OpenGLAPI::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)pIndexBuf->GetInternel());
+		if (pIndexBuf)
+		{
+			OpenGLAPI::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, (GLuint)pIndexBuf->GetInternel());
+		}
 
 		OpenGLAPI::BindVertexArray(0);
 	}

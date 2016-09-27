@@ -19,7 +19,7 @@ float DeviceDepthToLinear(float fDepth)
 
 void main()
 {
-	float fDevDepth = texture(tex0, oUv).x;
+	float fDevDepth = TextureFlipY(tex0, oUv).x;
 	float fz = DeviceDepthToLinear(fDevDepth);
 
 	Frag0 = vec4(fz, fz, fz, fz);

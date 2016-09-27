@@ -143,10 +143,10 @@ void SetupTestScene4(Scene* scene)
 	g_env.pSceneMgr->SetShadowMapSize(512);
 
 	// Ambient cube
-	//Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
-	//Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
+	Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
+	Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
 
-	//g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
+	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
 
 	// Shadow receiver
 	Neo::Mesh* pMesh = SceneManager::CreatePlaneMesh(25.0f, 25.0f);

@@ -497,9 +497,6 @@
     <FxCompile Include="..\Res\Shaders\D3D11\BilateralBlur.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
-    <FxCompile Include="..\Res\Shaders\D3D11\Blur.hlsl">
-      <Filter>Shader\d3d11</Filter>
-    </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\ClipPlaneWrapper.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
@@ -558,6 +555,15 @@
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\WhiteNoLight.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\GaussianBlur.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\BoxBlur_x.hlsl">
+      <Filter>Shader\d3d11</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\BoxBlur_y.hlsl">
       <Filter>Shader\d3d11</Filter>
     </FxCompile>
   </ItemGroup>

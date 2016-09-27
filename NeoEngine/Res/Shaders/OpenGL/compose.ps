@@ -19,10 +19,37 @@ layout(location = 0) out vec4 Frag0;
 //--------------------------------------------------------------------------------------
 /// ComposePS
 //--------------------------------------------------------------------------------------
+vec3 GetEnvBRDFFresnel(vec3 specCol0, float gloss, float fNdotV, sampler2D texEnvBRDF)
+{
+	// Use a LUT that contains the numerically integrated BRDF for given N.V and smoothness parameters
+	// x: integral for base reflectance 0.0, y: integral for base reflectance 1.0
+
+	vec2 envBRDF = texture(texEnvBRDF, vec2(fNdotV, gloss), 0.0f).xy;
+	return mix(envBRDF.xxx, envBRDF.yyy, specCol0);
+}
+
+void	ComputeAmbientCube(out vec4 oDiffuse, out vec4 oSpecular, samplerCube texDiff, samplerCube texSpec, sampler2D texEnvBRDF,
+	vec3 vView, vec3 vNormal, vec3 specCol, float fGloss)
+{
+	// Specular
+	float fNdotE = dot(vView, vNormal);
+	vec3 vReflVec = reflect(-vView, vNormal);
+
+	const int CUBE_MAP_SPEC_MIP_COUNT = 8;	// Assume ambient cubemap has 128x128 res
+	float mipIndex = (1.0f - fGloss) * (CUBE_MAP_SPEC_MIP_COUNT - 1);
+
+	oSpecular = textureLod(texSpec, vReflVec, mipIndex);
+
+	vec3 fresnel = GetEnvBRDFFresnel(specCol, fGloss, fNdotE, texEnvBRDF);
+	oSpecular.xyz *= fresnel;
+
+	// Diffuse
+	oDiffuse = textureLod(texDiff, vNormal, 0.0f);
+}
 
 void main()
 {
-	vec3 vNormal = texture(tex1, oUv).xyz;
+	vec3 vNormal = TextureFlipY(tex1, oUv).xyz;
 	vNormal = normalize(Expand(vNormal));
 
 	vec3 vWorldPos = ReconstructWorldPos(tex3, oUv);
@@ -32,10 +59,10 @@ void main()
 	float fNdotL = saturate(dot(vNormal, lightDirection));
 	vec4 cDiffuse = fNdotL * lightColor;
 
-	vec4 specGloss = texture(tex2, oUv);
+	vec4 specGloss = TextureFlipY(tex2, oUv);
 	vec3 cSpecular = PhysicalBRDF(vNormal, vView, lightDirection, specGloss.w, specGloss.xyz);
 
-	vec4 albedo = texture(tex0, oUv);
+	vec4 albedo = TextureFlipY(tex0, oUv);
 	albedo.xyz = albedo.xyz * albedo.xyz;
 
 	vec4 oColor = albedo * cDiffuse;

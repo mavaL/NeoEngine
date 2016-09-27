@@ -35,9 +35,10 @@ namespace Neo
 		virtual void		Resize(uint32 nWidth, uint32 nHeight) { _AST(0); }
 
 	private:
-		void				_Init(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
+		void				_Init(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, uint32 nMips);
 
 		GLuint				m_id;
+		bool				m_bsRGB;
 	};
 
 	//------------------------------------------------------------------------------------

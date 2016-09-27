@@ -38,7 +38,6 @@ namespace Neo
 		void		EnableDebugRT(eDebugRT type);
 		void		SetShadowDepthBias(float fBias);
 		float		GetShadowDepthBias() const;
-		void		SetEnableAmbientCube(bool bEnable);
 		void		SetCurRenderPhase(eRenderPhase e) { m_curRenderPhase = e; }
 		eRenderPhase	GetCurRenderPhase() const { return m_curRenderPhase; }
 		STRING&		GetHeroStateChangeStr() { return m_strHeroStateChange; }

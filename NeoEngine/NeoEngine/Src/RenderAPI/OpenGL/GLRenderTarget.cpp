@@ -33,7 +33,15 @@ namespace Neo
 
 		if (!(nUsage & eRenderTargetUsage_NoColorTex))
 		{
-			m_pRenderTexture = new GLTexture(nWidth, nHeight, nullptr, format, eTextureUsage_RenderTarget, nUsage & eTextureUsage_AutoGenMips);
+			bool bMips = nUsage & eRenderTargetUsage_GenMips;
+			uint32 nTexUsage = eTextureUsage_RenderTarget;
+
+			if (bMips)
+			{
+				nTexUsage |= eTextureUsage_AutoGenMips;
+			}
+
+			m_pRenderTexture = new GLTexture(nWidth, nHeight, nullptr, format, nTexUsage, bMips);
 		}
 
 		if (nUsage & eRenderTargetUsage_OwnDepthTex)

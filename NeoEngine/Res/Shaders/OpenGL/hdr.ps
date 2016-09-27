@@ -11,7 +11,7 @@ layout(location = 0) out vec4 Frag0;
 
 void main()
 {
-	vec4 sceneColor = texture(tex0, oUv);
+	vec4 sceneColor = TextureFlipY(tex0, oUv);
 
 	sceneColor = max(vec4(0), sceneColor - 0.004f);
 	vec4 GammaColor = (sceneColor*(6.2f*sceneColor + 0.5f)) / (sceneColor*(6.2f*sceneColor + 1.7f) + 0.06f);

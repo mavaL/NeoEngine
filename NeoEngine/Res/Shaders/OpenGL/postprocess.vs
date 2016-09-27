@@ -13,6 +13,5 @@ out vec2 oUv;
 void main()
 {
 	gl_Position = sign(iPos);
-	oUv.x = iUv.x;
-	oUv.y = 1 - iUv.y;
+	oUv = iUv;
 }

@@ -75,9 +75,30 @@ vec4 saturate(vec4 v)
 	return max(v, vec4(0));
 }
 
+vec4 TextureFlipY(sampler2D tex, vec2 uv)
+{
+	return texture(tex, vec2(uv.x, 1 - uv.y));
+}
+
+vec4 TextureFlipY(samplerCube tex, vec3 uv)
+{
+	return texture(tex, vec3(uv.x, -uv.y, uv.z));
+}
+
+vec4 TextureLodFlipY(sampler2D tex, vec2 uv, float lod)
+{
+	return textureLod(tex, vec2(uv.x, 1-uv.y), lod);
+}
+
+vec4 TextureLodFlipY(samplerCube tex, vec3 uv, float lod)
+{
+	return textureLod(tex, vec3(uv.x, -uv.y, uv.z), lod);
+}
+
+
 vec3 GetNormalFromTexture(sampler2D tex, vec2 uv)
 {
-	vec4 color = texture2D(tex, uv);
+	vec4 color = texture(tex, uv);
 	vec3 normal;
 	normal.xy = Expand(color.yx);
 	normal.z = sqrt(saturate(1.f + dot(normal.xy, -normal.xy)));
@@ -87,8 +108,8 @@ vec3 GetNormalFromTexture(sampler2D tex, vec2 uv)
 
 vec3 ReconstructWorldPos(sampler2D texDepth, vec2 uv)
 {
-	vec2 positionScreen = vec2(uv.x, 1-uv.y) * vec2(2.0f, -2.0f) + vec2(-1.0f, 1.0f);
-	float fViewSpaceZ = textureLod(texDepth, uv, 0.0f).x * farZ;
+	vec2 positionScreen = uv * vec2(2.0f, -2.0f) + vec2(-1.0f, 1.0f);
+	float fViewSpaceZ = TextureLodFlipY(texDepth, uv, 0.0f).x * farZ;
 
 	vec2 screenSpaceRay = vec2(positionScreen.x / Projection._11, positionScreen.y / Projection._22);
 
@@ -108,17 +129,17 @@ vec4 Shadow_Sample(sampler2D texShadow, vec3 posW, float shadowMapTexelSize, mat
 	float fLinearZ = shadowPos.z;
 
 	shadowPos.xyz /= shadowPos.w;
-	vec2 shadowTexUV = vec2(shadowPos.x, 1 - shadowPos.y);
+	vec2 shadowTexUV = shadowPos.xy;
 
 #ifdef USE_ESM
 	// Filtered look up using mip mapping
-	float fOccluderExponential = texture(texShadow, shadowTexUV).r;
+	float fOccluderExponential = TextureFlipY(texShadow, shadowTexUV).r;
 	float fReceiverExponential = exp( -fESMExponentialMultiplier * fLinearZ);
 	float fESMShadowTest = fOccluderExponential * fReceiverExponential;
 	float fLitFactor = saturate(fESMShadowTest);
 #else
 	fLinearZ -= shadowDepthBias;
-	float fz = textureLod(texShadow, shadowTexUV, 0).x;
+	float fz = TextureLodFlipY(texShadow, shadowTexUV, 0).x;
 	float fLitFactor = 0.f;
 
 	if (fLinearZ <= fz)

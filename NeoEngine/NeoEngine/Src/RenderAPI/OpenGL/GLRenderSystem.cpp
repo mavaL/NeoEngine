@@ -32,6 +32,7 @@ namespace Neo
 		typedef HGLRC(WINAPI *wglCreateContextFUNC)(HDC hdc);
 		typedef BOOL(WINAPI *wglDeleteContextFUNC)(HGLRC hglrc);
 		typedef BOOL(WINAPI *wglMakeCurrentFUNC)(HDC hdc, HGLRC hglrc);
+		typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
 
 		HMODULE mod_opengl32_;
 		wglCreateContextFUNC DynamicWglCreateContext_;
@@ -52,6 +53,9 @@ namespace Neo
 			MessageBoxA(nullptr, "Your video card is not supporting OpenGL 4.3!", "Error", MB_OK);
 			return false;
 		}
+
+		// Turn off vsync
+		wglSwapIntervalEXT(0);
 
 		OpenGLAPI::FrontFace(GL_CW);
 
@@ -175,7 +179,7 @@ namespace Neo
 			GLFilterMode = GL_NEAREST;
 			break;
 		case SF_MIN_MAG_MIP_LINEAR:
-			GLFilterMode = GL_LINEAR;
+			GLFilterMode = GL_LINEAR_MIPMAP_LINEAR;
 			break;
 		default:
 			_AST(0);
@@ -339,6 +343,13 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void GLRenderSystem::Draw(uint32 nVertCnt, uint32 nStartVertLocation)
 	{
+		GLBoundShaderState* pShaderState = _FindOrCreateBoundShaderState();
+
+		m_vecCurVBOs[0]->GenVAO(m_vecCurVBOs, nullptr);
+		m_vecCurVBOs[0]->ActivateVAO();
+
+		OpenGLAPI::DrawArrays(GL_TRIANGLES, nStartVertLocation, nVertCnt);
+
 		m_vecCurVBOs.clear();
 		m_curBoundShaderState.Reset();
 	}
@@ -353,6 +364,7 @@ namespace Neo
 			switch (pTexture->GetTextureType())
 			{
 			case eTextureType_2D: texType = GL_TEXTURE_2D; break;
+			case eTextureType_CubeMap: texType = GL_TEXTURE_CUBE_MAP; break;
 			default: _AST(0);
 			}
 
@@ -617,6 +629,25 @@ namespace Neo
 			else
 			{
 				OpenGLAPI::Uniform1i(nTexLocation, i);
+			}
+		}
+
+		for (int i = 0; i <= MAX_TEXTURE_STAGE; ++i)
+		{
+			STRING str("texCube");
+			char szBuf[32];
+			::itoa(i, szBuf, 10);
+			str += szBuf;
+
+			const GLint nTexLocation = OpenGLAPI::GetUniformLocation(pNewShaderState->m_programid, str.c_str());
+
+			if (nTexLocation == -1)
+			{
+				break;
+			}
+			else
+			{
+				OpenGLAPI::Uniform1i(nTexLocation, i + 10);
 			}
 		}
 		
