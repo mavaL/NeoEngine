@@ -60,7 +60,6 @@ namespace Neo
 		void			GenVAO(const std::vector<GLVertexBuffer*>& vecVBOs, GLIndexBuffer* pIndexBuf);
 		void			ActivateVAO();
 
-		eVertexType		m_vertType;
 		GLuint			m_vao;
 	};
 }

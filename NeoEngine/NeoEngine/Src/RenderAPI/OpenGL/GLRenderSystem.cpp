@@ -332,6 +332,7 @@ namespace Neo
 		switch (type)
 		{
 		case ePrimitive_TriangleList: glPrimType = GL_TRIANGLES; break;
+		case ePrimitive_LineList_Adj: glPrimType = GL_LINES_ADJACENCY; break;
 		default: _AST(0);
 		}
 
@@ -365,6 +366,7 @@ namespace Neo
 			{
 			case eTextureType_2D: texType = GL_TEXTURE_2D; break;
 			case eTextureType_CubeMap: texType = GL_TEXTURE_CUBE_MAP; break;
+			case eTextureType_TextureArray: texType = GL_TEXTURE_2D_ARRAY; break;
 			default: _AST(0);
 			}
 
@@ -414,7 +416,7 @@ namespace Neo
 		}
 
 		auto itPhase = pShaderXml->m_mapItems.find(phase);
-		if (itPhase == pShaderXml->m_mapItems.end())
+		if (itPhase == pShaderXml->m_mapItems.end() && (type == eShaderType_VS || type == eShaderType_PS))
 		{
 			return nullptr;
 		}
@@ -423,7 +425,7 @@ namespace Neo
 		{
 		case eShaderType_VS: pShader = new GLVertexShader(itPhase->second.vs.c_str(), flags, vecMacros); break;
 		case eShaderType_PS: pShader = new GLPixelShader(itPhase->second.ps.c_str(), flags, vecMacros); break;
-		case eShaderType_GS: 
+		case eShaderType_GS: pShader = new GLGeometryShader(pShaderXml->gs.c_str(), flags, vecMacros); break;
 		case eShaderType_CS: 
 		case eShaderType_HS: 
 		case eShaderType_DS: 
@@ -441,8 +443,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	Texture* GLRenderSystem::CreateTextureArray(const StringVector& vecTexNames, bool bSRGB /*= false*/)
 	{
-		_AST(0);
-		return nullptr;
+		return new GLTexture(vecTexNames, bSRGB);
 	}
 	//------------------------------------------------------------------------------------
 	Texture* GLRenderSystem::CreateTextureManual(uint32 nWidth, uint32 nHeight, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap)
@@ -605,7 +606,7 @@ namespace Neo
 		OpenGLAPI::UniformBlockBinding(pNewShaderState->m_programid, nCbSkin, cbBindingSkin);
 
 		// Custom uniform blocks
-		const GLint nCustomCBLoc = OpenGLAPI::GetUniformLocation(pNewShaderState->m_programid, "cbufferCustom0");
+		const GLint nCustomCBLoc = OpenGLAPI::GetUniformBlockIndex(pNewShaderState->m_programid, "cbufferCustom0");
 
 		if (nCustomCBLoc != -1)
 		{
@@ -622,33 +623,10 @@ namespace Neo
 
 			const GLint nTexLocation = OpenGLAPI::GetUniformLocation(pNewShaderState->m_programid, str.c_str());
 
-			if (nTexLocation == -1)
-			{
-				break;
-			} 
-			else
+			if (nTexLocation != -1)
 			{
 				OpenGLAPI::Uniform1i(nTexLocation, i);
-			}
-		}
-
-		for (int i = 0; i <= MAX_TEXTURE_STAGE; ++i)
-		{
-			STRING str("texCube");
-			char szBuf[32];
-			::itoa(i, szBuf, 10);
-			str += szBuf;
-
-			const GLint nTexLocation = OpenGLAPI::GetUniformLocation(pNewShaderState->m_programid, str.c_str());
-
-			if (nTexLocation == -1)
-			{
-				break;
-			}
-			else
-			{
-				OpenGLAPI::Uniform1i(nTexLocation, i + 10);
-			}
+			} 
 		}
 		
 		m_vecBoundShaderStates.push_back(pNewShaderState);

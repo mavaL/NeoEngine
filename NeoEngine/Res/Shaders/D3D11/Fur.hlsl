@@ -251,8 +251,7 @@ VS_OUTPUT VS_Shells(VS_INPUT IN)
 	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 	OUT.uv = IN.uv;
 
-	//float3x3 matTSToObj = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
-	float3x3 matTSToObj = float3x3(IN.tangent.xyz, cross(IN.normal, IN.tangent.xyz), IN.normal);
+	float3x3 matTSToObj = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
 
 	//transform the light and eye vectors to tangent space for per pixel lighting 
 	float3 eyeVector = vModelCamPos.xyz - vModelPos;

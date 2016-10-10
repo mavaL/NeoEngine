@@ -45,10 +45,9 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	GLVertexBuffer::GLVertexBuffer(GLBuffer* pBuf, uint32 nSize, uint32 nUsage, const void* pData)
 		: VertexBuffer(pBuf)
-		, m_vertType(eVertexType_General)
 		, m_vao(0)
 	{
-
+		m_vertType = eVertexType_General;
 	}
 	//------------------------------------------------------------------------------------
 	void GLVertexBuffer::GenVAO(const std::vector<GLVertexBuffer*>& vecVBOs, GLIndexBuffer* pIndexBuf)

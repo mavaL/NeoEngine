@@ -159,6 +159,11 @@
     <None Include="..\Res\Shaders\OpenGL\compose.ps" />
     <None Include="..\Res\Shaders\OpenGL\font.ps" />
     <None Include="..\Res\Shaders\OpenGL\font.vs" />
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.gs" />
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.ps" />
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.vs" />
+    <None Include="..\Res\Shaders\OpenGL\fur_shells.ps" />
+    <None Include="..\Res\Shaders\OpenGL\fur_shells.vs" />
     <None Include="..\Res\Shaders\OpenGL\hdr.ps" />
     <None Include="..\Res\Shaders\OpenGL\linearizedepth.ps" />
     <None Include="..\Res\Shaders\OpenGL\opaque.vs" />
@@ -243,6 +248,7 @@
     <Xml Include="..\Res\Shaders\OpenGL\boxblur_y.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\compose.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\font.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\fur.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\hdr.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\linearizedepth.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\opaque.xml" />

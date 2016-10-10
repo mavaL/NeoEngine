@@ -140,5 +140,21 @@ namespace Neo
 		hs = nullptr;
 		ds = nullptr;
 	}
+	//------------------------------------------------------------------------------------
+	GLGeometryShader::GLGeometryShader(const char* filename, uint32 flags, const std::vector<D3D_SHADER_MACRO>& vecMacros)
+		: GLShader(GL_GEOMETRY_SHADER, filename, vecMacros)
+	{
+
+	}
+	//------------------------------------------------------------------------------------
+	void GLGeometryShader::Activate()
+	{
+		g_RenderSys->GetCurBoundShaderState().gs = this;
+	}
+	//------------------------------------------------------------------------------------
+	void GLGeometryShader::DeActivate()
+	{
+		g_RenderSys->GetCurBoundShaderState().gs = nullptr;
+	}
 
 }

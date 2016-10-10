@@ -1,0 +1,5 @@
+<shadowmap_gen vs="opaque_shadowmapgen.vs" ps="opaque_shadowmapgen.ps"/>
+<gbuffer vs="opaque.vs" ps="opaque_gbuffer.ps"/>
+<forward vs="fur_fins.vs" ps="fur_fins.ps"/>
+<forward_pass2 vs="fur_shells.vs" ps="fur_shells.ps"/>
+<geometryshader gs="fur_fins.gs"/>

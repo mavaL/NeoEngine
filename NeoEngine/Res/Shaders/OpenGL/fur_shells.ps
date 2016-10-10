@@ -1,0 +1,74 @@
+
+uniform sampler2D		tex0;
+uniform sampler2DArray	tex3;
+uniform sampler2DArray	tex4;
+
+
+const int numShells = 15;
+
+uniform cbufferCustom0
+{
+	vec4	vCombParams;	// xyz = combine direction, w = combine strength
+	vec4	vModelCamPos;	// camera pos in object space
+	vec4	vModelLightDir;	// light in object space
+	float	fFinMaxOpacity;
+	float	shellIncrement;
+	float	shellTexTiling;
+	int		iShell;
+};
+
+in vec2 oUv;
+in vec3 oNormal;
+in vec3 oLightVector;
+in vec3 oViewVector;
+in vec3 oCombVector;
+
+layout(location = 0) out vec4 Frag0;
+
+void main()
+{
+	float ka = 0.3;
+    float kd = 0.7;
+    float ks = 0.2;
+    float specPower = 20.0;
+	int shellNum = iShell - 1;
+
+    vec4 outputColor;
+    
+	vec2 Texture = oUv * shellTexTiling;
+    vec4 tangentAndAlpha  = textureLod( tex3, vec3(Texture, shellNum),0 );
+	vec4 offset = textureLod(tex4, vec3(Texture, shellNum), 0);
+
+    //get the fur color and local fur density
+    Texture -= ( offset.xy - 0.5f )*2.0f;
+	Texture /= shellTexTiling;
+	outputColor = texture(tex0, Texture);
+    
+    //discard the parts of the mesh marked as no fur, like the eyes and the feet
+    if(outputColor.a < 0.01)
+        discard;
+
+    //calculate the opacity for alpha blending
+    outputColor.a = tangentAndAlpha.a * offset.a; 
+   
+    //kajiya and kay lighting
+    vec3 lightVector  = normalize(oLightVector);
+    vec3 viewVector   = normalize(oViewVector);
+	vec3 tangentVector = Expand(tangentAndAlpha.xyz); //this is the tangent to the strand of fur
+	tangentVector = normalize(tangentVector + oCombVector);
+
+	float TdotL = dot(tangentVector, lightVector);
+	float TdotE = dot(tangentVector, viewVector);
+    float sinTL = sqrt( 1 - TdotL*TdotL );
+    float sinTE = sqrt( 1 - TdotE*TdotE );
+
+	outputColor.xyz = kd*sinTL*outputColor.xyz*lightColor.xyz +
+		ks*pow(abs((TdotL*TdotE + sinTL*sinTE)), specPower)*lightColor.xyz;
+      
+    //banks selfshadowing:
+    float minShadow = 0.8f;
+	float shadow = (float(shellNum) / float(numShells))*(1 - minShadow) + minShadow;
+    outputColor.xyz *= shadow;
+      
+    Frag0 = outputColor;
+}

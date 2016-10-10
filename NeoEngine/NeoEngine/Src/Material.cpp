@@ -105,8 +105,9 @@ namespace Neo
 		}
 		else if (m_shaderType == eShader_Fur)
 		{
-			m_pVS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, "VS", m_vertType, vecMacro);
+			m_pVS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, "VS", m_vertType, vecMacro);
 			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
+			m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
 			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_Forward, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 		else
@@ -118,8 +119,8 @@ namespace Neo
 
 		if (szVS2 && szPS2)
 		{
-			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_None, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
-			m_pPS_2 = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_None, strShaderFile, shaderFalg, szPS2, m_vertType, vecMacro);
+			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
+			m_pPS_2 = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_Forward, strShaderFile, shaderFalg, szPS2, m_vertType, vecMacro);
 		}
 
 		return true;
@@ -283,7 +284,7 @@ namespace Neo
 			}
 		}
 
-		if (m_vertType == eVertexType_NormalMap)
+		if (m_vertType == eVertexType_NormalMap && m_shaderType != eShader_Fur)
 		{
 			D3D_SHADER_MACRO macro = { "NORMAL_MAP", "" };
 			retMacros.push_back(macro);

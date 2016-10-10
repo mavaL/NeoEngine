@@ -23,6 +23,8 @@ namespace Neo
 		GLTexture(const STRING& filename, eTextureType type, uint32 usage, bool bSRGB);
 		// Create as manual
 		GLTexture(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
+		// Create as texture array
+		GLTexture(const StringVector& vecTexNames, bool bSRGB);
 
 		~GLTexture();
 

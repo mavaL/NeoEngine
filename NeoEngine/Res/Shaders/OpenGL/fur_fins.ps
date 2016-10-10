@@ -1,0 +1,28 @@
+uniform sampler2D	tex0;
+uniform sampler2D	tex5;
+uniform sampler2D	tex6;
+
+
+in vec2 TextureFin;
+in vec2 TextureMesh;
+in float Opacity;
+
+layout(location = 0) out vec4 Frag0;
+
+
+void main()
+{
+	vec4 finOpacity = texture(tex5, TextureFin);
+	vec4 offset = texture(tex6, TextureFin);
+
+    //using color from color map
+	vec2 Texture = TextureMesh;
+    Texture -= ( offset.xy - 0.5f )*2.0f;
+
+	vec4 outputColor = texture(tex0, Texture);
+    
+    //calculate the opacity
+	outputColor.a = finOpacity.a * Opacity;
+
+    Frag0 = outputColor;
+}

@@ -501,10 +501,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
-		ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
+		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		// Test Scene 5: Fur and hair rendering
-		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
 		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);

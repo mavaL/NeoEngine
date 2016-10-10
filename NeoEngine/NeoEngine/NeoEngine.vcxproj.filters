@@ -308,6 +308,21 @@
     <None Include="..\Res\Shaders\OpenGL\boxblur_y.ps">
       <Filter>Shader\opengl</Filter>
     </None>
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.gs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\fur_fins.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\fur_shells.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\fur_shells.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\AABB.cpp">
@@ -487,6 +502,9 @@
       <Filter>Shader\opengl</Filter>
     </Xml>
     <Xml Include="..\Res\Shaders\OpenGL\boxblur_y.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\fur.xml">
       <Filter>Shader\opengl</Filter>
     </Xml>
   </ItemGroup>

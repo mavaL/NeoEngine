@@ -66,6 +66,17 @@ namespace Neo
 		virtual	void	DeActivate();
 	};
 	//------------------------------------------------------------------------------------
+	class GLGeometryShader : public GLShader
+	{
+	public:
+		GLGeometryShader(const char* filename, uint32 flags, const std::vector<D3D_SHADER_MACRO>& vecMacros);
+		~GLGeometryShader() {}
+
+	public:
+		virtual	void	Activate();
+		virtual	void	DeActivate();
+	};
+	//------------------------------------------------------------------------------------
 	class GLBoundShaderState
 	{
 	public:

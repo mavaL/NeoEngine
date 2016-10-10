@@ -164,6 +164,114 @@ namespace Neo
 		_Init(width, height, pTexData, format, usage, nMips);
 	}
 	//------------------------------------------------------------------------------------
+	GLTexture::GLTexture(const StringVector& vecTexNames, bool bSRGB)
+		: Texture(eTextureType_TextureArray, 0, 0, 0, ePF_Unknown, 0, true)
+		, m_bsRGB(bSRGB)
+	{
+		_AST(!vecTexNames.empty());
+
+		OpenGLAPI::GenTextures(1, &m_id);
+		OpenGLAPI::BindTexture(GL_TEXTURE_2D_ARRAY, m_id);
+
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_BASE_LEVEL, 0);
+
+		bool bAllocStorage = false;
+
+		for (size_t i = 0; i < vecTexNames.size(); ++i)
+		{
+			HRESULT hr = S_OK;
+			DirectX::DDS_HEADER* header = nullptr;
+			uint8_t* bitData = nullptr;
+			size_t bitSize = 0;
+			std::unique_ptr<uint8_t[]> ddsData;
+
+			V(DirectX::LoadTextureDataFromFile(EngineToUnicode(vecTexNames[i]).c_str(), ddsData, &header, &bitData, &bitSize));
+
+			m_width = header->width;
+			m_height = header->height;
+			m_depth = vecTexNames.size();
+			m_bMipMap = header->mipMapCount > 0;
+
+			const uint32 nMips = header->mipMapCount ? header->mipMapCount : 1;
+			OpenGLAPI::TexParameter(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, nMips - 1);
+
+			DXGI_FORMAT dxformat = GetDXGIFormat(header->ddspf);
+			_AST(dxformat != DXGI_FORMAT_UNKNOWN);
+
+			switch (dxformat)
+			{
+			case DXGI_FORMAT_B8G8R8X8_UNORM:
+			case DXGI_FORMAT_B8G8R8A8_UNORM: m_texFormat = ePF_A8R8G8B8; break;
+			case DXGI_FORMAT_BC3_UNORM: m_texFormat = ePF_DXT5; break;
+			case DXGI_FORMAT_BC1_UNORM: m_texFormat = ePF_DXT1; break;
+			default: _AST(0);
+			}
+
+			uint32 w = header->width;
+			uint32 h = header->height;
+			const GLPixelFormat& nativeFormat = GetNativePixelFormat(m_texFormat);
+
+			if (!bAllocStorage)
+			{
+				OpenGLAPI::TexStorage3D(GL_TEXTURE_2D_ARRAY, nMips, nativeFormat.InternalFormat, w, h, vecTexNames.size());
+				bAllocStorage = true;
+			}
+
+			for (uint32 iMips = 0; iMips < nMips; ++iMips)
+			{
+				w = w < 1 ? 1 : w;
+				h = h < 1 ? 1 : h;
+
+				OpenGLAPI::PixelStorage(GL_UNPACK_ALIGNMENT, std::min<int>(w, 8));
+
+				const int nSize = CalcTexDataSize(w, h, 1, m_texFormat);
+
+				if (nativeFormat.bIsCompressed)
+				{
+					OpenGLAPI::CompressedTexSubImage3D(
+						GL_TEXTURE_2D_ARRAY,
+						iMips,
+						0, 0, i,
+						w, h,
+						1,
+						m_bsRGB ? nativeFormat.SrgbFormat : nativeFormat.InternalFormat,
+						nSize,
+						bitData
+						);
+				}
+				else
+				{
+					OpenGLAPI::TexSubImage3D(
+						GL_TEXTURE_2D_ARRAY,
+						iMips,
+						0, 0, i,
+						w, h,
+						1,
+						nativeFormat.Format,
+						nativeFormat.Type,
+						bitData
+						);
+				}
+
+				bitData += nSize;
+				w >>= 1;
+				h >>= 1;
+			}
+		}
+
+		if (m_usage & eTextureUsage_AutoGenMips)
+		{
+			OpenGLAPI::GenerateMipmap(GL_TEXTURE_2D_ARRAY);
+		}
+
+		OpenGLAPI::BindTexture(GL_TEXTURE_2D_ARRAY, 0);
+	}
+	//------------------------------------------------------------------------------------
 	GLTexture::~GLTexture()
 	{
 		OpenGLAPI::DeleteTextures(1, &m_id);
@@ -175,6 +283,7 @@ namespace Neo
 		const GLPixelFormat& nativeFormat = GetNativePixelFormat(format);
 
 		GLenum texType = GL_TEXTURE_2D;
+		GLenum target = GL_TEXTURE_2D;
 		uint32 nFace = 1;
 		if (m_texType == eTextureType_CubeMap)
 		{
@@ -192,12 +301,16 @@ namespace Neo
 		OpenGLAPI::TexParameter(texType, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		OpenGLAPI::TexParameter(texType, GL_TEXTURE_MAX_LEVEL, nMips - 1);
 		OpenGLAPI::TexParameter(texType, GL_TEXTURE_BASE_LEVEL, 0);
-		OpenGLAPI::TexParameter(texType, GL_GENERATE_MIPMAP, GL_FALSE);
 
 		for (uint32 iFace = 0; iFace < nFace; ++iFace)
 		{
 			uint32 w = width;
 			uint32 h = height;
+
+			if (m_texType == eTextureType_CubeMap)
+			{
+				target = GL_TEXTURE_CUBE_MAP_POSITIVE_X + iFace;
+			}
 
 			for (uint32 iMips = 0; iMips < nMips; ++iMips)
 			{
@@ -211,7 +324,7 @@ namespace Neo
 				if (nativeFormat.bIsCompressed)
 				{
 					OpenGLAPI::CompressedImage2D(
-						texType == GL_TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + iFace,
+						target,
 						iMips,
 						m_bsRGB ? nativeFormat.SrgbFormat : nativeFormat.InternalFormat,
 						w, h,
@@ -223,7 +336,7 @@ namespace Neo
 				else
 				{
 					OpenGLAPI::TexImage2D(
-						texType == GL_TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_CUBE_MAP_POSITIVE_X + iFace,
+						target,
 						iMips,
 						m_bsRGB ? nativeFormat.SrgbFormat : nativeFormat.InternalFormat,
 						w, h,

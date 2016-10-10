@@ -8,8 +8,8 @@ uniform sampler2D tex4;
 uniform sampler2D tex5;
 uniform sampler2D tex6;
 uniform sampler2D tex7;
-uniform samplerCube texCube0;
-uniform samplerCube texCube1;
+uniform samplerCube tex10;
+uniform samplerCube tex11;
 
 
 in vec2 oUv;
@@ -76,7 +76,7 @@ void main()
 	// Ambient
 	vec4 vAmbientDiff, vAmbientSpec;
 	float fAmbDiffStrength = 0.3f, fAmbSpecStrength = 0.3f;
-	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, texCube0, texCube1, tex7, vView, vNormal, specGloss.xyz, specGloss.w);
+	ComputeAmbientCube(vAmbientDiff, vAmbientSpec, tex10, tex11, tex7, vView, vNormal, specGloss.xyz, specGloss.w);
 
 	oColor += vAmbientSpec * fAmbSpecStrength + vAmbientDiff * albedo * fAmbDiffStrength;
 #endif

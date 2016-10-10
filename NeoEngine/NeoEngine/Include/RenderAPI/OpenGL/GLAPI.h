@@ -385,6 +385,11 @@ public:
 		GLCHECK(glPixelStorei(Name, Param));
 	}
 
+	static FORCEINLINE void TexStorage3D(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+	{
+		GLCHECK(glTexStorage3D(target, levels, internalformat, width, height, depth));
+	}
+
 	static FORCEINLINE void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 	{
 		GLCHECK(glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels));
