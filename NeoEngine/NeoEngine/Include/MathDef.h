@@ -131,6 +131,11 @@ namespace Common
 			return Vector3(x * k, y * k, z * k);
 		}
 
+		inline Vector3 operator / (float k) const
+		{
+			return Vector3(x / k, y / k, z / k);
+		}
+
 		inline Vector3& operator *= (float k)
 		{
 			x *= k;
@@ -241,6 +246,15 @@ namespace Common
 				y + rhs.y,
 				z + rhs.z,
 				w + rhs.w);
+		}
+
+		inline Vector4 operator - (const Vector4& rhs) const
+		{
+			return Vector4(
+				x - rhs.x,
+				y - rhs.y,
+				z - rhs.z,
+				w - rhs.w);
 		}
 
 		inline Vector4& operator += (const Vector4& rhs)
@@ -407,6 +421,8 @@ namespace Common
 		void	Redefine(const Vector3& _n, const Vector3& _p);
 		void	Redefine(const Vector3& p1, const Vector3& p2, const Vector3& p3);
 		Side	GetSide(const Vector3& p) const;
+		Side	GetSide(const AxisAlignBBox& aabb) const;
+		float	GetDistance(const Vector3& v) const;
 
 		Vector3	n;
 		float	d;
@@ -430,7 +446,6 @@ namespace Common
 	};
 
 
-	class AxisAlignBBox;
 	//////// ÒÔ4x4¾ØÕó±ä»»4d×ø±ê
 	void	Transform_Vec4_By_Mat44(Vector4& result, const Vector4& pt, const Matrix44& mat);
 	Vector4	Transform_Vec4_By_Mat44(const Vector4& pt, const Matrix44& mat);

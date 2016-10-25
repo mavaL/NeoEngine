@@ -31,6 +31,7 @@ namespace Neo
 		Camera*		GetCamera()	{ return m_camera; }
 		Scene*		GetCurScene() { return m_pCurScene; }
 		void		ClearScene();
+		Octree*		GetOctree() { return m_pOctree; }
 
 		// Create entity from loaded mesh
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
@@ -80,8 +81,11 @@ namespace Neo
 		void		_PointLightPass();
 		void		_RenderForwardObjs();
 		void		_FurPass(Entity* pEntity);
+		void		_HairPass();
 		void		_HDRFinalScenePass();
+		void		_UIPass(uint32 nFlag);
 
+		Octree*					m_pOctree;
 		std::vector<Scene*>		m_scenes;	
 		Scene*					m_pCurScene;
 

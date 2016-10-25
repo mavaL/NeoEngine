@@ -17,6 +17,8 @@ namespace Neo
 		, m_bUpdateAABB(bUpdateAABB)
 		, m_pCustomRenderData(nullptr)
 	{
+		SetVisible(true);
+
 		if (m_bUpdateAABB)
 		{
 			_ComputeAABB();
@@ -110,11 +112,7 @@ namespace Neo
 			const SVertex* pVerts = pSubMesh->GetVertData().GetVertex();
 			const DWORD nVert = pSubMesh->GetVertData().GetVertCount();
 
-			//AABB start with the first pos
-			aabb.m_minCorner = pVerts[0].pos;
-			aabb.m_maxCorner = pVerts[0].pos;
-
-			for (DWORD i=1; i<nVert; ++i)
+			for (DWORD i=0; i<nVert; ++i)
 			{
 				aabb.Merge(pVerts[i].pos);
 			}
@@ -145,6 +143,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Entity::Render()
 	{
+		if (!GetVisible())
+		{
+			return;
+		}
+
 		g_env.pRenderer->GetMaterialCB().matWorld = GetWorldMatrix().Transpose();
 		g_env.pRenderer->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
 

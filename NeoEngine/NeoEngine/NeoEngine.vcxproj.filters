@@ -264,6 +264,9 @@
     <ClInclude Include="..\Res\Shaders\D3D11\DeferredShadingCommon.h">
       <Filter>Shader\d3d11</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Octree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -480,6 +483,9 @@
     </ClCompile>
     <ClCompile Include="Src\RenderAPI\OpenGL\GLShader.cpp">
       <Filter>源文件\RenderAPI\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Octree.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

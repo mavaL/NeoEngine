@@ -23,6 +23,7 @@
 #include "ShadowMapPSSM.h"
 #include "Buffer.h"
 #include "Renderer.h"
+#include "Octree.h"
 
 
 namespace Neo
@@ -51,6 +52,7 @@ namespace Neo
 	, m_pHero(nullptr)
 	, m_nShadowMapSize(0)
 	, m_pDebugRTMaterial(nullptr)
+	, m_pOctree(nullptr)
 	{
 		
 	}
@@ -59,6 +61,10 @@ namespace Neo
 	{
 		const uint32 nScreenWidth = g_env.pRenderer->GetWndWidth();
 		const uint32 nScreenHeight = g_env.pRenderer->GetWndHeight();
+
+		AABB aabb;
+		aabb.Merge(VEC3(-10000.0f, -10000.0f, -10000.0f));
+		aabb.Merge(VEC3(10000.0f, 10000.0f, 10000.0f));
 
 		m_pTexEnvBRDF = m_pRenderSystem->LoadTexture(GetResPath("EnvironmentBRDF.dds"));
 
@@ -167,6 +173,7 @@ namespace Neo
 		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
 		m_scenes.clear();
 
+		SAFE_DELETE(m_pOctree);
 		SAFE_DELETE(m_pHero);
 		SAFE_DELETE(m_pAmbientCube);
 		SAFE_DELETE(m_pShadowMap);
@@ -252,6 +259,8 @@ namespace Neo
 		{
 			return;
 		}
+
+		m_pOctree->Update();
 
 		if (m_pHero)
 		{
@@ -357,54 +366,7 @@ namespace Neo
 		//================================================================================
 		/// Render UI
 		//================================================================================
-		if (phaseFlag & eRenderPhase_UI)
-		{
-			SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
-			SStateDepth depthState = oldDepthState;
-			depthState.Desc.DepthEnable = false;
-			depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-			g_env.pRenderer->SetDepthState(&depthState);
-
-			auto& lstEntity = m_pCurScene->GetEntityList();
-			for (uint32 i = 0; i < lstEntity.size(); ++i)
-			{
-				lstEntity[i]->DebugRender();
-			}
-
-			char szBuf[512];
-			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %.2f", g_env.pFrameStat->lastFPS);
-			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 10), Neo::SColor::YELLOW);
-
-			const VEC3& vCamPos = m_camera->GetPos();
-			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
-			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
-
-			sprintf_s(szBuf, sizeof(szBuf), "LightDir : (%.2f, %.2f, %.2f)", m_sunLight.lightDir.x, m_sunLight.lightDir.y, m_sunLight.lightDir.z);
-			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
-
-			const uint32 nShadowCasters0 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
-			const uint32 nShadowCasters1 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(1);
-			const uint32 nShadowCasters2 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(2);
-			sprintf_s(szBuf, sizeof(szBuf), "CasterIn Cascade0: %d, Cascade1: %d, Cascade2: %d", nShadowCasters0, nShadowCasters1, nShadowCasters2);
-			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
-
-			if (m_pHero)
-			{
-				g_env.pRenderer->DrawText(m_strHeroStateChange, IPOINT(10, 70), Neo::SColor::YELLOW);
-			}
-
-			// Debug RT
-			if (m_debugRT == eDebugRT_SSAO)
-			{
-				m_pDebugRTMesh->Render();
-			}
-			else if (m_debugRT == eDebugRT_ShadowMap)
-			{
-				m_pDebugRTMesh->Render();
-			}
-
-			g_env.pRenderer->SetDepthState(&oldDepthState);
-		}
+		_UIPass(phaseFlag);
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_RenderGBuffer()
@@ -612,6 +574,61 @@ namespace Neo
 		//}
 	}
 	//------------------------------------------------------------------------------------
+	void SceneManager::_UIPass(uint32 nFlag)
+	{
+		if (nFlag & eRenderPhase_UI)
+		{
+			SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
+			SStateDepth depthState = oldDepthState;
+			depthState.Desc.DepthEnable = false;
+			depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+			g_env.pRenderer->SetDepthState(&depthState);
+
+			auto& lstEntity = m_pCurScene->GetEntityList();
+			for (uint32 i = 0; i < lstEntity.size(); ++i)
+			{
+				lstEntity[i]->DebugRender();
+			}
+
+			char szBuf[512];
+			sprintf_s(szBuf, sizeof(szBuf), "lastFPS : %.2f", g_env.pFrameStat->lastFPS);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 10), Neo::SColor::YELLOW);
+
+			const VEC3& vCamPos = m_camera->GetPos();
+			sprintf_s(szBuf, sizeof(szBuf), "CamPos : (%.2f, %.2f, %.2f)", vCamPos.x, vCamPos.y, vCamPos.z);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 25), Neo::SColor::YELLOW);
+
+			sprintf_s(szBuf, sizeof(szBuf), "LightDir : (%.2f, %.2f, %.2f)", m_sunLight.lightDir.x, m_sunLight.lightDir.y, m_sunLight.lightDir.z);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 40), Neo::SColor::YELLOW);
+
+			const uint32 nShadowCasters0 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(0);
+			const uint32 nShadowCasters1 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(1);
+			const uint32 nShadowCasters2 = m_pShadowMap->GetPSSM()->GetShadowCasterNum(2);
+			sprintf_s(szBuf, sizeof(szBuf), "CasterIn Cascade0: %d, Cascade1: %d, Cascade2: %d", nShadowCasters0, nShadowCasters1, nShadowCasters2);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
+
+			sprintf_s(szBuf, sizeof(szBuf), "Total Objects: %d, Culled Objects: %d", m_pOctree->m_nTotalObjs, m_pOctree->m_nCulledObjs);
+			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 70), Neo::SColor::YELLOW);
+
+			if (m_pHero)
+			{
+				g_env.pRenderer->DrawText(m_strHeroStateChange, IPOINT(10, 85), Neo::SColor::YELLOW);
+			}
+
+			// Debug RT
+			if (m_debugRT == eDebugRT_SSAO)
+			{
+				m_pDebugRTMesh->Render();
+			}
+			else if (m_debugRT == eDebugRT_ShadowMap)
+			{
+				m_pDebugRTMesh->Render();
+			}
+
+			g_env.pRenderer->SetDepthState(&oldDepthState);
+		}
+	}
+	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()
 	{
 		SAFE_DELETE(m_pTerrain);
@@ -692,6 +709,19 @@ namespace Neo
 
 		m_pCurScene = m_scenes[curScene];
 		m_pCurScene->Enter();
+
+		AABB aabb;
+		aabb.Merge(VEC3(-10000.0f, -10000.0f, -10000.0f));
+		aabb.Merge(VEC3(10000.0f, 10000.0f, 10000.0f));
+
+		SAFE_DELETE(m_pOctree);
+		m_pOctree = new Octree(aabb);
+
+		const EntityList& lstEntity = m_pCurScene->GetEntityList();
+		for (uint32 i = 0; i < lstEntity.size(); ++i)
+		{
+			m_pOctree->Insert(lstEntity[i]);
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetupSunLight( const VEC3& dir, const SColor& color )

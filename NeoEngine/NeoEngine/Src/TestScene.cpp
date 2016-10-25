@@ -378,8 +378,8 @@ void SetupTestScene6(Scene* scene)
 	pEntity->SetMaterial(pMaterial);
 
 	// Ambient cube
-	bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"), scene);
-	_AST(bOk);
+	//bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 10, 0), GetResPath("tmp_cubemap.dds"), scene);
+	//_AST(bOk);
 
 	Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
 	Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
@@ -443,8 +443,8 @@ void SetupTestScene7(Scene* scene)
 	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
 
 	// Sponza scene
-	//bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
-	//_AST(bOk);
+	bool bOk = g_env.pSceneMgr->LoadSponzaScene(scene);
+	_AST(bOk);
 
 	// Ambient cube
 	//bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 5, 0), GetResPath("tmp_cubemap.dds"), scene);
@@ -476,11 +476,11 @@ void SetupTestScene7(Scene* scene)
 			pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
 		}
 
-		pMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
+		pMaterial->InitShader(("Opaque"), eShader_Opaque);
 		pEntity->SetMaterial(pMaterial);
 	}
 
-	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20));
+	//g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20));
 }
 
 void EnterTestScene7(Scene* scene)
@@ -504,10 +504,10 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
 
 		// Test Scene 5: Fur and hair rendering
-		ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
+		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);

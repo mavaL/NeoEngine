@@ -70,6 +70,8 @@ namespace Neo
 		bool			GetCastShadow() const	{ return m_bCastShadow; }
 		void			SetReceiveShadow(bool bReceive) { m_bReceiveShadow = bReceive; }
 		bool			GetReceiveShadow() const	{ return m_bReceiveShadow; }
+		void			SetVisible(bool b) { m_bVisible = b; }
+		bool			GetVisible() const { return m_bVisible; }
 
 	protected:
 		void			_UpdateTransform();
@@ -92,6 +94,7 @@ namespace Neo
 		AABB			m_worldAABB;		//ÊÀ½ç°üÎ§ºÐ
 		bool			m_bCastShadow;		// Is shadow caster?
 		bool			m_bReceiveShadow;	// Is shadow receiver?
+		bool			m_bVisible;
 	};
 }
 

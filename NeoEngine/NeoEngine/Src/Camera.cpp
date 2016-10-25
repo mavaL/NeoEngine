@@ -3,6 +3,7 @@
 #include <D3DX10math.h>
 #include "SceneManager.h"
 #include "InputManager.h"
+#include "AABB.h"
 
 namespace Neo
 {
@@ -353,6 +354,39 @@ namespace Neo
 	{
 		VEC3 vLocal = Common::Transform_Vec3_By_Mat44(v, m_matRot, false).GetVec3();
 		m_viewPt += vLocal;
+	}
+
+	bool Camera::FrustumCullingAABB(const AABB& aabb)
+	{
+		_AST(aabb.IsFinite());
+
+		//物体坐标转换到相机空间进行裁减
+		VEC4 pos(aabb.GetCenter(), 1.0f);
+		Common::Transform_Vec4_By_Mat44(pos, pos, GetViewMatrix());
+
+		float n = GetNearClip();
+		float f = GetFarClip();
+		float fov = GetFov();
+		float half_w = n * std::tan(fov / 2);
+		float half_h = half_w / GetAspectRatio();
+
+		//检测前后面
+		if (pos.z + aabb.m_boundingRadius <= n || pos.z - aabb.m_boundingRadius >= f)
+			return true;
+
+		//检测左右面
+		float planeX = half_w * pos.z / n;
+		if (pos.x - planeX >= aabb.m_boundingRadius ||
+			pos.x + aabb.m_boundingRadius <= -planeX)
+			return true;
+
+		//检测上下面
+		float planeY = half_h * pos.z / n;
+		if (pos.y - planeY >= aabb.m_boundingRadius ||
+			pos.y + aabb.m_boundingRadius <= -planeY)
+			return true;
+
+		return false;
 	}
 
 	void Camera::Rotate(const VEC3& axis, float angle)

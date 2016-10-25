@@ -108,6 +108,7 @@
     <ClInclude Include="Include\Mesh.h" />
     <ClInclude Include="Include\MeshLoader.h" />
     <ClInclude Include="Include\ObjMeshLoader.h" />
+    <ClInclude Include="Include\Octree.h" />
     <ClInclude Include="Include\PixelBox.h" />
     <ClInclude Include="Include\Polygon.h" />
     <ClInclude Include="Include\Prerequiestity.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="Src\MeshAdjacency.cpp" />
     <ClCompile Include="Src\MeshLoader.cpp" />
     <ClCompile Include="Src\ObjMeshLoader.cpp" />
+    <ClCompile Include="Src\Octree.cpp" />
     <ClCompile Include="Src\PixelBox.cpp" />
     <ClCompile Include="Src\Polygon.cpp" />
     <ClCompile Include="Src\RenderAPI\D3D11\D3D11Buffer.cpp" />

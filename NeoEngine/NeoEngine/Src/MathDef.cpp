@@ -352,6 +352,30 @@ namespace Common
 		return NO_SIDE;
 	}
 
+	Plane::Side Plane::GetSide(const AxisAlignBBox& aabb) const
+	{
+		// Calculate the distance between box centre and the plane
+		float dist = GetDistance(aabb.GetCenter());
+
+		// Calculate the maximise allows absolute distance for
+		// the distance between box centre and plane
+		const VEC3 vHalfSize = aabb.GetSize() / 2;
+		float maxAbsDist = fabsf(n.x * vHalfSize.x) + fabsf(n.y * vHalfSize.y) + fabsf(n.z * vHalfSize.z);
+
+		if (dist < -maxAbsDist)
+			return Plane::NEGATIVE_SIDE;
+
+		if (dist > +maxAbsDist)
+			return Plane::POSITIVE_SIDE;
+
+		return Plane::BOTH_SIDE;
+	}
+
+	float	Plane::GetDistance(const Vector3& v) const
+	{
+		return DotProduct_Vec3_By_Vec3(v, n) + d;
+	}
+
 
 	bool Vector3::DirectionEqual(const Vector3& dir, float fToleraceRadian) const
 	{

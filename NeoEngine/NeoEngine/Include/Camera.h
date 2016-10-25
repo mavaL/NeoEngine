@@ -33,6 +33,7 @@ namespace Neo
 		void	Pitch(float angle);
 		void	Rotate(const VEC3& axis, float angle);
 		void	MoveLocal(const VEC3& v);
+		bool	FrustumCullingAABB(const AABB& aabb);
 
 		void	SetManualControl(bool b) { m_bManualControl = b; }
 		bool	GetManualControl() const { return m_bManualControl; }

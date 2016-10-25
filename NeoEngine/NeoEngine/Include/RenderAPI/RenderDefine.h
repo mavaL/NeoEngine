@@ -14,6 +14,7 @@ namespace Neo
 	const int	CSM_CASCADE_NUM = 3;
 	const int	FUR_SHELL_LAYER = 15;
 	const int	MAX_MRT_COUNT = 8;
+	const int	OCTREE_MAX_DEPTH = 4;
 
 
 

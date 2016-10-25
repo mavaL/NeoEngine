@@ -261,7 +261,7 @@ namespace Neo
 
 				if (pNewMaterial)
 				{
-					pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
+					pNewMaterial->InitShader("Opaque", eShader_Opaque);
 				}
 
 				pNewMaterial = MaterialManager::GetSingleton().NewMaterial(matName);
@@ -309,7 +309,7 @@ namespace Neo
 			file.ignore(1000, '\n');
 		}
 
-		pNewMaterial->InitShader(GetResPath("Opaque.hlsl"), eShader_Opaque);
+		pNewMaterial->InitShader("Opaque", eShader_Opaque);
 
 		return true;
 	}
