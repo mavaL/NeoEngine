@@ -2,6 +2,7 @@
 #include "D3D11/D3D11Texture.h"
 #include "D3D11/D3D11RenderSystem.h"
 #include "DDSTextureLoader.h"
+#include "PixelBox.h"
 
 namespace Neo
 {
@@ -542,6 +543,22 @@ namespace Neo
 		_CreateManual(nullptr);
 	}
 	//------------------------------------------------------------------------------------
+	void D3D11Texture::UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData)
+	{
+		if (!rcSrc && !rcDest)
+		{
+			// Update the whole region
+			_AST(pData->GetBytesPerPixel() == D3D11Texture::GetBytesPerPixelFromFormat(GetFormat()) &&
+				pData->GetWidth() == GetWidth() && pData->GetHeight() == GetHeight());
+
+			g_pRenderSys->GetDeviceContext()->UpdateSubresource(m_pTexture2D, 0, nullptr, pData->GetDataPointer(), pData->GetPitch(), 0);
+		} 
+		else
+		{
+			_AST(0);
+		}
+	}
+	//------------------------------------------------------------------------------------
 	void D3D11Texture::GenMipMaps()
 	{
 		_AST(GetUsage() & eTextureUsage_AutoGenMips);
@@ -627,35 +644,5 @@ namespace Neo
 		}
 
 		return dxformat;
-	}
-	//------------------------------------------------------------------------------------
-	uint32 D3D11Texture::GetBytesPerPixelFromFormat( ePixelFormat format )
-	{
-		uint32 bytesPerPixel = 0;
-
-		switch(format)
-		{
-		case ePF_A8R8G8B8:
-		case ePF_R32F:		
-		case ePF_R8G8B8:	bytesPerPixel = 4; break;
-		case ePF_L16:		bytesPerPixel = 2; break;
-		case ePF_A16R16G16B16F: bytesPerPixel = 8; break;
-		case ePF_L8:		bytesPerPixel = 1; break;
-		case ePF_R16F:		bytesPerPixel = 2; break;
-		case ePF_G32R32F:	bytesPerPixel = 8; break;
-		case ePF_Depth32:	bytesPerPixel = 4; break;
-
-		case ePF_DXT1:
-		case ePF_DXT2:
-		case ePF_DXT3:
-		case ePF_DXT4:
-		case ePF_DXT5: bytesPerPixel = 4; break;
-
-		default:
-			_AST(0);
-			break;
-		}
-
-		return bytesPerPixel;
 	}
 }

@@ -48,6 +48,7 @@ namespace Neo
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
 		bool		InitAdjIndexData(const DWORD* pIdx, int nIdx);
 		bool		InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert);
+		void		InitTerrainVertData(VertexBuffer* posVB, VertexBuffer* deltaVB, IndexBuffer* pIB, uint32 nIndexCount);
 		bool		BuildTangents();
 
 		void			SetName(const STRING& name) { m_name = name; }
@@ -64,9 +65,9 @@ namespace Neo
 	private:
 		STRING			m_name;
 
-		VertexBuffer*	m_pVertexBuf;
-		VertexBuffer*	m_pVB_Tangent;
-		VertexBuffer*	m_pVB_BoneWeights;
+		VertexBuffer*	m_pVertexStream0;
+		VertexBuffer*	m_pVertexStream1;
+		VertexBuffer*	m_pVertexStream2;
 
 		VertexData		m_vertData;
 

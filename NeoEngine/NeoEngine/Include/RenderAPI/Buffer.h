@@ -22,6 +22,8 @@ namespace Neo
 		virtual ~Buffer() {}
 
 	public:
+		virtual void*	Lock() = 0;
+		virtual void	Unlock() = 0;
 		virtual	void	UpdateBuf(void* pSrc) = 0;
 		virtual void*	GetInternel() = 0;
 		virtual uint32	GetStride() const = 0;
@@ -55,6 +57,16 @@ namespace Neo
 		void			UpdateBuf(void* pSrc)
 		{
 			m_pBuf->UpdateBuf(pSrc);
+		}
+
+		void*			Lock()
+		{
+			return m_pBuf->Lock();
+		}
+
+		void			Unlock()
+		{
+			m_pBuf->Unlock();
 		}
 
 		void*			GetInternel()

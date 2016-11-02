@@ -83,6 +83,34 @@ std::wstring	EngineToUnicode(const std::string& src);
 std::string		UnicodeToEngine(const WCHAR* src);
 std::string		UnicodeToEngine(const std::wstring& src);
 
+/** Pack a 4-character code into a 32-bit identifier.
+@remarks
+You can use this to generate id's for your chunks based on friendlier
+4-character codes rather than assigning numerical IDs, if you like.
+@param code String to pack - must be 4 characters.
+*/
+inline uint32 makeIdentifier(const STRING& code)
+{
+	_AST(code.length() <= 4 && "Characters after the 4th are being ignored");
+	uint32 ret = 0;
+	size_t c = std::min((size_t)4, code.length());
+	for (size_t i = 0; i < c; ++i)
+	{
+		ret += (code.at(i) << (i * 8));
+	}
+	return ret;
+
+}
+
+/// Fast general hashing algorithm
+uint32 FastHash(const char * data, int len, uint32 hashSoFar = 0);
+/// Combine hashes with same style as boost::hash_combine
+template <typename T>
+uint32 HashCombine(uint32 hashSoFar, const T& data)
+{
+	return FastHash((const char*)&data, sizeof(T), hashSoFar);
+}
+
 
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(p) if(p) { delete p; p=nullptr; }

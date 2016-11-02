@@ -8,7 +8,6 @@
 #include "RenderSystem.h"
 #include "Utility.h"
 #include "Entity.h"
-#include "Terrain.h"
 #include "SkinModel.h"
 #include "ThirdPersonCharacter.h"
 #include "Material.h"
@@ -179,23 +178,23 @@ namespace Neo
 		}
 
 		// Dont forget terrain
-		if (g_env.pSceneMgr->GetTerrain())
-		{
-			VEC3 aabb_points[8];
-			g_env.pSceneMgr->GetTerrain()->GetTerrainAABB().GetPoints(aabb_points);
+		//if (g_env.pSceneMgr->GetTerrain())
+		//{
+		//	VEC3 aabb_points[8];
+		//	g_env.pSceneMgr->GetTerrain()->GetTerrainAABB().GetPoints(aabb_points);
 
-			// for each point in AABB
-			for (int j = 0; j < 8; j++)
-			{
-				// calculate z-coordinate distance to near plane of camera
-				VEC3 vPointToCam = aabb_points[j] - cam.GetPos();
-				float fZ = Common::DotProduct_Vec3_By_Vec3(vPointToCam, vDir);
+		//	// for each point in AABB
+		//	for (int j = 0; j < 8; j++)
+		//	{
+		//		// calculate z-coordinate distance to near plane of camera
+		//		VEC3 vPointToCam = aabb_points[j] - cam.GetPos();
+		//		float fZ = Common::DotProduct_Vec3_By_Vec3(vPointToCam, vDir);
 
-				// find boundary values
-				if (fZ > fMaxZ) fMaxZ = fZ;
-				if (fZ < fMinZ) fMinZ = fZ;
-			}
-		}
+		//		// find boundary values
+		//		if (fZ > fMaxZ) fMaxZ = fZ;
+		//		if (fZ < fMinZ) fMinZ = fZ;
+		//	}
+		//}
 		
 
 		float fNewNear = Max(fMinZ, 1.0f);
@@ -368,10 +367,10 @@ namespace Neo
 			receiversBB.Merge(CreateClipSpaceAABB(receivers[i]->GetWorldAABB(), matLightViewProj));
 		}
 
-		if (g_env.pSceneMgr->GetTerrain())
-		{
-			receiversBB.Merge(g_env.pSceneMgr->GetTerrain()->GetTerrainAABB());
-		}
+		//if (g_env.pSceneMgr->GetTerrain())
+		//{
+		//	receiversBB.Merge(g_env.pSceneMgr->GetTerrain()->GetTerrainAABB());
+		//}
 
 		// find frustum boundaries in light clip space
 		splitBB = CreateClipSpaceAABB(frustumAABB, matLightViewProj);

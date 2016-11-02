@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "Water.h"
 #include "Sky.h"
-#include "Terrain.h"
 #include "Scene.h"
 #include "MeshLoader.h"
 #include "ObjMeshLoader.h"
@@ -24,6 +23,7 @@
 #include "Buffer.h"
 #include "Renderer.h"
 #include "Octree.h"
+#include "Terrain/TerrainGroup.h"
 
 
 namespace Neo
@@ -35,7 +35,6 @@ namespace Neo
 	: m_pRenderSystem(g_env.pRenderer->GetRenderSys())
 	, m_camera(nullptr)
 	, m_pCurScene(nullptr)
-	, m_pTerrain(nullptr)
 	, m_pWater(nullptr)
 	, m_pSky(nullptr)
 	, m_pMeshLoader(new MeshLoader)
@@ -53,6 +52,8 @@ namespace Neo
 	, m_nShadowMapSize(0)
 	, m_pDebugRTMaterial(nullptr)
 	, m_pOctree(nullptr)
+	, m_pTerrainOptions(nullptr)
+	, m_pTerrain(nullptr)
 	{
 		
 	}
@@ -173,6 +174,8 @@ namespace Neo
 		std::for_each(m_scenes.begin(), m_scenes.end(), std::default_delete<Scene>());
 		m_scenes.clear();
 
+		SAFE_DELETE(m_pTerrain);
+		SAFE_DELETE(m_pTerrainOptions);
 		SAFE_DELETE(m_pOctree);
 		SAFE_DELETE(m_pHero);
 		SAFE_DELETE(m_pAmbientCube);
@@ -199,9 +202,9 @@ namespace Neo
 		m_pSky = new Sky;
 	}
 	//-------------------------------------------------------------------------------
-	void SceneManager::CreateTerrain()
+	void SceneManager::SetTerrain(TerrainGroup* p)
 	{
-		m_pTerrain = new Terrain(GetResPath("terrain.raw"));
+		m_pTerrain = p;
 	}
 	//-------------------------------------------------------------------------------
 	void SceneManager::CreateWater(float waterHeight)
@@ -258,6 +261,11 @@ namespace Neo
 		if (!m_pCurScene)
 		{
 			return;
+		}
+
+		if (m_pTerrain)
+		{
+			m_pTerrain->UpdateLod();
 		}
 
 		m_pOctree->Update();
@@ -380,12 +388,6 @@ namespace Neo
 		RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
 		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDepthBuffer(), 3);
 
-		// Terrain
-		if (m_pTerrain)
-		{
-			m_pTerrain->Render();
-		}
-
 		m_pCurScene->RenderOpaque();
 
 		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
@@ -451,6 +453,8 @@ namespace Neo
 				_FurPass(pEntity);
 			}
 		}
+
+		m_pTerrain->Render();
 	}
 	//------------------------------------------------------------------------------------
 	_declspec(align(16))
@@ -607,12 +611,13 @@ namespace Neo
 			sprintf_s(szBuf, sizeof(szBuf), "CasterIn Cascade0: %d, Cascade1: %d, Cascade2: %d", nShadowCasters0, nShadowCasters1, nShadowCasters2);
 			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 55), Neo::SColor::YELLOW);
 
-			sprintf_s(szBuf, sizeof(szBuf), "Total Objects: %d, Culled Objects: %d", m_pOctree->m_nTotalObjs, m_pOctree->m_nCulledObjs);
+			sprintf_s(szBuf, sizeof(szBuf), "Total Objects: %d, Culled Objects: %d, Frustum Cull Performs: %d", 
+				m_pOctree->m_nTotalObjs, m_pOctree->m_nCulledObjs, m_pOctree->m_nFrustumCullNum);
 			g_env.pRenderer->DrawText(szBuf, IPOINT(10, 70), Neo::SColor::YELLOW);
 
 			if (m_pHero)
 			{
-				g_env.pRenderer->DrawText(m_strHeroStateChange, IPOINT(10, 85), Neo::SColor::YELLOW);
+				g_env.pRenderer->DrawText(m_strHeroStateChange, IPOINT(10, 100), Neo::SColor::YELLOW);
 			}
 
 			// Debug RT
@@ -631,7 +636,6 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void SceneManager::ClearScene()
 	{
-		SAFE_DELETE(m_pTerrain);
 		SAFE_DELETE(m_pWater);
 		SAFE_DELETE(m_pSky);
 	}
@@ -974,6 +978,12 @@ namespace Neo
 	void SceneManager::AddPointLight(const SPointLight& light)
 	{
 		m_vecPointLights.push_back(light);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::SetTerrainOptions(TerrainGlobalOptions* p)
+	{
+		SAFE_DELETE(m_pTerrainOptions);
+		m_pTerrainOptions = p;
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::SetShadowDepthBias(float fBias)

@@ -29,10 +29,10 @@ SamplerState samShadow : register(s1);
 SamplerState samLinear : register(s2);
 
 // Per-tile shared data
-groupshared uint s_TileMinZ;
-groupshared uint s_TileMaxZ;
-groupshared uint s_TileLightNum;
-groupshared uint s_TileLightIndices[TOTAL_LIGHT_NUM];
+groupshared uint32 s_TileMinZ;
+groupshared uint32 s_TileMaxZ;
+groupshared uint32 s_TileLightNum;
+groupshared uint32 s_TileLightIndices[TOTAL_LIGHT_NUM];
 
 // - RGBA 16-bit per component packed into a uint2 per texel
 uint2 PackRGBA16(float4 c)
@@ -49,7 +49,7 @@ float linstep(float min, float max, float v)
 void CS(
 	uint3 groupId          : SV_GroupID,
 	uint3 dispatchThreadId : SV_DispatchThreadID,
-	uint groupIndex : SV_GroupIndex)
+	uint32 groupIndex : SV_GroupIndex)
 {
 	uint2 globalCoords = dispatchThreadId.xy;
 	float2 texUV = globalCoords / (float2)frameBufferSize.xy;
@@ -111,18 +111,18 @@ void CS(
 	frustumPlanes[5] = float4(0.0f, 0.0f, -1.0f, maxTileZ);
 
 	// Normalize frustum planes (near/far already normalized)
-	[unroll] for (uint i = 0; i < 4; ++i) 
+	[unroll] for (uint32 i = 0; i < 4; ++i) 
 	{
 		frustumPlanes[i] *= rcp(length(frustumPlanes[i].xyz));
 	}
 
-	for (uint iLightIndex = groupIndex; iLightIndex < TOTAL_LIGHT_NUM; iLightIndex += COMPUTE_SHADER_TILE_SIZE)
+	for (uint32 iLightIndex = groupIndex; iLightIndex < TOTAL_LIGHT_NUM; iLightIndex += COMPUTE_SHADER_TILE_SIZE)
 	{
 		PointLight light = gLight[iLightIndex];
 		bool bInFrustum = true;
 		float4 vLightPosView = mul(float4(light.position, 1.0f), View);
 
-		[unroll] for (uint iPlane = 0; iPlane < 6; ++iPlane)
+		[unroll] for (uint32 iPlane = 0; iPlane < 6; ++iPlane)
 		{
 			float d = dot(frustumPlanes[iPlane], vLightPosView);
 			bInFrustum = bInFrustum && (d >= -light.attenuationEnd);
@@ -132,7 +132,7 @@ void CS(
 		{
 			// Append light to list
 			// Compaction might be better if we expect a lot of lights
-			uint listIndex;
+			uint32 listIndex;
 			InterlockedAdd(s_TileLightNum, 1, listIndex);
 			s_TileLightIndices[listIndex] = iLightIndex;
 		}
@@ -177,8 +177,8 @@ void CS(
 		oColor += vAmbientSpec + vAmbientDiff * albedo;
 
 		// Point lights
-		uint nPointLights = s_TileLightNum;
-		for (uint i = 0; i < nPointLights; ++i)
+		uint32 nPointLights = s_TileLightNum;
+		for (uint32 i = 0; i < nPointLights; ++i)
 		{
 			PointLight light = gLight[s_TileLightIndices[i]];
 

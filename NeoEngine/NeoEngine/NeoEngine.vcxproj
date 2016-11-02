@@ -147,7 +147,10 @@
     <ClInclude Include="Include\stdafx.h" />
     <ClInclude Include="Include\StructuredBuffer.h" />
     <ClInclude Include="Include\TangentSpaceCalculation.h" />
-    <ClInclude Include="Include\Terrain.h" />
+    <ClInclude Include="Include\Terrain\Terrain.h" />
+    <ClInclude Include="Include\Terrain\TerrainGroup.h" />
+    <ClInclude Include="Include\Terrain\TerrainLodManager.h" />
+    <ClInclude Include="Include\Terrain\TerrainQuadTreeNode.h" />
     <ClInclude Include="Include\ThirdPersonCharacter.h" />
     <ClInclude Include="Include\TiledRenderer.h" />
     <ClInclude Include="Include\Utility.h" />
@@ -237,7 +240,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Src\Terrain.cpp" />
+    <ClCompile Include="Src\Terrain\Terrain.cpp" />
+    <ClCompile Include="Src\Terrain\TerrainGroup.cpp" />
+    <ClCompile Include="Src\Terrain\TerrainLodManager.cpp" />
+    <ClCompile Include="Src\Terrain\TerrainQuadTreeNode.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
     <ClCompile Include="Src\ThirdPersonCharacter.cpp" />
     <ClCompile Include="Src\TiledRenderer.cpp" />

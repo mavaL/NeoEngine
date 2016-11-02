@@ -19,6 +19,11 @@ namespace Common
 												0, 0, 1, 0,
 												0, 0, 0, 1);
 
+	Matrix44 Matrix44::ZERO =			Matrix44(0, 0, 0, 0,
+												0, 0, 0, 0,
+												0, 0, 0, 0,
+												0, 0, 0, 0);
+
 
 	Common::Quaternion Quaternion::IDENTITY	=	Quaternion(1, 0, 0, 0);
 

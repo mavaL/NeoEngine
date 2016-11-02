@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Octree.h"
 #include "Entity.h"
-#include "RenderDefine.h"
 #include "Camera.h"
 #include "SceneManager.h"
 #include "Scene.h"
@@ -10,8 +9,23 @@ namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	OctreeNode::OctreeNode()
+		: m_iDepth(-1)
 	{
 		ZeroMemory(m_pChildren, 8 * sizeof(OctreeNode*));
+	}
+	//------------------------------------------------------------------------------------
+	OctreeNode::~OctreeNode()
+	{
+		for (int i = 0; i < 2; ++i)
+		{
+			for (int j = 0; j < 2; ++j)
+			{
+				for (int k = 0; k < 2; ++k)
+				{
+					SAFE_DELETE(m_pChildren[i][j][k]);
+				}
+			}
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void OctreeNode::WalkOctree()
@@ -45,6 +59,7 @@ namespace Neo
 					m_pObjs[i]->SetVisible(true);
 					--g_env.pSceneMgr->GetOctree()->m_nCulledObjs;
 				}
+				++g_env.pSceneMgr->GetOctree()->m_nFrustumCullNum;
 			}
 
 			// Walk through 8 child nodes
@@ -88,6 +103,10 @@ namespace Neo
 				m_pChildren[1][1][1]->WalkOctree();
 			}
 		}
+		else
+		{
+			++g_env.pSceneMgr->GetOctree()->m_nCulledNodes[m_iDepth];
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void OctreeNode::Insert(Entity* pObj, uint32 nDepth)
@@ -100,6 +119,7 @@ namespace Neo
 			if (m_pChildren[x][y][z] == nullptr)
 			{
 				m_pChildren[x][y][z] = new OctreeNode;
+				m_pChildren[x][y][z]->m_iDepth = m_iDepth + 1;
 
 				// Calc AABB of the child node.
 				VEC3 vMin, vMax;
@@ -172,6 +192,7 @@ namespace Neo
 		, m_nCulledObjs(0)
 	{
 		m_pRootNode = new OctreeNode;
+		m_pRootNode->m_iDepth = 0;
 		m_pRootNode->m_aabb = sceneAABB;
 	}
 	//------------------------------------------------------------------------------------
@@ -200,7 +221,13 @@ namespace Neo
 			lstEntity[i]->SetVisible(false);
 		}
 
+		for (uint32 i = 0; i < OCTREE_MAX_DEPTH; ++i)
+		{
+			m_nCulledNodes[i] = 0;
+		}
+
 		m_nCulledObjs = m_nTotalObjs;
+		m_nFrustumCullNum = 0;
 		m_pRootNode->WalkOctree();
 	}
 

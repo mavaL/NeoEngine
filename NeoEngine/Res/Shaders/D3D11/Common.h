@@ -68,6 +68,11 @@ float3 Expand(float3 v)
 	return v * 2 - 1;
 }
 
+float4 Expand(float4 v)
+{
+	return v * 2 - 1;
+}
+
 float3 GetNormalFromTexture(Texture2D tex, SamplerState samp, float2 uv)
 {
 	float4 color = tex.Sample(samp, uv);

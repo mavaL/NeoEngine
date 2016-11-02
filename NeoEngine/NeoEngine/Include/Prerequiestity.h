@@ -30,6 +30,7 @@ namespace Common
 	class iPoint;
 	class Quaternion;
 	class Ray;
+	class iRect;
 }
 
 namespace Neo
@@ -45,6 +46,10 @@ namespace Neo
 	class	VertexData;
 	class	Material;
 	class	Terrain;
+	class	TerrainQuadTreeNode;
+	class	TerrainGlobalOptions;
+	class	TerrainGroup;
+	class	TerrainLodManager;
 	class	Water;
 	class	Sky;
 	class	Scene;
@@ -109,6 +114,7 @@ typedef Common::Plane			PLANE;
 typedef Common::iPoint			IPOINT;
 typedef Common::Quaternion		QUATERNION;
 typedef Common::Ray				RAY;
+typedef Common::iRect			Rect;
 typedef std::vector<Neo::Entity*>	EntityList;
 
 

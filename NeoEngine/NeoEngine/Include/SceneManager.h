@@ -48,8 +48,9 @@ namespace Neo
 
 		void		SetupSunLight(const VEC3& dir, const SColor& color);
 		void		AddPointLight(const SPointLight& light);
+		void		SetTerrainOptions(TerrainGlobalOptions* p);
 		void		CreateSky();
-		void		CreateTerrain();
+		void		SetTerrain(TerrainGroup* p);
 		void		CreateWater(float waterHeight = 0.0f);
 		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
@@ -59,13 +60,13 @@ namespace Neo
 		RenderTarget*				GetSpecRT() { return m_pRT_Specular; }
 		RenderTarget*				GetDepthRT() { return m_pRT_Depth; }
 		SSAO*						GetSSAO()		{ return m_pSSAO; }
-		Terrain*					GetTerrain()	{ return m_pTerrain; }
 		Sky*						GetSky()		{ return m_pSky; }
 		ThirdPersonCharacter*		GetHero()		{ return m_pHero; }
 		ShadowMap*					GetShadowMap()	{ return m_pShadowMap; }
 		AmbientCube*				GetAmbientCube() { return m_pAmbientCube; }
 		const PointLightVector&		GetPointLights() const { return m_vecPointLights; }
 		Texture*					GetEnvBRDFTexture() { return m_pTexEnvBRDF; }
+		TerrainGlobalOptions*		GetTerrainOptions() { return m_pTerrainOptions; }
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
@@ -102,7 +103,8 @@ namespace Neo
 		SDirectionLight	m_sunLight;				// Sun light
 		AmbientCube*	m_pAmbientCube;
 		PointLightVector	m_vecPointLights;	// Point lights in current scene
-		Terrain*		m_pTerrain;
+		TerrainGlobalOptions* m_pTerrainOptions;
+		TerrainGroup*	m_pTerrain;
 		Water*			m_pWater;
 		Sky*			m_pSky;
 		ShadowMap*		m_pShadowMap;

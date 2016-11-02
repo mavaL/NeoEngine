@@ -21,6 +21,7 @@ namespace Neo
 		switch (type)
 		{
 		case ePrimitive_TriangleList:				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		case ePrimitive_TriangleStrip:				return D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
 		case ePrimitive_4_Control_Point_PatchList:	return D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST;
 		case ePrimitive_LineList_Adj:				return D3D11_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
 		default: _AST(0);

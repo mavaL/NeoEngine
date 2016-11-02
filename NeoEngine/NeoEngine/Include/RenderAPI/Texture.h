@@ -29,8 +29,11 @@ namespace Neo
 		virtual void*		GetRTV(uint32 iSlice) const = 0;
 		virtual void		GenMipMaps() = 0;
 		virtual void		Resize(uint32 nWidth, uint32 nHeight) = 0;
+		virtual void		UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData) = 0;
 
 	public:
+		static uint32		GetBytesPerPixelFromFormat(ePixelFormat format);
+
 		eTextureType		GetTextureType() const { return m_texType; }
 		uint32				GetWidth() const { return m_width; }
 		uint32				GetHeight() const { return m_height; }

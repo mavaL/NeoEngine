@@ -39,6 +39,7 @@ namespace Neo
 		virtual void*		GetRTV(uint32 iSlice) const { return m_pRTV_slices[iSlice]; }
 		virtual void		GenMipMaps();
 		virtual void		Resize(uint32 nWidth, uint32 nHeight);
+		virtual void		UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData);
 
 	public:
 		void								Destroy();
@@ -53,7 +54,6 @@ namespace Neo
 		static ePixelFormat					ConvertFromDXFormat(DXGI_FORMAT dxformat);
 		static DXGI_FORMAT					ConvertToDXFormat(ePixelFormat format);
 		static DXGI_FORMAT					GetTypedFormat(DXGI_FORMAT format);
-		static uint32						GetBytesPerPixelFromFormat(ePixelFormat format);
 
 	private:
 		void				_CreateManual(const char* pTexData);

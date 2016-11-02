@@ -31,6 +31,17 @@ namespace Neo
 		OpenGLAPI::DeleteBuffers(1, &m_id);
 	}
 	//------------------------------------------------------------------------------------
+	void* GLBuffer::Lock()
+	{
+		_AST(0);
+		return nullptr;
+	}
+	//------------------------------------------------------------------------------------
+	void GLBuffer::Unlock()
+	{
+		_AST(0);
+	}
+	//------------------------------------------------------------------------------------
 	void GLBuffer::UpdateBuf(void* pSrc)
 	{
 		OpenGLAPI::BindBuffer(m_target, m_id);

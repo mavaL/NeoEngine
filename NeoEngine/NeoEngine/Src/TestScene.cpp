@@ -9,7 +9,6 @@
 #include "Entity.h"
 #include "Mesh.h"
 #include "ShadowMap.h"
-#include "Terrain.h"
 #include "AmbientCube.h"
 #include "MaterialManager.h"
 #include "ObjMeshLoader.h"
@@ -18,6 +17,8 @@
 #include "ThirdPersonCharacter.h"
 #include "ShadowMapPSSM.h"
 #include "Renderer.h"
+#include "Terrain/Terrain.h"
+#include "Terrain/TerrainGroup.h"
 
 using namespace Neo;
 
@@ -85,55 +86,101 @@ void SetupTestScene3(Scene* scene)
 	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 1), SColor(0.7f, 0.7f, 0.7f));
 	g_env.pSceneMgr->SetShadowMapSize(1024);
 
-	g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64, 0, 358));
-	g_env.pSceneMgr->CreateSky();
-	g_env.pSceneMgr->CreateTerrain();
+	//g_env.pSceneMgr->CreateHero(scene, VEC3(0, 15, -20))->GetModel()->SetPosition(VEC3(64, 0, 358));
+	//g_env.pSceneMgr->CreateSky();
 	
 	// Ambient cube
 	//bool bOk = g_env.pSceneMgr->GetAmbientCube()->GenerateHDRCubeMap(VEC3(0, 20, 0), GetResPath("tmp_cubemap.dds"), scene);
 	//_AST(bOk);
 
-	Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
-	Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
+	//Texture* pTexIrradiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_diff.dds"), eTextureType_CubeMap);
+	//Texture* pTexRadiance = g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("sponza_ambientcube_spec.dds"), eTextureType_CubeMap);
 
-	g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
+	//g_env.pSceneMgr->GetAmbientCube()->SetupCubeMap(pTexIrradiance, pTexRadiance);
 
-	// Some wood pallets
-	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_wood");
-	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("WoodPallet.dds"), eTextureType_2D, 0, true));
-	pMaterial->InitShader(("Opaque"), eShader_Opaque);
+	//// Some wood pallets
+	//Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_wood");
+	//pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("WoodPallet.dds"), eTextureType_2D, 0, true));
+	//pMaterial->InitShader(("Opaque"), eShader_Opaque);
 
-	for (int i = 0; i < 5; ++i)
-	{
-		for (int j = 0; j < 5; ++j)
-		{
-			Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("WoodPallet.mesh"));
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	for (int j = 0; j < 5; ++j)
+	//	{
+	//		Neo::Entity* pCaster = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("WoodPallet.mesh"));
 
-			scene->AddEntity(pCaster);
-			pCaster->SetMaterial(pMaterial);
-			pCaster->SetCastShadow(true);
-			pCaster->SetReceiveShadow(false);
+	//		scene->AddEntity(pCaster);
+	//		pCaster->SetMaterial(pMaterial);
+	//		pCaster->SetCastShadow(true);
+	//		pCaster->SetReceiveShadow(false);
 
-			VEC3 vPos(VEC3(-100 + i * 40.f, 0, 300 + j * 40.f));
-			vPos.y = g_env.pSceneMgr->GetTerrain()->GetHeightAt(vPos);
-			pCaster->SetPosition(vPos);
+	//		VEC3 vPos(VEC3(-100 + i * 40.f, 0, 300 + j * 40.f));
+	//		vPos.y = g_env.pSceneMgr->GetTerrain()->GetHeightAt(vPos);
+	//		pCaster->SetPosition(vPos);
 
-			pCaster->SetScale(1, 1, 3);
+	//		pCaster->SetScale(1, 1, 3);
 
-			QUATERNION quat(VEC3::UNIT_Z, 90);
-			pCaster->SetRotation(quat);
-		}
-	}
+	//		QUATERNION quat(VEC3::UNIT_Z, 90);
+	//		pCaster->SetRotation(quat);
+	//	}
+	//}
+
+#define TERRAIN_FILE_PREFIX STRING("testTerrain")
+#define TERRAIN_FILE_SUFFIX STRING("dat")
+#define TERRAIN_WORLD_SIZE 12000.0f
+#define TERRAIN_SIZE 513
+
+	Neo::TerrainGlobalOptions* pTerrainOptions = new Neo::TerrainGlobalOptions;
+	g_env.pSceneMgr->SetTerrainOptions(pTerrainOptions);
+
+	Neo::TerrainGroup* pTerrainGroup = new Neo::TerrainGroup(Terrain::ALIGN_X_Z, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
+	pTerrainGroup->setFilenameConvention(TERRAIN_FILE_PREFIX, TERRAIN_FILE_SUFFIX);
+
+	const VEC3 vTerrainPos(1000, 0, 5000);
+	pTerrainGroup->setOrigin(vTerrainPos);
+
+	pTerrainOptions->setMaxPixelError(8);
+	pTerrainOptions->setCompositeMapDistance(3000);
+	pTerrainOptions->setLightMapDirection(g_env.pSceneMgr->GetSunLight().lightDir);
+	pTerrainOptions->setCompositeMapAmbient(SColor::BLACK);
+	pTerrainOptions->setCompositeMapDiffuse(SColor::BLACK);
+
+	// Configure default import settings for if we use imported image
+	Terrain::ImportData& defaultimp = pTerrainGroup->getDefaultImportSettings();
+	defaultimp.terrainSize = TERRAIN_SIZE;
+	defaultimp.worldSize = TERRAIN_WORLD_SIZE;
+	defaultimp.inputScale = 600;
+	defaultimp.minBatchSize = 33;
+	defaultimp.maxBatchSize = 65;
+	// textures
+	defaultimp.layerList.resize(3);
+	defaultimp.layerList[0].worldSize = 100;
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_diffusespecular.dds"));
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_normalheight.dds"));
+	defaultimp.layerList[1].worldSize = 30;
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_diffusespecular.dds"));
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_normalheight.dds"));
+	defaultimp.layerList[2].worldSize = 200;
+	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_diffusespecular.dds"));
+	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_normalheight.dds"));
+
+	pTerrainGroup->defineTerrain(x, y, &img);
+
+	// sync load since we want everything in place when we start
+	pTerrainGroup->loadAllTerrains(true);
+	pTerrainGroup->freeTemporaryResources();
+
+	g_env.pSceneMgr->SetTerrain(pTerrainGroup);
 }
 
 void EnterTestScene3(Scene* scene)
 {
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
-	pCamera->SetPosition(VEC3(0,10,0));
-	pCamera->SetNearClip(1);
-	pCamera->SetFarClip(2500.0f);
-	pCamera->SetMoveSpeed(0.5f);
+	pCamera->SetPosition(VEC3(1000, 0, 5000) + VEC3(1683, 50, 2116));
 	pCamera->SetDirection(VEC3::UNIT_Z);
+	pCamera->SetNearClip(1);
+	pCamera->SetFarClip(10000.0f);
+	pCamera->SetMoveSpeed(0.2f);
 }
 
 void SetupTestScene4(Scene* scene)
@@ -498,7 +545,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		////// Test Scene 3: Terrain
-		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
 		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
@@ -507,7 +554,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);

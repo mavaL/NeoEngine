@@ -79,7 +79,11 @@ namespace Neo
 		}
 		else if (!(nUsage & eBufferUsage_ConstantBuf))
 		{
-			bd.Usage = D3D11_USAGE_IMMUTABLE;
+			// If this buffer is immutable, it has to have initial data.
+			if (pData)
+			{
+				bd.Usage = D3D11_USAGE_IMMUTABLE;
+			}
 		}
 
 		HRESULT hr = S_OK;
@@ -89,6 +93,22 @@ namespace Neo
 	D3D11Buffer::~D3D11Buffer()
 	{
 		SAFE_RELEASE(m_pBuf);
+	}
+	//------------------------------------------------------------------------------------
+	void* D3D11Buffer::Lock()
+	{
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		mapped.pData = NULL;
+		HRESULT hr = S_OK;
+
+		V(g_pRenderSys->GetDeviceContext()->Map(m_pBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
+
+		return mapped.pData;
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11Buffer::Unlock()
+	{
+		g_pRenderSys->GetDeviceContext()->Unmap(m_pBuf, 0);
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11Buffer::UpdateBuf(void* pSrc)

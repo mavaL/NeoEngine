@@ -1,294 +1,124 @@
 #include "Common.h"
 
-//--------------------------------------------------------------------------------------
-// Global Variables
-//--------------------------------------------------------------------------------------
-Texture2D		gHeightMap		: register(t0);
-Texture2DArray	gLayerMaps		: register(t1);
-Texture2D		gBlendMap		: register(t2);
-Texture2D		gNormalMap		: register(t3);
 
-SamplerState	samPoint		: register(s0);
-SamplerState	samLinear		: register(s1);
-
-static const float2	g_layerTexScale = 50.0;
-
-//--------------------------------------------------------------------------------------
-// Constant Buffer Variables
-//--------------------------------------------------------------------------------------
-cbuffer cbufferTerrain : register( b3 )
+cbuffer cbTerrain	:	register(b10)
 {
-	float4	frustumWorldPlanes[4];
-	float	minTessDist;
-	float	maxTessDist;
-	float	minTess;
-	float	maxTess;
-	float2	invTexSize;
-	float	terrainCellSpace;
+	matrix		posIndexToObjectSpace;
+	float4		uvMul_0;
+	float2		lodMorph;
+	float		baseUVScale;
 };
 
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
-    float3 Pos : POSITION;
-	float3 normal : NORMAL;
-	float2 uv  : TEXCOORD0;
-	float4 color : COLOR;
+	int2 posIndex : POSITION;
+	float height : TEXCOORD0;
+	float2 delta : TEXCOORD1;
 };
 
 struct VS_OUTPUT
 {
-    float3 PosW		: POSITION;
-	float2 uv		: TEXCOORD0;
-	float2 boundY	: TEXCOORD1;
+	float4 oPos : SV_Position;
+	float4 oWPos : TEXCOORD0;
+	float4 oUVMisc : TEXCOORD1; // xy = uv, z = camDepth
+	float4 oUV0 : TEXCOORD2;
+	float4 oUV1 : TEXCOORD3;
 };
 
-//--------------------------------------------------------------------------------------
-// Vertex Shader
-//--------------------------------------------------------------------------------------
-VS_OUTPUT VS( VS_INPUT input )
-{
-    VS_OUTPUT OUT = (VS_OUTPUT)0;
 
-    OUT.PosW = input.Pos;
-	OUT.uv = input.uv;
-	OUT.boundY = input.color.xy;
-    
-    return OUT;
+VS_OUTPUT VS(VS_INPUT IN)
+{
+	VS_OUTPUT OUT = (VS_OUTPUT)0;
+
+	float4 pos = mul(float4(IN.posIndex.x, IN.posIndex.y, IN.height, 1), posIndexToObjectSpace);
+	pos = mul(pos, World);
+	OUT.oWPos = pos;
+
+	float toMorph = -min(0, sign(IN.delta.y - lodMorph.y));
+	pos.y += IN.delta.x * toMorph * lodMorph.x;
+	OUT.oPos = mul(pos, ViewProj);
+
+	float2 uv = float2(IN.posIndex.x * baseUVScale, 1.0 - (IN.posIndex.y * baseUVScale));
+	OUT.oUV0.xy = uv.xy * uvMul_0.r;
+	OUT.oUV0.zw = uv.xy * uvMul_0.g;
+	OUT.oUV1.xy = uv.xy * uvMul_0.b;
+	OUT.oUV1.zw = uv.xy * uvMul_0.a;
+	OUT.oUVMisc.xy = uv.xy;
+
+	return OUT;
 }
 
+//===============================================================================================
+Texture2D globalNormal : register(t0);
+Texture2D blendTex0 : register(t1);
+Texture2D difftex0 : register(t2);
+Texture2D normtex0 : register(t3);
+Texture2D difftex1 : register(t4);
+Texture2D normtex1 : register(t5);
+Texture2D difftex2 : register(t6);
+Texture2D normtex2 : register(t7);
 
-//--------------------------------------------------------------------------------------
-// Hull Shader
-//--------------------------------------------------------------------------------------
-bool AabbBehindPlaneTest(float3 center, float3 extents, float4 plane)
+SamplerState samLinear : register(s0);
+
+float4 PS(VS_OUTPUT IN) : SV_Target
 {
-	float3 n = abs(plane.xyz);
-	
-	// This is always positive.
-	float r = dot(extents, n);
-	
-	// signed distance from center point to plane.
-	float s = dot( float4(center, 1.0f), plane );
-	
-	// If the center point of the box is a distance of e or more behind the
-	// plane (in which case s is negative since it is behind the plane),
-	// then the box is completely in the negative half space of the plane.
-	return (s + r) < 0.0f;
+	float4 outputCol = float4(0,0,0,1);
+	float2 uv = IN.oUVMisc.xy;
+	float3 normal = Expand(globalNormal.Sample(samLinear, uv)).rgb;
+
+	float3 diffuse = float3(0,0,0);
+	float specular = 0;
+	float4 blendTexVal0 = blendTex0.Sample(samLinear, uv);
+
+	float3 tangent = float3(1, 0, 0);
+	float3 binormal = normalize(cross(tangent, normal));
+	tangent = normalize(cross(normal, binormal));
+	float3x3 TBN = float3x3(tangent, binormal, normal);
+
+	float4 litRes, litResLayer;
+	float3 TSlightDir, TSeyeDir, TShalfAngle, TSnormal;
+	float displacement;
+	float4 scaleBiasSpecular = float4(0.03f, -0.04f, 32.f, 1.f);
+	float2 uv0 = IN.oUV0.xy;
+	displacement = normtex0.Sample(samLinear, uv0).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
+	//uv0 += TSeyeDir.xy * displacement;
+	TSnormal = Expand(normtex0.Sample(samLinear, uv0)).rgb;
+	float3 vWorldNormal = mul(TBN, TSnormal);
+	vWorldNormal = normalize(mul(vWorldNormal, World));
+
+	float3 vView = camPos - IN.oWPos;
+	TShalfAngle = normalize(lightDirection + vView);
+	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
+	litRes = litResLayer;
+
+	float4 diffuseSpecTex0 = difftex0.Sample(samLinear, uv0);
+	diffuse = diffuseSpecTex0.rgb;
+	specular = diffuseSpecTex0.a;
+
+//float2 uv1 = oUV0.zw;
+//displacement = tex2D(normtex1, uv1).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
+//uv1 += TSeyeDir.xy * displacement;
+//TSnormal = expand(tex2D(normtex1, uv1)).rgb;
+//TShalfAngle = normalize(TSlightDir + TSeyeDir);
+//litResLayer = lit(dot(TSlightDir, TSnormal), dot(TShalfAngle, TSnormal), scaleBiasSpecular.z);
+//litRes = lerp(litRes, litResLayer, blendTexVal0.r);
+//float4 diffuseSpecTex1 = tex2D(difftex1, uv1);
+//diffuse = lerp(diffuse, diffuseSpecTex1.rgb, blendTexVal0.r);
+//specular = lerp(specular, diffuseSpecTex1.a, blendTexVal0.r);
+//float2 uv2 = oUV1.xy;
+//displacement = tex2D(normtex2, uv2).a
+//* scaleBiasSpecular.x + scaleBiasSpecular.y;
+//uv2 += TSeyeDir.xy * displacement;
+//TSnormal = expand(tex2D(normtex2, uv2)).rgb;
+//TShalfAngle = normalize(TSlightDir + TSeyeDir);
+//litResLayer = lit(dot(TSlightDir, TSnormal), dot(TShalfAngle, TSnormal), scaleBiasSpecular.z);
+//litRes = lerp(litRes, litResLayer, blendTexVal0.g);
+//float4 diffuseSpecTex2 = tex2D(difftex2, uv2);
+//diffuse = lerp(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
+//specular = lerp(specular, diffuseSpecTex2.a, blendTexVal0.g);
+outputCol.rgb += litRes.y * lightColor.rgb * diffuse;
+outputCol.rgb += litRes.z * lightColor.rgb * specular;
+
+return outputCol;
 }
-
-bool FrustumCull(float3 center, float3 extents)
-{
-	for(int i = 0; i < 4; ++i)
-	{
-		if( AabbBehindPlaneTest(center, extents, frustumWorldPlanes[i]) )
-		{
-			return true;
-		}
-	}
-	
-	return false;
-}
-
-float CalcTessFactor(float3 p)
-{
-	float d = distance(p, camPos);
-
-	// max norm in xz plane (useful to see detail levels from a bird's eye).
-	//float d = max( abs(p.x-gEyePosW.x), abs(p.z-gEyePosW.z) );
-	
-	float s = saturate( (d - minTessDist) / (maxTessDist - minTessDist) );
-	
-	return pow(2, (lerp(maxTess, minTess, s)) );
-}
-
-struct PatchTess
-{
-	float EdgeTess[4]   : SV_TessFactor;
-	float InsideTess[2] : SV_InsideTessFactor;
-};
-
-PatchTess ConstantHS(InputPatch<VS_OUTPUT, 4> patch, uint patchID : SV_PrimitiveID)
-{
-	PatchTess pt;
-
-	// Frusum culling
-	float minY = patch[0].boundY.x;
-	float maxY = patch[0].boundY.y;
-	
-	// Build axis-aligned bounding box
-	float3 vMin = float3(patch[0].PosW.x, minY, patch[0].PosW.z);
-	float3 vMax = float3(patch[3].PosW.x, maxY, patch[3].PosW.z);
-
-	float3 boxCenter  = 0.5f*(vMin + vMax);
-	float3 boxExtents = 0.5f*(vMax - vMin);
-
-	bool bUseGpuFrustumClip = false;
-#ifdef GPU_FRUSTUM_CLIP
-	bUseGpuFrustumClip = true;
-#endif
-	if(bUseGpuFrustumClip && FrustumCull(boxCenter, boxExtents))
-	{
-		pt.EdgeTess[0] = 0;
-		pt.EdgeTess[1] = 0;
-		pt.EdgeTess[2] = 0;
-		pt.EdgeTess[3] = 0;
-
-		pt.InsideTess[0] = pt.InsideTess[1] = 0;
-	}
-	else
-	{
-		// Do tessellation based on distance.
-		// It is important to do the tess factor calculation based on the
-		// edge properties so that edges shared by more than one patch will
-		// have the same tessellation factor.  Otherwise, gaps can appear.
-
-		// Compute midpoint on edges, and patch center
-		float3 e0 = 0.5f*(patch[0].PosW + patch[2].PosW);
-		float3 e1 = 0.5f*(patch[0].PosW + patch[1].PosW);
-		float3 e2 = 0.5f*(patch[1].PosW + patch[3].PosW);
-		float3 e3 = 0.5f*(patch[2].PosW + patch[3].PosW);
-		float3  c = 0.25f*(patch[0].PosW + patch[1].PosW + patch[2].PosW + patch[3].PosW);
-
-		pt.EdgeTess[0] = CalcTessFactor(e0);
-		pt.EdgeTess[1] = CalcTessFactor(e1);
-		pt.EdgeTess[2] = CalcTessFactor(e2);
-		pt.EdgeTess[3] = CalcTessFactor(e3);
-
-		pt.InsideTess[0] = CalcTessFactor(c);
-		pt.InsideTess[1] = pt.InsideTess[0];
-	}
-
-	return pt;
-}
-
-struct HullOut
-{
-	float3 PosW     : POSITION;
-	float2 Tex      : TEXCOORD0;
-};
-
-[domain("quad")]
-[partitioning("fractional_even")]
-[outputtopology("triangle_cw")]
-[outputcontrolpoints(4)]
-[patchconstantfunc("ConstantHS")]
-[maxtessfactor(64.0f)]
-HullOut HS(InputPatch<VS_OUTPUT, 4> p, 
-           uint i : SV_OutputControlPointID,
-           uint patchId : SV_PrimitiveID)
-{
-	HullOut hout;
-	
-	// Pass through shader.
-	hout.PosW     = p[i].PosW;
-	hout.Tex      = p[i].uv;
-	
-	return hout;
-}
-
-//--------------------------------------------------------------------------------------
-// Domain Shader
-//--------------------------------------------------------------------------------------
-
-struct DomainOut
-{
-	float4 PosH     : SV_POSITION;
-    float3 PosW     : POSITION;
-	float2 Tex      : TEXCOORD0;
-	float2 TiledTex : TEXCOORD1;
-};
-
-[domain("quad")]
-DomainOut DS(PatchTess patchTess, 
-             float2 uv : SV_DomainLocation, 
-             const OutputPatch<HullOut, 4> quad)
-{
-	DomainOut dout;
-	
-	// Bilinear interpolation.
-	dout.PosW = lerp(
-		lerp(quad[0].PosW, quad[1].PosW, uv.x),
-		lerp(quad[2].PosW, quad[3].PosW, uv.x),
-		uv.y); 
-	
-	dout.Tex = lerp(
-		lerp(quad[0].Tex, quad[1].Tex, uv.x),
-		lerp(quad[2].Tex, quad[3].Tex, uv.x),
-		uv.y); 
-		
-	// Tile layer textures over terrain.
-	dout.TiledTex = dout.Tex * g_layerTexScale; 
-	
-	// Displacement mapping
-	dout.PosW.y = gHeightMap.SampleLevel( samPoint, dout.Tex, 0 ).r;
-	
-	// Project to homogeneous clip space.
-	dout.PosH = mul(float4(dout.PosW, 1.0f), ViewProj);
-	
-	return dout;
-}
-
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
-
-gbuffer_output PS_GBuffer(DomainOut IN) : SV_Target
-{
-	gbuffer_output output = (gbuffer_output)0;
-
-	//====================================================================================
-	// Estimate normal and tangent using central differences.
-	//====================================================================================
-	float2 leftTex   = IN.Tex + float2(-invTexSize.x, 0.0f);
-	float2 rightTex  = IN.Tex + float2(invTexSize.x, 0.0f);
-	float2 bottomTex = IN.Tex + float2(0.0f, invTexSize.y);
-	float2 topTex    = IN.Tex + float2(0.0f, -invTexSize.y);
-	
-	float leftY   = gHeightMap.SampleLevel( samPoint, leftTex, 0 ).r;
-	float rightY  = gHeightMap.SampleLevel( samPoint, rightTex, 0 ).r;
-	float bottomY = gHeightMap.SampleLevel( samPoint, bottomTex, 0 ).r;
-	float topY    = gHeightMap.SampleLevel( samPoint, topTex, 0 ).r;
-	
-	float3 tangent = normalize(float3(2.0f*terrainCellSpace, rightY - leftY, 0.0f));
-	float3 binormal   = normalize(float3(0.0f, bottomY - topY, -2.0f*terrainCellSpace)); 
-	
-	float3x3 matTBN = float3x3(tangent, binormal, cross(tangent, binormal));
-
-	//====================================================================================
-	// Texture splatting
-	//====================================================================================
-	float4 c0 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 0.0f) );
-	float4 c1 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 1.0f) );
-	float4 c2 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 2.0f) );
-	float4 c3 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 3.0f) );
-	float4 c4 = gLayerMaps.Sample( samLinear, float3(IN.TiledTex, 4.0f) ); 
-	
-	// blend map
-	float4 t  = gBlendMap.Sample( samLinear, IN.Tex ); 
-    
-    // Blend the layers on top of each other.
-    float4 cAlbedo = c0;
-    cAlbedo = lerp(cAlbedo, c1, t.r);
-    cAlbedo = lerp(cAlbedo, c2, t.g);
-    cAlbedo = lerp(cAlbedo, c3, t.b);
-    cAlbedo = lerp(cAlbedo, c4, t.a);
-
-	// normal map
-	float3 N = gNormalMap.Sample(samLinear, IN.TiledTex);
-	N = Expand(N);
-	// tangent space to world space
-	N = mul(N, matTBN);
-
-	cAlbedo.xyz = sqrt(cAlbedo.xyz);
-	output.oAlbedo = cAlbedo;
-
-	output.oNormal.xyz = normalize(cross(tangent, binormal)) * 0.5f + 0.5f;
-	output.oNormal.w = 1.0f;
-
-	output.oSpec = float4(0.05f, 0.05f, 0.05f, 0.1f);
-
-	return output;
-}
-
-#include "ClipPlaneWrapper.hlsl"

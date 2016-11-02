@@ -46,6 +46,13 @@ namespace Neo
 		VEC3	normal;
 		SColor	color;
 	};
+
+	struct STerrainPosVertex 
+	{
+		short	pos[2];
+		float	height;
+	};
+
 	/////////	Stream 1
 	struct STangentData
 	{
@@ -54,6 +61,12 @@ namespace Neo
 		VEC4	tangent;
 		VEC3	binormal;
 	};
+
+	struct STerrainDeltaVertex 
+	{
+		VEC2	delta;
+	};
+
 	/////////	Stream 2
 #define		INVALID_BONE_INDEX	0xff
 
@@ -83,6 +96,7 @@ namespace Neo
 		SVertex*		GetVertex() const { return m_pVertData; }
 		STangentData*	GetTangent() const { return m_pTangentData; }
 		SVertexBoneWeight*	GetBoneWeights() const { return m_pBoneWeights; }
+		void			SetVertType(eVertexType type) { m_vertType = type; }
 		eVertexType		GetVertType() const { return m_vertType; }
 
 	private:

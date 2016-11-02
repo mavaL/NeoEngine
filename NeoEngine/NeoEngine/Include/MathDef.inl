@@ -483,6 +483,11 @@ namespace Common
 		return Multiply_Mat44_By_Mat44(lhs, rhs);
 	}
 
+	__forceinline float* Matrix44::operator [] (int row)
+	{
+		return m_arr[row];
+	}
+
 	__forceinline void Plane::Normalize()
 	{
 		float normalLen = n.Normalize();
@@ -556,6 +561,11 @@ namespace Common
 			return false;
 
 		return true;
+	}
+	//------------------------------------------------------------------------------------
+	__forceinline bool IsPow2(int n)
+	{
+		return (n & (n - 1)) == 0;
 	}
 }
 

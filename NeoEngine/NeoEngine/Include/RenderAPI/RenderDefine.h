@@ -65,6 +65,7 @@ namespace Neo
 		eVertexType_General,
 		eVertexType_NormalMap,
 		eVertexType_SkinModel,
+		eVertexType_Terrain,
 	};
 
 	// Use for render target to control which part to render
@@ -165,6 +166,7 @@ namespace Neo
 	enum ePrimitive
 	{
 		ePrimitive_TriangleList,
+		ePrimitive_TriangleStrip,
 		ePrimitive_4_Control_Point_PatchList,
 		ePrimitive_LineList_Adj,
 	};

@@ -16,12 +16,12 @@ namespace Neo
 	class PixelBox
 	{
 	public:
-		PixelBox(int width, int height, int bytesPerPixel);
+		PixelBox(int width, int height, int bytesPerPixel, void* pData = nullptr, bool bOwnData = true);
 		PixelBox(BITMAP* bm, bool bCopyData);
 		~PixelBox();
 
 	public:
-		void*	GetDataPointer()	{ return (void*)m_data; }
+		void*	GetDataPointer() const	{ return (void*)m_data; }
 		int		GetWidth() const	{ return m_width; }
 		int		GetHeight() const	{ return m_height; }
 		int		GetPitch() const	{ return m_pitch; }

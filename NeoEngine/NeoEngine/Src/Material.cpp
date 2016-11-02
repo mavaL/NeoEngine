@@ -92,10 +92,13 @@ namespace Neo
 		if (strShaderFile.find("Opaque") != STRING::npos ||
 			strShaderFile.find("SkinModel") != STRING::npos ||
 			shaderType == eShader_Forward ||
-			shaderType == eShader_Fur)
+			shaderType == eShader_Fur )
 		{
-			m_pVS_Shadow = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "VS_ShadowMapGen", m_vertType, vecMacro);
-			m_pPS_Shadow = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "PS_ShadowMapGen", m_vertType, vecMacro);
+			if (strShaderFile.find("Terrain") == STRING::npos)	// !!!!!!!!!!!!! temp code !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			{
+				m_pVS_Shadow = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "VS_ShadowMapGen", m_vertType, vecMacro);
+				m_pPS_Shadow = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_ShadowMap, strShaderFile, shaderFalg, "PS_ShadowMapGen", m_vertType, vecMacro);
+			}
 		}
 
 		if (m_shaderType == eShader_Opaque)

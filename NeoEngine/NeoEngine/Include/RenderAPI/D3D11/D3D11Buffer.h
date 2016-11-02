@@ -22,6 +22,8 @@ namespace Neo
 		~D3D11Buffer();
 
 	public:
+		virtual void*	Lock();
+		virtual void	Unlock();
 		virtual	void	UpdateBuf(void* pSrc);
 		virtual void*	GetInternel();
 		virtual uint32	GetStride() const { return m_nStride; }

@@ -22,6 +22,8 @@ namespace Neo
 		~GLBuffer();
 
 	public:
+		virtual void*	Lock();
+		virtual void	Unlock();
 		virtual	void	UpdateBuf(void* pSrc);
 		virtual void*	GetInternel() { return (void*)m_id; }
 		virtual uint32	GetStride() const { return m_nStride; }

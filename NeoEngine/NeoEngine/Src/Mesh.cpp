@@ -70,24 +70,24 @@ namespace Neo
 	}
 	//------------------------------------------------------------------------------------
 	SubMesh::SubMesh()
-		: m_pVertexBuf(nullptr)
+		: m_pVertexStream0(nullptr)
 		, m_pIndexBuf(nullptr)
 		, m_nIndexCnt(0)
 		, m_pIndexData(nullptr)
 		, m_pAdjIndexBuf(nullptr)
 		, m_nAdjIndexCnt(0)
 		, m_pAdjIndexData(nullptr)
-		, m_pVB_Tangent(nullptr)
-		, m_pVB_BoneWeights(nullptr)
+		, m_pVertexStream1(nullptr)
+		, m_pVertexStream2(nullptr)
 	{
 
 	}
 	//------------------------------------------------------------------------------------
 	SubMesh::~SubMesh()
 	{
-		SAFE_DELETE(m_pVertexBuf);
-		SAFE_DELETE(m_pVB_Tangent);
-		SAFE_DELETE(m_pVB_BoneWeights);
+		SAFE_DELETE(m_pVertexStream0);
+		SAFE_DELETE(m_pVertexStream1);
+		SAFE_DELETE(m_pVertexStream2);
 		SAFE_DELETE(m_pIndexBuf);
 		SAFE_DELETE(m_pAdjIndexBuf);
 		SAFE_DELETE_ARRAY(m_pIndexData);
@@ -98,12 +98,12 @@ namespace Neo
 	{
 		_AST(pVerts);
 
-		SAFE_DELETE(m_pVertexBuf);
+		SAFE_DELETE(m_pVertexStream0);
 
 		m_vertData.InitVertex(type, pVerts, nVert);
 
-		m_pVertexBuf = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertex) * nVert, sizeof(SVertex), pVerts, bStatic ? 0 : eBufferUsage_Dynamic);
-		m_pVertexBuf->m_vertType = type;
+		m_pVertexStream0 = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertex) * nVert, sizeof(SVertex), pVerts, bStatic ? 0 : eBufferUsage_Dynamic);
+		m_pVertexStream0->m_vertType = type;
 
 		return true;
 	}
@@ -231,9 +231,9 @@ namespace Neo
 	{
 		m_vertData.InitTangents(pVerts, nVert);
 
-		SAFE_DELETE(m_pVB_Tangent);
+		SAFE_DELETE(m_pVertexStream1);
 
-		m_pVB_Tangent = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(STangentData) * m_vertData.GetVertCount(),
+		m_pVertexStream1 = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(STangentData) * m_vertData.GetVertCount(),
 			sizeof(STangentData), m_vertData.GetTangent(), 0);
 
 		return true;
@@ -243,11 +243,22 @@ namespace Neo
 	{
 		m_vertData.InitBoneWeights(pVerts, nVert);
 
-		SAFE_DELETE(m_pVB_BoneWeights);
+		SAFE_DELETE(m_pVertexStream2);
 
-		m_pVB_BoneWeights = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertexBoneWeight) * nVert, sizeof(SVertexBoneWeight), m_vertData.GetBoneWeights(), 0);
+		m_pVertexStream2 = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(SVertexBoneWeight) * nVert, sizeof(SVertexBoneWeight), m_vertData.GetBoneWeights(), 0);
 
 		return true;
+	}
+	//------------------------------------------------------------------------------------
+	void SubMesh::InitTerrainVertData(VertexBuffer* posVB, VertexBuffer* deltaVB, IndexBuffer* pIB, uint32 nIndexCount)
+	{
+		_AST(!m_pVertexStream0 && !m_pVertexStream1);
+
+		m_pVertexStream0 = posVB;
+		m_pVertexStream1 = deltaVB;
+		m_pIndexBuf = pIB;
+		m_nIndexCnt = nIndexCount;
+		m_vertData.SetVertType(eVertexType_Terrain);
 	}
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic)
@@ -282,26 +293,29 @@ namespace Neo
 	{
 		RenderSystem* pRenderSys = g_env.pRenderer->GetRenderSys();
 
-		pRenderSys->SetVertexBuffer(m_pVertexBuf, 0, 0);
+		pRenderSys->SetVertexBuffer(m_pVertexStream0, 0, 0);
 
-		if (m_pVB_Tangent)
+		if (m_pVertexStream1)
 		{
-			pRenderSys->SetVertexBuffer(m_pVB_Tangent, 1, 0);
-		}
-
-		if (m_pVB_BoneWeights)
-		{
-			pRenderSys->SetVertexBuffer(m_pVB_BoneWeights, 2, 0);
+			pRenderSys->SetVertexBuffer(m_pVertexStream1, 1, 0);
 		}
 
-		if (prim == ePrimitive_LineList_Adj)
+		if (m_pVertexStream2)
 		{
-			pRenderSys->DrawIndexed(ePrimitive_LineList_Adj, m_pAdjIndexBuf, m_nAdjIndexCnt, 0, 0);
+			pRenderSys->SetVertexBuffer(m_pVertexStream2, 2, 0);
 		}
-		else if (m_pIndexBuf)
+
+		if (m_pIndexBuf)
 		{
-			pRenderSys->DrawIndexed(ePrimitive_TriangleList, m_pIndexBuf, m_nIndexCnt, 0, 0);
-		}
+			if (prim == ePrimitive_LineList_Adj)
+			{
+				pRenderSys->DrawIndexed(ePrimitive_LineList_Adj, m_pAdjIndexBuf, m_nAdjIndexCnt, 0, 0);
+			}
+			else
+			{
+				pRenderSys->DrawIndexed(prim, m_pIndexBuf, m_nIndexCnt, 0, 0);
+			}
+		} 
 		else
 		{
 			pRenderSys->Draw(m_vertData.GetVertCount(), 0);

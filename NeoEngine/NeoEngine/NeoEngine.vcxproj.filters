@@ -55,6 +55,12 @@
     <Filter Include="Shader\opengl">
       <UniqueIdentifier>{afe78440-300b-43c8-9ad3-7c9bc4091afe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Terrain">
+      <UniqueIdentifier>{8ae5e205-2c45-446a-b702-d8914b3f2a3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Terrain">
+      <UniqueIdentifier>{c5ee0173-df76-4b5c-83d7-6dc239389e3a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\AABB.h">
@@ -85,9 +91,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\IRefCount.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Terrain.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Include\Water.h">
@@ -267,6 +270,18 @@
     <ClInclude Include="Include\Octree.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Terrain\Terrain.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Terrain\TerrainQuadTreeNode.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Terrain\TerrainGroup.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Terrain\TerrainLodManager.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -350,9 +365,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Material.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Terrain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Src\Water.cpp">
@@ -486,6 +498,18 @@
     </ClCompile>
     <ClCompile Include="Src\Octree.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Terrain\Terrain.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Terrain\TerrainQuadTreeNode.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Terrain\TerrainGroup.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Terrain\TerrainLodManager.cpp">
+      <Filter>源文件\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

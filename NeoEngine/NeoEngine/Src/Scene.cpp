@@ -4,7 +4,8 @@
 #include "Sky.h"
 #include "RenderSystem.h"
 #include "SceneManager.h"
-#include "Terrain.h"
+#include "Terrain/TerrainGroup.h"
+#include "Terrain/Terrain.h"
 #include "Entity.h"
 #include "Material.h"
 
@@ -43,14 +44,6 @@ namespace Neo
 		m_sceneAABB.SetNull();
 		m_sceneShadowCasterAABB.SetNull();
 		m_sceneShadowReceiverAABB.SetNull();
-
-		Terrain* pTerrain = g_env.pSceneMgr->GetTerrain();
-		if (pTerrain)
-		{
-			m_sceneAABB.Merge(pTerrain->GetTerrainAABB());
-			//m_sceneShadowCasterAABB.Merge(pTerrain->GetTerrainAABB());
-			m_sceneShadowReceiverAABB.Merge(pTerrain->GetTerrainAABB());
-		}
 
 		for (size_t i=0; i<m_lstEntity.size(); ++i)
 		{

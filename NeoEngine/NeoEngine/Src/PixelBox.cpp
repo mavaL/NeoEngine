@@ -3,14 +3,29 @@
 
 namespace Neo
 {
-	PixelBox::PixelBox( int width, int height, int bytesPerPixel )
-	:m_width(width)
-	,m_height(height)
-	,m_bytesPerPixel(bytesPerPixel)
-	,m_pitch(width * bytesPerPixel)
+	PixelBox::PixelBox( int width, int height, int bytesPerPixel, void* pData, bool bOwnData)
+		: m_width(width)
+		, m_height(height)
+		, m_bytesPerPixel(bytesPerPixel)
+		, m_pitch(width * bytesPerPixel)
+		, m_ownData(bOwnData)
+
 	{
-		m_data = new char[width * height * bytesPerPixel];
-		m_ownData = true;
+		if (pData)
+		{
+			if (bOwnData)
+			{
+				memcpy(m_data, pData, m_pitch * height);
+			} 
+			else
+			{
+				m_data = (char*)pData;
+			}
+		} 
+		else
+		{
+			m_data = new char[width * height * bytesPerPixel];
+		}
 	}
 
 	PixelBox::PixelBox( BITMAP* bm, bool bCopyData )

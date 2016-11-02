@@ -156,6 +156,3 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 
 	return output;
 }
-
-
-#include "ClipPlaneWrapper.hlsl"

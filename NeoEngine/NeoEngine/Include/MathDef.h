@@ -28,6 +28,44 @@ namespace Common
 		int x, y;
 	};
 
+	/////////////////////////////////////////////////////////////
+	//////// Rect
+	class iRect
+	{
+	public:
+		iRect():left(0),right(0),top(0),bottom(0) {}
+		iRect(int l, int t, int r, int b): left(l),right(r),top(t),bottom(b) {}
+
+		int GetWidth() const { return right - left; }
+		int GetHeight() const { return bottom - top; }
+
+		bool IsNull() const
+		{
+			return GetWidth() == 0 || GetHeight() == 0;
+		}
+
+		void SetNull() { left = right = top = bottom = 0; }
+
+		iRect& Merge(const iRect& rhs)
+		{
+			if (IsNull())
+			{
+				*this = rhs;
+			}
+			else if (!rhs.IsNull())
+			{
+				left = std::min(left, rhs.left);
+				right = std::max(right, rhs.right);
+				top = std::min(top, rhs.top);
+				bottom = std::max(bottom, rhs.bottom);
+			}
+
+			return *this;
+		}
+
+		int left, right, top, bottom;
+	};
+
 
 	/////////////////////////////////////////////////////////////
 	//////// 2D Vector
@@ -354,6 +392,7 @@ namespace Common
 
 		/// Operator
 		friend Matrix44 operator * (const Matrix44& lhs, const Matrix44& rhs);
+		float* operator [](int row);
 
 		void		SetRow(int row, const Vector4& vec);
 		void		SetScale(const Vector3& scale);
@@ -393,6 +432,7 @@ namespace Common
 		};
 
 		static Matrix44 IDENTITY;
+		static Matrix44 ZERO;
 	};
 
 	/////////////////////////////////////////////////////////////
@@ -473,6 +513,7 @@ namespace Common
 	float		Radian_To_Angle(float radian);
 	float		Vec3_Distance(const Vector3& v1, const Vector3& v2);
 	bool		IsPointInTriangle(const Vector3& pt, const Vector3& p1, const Vector3& p2, const Vector3& p3);
+	bool		IsPow2(int n);
 
 	// AABB vs AABB sweep test, returns true if intersection can occur if object is translated along given direction
 	bool		SweepIntersectionTest(const AxisAlignBBox &objectBB, const AxisAlignBBox &frustumBB, const Vector3 &vSweepDir);

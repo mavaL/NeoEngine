@@ -119,6 +119,23 @@ namespace Neo
 		}
 		break;
 
+		case eVertexType_Terrain:
+		{
+			D3D11_INPUT_ELEMENT_DESC layout[] =
+			{
+				// Stream 0
+				{ "POSITION", 0, DXGI_FORMAT_R16G16_SINT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				{ "TEXCOORD", 0, DXGI_FORMAT_R32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+				// Stream 1
+				{ "TEXCOORD", 1, DXGI_FORMAT_R32G32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			};
+
+			SAFE_RELEASE(m_pInputLayout);
+
+			V(g_pRenderSys->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), &m_vsCode[0], m_vsCode.size(), &m_pInputLayout));
+		}
+		break;
+
 		default: _AST(0); break;
 		}
 	}
