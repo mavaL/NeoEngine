@@ -259,6 +259,8 @@ namespace Neo
 		m_pIndexBuf = pIB;
 		m_nIndexCnt = nIndexCount;
 		m_vertData.SetVertType(eVertexType_Terrain);
+
+		m_pVertexStream0->m_vertType = eVertexType_Terrain;
 	}
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic)

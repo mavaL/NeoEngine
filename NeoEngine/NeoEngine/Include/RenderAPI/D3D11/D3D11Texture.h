@@ -40,6 +40,8 @@ namespace Neo
 		virtual void		GenMipMaps();
 		virtual void		Resize(uint32 nWidth, uint32 nHeight);
 		virtual void		UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData);
+		virtual void*		Lock(eLockMode mode, uint32* oPitch = nullptr);
+		virtual void		Unlock();
 
 	public:
 		void								Destroy();
@@ -62,6 +64,7 @@ namespace Neo
 		ID3D11Texture2D*			m_pTexture2D;
 		ID3D11Texture3D*			m_pTexture3D;
 
+		ID3D11Texture2D*			m_pTexStaging;
 		ID3D11ShaderResourceView*	m_pSRV;
 		ID3D11DepthStencilView*		m_pDSV;
 		ID3D11RenderTargetView*		m_pRTV;

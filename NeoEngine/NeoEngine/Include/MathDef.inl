@@ -75,10 +75,14 @@ namespace Common
 		return oLen;
 #else
 		float mod = sqrtf(x * x + y * y + z * z);
-		float invMode = 1 / mod;
-		x *= invMode;
-		y *= invMode;
-		z *= invMode;
+
+		if (mod > 0)
+		{
+			float invMode = 1 / mod;
+			x *= invMode;
+			y *= invMode;
+			z *= invMode;
+		}
 
 		return mod;
 #endif

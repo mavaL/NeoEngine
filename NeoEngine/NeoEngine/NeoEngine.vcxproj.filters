@@ -282,6 +282,9 @@
     <ClInclude Include="Include\Terrain\TerrainLodManager.h">
       <Filter>头文件\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Terrain\TerrainLayerBlendMap.h">
+      <Filter>头文件\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Include\MathDef.inl">
@@ -339,6 +342,12 @@
       <Filter>Shader\opengl</Filter>
     </None>
     <None Include="..\Res\Shaders\OpenGL\fur_shells.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\terrain.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\terrain.vs">
       <Filter>Shader\opengl</Filter>
     </None>
   </ItemGroup>
@@ -511,6 +520,9 @@
     <ClCompile Include="Src\Terrain\TerrainLodManager.cpp">
       <Filter>源文件\Terrain</Filter>
     </ClCompile>
+    <ClCompile Include="Src\Terrain\TerrainLayerBlendMap.cpp">
+      <Filter>源文件\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\Res\Shaders\OpenGL\opaque.xml">
@@ -535,6 +547,9 @@
       <Filter>Shader\opengl</Filter>
     </Xml>
     <Xml Include="..\Res\Shaders\OpenGL\fur.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\terrain.xml">
       <Filter>Shader\opengl</Filter>
     </Xml>
   </ItemGroup>

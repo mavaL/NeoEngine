@@ -15,6 +15,7 @@
 #include "MathDef.h"
 #include "Color.h"
 #include "Terrain/TerrainLodManager.h"
+#include "Terrain/TerrainLayerBlendMap.h"
 #include "RenderDefine.h"
 
 namespace Neo
@@ -208,7 +209,7 @@ namespace Neo
 			If supplied, should ideally be terrainSize * terrainSize, but if
 			it isn't it will be resized.
 			*/
-			void* inputImage;
+			Texture* inputImage;
 
 			/** Optional list of terrainSize * terrainSize floats defining the terrain.
 			The list of floats wil be interpreted such that the first row
@@ -322,17 +323,7 @@ namespace Neo
 			}
 
 			/// Delete any input data if this struct is set to do so
-			void destroy()
-			{
-				if (deleteInputData)
-				{
-					delete inputImage;
-					delete []inputFloat;
-					inputImage = 0;
-					inputFloat = 0;
-				}
-
-			}
+			void destroy();
 
 			~ImportData()
 			{
@@ -1199,7 +1190,7 @@ namespace Neo
 		not delete this instance, use freeTemporaryResources if you want
 		to save the memory after completing your editing.
 		*/
-	//	TerrainLayerBlendMap* getLayerBlendMap(uint8 layerIndex);
+		TerrainLayerBlendMap* getLayerBlendMap(uint8 layerIndex);
 
 		/** Get the index of the blend texture that a given layer uses.
 		@param layerIndex The layer index, must be >= 1 and less than the number
@@ -1213,12 +1204,6 @@ namespace Neo
 		/// Get the number of blend textures needed for a given number of layers
 		uint8 getBlendTextureCount(uint8 numLayers) const;
 
-
-		/** Get the name of the packed blend texture at a specific index.
-		@param textureIndex This is the blend texture index, not the layer index
-		(multiple layers will share a blend texture)
-		*/
-		const STRING& getBlendTextureName(uint8 textureIndex) const;
 
 		/** Set whether a global colour map is enabled.
 		@remarks
@@ -1636,7 +1621,7 @@ namespace Neo
 		BytePointerList mCpuBlendMapStorage;
 		typedef std::vector<Texture*> TexturePtrList;
 		TexturePtrList mBlendTextureList;
-		//TerrainLayerBlendMapList mLayerBlendMapList;
+		TerrainLayerBlendMapList mLayerBlendMapList;
 
 		uint16 mGlobalColourMapSize;
 		bool mGlobalColourMapEnabled;

@@ -164,12 +164,45 @@ void SetupTestScene3(Scene* scene)
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_diffusespecular.dds"));
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_normalheight.dds"));
 
-	pTerrainGroup->defineTerrain(x, y, &img);
+	pTerrainGroup->defineTerrain(0, 0, g_env.pRenderer->GetRenderSys()->LoadTexture(
+		GetResPath("terrain/terrain.dds"), eTextureType_2D, eTextureUsage_ReadWrite));
 
 	// sync load since we want everything in place when we start
 	pTerrainGroup->loadAllTerrains(true);
-	pTerrainGroup->freeTemporaryResources();
 
+	// init layer blend maps.
+	Terrain* pTerrain = pTerrainGroup->getTerrain(0, 0);
+	TerrainLayerBlendMap* blendMap0 = pTerrain->getLayerBlendMap(1);
+	TerrainLayerBlendMap* blendMap1 = pTerrain->getLayerBlendMap(2);
+	float minHeight0 = 70;
+	float fadeDist0 = 40;
+	float minHeight1 = 70;
+	float fadeDist1 = 15;
+	float* pBlend1 = blendMap1->getBlendPointer();
+	for (uint16 y = 0; y < pTerrain->getLayerBlendMapSize(); ++y)
+	{
+		for (uint16 x = 0; x < pTerrain->getLayerBlendMapSize(); ++x)
+		{
+			float tx, ty;
+
+			blendMap0->convertImageToTerrainSpace(x, y, &tx, &ty);
+			float height = pTerrain->getHeightAtTerrainPosition(tx, ty);
+			float val = (height - minHeight0) / fadeDist0;
+			Clamp(val, 0.f, 1.f);
+
+			val = (height - minHeight1) / fadeDist1;
+			val = Clamp(val, 0.f, 1.f);
+			*pBlend1++ = val;
+
+
+		}
+	}
+	blendMap0->dirty();
+	blendMap1->dirty();
+	blendMap0->update();
+	blendMap1->update();
+
+	pTerrainGroup->freeTemporaryResources();
 	g_env.pSceneMgr->SetTerrain(pTerrainGroup);
 }
 
@@ -180,7 +213,7 @@ void EnterTestScene3(Scene* scene)
 	pCamera->SetDirection(VEC3::UNIT_Z);
 	pCamera->SetNearClip(1);
 	pCamera->SetFarClip(10000.0f);
-	pCamera->SetMoveSpeed(0.2f);
+	pCamera->SetMoveSpeed(2.0f);
 }
 
 void SetupTestScene4(Scene* scene)

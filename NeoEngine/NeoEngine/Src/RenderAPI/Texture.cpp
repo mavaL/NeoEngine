@@ -44,4 +44,43 @@ namespace Neo
 
 		return bytesPerPixel;
 	}
+	//------------------------------------------------------------------------------------
+	uint32 Texture::CalcTexDataSize(uint32 nWidth, uint32 nHeight, uint32 nMips, ePixelFormat format)
+	{
+		_AST(nMips >= 1);
+
+		uint32 nBytesPerBlock = 0;
+		uint32 nBytesPerPixel = 0;
+		if (format == ePF_DXT5)
+		{
+			nBytesPerBlock = 16;
+		}
+		else if (format == ePF_DXT1)
+		{
+			nBytesPerBlock = 8;
+		}
+		else
+		{
+			nBytesPerPixel = GetBytesPerPixelFromFormat(format);
+		}
+
+		uint32 nSize = 0;
+
+		for (uint32 i = 0; i < nMips; ++i)
+		{
+			if (format == ePF_DXT5 || format == ePF_DXT1)
+			{
+				nSize += ((nWidth + 3) / 4) * ((nHeight + 3) / 4) * nBytesPerBlock;
+			}
+			else
+			{
+				nSize += nWidth * nHeight * nBytesPerPixel;
+			}
+			nWidth >>= 1;
+			nHeight >>= 1;
+		}
+
+		return nSize;
+	}
+
 }

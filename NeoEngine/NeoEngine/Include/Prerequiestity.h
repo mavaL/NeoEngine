@@ -11,11 +11,12 @@
 
 
 
-#define		USE_OPENGL				0			// Desktop OpenGL
+#define		USE_OPENGL				1			// Desktop OpenGL
 #define		USE_SIMD				0			// SIMD
 #define		USE_LISPPSM				0			// Light space perspective shadow mapping
 #define		USE_PSSM				1			// Parallel-Split Shadow Maps
 #define		USE_ESM					1			// Exponential Shadow Maps
+#define		BIG_ENDIAN				0			// MacOS is big endian
 
 
 /// Forward declaration
@@ -50,6 +51,7 @@ namespace Neo
 	class	TerrainGlobalOptions;
 	class	TerrainGroup;
 	class	TerrainLodManager;
+	class	TerrainLayerBlendMap;
 	class	Water;
 	class	Sky;
 	class	Scene;

@@ -219,10 +219,8 @@ bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
 
 	case OIS::KC_R:
 		{
-			// Toggle fill mode
-			//Neo::SStateRaster rasterState = g_env.pRenderSystem->GetCurRasterState();
-			//rasDesc.FillMode = (rasDesc.FillMode == D3D11_FILL_SOLID ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID);
-			//g_env.pRenderSystem->SetRasterizeDesc(rasDesc);
+			// Toggle wireframe rendering mode.
+			
 		}
 		break;
 	};

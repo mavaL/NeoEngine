@@ -333,6 +333,7 @@ namespace Neo
 		{
 		case ePrimitive_TriangleList: glPrimType = GL_TRIANGLES; break;
 		case ePrimitive_LineList_Adj: glPrimType = GL_LINES_ADJACENCY; break;
+		case ePrimitive_TriangleStrip: glPrimType = GL_TRIANGLE_STRIP; break;
 		default: _AST(0);
 		}
 
@@ -448,8 +449,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	Texture* GLRenderSystem::CreateTextureManual(uint32 nWidth, uint32 nHeight, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap)
 	{
-		_AST(0);
-		return nullptr;
+		return new GLTexture(nWidth, nHeight, pTexData, format, usage, bMipMap);
 	}
 	//------------------------------------------------------------------------------------
 	Texture* GLRenderSystem::GetDepthBuffer()

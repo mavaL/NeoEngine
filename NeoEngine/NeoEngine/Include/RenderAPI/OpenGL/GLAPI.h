@@ -389,6 +389,11 @@ public:
 	{
 		GLCHECK(glTexStorage3D(target, levels, internalformat, width, height, depth));
 	}
+	 
+	static FORCEINLINE void GetTexImage(GLenum target, GLint lod, GLenum format, GLenum type, GLvoid* image)
+	{
+		GLCHECK(glGetTexImage(target, lod, format, type, image));
+	}
 
 	static FORCEINLINE void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels)
 	{

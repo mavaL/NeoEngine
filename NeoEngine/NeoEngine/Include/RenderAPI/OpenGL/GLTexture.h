@@ -35,13 +35,19 @@ namespace Neo
 		virtual void*		GetRTV(uint32 iSlice) const { _AST(0); return nullptr; }
 		virtual void		GenMipMaps();
 		virtual void		Resize(uint32 nWidth, uint32 nHeight) { _AST(0); }
-		virtual void		UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData) { _AST(0); }
+		virtual void		UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData);
+		virtual void*		Lock(eLockMode mode, uint32* oPitch = nullptr);
+		virtual void		Unlock();
 
 	private:
 		void				_Init(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, uint32 nMips);
 
 		GLuint				m_id;
 		bool				m_bsRGB;
+		void*				m_pLockData;
+		eLockMode			m_lockMode;
+		STRING				m_filename;
+		std::unique_ptr<uint8_t[]> m_texData;
 	};
 
 	//------------------------------------------------------------------------------------

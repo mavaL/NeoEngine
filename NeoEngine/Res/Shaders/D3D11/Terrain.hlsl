@@ -96,29 +96,38 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	diffuse = diffuseSpecTex0.rgb;
 	specular = diffuseSpecTex0.a;
 
-//float2 uv1 = oUV0.zw;
-//displacement = tex2D(normtex1, uv1).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
-//uv1 += TSeyeDir.xy * displacement;
-//TSnormal = expand(tex2D(normtex1, uv1)).rgb;
-//TShalfAngle = normalize(TSlightDir + TSeyeDir);
-//litResLayer = lit(dot(TSlightDir, TSnormal), dot(TShalfAngle, TSnormal), scaleBiasSpecular.z);
-//litRes = lerp(litRes, litResLayer, blendTexVal0.r);
-//float4 diffuseSpecTex1 = tex2D(difftex1, uv1);
-//diffuse = lerp(diffuse, diffuseSpecTex1.rgb, blendTexVal0.r);
-//specular = lerp(specular, diffuseSpecTex1.a, blendTexVal0.r);
-//float2 uv2 = oUV1.xy;
-//displacement = tex2D(normtex2, uv2).a
-//* scaleBiasSpecular.x + scaleBiasSpecular.y;
-//uv2 += TSeyeDir.xy * displacement;
-//TSnormal = expand(tex2D(normtex2, uv2)).rgb;
-//TShalfAngle = normalize(TSlightDir + TSeyeDir);
-//litResLayer = lit(dot(TSlightDir, TSnormal), dot(TShalfAngle, TSnormal), scaleBiasSpecular.z);
-//litRes = lerp(litRes, litResLayer, blendTexVal0.g);
-//float4 diffuseSpecTex2 = tex2D(difftex2, uv2);
-//diffuse = lerp(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
-//specular = lerp(specular, diffuseSpecTex2.a, blendTexVal0.g);
-outputCol.rgb += litRes.y * lightColor.rgb * diffuse;
-outputCol.rgb += litRes.z * lightColor.rgb * specular;
+	float2 uv1 = IN.oUV0.zw;
+	displacement = normtex1.Sample(samLinear, uv1).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
+	//uv1 += TSeyeDir.xy * displacement;
+	TSnormal = Expand(normtex1.Sample(samLinear, uv1)).rgb;
+	vWorldNormal = mul(TBN, TSnormal);
+	vWorldNormal = normalize(mul(vWorldNormal, World));
 
-return outputCol;
+	TShalfAngle = normalize(lightDirection + vView);
+	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
+	litRes = lerp(litRes, litResLayer, blendTexVal0.r);
+
+	float4 diffuseSpecTex1 = difftex1.Sample(samLinear, uv1);
+	diffuse = lerp(diffuse, diffuseSpecTex1.rgb, blendTexVal0.r);
+	specular = lerp(specular, diffuseSpecTex1.a, blendTexVal0.r);
+
+	float2 uv2 = IN.oUV1.xy;
+	displacement = normtex2.Sample(samLinear, uv2).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
+	//uv2 += TSeyeDir.xy * displacement;
+	TSnormal = Expand(normtex2.Sample(samLinear, uv2)).rgb;
+	vWorldNormal = mul(TBN, TSnormal);
+	vWorldNormal = normalize(mul(vWorldNormal, World));
+
+	TShalfAngle = normalize(lightDirection + vView);
+	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
+	litRes = lerp(litRes, litResLayer, blendTexVal0.g);
+
+	float4 diffuseSpecTex2 = difftex2.Sample(samLinear, uv2);
+	diffuse = lerp(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
+	specular = lerp(specular, diffuseSpecTex2.a, blendTexVal0.g);
+
+	outputCol.rgb += litRes.y * lightColor.rgb * diffuse;
+	outputCol.rgb += litRes.z * lightColor.rgb * specular;
+
+	return outputCol;
 }

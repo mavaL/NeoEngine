@@ -44,6 +44,9 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	D3D11Buffer::D3D11Buffer(uint32 nSize, uint32 nStride, uint32 nUsage, const void* pData)
 		: m_nStride(nStride)
+		, m_usage(nUsage)
+		, m_size(nSize)
+		, m_pShadowBuf(nullptr)
 	{
 		D3D11_BUFFER_DESC bd;
 		ZeroMemory(&bd, sizeof(D3D11_BUFFER_DESC));
@@ -92,23 +95,45 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	D3D11Buffer::~D3D11Buffer()
 	{
+		SAFE_DELETE_ARRAY(m_pShadowBuf);
 		SAFE_RELEASE(m_pBuf);
 	}
 	//------------------------------------------------------------------------------------
 	void* D3D11Buffer::Lock()
 	{
-		D3D11_MAPPED_SUBRESOURCE mapped;
-		mapped.pData = NULL;
-		HRESULT hr = S_OK;
+		// Dynamic buffers can be mapped directly.
+		if (m_usage & eBufferUsage_Dynamic)
+		{
+			D3D11_MAPPED_SUBRESOURCE mapped;
+			mapped.pData = NULL;
+			HRESULT hr = S_OK;
 
-		V(g_pRenderSys->GetDeviceContext()->Map(m_pBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
+			V(g_pRenderSys->GetDeviceContext()->Map(m_pBuf, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped));
 
-		return mapped.pData;
+			return mapped.pData;
+		} 
+		else
+		{
+			if (!m_pShadowBuf)
+			{
+				m_pShadowBuf = new char[m_size];
+				ZeroMemory(m_pShadowBuf, m_size);
+
+				return m_pShadowBuf;
+			}
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11Buffer::Unlock()
 	{
-		g_pRenderSys->GetDeviceContext()->Unmap(m_pBuf, 0);
+		if (m_usage & eBufferUsage_Dynamic)
+		{
+			g_pRenderSys->GetDeviceContext()->Unmap(m_pBuf, 0);
+		} 
+		else
+		{
+			UpdateBuf(m_pShadowBuf);
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11Buffer::UpdateBuf(void* pSrc)

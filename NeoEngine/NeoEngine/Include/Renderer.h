@@ -63,27 +63,7 @@ namespace Neo
 	{
 		MAT44	matSkin[100];
 	};
-	// Terrain constant buffer: (b3)
-	__declspec(align(16))
-	struct cBufferTerrain
-	{
-		PLANE	m_frustumPlane[4];
 
-		// When distance is minimum, the tessellation is maximum
-		// When distance is maximum, the tessellation is minimum
-		float	minTessDist;
-		float	maxTessDist;
-
-		// Exponents for power of 2 tessellation.  The tessellation
-		// range is [2^(gMinTess), 2^(gMaxTess)].  Since the maximum
-		// tessellation is 64, this means gMaxTess can be at most 6
-		// since 2^6 = 64.
-		float	minTess;
-		float	maxTess;
-
-		VEC2	invTexSize;
-		float	terrainCellSpace;
-	};
 	//------------------------------------------------------------------------------------
 	class Renderer
 	{
@@ -114,6 +94,7 @@ namespace Neo
 		void						SetViewport(const SViewport* vp);
 		const SViewport&			GetViewport() const		{ return m_viewport; }
 		void						RestoreViewport();
+		void						EnableWireframeMode(bool b);
 
 		// Enable/Disable clipping plane
 		void						EnableClipPlane(bool bEnable, const PLANE* plane);
@@ -122,12 +103,10 @@ namespace Neo
 		cBufferMaterial&			GetMaterialCB()			{ return m_cBufferMaterial; }
 		cBufferGlobal&				GetGlobalCB()			{ return m_cBufferGlobal; }
 		cBufferSkin&				GetSkinCB()				{ return m_cBufferSkin; }
-		cBufferTerrain&				GetTerrainCB()			{ return m_cBufferTerrain; }
 		// Update constant buffer to device
 		void						UpdateGlobalCBuffer(bool bTessellate = false, bool bCS = false, bool bGS = false);
 		void						UpdateMaterialCBuffer(bool bTessellate = false, bool bCS = false, bool bGS = false);
 		void						UpdateSkinCBuffer();
-		void						UpdateTerrainCBuffer();
 
 	private:
 		RenderSystem*				m_pRenderSys;
@@ -138,8 +117,6 @@ namespace Neo
 		cBufferGlobal				m_cBufferGlobal;
 		cBufferMaterial				m_cBufferMaterial;
 		cBufferSkin					m_cBufferSkin;
-		cBufferTerrain				m_cBufferTerrain;
-		ConstantBuffer*				m_pTerrainCB;
 		ConstantBuffer*				m_pGlobalCBuf;
 		ConstantBuffer*				m_pMaterialCB;
 		ConstantBuffer*				m_pSkinCB;
@@ -150,6 +127,7 @@ namespace Neo
 		uint32						m_iCurBlendState;
 		uint32						m_iCurDepthState;
 		uint32						m_iCurRasterState;
+		SStateRaster				m_wireframeRasterState;
 
 		Font*						m_pFont;
 		bool						m_bClipPlaneEnabled;

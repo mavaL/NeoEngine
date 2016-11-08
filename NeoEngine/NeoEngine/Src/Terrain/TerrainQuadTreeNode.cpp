@@ -1254,17 +1254,21 @@ namespace Neo
 			pMaterial->SetTexture(0, mTerrain->getTerrainNormalMap());
 			pMaterial->SetTexture(1, mTerrain->getLayerBlendTexture(0));
 
+			SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(0);
+			samDesc.AddressU = eTextureAddressMode_WRAP;
+			samDesc.AddressV = eTextureAddressMode_WRAP;
+			samDesc.Filter = SF_MIN_MAG_MIP_LINEAR;
+			pMaterial->SetSamplerStateDesc(0, samDesc);
+			pMaterial->SetSamplerStateDesc(1, samDesc);
+
 			for (uint32 i = 0; i < mTerrain->getLayerCount(); ++i)
 			{
 				pMaterial->SetTexture(2+i*2, g_env.pRenderer->GetRenderSys()->LoadTexture(mTerrain->getLayerTextureName(i, 0), eTextureType_2D, 0, true));
 				pMaterial->SetTexture(2+i*2+1, g_env.pRenderer->GetRenderSys()->LoadTexture(mTerrain->getLayerTextureName(i, 1)));
-			}
 
-			SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(0);
-			samDesc.AddressU = eTextureAddressMode_WRAP;
-			samDesc.AddressV = eTextureAddressMode_WRAP;
-			samDesc.Filter = SF_COMPARISON_MIN_MAG_MIP_LINEAR;
-			pMaterial->SetSamplerStateDesc(0, samDesc);
+				pMaterial->SetSamplerStateDesc(2 + i * 2, samDesc);
+				pMaterial->SetSamplerStateDesc(2 + i * 2 + 1, samDesc);
+			}
 
 			pMaterial->InitShader("Terrain", eShader_Forward);
 			mEntity->SetMaterial(pMaterial);

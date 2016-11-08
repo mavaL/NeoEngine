@@ -339,9 +339,9 @@ namespace Common
 	{
 		const Vector3 v1 = p2 - p1;
 		const Vector3 v2 = p3 - p1;
-		Vector3 vNormal = Common::CrossProduct_Vec3_By_Vec3(v1, v2);
-		vNormal.Normalize();
-		d = -Common::DotProduct_Vec3_By_Vec3(p1, vNormal);
+		n = Common::CrossProduct_Vec3_By_Vec3(v1, v2);
+		n.Normalize();
+		d = -Common::DotProduct_Vec3_By_Vec3(p1, n);
 	}
 
 	Plane::Side Plane::GetSide(const Vector3& p) const

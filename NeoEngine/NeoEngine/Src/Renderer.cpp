@@ -26,7 +26,6 @@ namespace Neo
 	, m_pGlobalCBuf(nullptr)
 	, m_pMaterialCB(nullptr)
 	, m_pSkinCB(nullptr)
-	, m_pTerrainCB(nullptr)
 	, m_bClipPlaneEnabled(false)
 	, m_iCurBlendState(0xffffffff)
 	, m_iCurRasterState(0xffffffff)
@@ -69,6 +68,9 @@ namespace Neo
 
 		SetRasterState(&rasterState);
 
+		m_wireframeRasterState = rasterState;
+		m_wireframeRasterState.Desc.FillMode = eFill_Wireframe;
+
 		// Init depth stencil state
 		SStateDepth depthState;
 		depthState.Desc.DepthFunc = eCompareFunc_LESS_EQUAL;
@@ -104,7 +106,6 @@ namespace Neo
 		m_pGlobalCBuf = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferGlobal), 1);
 		m_pMaterialCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferMaterial), 2);
 		m_pSkinCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferSkin), 3);
-		m_pTerrainCB = m_pRenderSys->CreateConstantBuffer(sizeof(cBufferTerrain), 4);
 
 		m_pFont = new Font;
 
@@ -121,7 +122,6 @@ namespace Neo
 		SAFE_DELETE(m_pGlobalCBuf);
 		SAFE_DELETE(m_pMaterialCB);
 		SAFE_DELETE(m_pSkinCB);
-		SAFE_DELETE(m_pTerrainCB);
 	}
 	//------------------------------------------------------------------------------------
 	void Renderer::SetActiveTexture(int stage, Texture* pTexture)
@@ -237,13 +237,6 @@ namespace Neo
 		m_pMaterialCB->Apply(1, true, true, bGS, bCS, bTessellate);
 	}
 	//------------------------------------------------------------------------------------
-	void Renderer::UpdateTerrainCBuffer()
-	{
-		m_pTerrainCB->UpdateBuf(&m_cBufferTerrain);
-
-		m_pTerrainCB->Apply(2, true, true, false, false, true);
-	}
-	//------------------------------------------------------------------------------------
 	void Renderer::UpdateSkinCBuffer()
 	{
 		m_pSkinCB->UpdateBuf(&m_cBufferSkin);
@@ -259,6 +252,11 @@ namespace Neo
 	void Renderer::RestoreViewport()
 	{
 		SetViewport(&m_viewport);	
+	}
+	//------------------------------------------------------------------------------------
+	void Renderer::EnableWireframeMode(bool b)
+	{
+
 	}
 	//------------------------------------------------------------------------------------
 	void Renderer::UnbindTexture(Texture* tex)

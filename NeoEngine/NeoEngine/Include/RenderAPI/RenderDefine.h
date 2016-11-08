@@ -34,16 +34,24 @@ namespace Neo
 
 	enum eTextureUsage
 	{
-		eTextureUsage_WriteOnly = 1 << 0,
-		eTextureUsage_ReadWrite = 1 << 1,		// Staging
-		eTextureUsage_RenderTarget = 1 << 2,
-		eTextureUsage_DomainShader = 1 << 3,		// Bind to domain shader
-		eTextureUsage_HullShader = 1 << 4,		// Bind to hull shader
-		eTextureUsage_VertexShader = 1 << 5,		// Bind to vertex shader
-		eTextureUsage_GeometryShader = 1 << 6,		// Bind to vertex shader
-		eTextureUsage_RecreateOnWndResized = 1 << 7,
-		eTextureUsage_Depth = 1 << 8,
-		eTextureUsage_AutoGenMips = 1 << 9,
+		eTextureUsage_WriteOnly				= 1 << 0,
+		eTextureUsage_ReadWrite				= 1 << 1,		// If load from file, create a staging texture; if create manual, along with a staging buffer.
+		eTextureUsage_RenderTarget			= 1 << 2,
+		eTextureUsage_DomainShader			= 1 << 3,		// Bind to domain shader
+		eTextureUsage_HullShader			= 1 << 4,		// Bind to hull shader
+		eTextureUsage_VertexShader			= 1 << 5,		// Bind to vertex shader
+		eTextureUsage_GeometryShader		= 1 << 6,		// Bind to vertex shader
+		eTextureUsage_RecreateOnWndResized	= 1 << 7,
+		eTextureUsage_Depth					= 1 << 8,
+		eTextureUsage_AutoGenMips			= 1 << 9,
+	};
+
+	enum eLockMode
+	{
+		eLockMode_ReadOnly,
+		eLockMode_WriteOnly,
+		eLockMode_ReadWrite,
+		eLockMode_NoOverWrite,
 	};
 
 	enum eRenderTargetUsage

@@ -160,7 +160,7 @@ namespace Neo
 
 	}
 	//---------------------------------------------------------------------
-	void TerrainGroup::defineTerrain(long x, long y, const Image* img, const Terrain::LayerInstanceList* layers /*= 0*/)
+	void TerrainGroup::defineTerrain(long x, long y, const Texture* img, const Terrain::LayerInstanceList* layers /*= 0*/)
 	{
 		TerrainSlot* slot = getTerrainSlot(x, y, true);
 
@@ -171,7 +171,7 @@ namespace Neo
 
 		// Copy all settings, but make sure our primary settings are immutable
 		// copy image - this will get deleted by importData
-		slot->def.importData->inputImage = new Image(*img);
+		slot->def.importData->inputImage = const_cast<Texture*>(img);
 		if (layers)
 		{
 			// copy (held by value)

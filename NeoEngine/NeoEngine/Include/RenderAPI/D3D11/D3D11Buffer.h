@@ -30,6 +30,9 @@ namespace Neo
 
 		ID3D11Buffer*	m_pBuf;
 		uint32			m_nStride;
+		uint32			m_usage;
+		uint32			m_size;
+		void*			m_pShadowBuf;
 	};
 	//------------------------------------------------------------------------------------
 	class D3D11ConstantBuffer : public ConstantBuffer

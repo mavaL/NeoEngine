@@ -751,36 +751,43 @@ namespace Neo
 		}
 		else if (importData.inputImage)
 		{
-			_AST(0);
+			Texture* img = importData.inputImage;
 
-			//Image* img = importData.inputImage;
+			if (img->GetWidth() != mSize || img->GetHeight() != mSize && (img->GetFormat() != ePF_L8))
+			{
+				_AST(0);
+				//img->resize(mSize, mSize);
+			}
 
-			//if (img->getWidth() != mSize || img->getHeight() != mSize)
-			//	img->resize(mSize, mSize);
+			// convert image data to floats
+			// Do this on a row-by-row basis, because we describe the terrain in
+			// a bottom-up fashion (ie ascending world coords), while Image is top-down
+			uint32 nRowPitch = 0;
+			uint8* pSrcBase = (uint8*)img->Lock(eLockMode_ReadOnly, &nRowPitch);
 
-			//// convert image data to floats
-			//// Do this on a row-by-row basis, because we describe the terrain in
-			//// a bottom-up fashion (ie ascending world coords), while Image is top-down
-			//unsigned char* pSrcBase = img->getData();
-			//for (size_t i = 0; i < mSize; ++i)
-			//{
-			//	size_t srcy = mSize - i - 1;
-			//	unsigned char* pSrc = pSrcBase + srcy * img->getRowSpan();
-			//	float* pDst = mHeightData + i * mSize;
-			//	PixelUtil::bulkPixelConversion(pSrc, img->getFormat(),
-			//		pDst, PF_FLOAT32_R, mSize);
-			//}
+			for (size_t i = 0; i < mSize; ++i)
+			{
+				float* pDst = mHeightData + i * mSize;
+				size_t srcy = mSize - i - 1;
+				unsigned char* pSrc = pSrcBase + srcy * nRowPitch;
 
-			//if (!Math::RealEqual(importData.inputBias, 0.0) || !Math::RealEqual(importData.inputScale, 1.0))
-			//{
-			//	float* pAdj = mHeightData;
-			//	for (size_t i = 0; i < numVertices; ++i)
-			//	{
-			//		*pAdj = (*pAdj * importData.inputScale) + importData.inputBias;
-			//		++pAdj;
-			//	}
-			//}
+				for (size_t j = 0; j < mSize; ++j)
+				{
+					pDst[j] = pSrc[j] / 255.0f;
+				}
+			}
 
+			if (!Common::Equal(importData.inputBias, 0.0f) || !Common::Equal(importData.inputScale, 1.0f))
+			{
+				float* pAdj = mHeightData;
+				for (size_t i = 0; i < numVertices; ++i)
+				{
+					*pAdj = (*pAdj * importData.inputScale) + importData.inputBias;
+					++pAdj;
+				}
+			}
+
+			img->Unlock();
 		}
 		else
 		{
@@ -1931,59 +1938,24 @@ namespace Neo
 		delete mQuadTree;
 		mQuadTree = 0;
 
-		//if (mCpuTerrainNormalMap)
-		//{
-		//	OGRE_FREE(mCpuTerrainNormalMap->data, MEMCATEGORY_GENERAL);
-		//	delete mCpuTerrainNormalMap;
-		//	mCpuTerrainNormalMap = 0;
-		//}
-
-		//OGRE_FREE(mCpuColourMapStorage, MEMCATEGORY_GENERAL);
-		//mCpuColourMapStorage = 0;
-
-		//OGRE_FREE(mCpuLightmapStorage, MEMCATEGORY_GENERAL);
-		//mCpuLightmapStorage = 0;
-
-		//OGRE_FREE(mCpuCompositeMapStorage, MEMCATEGORY_GENERAL);
-		//mCpuCompositeMapStorage = 0;
+		SAFE_DELETE(mCpuTerrainNormalMap);
+		SAFE_DELETE_ARRAY(mCpuColourMapStorage);
+		SAFE_DELETE_ARRAY(mCpuLightmapStorage);
+		SAFE_DELETE_ARRAY(mCpuCompositeMapStorage);
 	}
 	//---------------------------------------------------------------------
 	void Terrain::freeGPUResources()
 	{
-		// remove textures
-		//TextureManager* tmgr = TextureManager::getSingletonPtr();
-		//if (tmgr)
-		//{
-		//	for (TexturePtrList::iterator i = mBlendTextureList.begin(); i != mBlendTextureList.end(); ++i)
-		//	{
-		//		tmgr->remove((*i)->getHandle());
-		//	}
-		//	mBlendTextureList.clear();
+		for (TexturePtrList::iterator i = mBlendTextureList.begin(); i != mBlendTextureList.end(); ++i)
+		{
+			(*i)->Release();
+		}
+		mBlendTextureList.clear();
 
-		//	if (!mTerrainNormalMap.isNull())
-		//	{
-		//		tmgr->remove(mTerrainNormalMap->getHandle());
-		//		mTerrainNormalMap.setNull();
-		//	}
-
-		//	if (!mColourMap.isNull())
-		//	{
-		//		tmgr->remove(mColourMap->getHandle());
-		//		mColourMap.setNull();
-		//	}
-
-		//	if (!mLightmap.isNull())
-		//	{
-		//		tmgr->remove(mLightmap->getHandle());
-		//		mLightmap.setNull();
-		//	}
-
-		//	if (!mCompositeMap.isNull())
-		//	{
-		//		tmgr->remove(mCompositeMap->getHandle());
-		//		mCompositeMap.setNull();
-		//	}
-		//}
+		SAFE_RELEASE(mColourMap);
+		SAFE_RELEASE(mLightmap);
+		SAFE_RELEASE(mCompositeMap);
+		SAFE_RELEASE(mTerrainNormalMap);
 	}
 	//---------------------------------------------------------------------
 	void Terrain::freeLodData()
@@ -2427,20 +2399,29 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::checkDeclaration()
 	{
-		//if (mMaterialGenerator.isNull())
-		//{
-		//	mMaterialGenerator = TerrainGlobalOptions::getSingleton().getDefaultMaterialGenerator();
-		//}
+		if (mLayerDecl.elements.empty())
+		{
+			// define the layers
+			// We expect terrain textures to have no alpha, so we use the alpha channel
+			// in the albedo texture to store specular reflection
+			// similarly we double-up the normal and height (for parallax)
+			mLayerDecl.samplers.push_back(TerrainLayerSampler("albedo_specular", ePF_A8R8G8B8));
+			mLayerDecl.samplers.push_back(TerrainLayerSampler("normal_height", ePF_A8R8G8B8));
 
-		//if (mLayerDecl.elements.empty())
-		//{
-		//	// default the declaration
-		//	mLayerDecl = mMaterialGenerator->getLayerDeclaration();
-		//}
+			mLayerDecl.elements.push_back(
+				TerrainLayerSamplerElement(0, TLSS_ALBEDO, 0, 3));
+			mLayerDecl.elements.push_back(
+				TerrainLayerSamplerElement(0, TLSS_SPECULAR, 3, 1));
+			mLayerDecl.elements.push_back(
+				TerrainLayerSamplerElement(1, TLSS_NORMAL, 0, 3));
+			mLayerDecl.elements.push_back(
+				TerrainLayerSamplerElement(1, TLSS_HEIGHT, 3, 1));
+		}
 	}
 	//---------------------------------------------------------------------
 	void Terrain::replaceLayer(uint8 index, bool keepBlends, float worldSize, const StringVector* textureNames)
 	{
+		_AST(0);
 		//if (getLayerCount() > 0)
 		//{
 		//	if (index >= getLayerCount())
@@ -2484,6 +2465,7 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::addLayer(uint8 index, float worldSize, const StringVector* textureNames)
 	{
+		_AST(0);
 		//if (!worldSize)
 		//	worldSize = TerrainGlobalOptions::getSingleton().getDefaultLayerTextureWorldSize();
 
@@ -2534,6 +2516,7 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::removeLayer(uint8 index)
 	{
+		_AST(0);
 		//if (index < mLayers.size())
 		//{
 		//	uint8 blendIndex = std::max(index - 1, 0);
@@ -2572,29 +2555,31 @@ namespace Neo
 	//---------------------------------------------------------------------
 	uint8 Terrain::getMaxLayers() const
 	{
+		_AST(0);
 		//return mMaterialGenerator->getMaxLayers(this);
 		return 0;
 	}
 	//---------------------------------------------------------------------
-	//TerrainLayerBlendMap* Terrain::getLayerBlendMap(uint8 layerIndex)
-	//{
-	//	if (layerIndex == 0 || layerIndex - 1 >= (uint8)mLayerBlendMapList.size())
-	//		OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-	//			"Invalid layer index", "Terrain::getLayerBlendMap");
+	TerrainLayerBlendMap* Terrain::getLayerBlendMap(uint8 layerIndex)
+	{
+		if (layerIndex == 0 || layerIndex - 1 >= (uint8)mLayerBlendMapList.size())
+		{
+			_AST(0);
+			return nullptr;
+		}
 
-	//	uint8 idx = layerIndex - 1;
-	//	if (!mLayerBlendMapList[idx])
-	//	{
-	//		if (mBlendTextureList.size() < static_cast<size_t>(idx / 4))
-	//			checkLayers(true);
+		uint8 idx = layerIndex - 1;
+		if (!mLayerBlendMapList[idx])
+		{
+			if (mBlendTextureList.size() < static_cast<size_t>(idx / 4))
+				checkLayers(true);
 
-	//		const Texture* tex = mBlendTextureList[idx / 4];
-	//		mLayerBlendMapList[idx] = OGRE_NEW TerrainLayerBlendMap(this, layerIndex, tex->getBuffer().getPointer());
-	//	}
+			mLayerBlendMapList[idx] = new TerrainLayerBlendMap(this, layerIndex, mBlendTextureList[idx / 4]);
+		}
 
-	//	return mLayerBlendMapList[idx];
+		return mLayerBlendMapList[idx];
 
-	//}
+	}
 	//---------------------------------------------------------------------
 	uint8 Terrain::getBlendTextureCount(uint8 numLayers) const
 	{
@@ -2744,7 +2729,8 @@ namespace Neo
 			// Use TU_STATIC because although we will update this, we won't do it every frame
 			// in normal circumstances, so we don't want TU_DYNAMIC. Also we will 
 			// read it (if we've cleared local temp areas) so no WRITE_ONLY
-			mBlendTextureList[i] = g_env.pRenderer->GetRenderSys()->CreateTextureManual(mLayerBlendMapSize, mLayerBlendMapSize, nullptr, ePF_A8R8G8B8, 0, false);
+			mBlendTextureList[i] = g_env.pRenderer->GetRenderSys()->CreateTextureManual(
+				mLayerBlendMapSize, mLayerBlendMapSize, nullptr, ePF_A8R8G8B8, eTextureUsage_ReadWrite, false);
 
 			mLayerBlendMapSizeActual = mBlendTextureList[i]->GetWidth();
 
@@ -2771,17 +2757,16 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::createLayerBlendMaps()
 	{
-		_AST(0);
 		// delete extra blend layers (affects GPU)
-		//while (mLayerBlendMapList.size() > mLayers.size() - 1)
-		//{
-		//	delete mLayerBlendMapList.back();
-		//	mLayerBlendMapList.pop_back();
-		//}
+		while (mLayerBlendMapList.size() > mLayers.size() - 1)
+		{
+			delete mLayerBlendMapList.back();
+			mLayerBlendMapList.pop_back();
+		}
 
-		//// resize up (initialises to 0, populate as necessary)
-		//if (mLayers.size() > 1)
-		//	mLayerBlendMapList.resize(mLayers.size() - 1, 0);
+		// resize up (initialises to 0, populate as necessary)
+		if (mLayers.size() > 1)
+			mLayerBlendMapList.resize(mLayers.size() - 1, 0);
 	}
 	//---------------------------------------------------------------------
 	void Terrain::createOrDestroyGPUNormalMap()
@@ -2817,13 +2802,13 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::deleteBlendMaps(uint8 lowIndex)
 	{
-		//TerrainLayerBlendMapList::iterator i = mLayerBlendMapList.begin();
-		//std::advance(i, lowIndex);
-		//for (; i != mLayerBlendMapList.end(); ++i)
-		//{
-		//	delete *i;
-		//	*i = 0;
-		//}
+		TerrainLayerBlendMapList::iterator i = mLayerBlendMapList.begin();
+		std::advance(i, lowIndex);
+		for (; i != mLayerBlendMapList.end(); ++i)
+		{
+			delete *i;
+			*i = 0;
+		}
 	}
 	//---------------------------------------------------------------------
 	Texture* Terrain::getLayerBlendTexture(uint8 index) const
@@ -3172,11 +3157,11 @@ namespace Neo
 				long storeX = x - widenedRect.left;
 				long storeY = widenedRect.bottom - y - 1;
 
-				uint8* pStore = pData + ((storeY * widenedRect.GetWidth()) + storeX) * 3;
+				uint8* pStore = pData + ((storeY * widenedRect.GetWidth()) + storeX) * 4;
 				*pStore++ = static_cast<uint8>((cumulativeNormal.x + 1.0f) * 0.5f * 255.0f);
 				*pStore++ = static_cast<uint8>((cumulativeNormal.y + 1.0f) * 0.5f * 255.0f);
 				*pStore++ = static_cast<uint8>((cumulativeNormal.z + 1.0f) * 0.5f * 255.0f);
-				*pStore++ = 1;
+				*pStore++ = 255;
 
 			}
 		}
@@ -3277,6 +3262,7 @@ namespace Neo
 	//---------------------------------------------------------------------
 	PixelBox* Terrain::calculateLightmap(const Rect& rect, const Rect& extraTargetRect, Rect& outFinalRect)
 	{
+		_AST(0);
 		return nullptr;
 
 		// as well as calculating the lighting changes for the area that is
@@ -3358,6 +3344,7 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::finaliseLightmap(const Rect& rect, PixelBox* lightmapBox)
 	{
+		_AST(0);
 		//createOrDestroyGPULightmap();
 		//// deal with race condition where lm has been disabled while we were working!
 		//if (!mLightmap.isNull())
@@ -3387,6 +3374,7 @@ namespace Neo
 	//---------------------------------------------------------------------
 	void Terrain::updateCompositeMap()
 	{
+		_AST(0);
 		// All done in the render thread
 		//if (mCompositeMapRequired && !mCompositeMapDirtyRect.isNull())
 		//{
@@ -3420,43 +3408,30 @@ namespace Neo
 	//---------------------------------------------------------------------
 	uint8 Terrain::getBlendTextureIndex(uint8 layerIndex) const
 	{
-		//if (layerIndex == 0 || layerIndex - 1 >= (uint8)mLayerBlendMapList.size())
-		//	OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-		//		"Invalid layer index", "Terrain::getBlendTextureIndex");
+		if (layerIndex == 0 || layerIndex - 1 >= (uint8)mLayerBlendMapList.size())
+		{
+			_AST(0);
+			return 0;
+		}
 
-		//return (layerIndex - 1) % 4;
-
-		return 0;
-	}
-	//---------------------------------------------------------------------
-	const STRING& Terrain::getBlendTextureName(uint8 textureIndex) const
-	{
-		//if (textureIndex >= (uint8)mBlendTextureList.size())
-		//	OGRE_EXCEPT(Exception::ERR_INVALIDPARAMS,
-		//		"Invalid texture index", "Terrain::getBlendTextureName");
-
-		//return mBlendTextureList[textureIndex]->getName();
-
-		return "";
+		return (layerIndex - 1) % 4;
 	}
 	//---------------------------------------------------------------------
 	void Terrain::setGlobalColourMapEnabled(bool enabled, uint16 sz)
 	{
-		//if (!sz)
-		//	sz = TerrainGlobalOptions::getSingleton().getDefaultGlobalColourMapSize();
+		if (!sz)
+			sz = g_env.pSceneMgr->GetTerrainOptions()->getDefaultGlobalColourMapSize();
 
-		//if (enabled != mGlobalColourMapEnabled ||
-		//	(enabled && mGlobalColourMapSize != sz))
-		//{
-		//	mGlobalColourMapEnabled = enabled;
-		//	mGlobalColourMapSize = sz;
+		if (enabled != mGlobalColourMapEnabled ||
+			(enabled && mGlobalColourMapSize != sz))
+		{
+			mGlobalColourMapEnabled = enabled;
+			mGlobalColourMapSize = sz;
 
-		//	createOrDestroyGPUColourMap();
+			createOrDestroyGPUColourMap();
 
-		//	mMaterialDirty = true;
-		//	mMaterialParamsDirty = true;
-		//	mModified = true;
-		//}
+			mModified = true;
+		}
 	}
 	//---------------------------------------------------------------------
 	void Terrain::createOrDestroyGPUColourMap()
@@ -4364,11 +4339,7 @@ namespace Neo
 
 			//Image::scale(src, dst, Image::FILTER_BILINEAR);
 
-			//if (!mTerrainNormalMap.isNull())
-			//{
-			//	TextureManager::getSingletonPtr()->remove(mTerrainNormalMap->getHandle());
-			//	mTerrainNormalMap.setNull();
-			//}
+			SAFE_RELEASE(mTerrainNormalMap);
 
 			freeLodData();
 			freeCPUResources();
@@ -4461,7 +4432,7 @@ namespace Neo
 			// create new
 			nIndexCount = Terrain::_getNumIndexesForBatchSize(batchSize);
 
-			IndexBuffer* ret = g_env.pRenderer->GetRenderSys()->CreateIndexBuffer(nIndexCount * sizeof(DWORD), nullptr, eBufferUsage_Dynamic);
+			IndexBuffer* ret = g_env.pRenderer->GetRenderSys()->CreateIndexBuffer(nIndexCount * sizeof(DWORD), nullptr, 0);
 
 			uint32* pI = static_cast<uint32*>(ret->Lock());
 			Terrain::_populateIndexBuffer(pI, batchSize, vdatasize, vertexIncrement, xoffset, yoffset, numSkirtRowsCols, skirtRowColSkip);
@@ -4518,7 +4489,7 @@ namespace Neo
 		if (lodLevel > 0 && lodLevel < mNumLodLevels)
 			mLodManager->updateToLodLevel(lodLevel);
 	}
-
+	//---------------------------------------------------------------------
 	void Terrain::removeFromNeighbours()
 	{
 		// We are reading the list of neighbours here
@@ -4533,4 +4504,16 @@ namespace Neo
 			neighbour->setNeighbour(getOppositeNeighbour(ni), 0, false, false);
 		}
 	}
+	//---------------------------------------------------------------------
+	void Terrain::ImportData::destroy()
+	{
+		if (deleteInputData)
+		{
+			inputImage->Release();
+			delete []inputFloat;
+			inputImage = 0;
+			inputFloat = 0;
+		}
+	}
+
 }

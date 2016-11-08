@@ -183,7 +183,7 @@ namespace Neo
 			data layers will be used) - this data is copied during the
 			call so  you may destroy your copy afterwards.
 		*/
-		virtual void defineTerrain(long x, long y, const Image* img, const Terrain::LayerInstanceList* layers = 0);
+		virtual void defineTerrain(long x, long y, const Texture* img, const Terrain::LayerInstanceList* layers = 0);
 
 		/** Define the content of a 'slot' in the terrain grid.
 		@remarks

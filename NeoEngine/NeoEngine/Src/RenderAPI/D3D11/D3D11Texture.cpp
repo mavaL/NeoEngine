@@ -8,18 +8,21 @@ namespace Neo
 {
 	//--------------------------------------------------------------------------
 	D3D11Texture::D3D11Texture(const STRING& filename, eTextureType type, uint32 usage, bool bSRGB)
-	: Texture(type, 0, 0, 0, ePF_Unknown, usage, true)
-	, m_pTexture2D(nullptr)
-	, m_pTexture3D(nullptr)
-	, m_pRTV(nullptr)
-	, m_pSRV(nullptr)
-	, m_pDSV(nullptr)
+		: Texture(type, 0, 0, 0, ePF_Unknown, usage, true)
+		, m_pTexture2D(nullptr)
+		, m_pTexture3D(nullptr)
+		, m_pRTV(nullptr)
+		, m_pSRV(nullptr)
+		, m_pDSV(nullptr)
+		, m_pTexStaging(nullptr)
 	{
 		////////////////////////////////////////////////////////////////
 		////////////// Load texture
 		HRESULT hr = S_OK;
 		D3DX11_IMAGE_LOAD_INFO loadInfo;
 		loadInfo.MipLevels = 0;
+		loadInfo.BindFlags = 0;
+		loadInfo.Format = DXGI_FORMAT_FROM_FILE;
 		ID3D11Resource** pTex = nullptr;
 
 		switch (GetTextureType())
@@ -27,6 +30,12 @@ namespace Neo
 		case eTextureType_2D:
 			{
 				pTex = (ID3D11Resource**)&m_pTexture2D;
+
+				if (usage & eTextureUsage_ReadWrite)
+				{
+					loadInfo.Usage = D3D11_USAGE_STAGING;
+					loadInfo.CpuAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+				}
 			}
 			break;
 
@@ -43,20 +52,30 @@ namespace Neo
 			}
 			break;
 
-		default: assert(0);
+		default: _AST(0);
 		}
 
 		if (filename.find(".dds") != STRING::npos)
 		{
-			V(DirectX::CreateDDSTextureFromFileEx(g_pRenderSys->GetDevice(), EngineToUnicode(filename).c_str(),
-				4096, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, bSRGB, pTex, &m_pSRV));
+			if (usage & eTextureUsage_ReadWrite)
+			{
+				V(DirectX::CreateDDSTextureFromFileEx(g_pRenderSys->GetDevice(), EngineToUnicode(filename).c_str(),
+					4096, D3D11_USAGE_STAGING, 0, D3D11_CPU_ACCESS_READ, 0, bSRGB, pTex, nullptr));
+			} 
+			else
+			{
+				V(DirectX::CreateDDSTextureFromFileEx(g_pRenderSys->GetDevice(), EngineToUnicode(filename).c_str(),
+					4096, D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, bSRGB, pTex, &m_pSRV));
+			}
 		} 
 		else
 		{
 			V(D3DX11CreateTextureFromFileA(g_pRenderSys->GetDevice(), filename.c_str(), &loadInfo, nullptr, pTex, nullptr));
 
-			// Create SRV
-			CreateSRV();
+			if (!(usage & eTextureUsage_ReadWrite))
+			{
+				CreateSRV();
+			}
 		}
 
 		// Store texture dimension and format
@@ -87,7 +106,7 @@ namespace Neo
 			}
 			break;
 
-		default: assert(0);
+		default: _AST(0);
 		}
 	}
 	//-------------------------------------------------------------------------------
@@ -98,6 +117,7 @@ namespace Neo
 		, m_pRTV(nullptr)
 		, m_pSRV(nullptr)
 		, m_pDSV(nullptr)
+		, m_pTexStaging(nullptr)
 	{
 		_CreateManual(pTexData);
 
@@ -114,6 +134,7 @@ namespace Neo
 		, m_pRTV(nullptr)
 		, m_pSRV(nullptr)
 		, m_pDSV(nullptr)
+		, m_pTexStaging(nullptr)
 	{
 		_AST(!vecTexNames.empty());
 
@@ -208,6 +229,7 @@ namespace Neo
 		, m_pRTV(pRTV)
 		, m_pSRV(pSRV)
 		, m_pDSV(pDSV)
+		, m_pTexStaging(nullptr)
 	{
 
 	}
@@ -219,6 +241,7 @@ namespace Neo
 		, m_pRTV(nullptr)
 		, m_pSRV(nullptr)
 		, m_pDSV(nullptr)
+		, m_pTexStaging(nullptr)
 	{
 		ZeroMemory(m_pRTV_slices, sizeof(m_pRTV_slices));
 
@@ -228,7 +251,7 @@ namespace Neo
 		CD3D11_TEXTURE3D_DESC desc(dxformat, width, height, depth, 1);
 
 		// Validate usage
-		assert(!((m_usage&eTextureUsage_WriteOnly) && (m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
+		_AST(!((m_usage&eTextureUsage_WriteOnly) && (m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
 
 		// Assign usage
 		if (m_usage & eTextureUsage_WriteOnly)
@@ -274,6 +297,7 @@ namespace Neo
 	{
 		SAFE_RELEASE(m_pTexture2D);
 		SAFE_RELEASE(m_pTexture3D);
+		SAFE_RELEASE(m_pTexStaging);
 		SAFE_RELEASE(m_pSRV);
 		SAFE_RELEASE(m_pDSV);
 		SAFE_RELEASE(m_pRTV);
@@ -288,8 +312,11 @@ namespace Neo
 		DWORD pitch = bytesPerPixel * m_width;
 		char* tmpBuf = (char*)pTexData;
 
-		if(!pTexData)
+		if (!pTexData)
+		{
 			tmpBuf = new char[pitch * m_height];
+			ZeroMemory(tmpBuf, pitch * m_height * sizeof(char));
+		}
 
 		D3D11_SUBRESOURCE_DATA subData;
 		D3D11_SUBRESOURCE_DATA* subDataArray = nullptr;
@@ -325,20 +352,7 @@ namespace Neo
 		}
 
 		// Validate usage
-		assert(!((m_usage&eTextureUsage_WriteOnly)&&(m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
-
-		// Assign usage
-		if (m_usage & eTextureUsage_WriteOnly)
-		{
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			desc.Usage = D3D11_USAGE_DYNAMIC;
-		}
-		else if (m_usage & eTextureUsage_ReadWrite)
-		{
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
-			desc.Usage = D3D11_USAGE_STAGING;
-			desc.BindFlags = 0;
-		}
+		_AST(!((m_usage&eTextureUsage_WriteOnly)&&(m_usage&eTextureUsage_ReadWrite)) && "Invalid usage!");
 
 		if (m_usage & eTextureUsage_RenderTarget)
 		{
@@ -354,6 +368,22 @@ namespace Neo
 		{
 			desc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
 			desc.ArraySize = 6;
+		}
+
+		// Assign usage
+		if (m_usage & eTextureUsage_WriteOnly)
+		{
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+			desc.Usage = D3D11_USAGE_DYNAMIC;
+		}
+		else if (m_usage & eTextureUsage_ReadWrite)
+		{
+			D3D11_TEXTURE2D_DESC descStaging = desc;
+			descStaging.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE | D3D11_CPU_ACCESS_READ;
+			descStaging.Usage = D3D11_USAGE_STAGING;
+			descStaging.BindFlags = 0;
+
+			g_pRenderSys->GetDevice()->CreateTexture2D(&descStaging, subDataArray, &m_pTexStaging);
 		}
 
 		if (m_usage & eTextureUsage_Depth)
@@ -373,7 +403,7 @@ namespace Neo
 			SAFE_DELETE_ARRAY(tmpBuf);
 		}
 
-		assert(SUCCEEDED(hr) && "Create texture failed!");
+		_AST(SUCCEEDED(hr) && "Create texture failed!");
 
 		// Generate mipmap levels
 		if (m_bMipMap && !(m_usage & eTextureUsage_RenderTarget))
@@ -400,7 +430,7 @@ namespace Neo
 	bool D3D11Texture::SaveToFile( const char* filename )
 	{
 		STRING str(filename);
-		assert(str.substr(str.length()-4, 4) == ".dds");
+		_AST(str.substr(str.length()-4, 4) == ".dds");
 
 		HRESULT hr = D3DX11SaveTextureToFileA(g_pRenderSys->GetDeviceContext(), m_pTexture2D, D3DX11_IFF_DDS, filename);
 
@@ -409,7 +439,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void D3D11Texture::CreateDSV()
 	{
-		assert(GetTextureType() == eTextureType_2D);
+		_AST(GetTextureType() == eTextureType_2D);
 
 		D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
 		ZeroMemory( &descDSV, sizeof(descDSV) );
@@ -424,10 +454,6 @@ namespace Neo
 	//-------------------------------------------------------------------------------
 	void D3D11Texture::CreateSRV()
 	{
-		// Local texture not create SRV
-		if (m_usage & eTextureUsage_ReadWrite)
-			return;
-
 		SAFE_RELEASE(m_pSRV);
 
 		HRESULT hr = S_OK;
@@ -556,6 +582,58 @@ namespace Neo
 		else
 		{
 			_AST(0);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void* D3D11Texture::Lock(eLockMode mode, uint32* oPitch)
+	{
+		HRESULT hr = S_OK;
+		D3D11_MAPPED_SUBRESOURCE mapped;
+		mapped.pData = nullptr;
+		D3D11_MAP mapMode;
+
+		switch (mode)
+		{
+		case eLockMode_ReadOnly: mapMode = D3D11_MAP_READ; break;
+		case eLockMode_WriteOnly: mapMode = D3D11_MAP_WRITE; break;
+		case eLockMode_ReadWrite: mapMode = D3D11_MAP_READ_WRITE; break;
+		case eLockMode_NoOverWrite: mapMode = D3D11_MAP_WRITE_NO_OVERWRITE; break;
+		default: _AST(0);
+		}
+
+		if (m_pTexStaging)
+		{
+			// Copy from gpu texture to staging texture
+			g_pRenderSys->GetDeviceContext()->CopyResource(m_pTexStaging, m_pTexture2D);
+
+			// Map staging buffer
+			V(g_pRenderSys->GetDeviceContext()->Map(m_pTexStaging, 0, mapMode, 0, &mapped));
+		} 
+		else
+		{
+			V(g_pRenderSys->GetDeviceContext()->Map(m_pTexture2D, 0, mapMode, 0, &mapped));
+		}
+
+		if (oPitch)
+		{
+			*oPitch = mapped.RowPitch;
+		}
+
+		return mapped.pData;
+	}
+	//------------------------------------------------------------------------------------
+	void D3D11Texture::Unlock()
+	{
+		if (m_pTexStaging)
+		{
+			g_pRenderSys->GetDeviceContext()->Unmap(m_pTexStaging, 0);
+
+			// Copy from staging texture to gpu texture
+			g_pRenderSys->GetDeviceContext()->CopyResource(m_pTexture2D, m_pTexStaging);
+		}
+		else
+		{
+			g_pRenderSys->GetDeviceContext()->Unmap(m_pTexture2D, 0);
 		}
 	}
 	//------------------------------------------------------------------------------------

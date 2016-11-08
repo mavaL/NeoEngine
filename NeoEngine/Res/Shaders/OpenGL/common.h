@@ -60,6 +60,11 @@ vec3 Expand(vec3 v)
 	return v * 2 - 1;
 }
 
+vec4 Expand(vec4 v)
+{
+	return v * 2 - 1;
+}
+
 float saturate(float v)
 {
 	return max(v, 0);

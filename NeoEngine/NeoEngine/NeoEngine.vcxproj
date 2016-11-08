@@ -149,6 +149,7 @@
     <ClInclude Include="Include\TangentSpaceCalculation.h" />
     <ClInclude Include="Include\Terrain\Terrain.h" />
     <ClInclude Include="Include\Terrain\TerrainGroup.h" />
+    <ClInclude Include="Include\Terrain\TerrainLayerBlendMap.h" />
     <ClInclude Include="Include\Terrain\TerrainLodManager.h" />
     <ClInclude Include="Include\Terrain\TerrainQuadTreeNode.h" />
     <ClInclude Include="Include\ThirdPersonCharacter.h" />
@@ -176,6 +177,8 @@
     <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.ps" />
     <None Include="..\Res\Shaders\OpenGL\opaque_shadowmapgen.vs" />
     <None Include="..\Res\Shaders\OpenGL\postprocess.vs" />
+    <None Include="..\Res\Shaders\OpenGL\terrain.ps" />
+    <None Include="..\Res\Shaders\OpenGL\terrain.vs" />
     <None Include="Include\MathDef.inl" />
   </ItemGroup>
   <ItemGroup>
@@ -242,6 +245,7 @@
     </ClCompile>
     <ClCompile Include="Src\Terrain\Terrain.cpp" />
     <ClCompile Include="Src\Terrain\TerrainGroup.cpp" />
+    <ClCompile Include="Src\Terrain\TerrainLayerBlendMap.cpp" />
     <ClCompile Include="Src\Terrain\TerrainLodManager.cpp" />
     <ClCompile Include="Src\Terrain\TerrainQuadTreeNode.cpp" />
     <ClCompile Include="Src\TestScene.cpp" />
@@ -260,6 +264,7 @@
     <Xml Include="..\Res\Shaders\OpenGL\hdr.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\linearizedepth.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\opaque.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\terrain.xml" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Res\Shaders\D3D11\Anisotropic.hlsl">

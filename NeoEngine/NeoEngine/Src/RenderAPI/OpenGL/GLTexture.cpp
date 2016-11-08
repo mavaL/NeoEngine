@@ -4,6 +4,7 @@
 #include "dds.h"
 #include "opengl/GLAPI.h"
 #include "opengl/GLRenderSystem.h"
+#include "PixelBox.h"
 
 namespace Neo
 {
@@ -51,6 +52,7 @@ namespace Neo
 			NativePixelFormat[ePF_R32F].Setup(GL_R32F, GL_RED, GL_FLOAT, GL_NONE, 0, 4);
 			NativePixelFormat[ePF_DXT1].Setup(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, GL_BGRA, GL_UNSIGNED_BYTE, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT, 1, 8);
 			NativePixelFormat[ePF_DXT5].Setup(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT, GL_BGRA, GL_UNSIGNED_BYTE, GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT, 1, 16);
+			NativePixelFormat[ePF_L8].Setup(GL_ALPHA, GL_ALPHA, GL_UNSIGNED_BYTE, GL_NONE, 0, 1);
 
 			GLPixelFormat::sInitialized = true;
 		}
@@ -71,58 +73,9 @@ namespace Neo
 		return nMips;
 	}
 	//------------------------------------------------------------------------------------
-	uint32	GetBytesPerPixel(ePixelFormat format)
-	{
-		switch (format)
-		{
-		case ePF_A8R8G8B8:	return 4;
-		case ePF_A16R16G16B16F:	return 8;
-		case ePF_Depth32:	return 4;
-		case ePF_R32F:	return 4;
-		default: _AST(0);
-		}
-		return 0;
-	}
-	//------------------------------------------------------------------------------------
-	uint32	CalcTexDataSize(uint32 nWidth, uint32 nHeight, uint32 nMips, ePixelFormat format)
-	{
-		_AST(nMips >= 1);
-
-		uint32 nBytesPerBlock = 0;
-		uint32 nBytesPerPixel = 0;
-		if (format == ePF_DXT5)
-		{
-			nBytesPerBlock = 16;
-		}
-		else if (format == ePF_DXT1)
-		{
-			nBytesPerBlock = 8;
-		}
-		else
-		{
-			nBytesPerPixel = GetBytesPerPixel(format);
-		}
-		
-		uint32 nSize = 0;
-
-		for (uint32 i = 0; i < nMips; ++i)
-		{
-			if (format == ePF_DXT5 || format == ePF_DXT1)
-			{
-				nSize += ((nWidth + 3) / 4) * ((nHeight + 3) / 4) * nBytesPerBlock;
-			} 
-			else
-			{
-				nSize += nWidth * nHeight * nBytesPerPixel;
-			}
-			nWidth >>= 1;
-			nHeight >>= 1;
-		}
-
-		return nSize;
-	}
-	//------------------------------------------------------------------------------------
 	GLTexture::GLTexture(const STRING& filename, eTextureType type, uint32 usage, bool bSRGB)
+		: m_pLockData(nullptr)
+		, m_filename(filename)
 	{
 		HRESULT hr = S_OK;
 		DirectX::DDS_HEADER* header = nullptr;
@@ -150,6 +103,7 @@ namespace Neo
 		case DXGI_FORMAT_B8G8R8A8_UNORM: m_texFormat = ePF_A8R8G8B8; break;
 		case DXGI_FORMAT_BC3_UNORM: m_texFormat = ePF_DXT5; break;
 		case DXGI_FORMAT_BC1_UNORM: m_texFormat = ePF_DXT1; break;
+		case DXGI_FORMAT_R8_UNORM: m_texFormat = ePF_L8; break;
 		default: _AST(0);
 		}
 
@@ -159,6 +113,7 @@ namespace Neo
 	GLTexture::GLTexture(uint32 width, uint32 height, const void* pTexData, ePixelFormat format, uint32 usage, bool bMipMap)
 		: Texture(eTextureType_2D, width, height, 1, format, usage, bMipMap)
 		, m_bsRGB(false)
+		, m_pLockData(nullptr)
 	{
 		const uint32 nMips = bMipMap ? CalcTexMipNum(width, height) : 1;
 		_Init(width, height, pTexData, format, usage, nMips);
@@ -167,6 +122,7 @@ namespace Neo
 	GLTexture::GLTexture(const StringVector& vecTexNames, bool bSRGB)
 		: Texture(eTextureType_TextureArray, 0, 0, 0, ePF_Unknown, 0, true)
 		, m_bsRGB(bSRGB)
+		, m_pLockData(nullptr)
 	{
 		_AST(!vecTexNames.empty());
 
@@ -371,7 +327,92 @@ namespace Neo
 		OpenGLAPI::BindTexture(GL_TEXTURE_2D, m_id);
 		OpenGLAPI::GenerateMipmap(GL_TEXTURE_2D);
 	}
+	//------------------------------------------------------------------------------------
+	void GLTexture::UpdateRegion(const Rect* rcSrc, const Rect* rcDest, const PixelBox* pData)
+	{
+		if (!rcDest && !rcSrc)
+		{
+			OpenGLAPI::BindTexture(GL_TEXTURE_2D, m_id);
 
+			const GLPixelFormat& nativeFormat = GetNativePixelFormat(m_texFormat);
+
+			OpenGLAPI::TexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				nativeFormat.InternalFormat,
+				m_width, m_height,
+				0,
+				nativeFormat.Format,
+				nativeFormat.Type,
+				pData->GetDataPointer()
+				);
+		}
+		else
+		{
+			_AST(0);
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void* GLTexture::Lock(eLockMode mode, uint32* oPitch /*= nullptr*/)
+	{
+		m_lockMode = mode;
+
+		if (oPitch)
+		{
+			*oPitch = m_width * Texture::GetBytesPerPixelFromFormat(m_texFormat);
+		}
+
+		if (mode == eLockMode_ReadOnly)
+		{
+			HRESULT hr = S_OK;
+			DirectX::DDS_HEADER* header = nullptr;
+			uint8_t* bitData = nullptr;
+			size_t bitSize = 0;
+
+			V(DirectX::LoadTextureDataFromFile(EngineToUnicode(m_filename).c_str(), m_texData, &header, &bitData, &bitSize));
+
+			return bitData;
+		} 
+		else
+		{
+			_AST(!m_pLockData);
+
+			const uint32 nTexSize = Texture::CalcTexDataSize(m_width, m_height, 1, m_texFormat);
+			m_pLockData = new char[nTexSize];
+			ZeroMemory(m_pLockData, nTexSize);
+
+			return m_pLockData;
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void GLTexture::Unlock()
+	{
+		if (m_lockMode == eLockMode_ReadOnly)
+		{
+			m_texData = nullptr;	
+		} 
+		else
+		{
+			_AST(m_pLockData && !m_bMipMap);
+
+			OpenGLAPI::BindTexture(GL_TEXTURE_2D, m_id);
+
+			const GLPixelFormat& nativeFormat = GetNativePixelFormat(m_texFormat);
+
+			OpenGLAPI::TexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				nativeFormat.InternalFormat,
+				m_width, m_height,
+				0,
+				nativeFormat.Format,
+				nativeFormat.Type,
+				m_pLockData
+				);
+
+			SAFE_DELETE_ARRAY(m_pLockData);
+		}
+	}
 	//------------------------------------------------------------------------------------
 	GLSamplerState::GLSamplerState(const SSamplerDesc& desc)
 	{

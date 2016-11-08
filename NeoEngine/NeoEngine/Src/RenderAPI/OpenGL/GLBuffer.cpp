@@ -33,13 +33,14 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void* GLBuffer::Lock()
 	{
-		_AST(0);
-		return nullptr;
+		int lockFlag = GL_MAP_WRITE_BIT;
+		OpenGLAPI::BindBuffer(m_target, m_id);
+		return OpenGLAPI::MapBufferRange(m_target, 0, m_nSize, lockFlag);
 	}
 	//------------------------------------------------------------------------------------
 	void GLBuffer::Unlock()
 	{
-		_AST(0);
+		OpenGLAPI::UnmapBuffer(m_target);
 	}
 	//------------------------------------------------------------------------------------
 	void GLBuffer::UpdateBuf(void* pSrc)
@@ -119,6 +120,25 @@ namespace Neo
 				OpenGLAPI::VertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(STangentData), (GLvoid*)16);
 			}
 			break;
+
+		case eVertexType_Terrain:
+		{
+			_AST(vecVBOs.size() == 2);
+			OpenGLAPI::BindBuffer(GL_ARRAY_BUFFER, (GLuint)vecVBOs[0]->GetInternel());
+
+			// pos index
+			OpenGLAPI::EnableVertexAttribArray(0);
+			OpenGLAPI::VertexAttribPointer(0, 2, GL_SHORT, GL_FALSE, 8, (GLvoid*)0);
+			// height
+			OpenGLAPI::EnableVertexAttribArray(1);
+			OpenGLAPI::VertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 8, (GLvoid*)4);
+
+			// delta
+			OpenGLAPI::BindBuffer(GL_ARRAY_BUFFER, (GLuint)vecVBOs[1]->GetInternel());
+			OpenGLAPI::EnableVertexAttribArray(2);
+			OpenGLAPI::VertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8, (GLvoid*)0);
+		}
+		break;
 
 		default:
 			_AST(0);
