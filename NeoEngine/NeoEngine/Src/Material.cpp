@@ -37,6 +37,7 @@ namespace Neo
 	, m_pPS_2(nullptr)
 	, m_shaderFlag(0)
 	, m_cullMode(eCull_BACK)
+	, m_fillMode(eFill_Solid)
 	, m_vertType(type)
 	, m_iActivePass(0)
 	, m_bEnableGS(false)
@@ -101,7 +102,8 @@ namespace Neo
 			}
 		}
 
-		if (m_shaderType == eShader_Opaque)
+		// g-buffer tech
+		if (m_shaderType == eShader_Opaque || m_shaderType == eShader_Terrain)
 		{
 			m_pVertexShader = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, szVS1, m_vertType, vecMacro);
 			m_pPS_GBuffer = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_GBuffer, strShaderFile, shaderFalg, "PS_GBuffer", m_vertType, vecMacro);
@@ -120,6 +122,7 @@ namespace Neo
 			m_pPixelShader = m_pRenderSystem->CreateShader(eShaderType_PS, eRenderPhase_Forward, strShaderFile, shaderFalg, szPS1, m_vertType, vecMacro);
 		}
 
+		// forward pass2
 		if (szVS2 && szPS2)
 		{
 			m_pVS_2 = m_pRenderSystem->CreateShader(eShaderType_VS, eRenderPhase_Forward, strShaderFile, shaderFalg, szVS2, m_vertType, vecMacro);
@@ -180,6 +183,12 @@ namespace Neo
 		else if (m_cullMode != rasterState.Desc.CullMode)
 		{
 			rasterState.Desc.CullMode = m_cullMode;
+			pRenderer->SetRasterState(&rasterState);
+		}
+
+		if (m_fillMode != rasterState.Desc.FillMode)
+		{
+			rasterState.Desc.FillMode = m_fillMode;
 			pRenderer->SetRasterState(&rasterState);
 		}
 
@@ -293,7 +302,7 @@ namespace Neo
 			retMacros.push_back(macro);
 		}
 
-		if (m_vecSubMtls[0].m_pTexture[eTexSlot_SpecMap])
+		if (m_vecSubMtls[0].m_pTexture[2])
 		{
 			D3D_SHADER_MACRO macro = { "SPEC_MAP", "" };
 			retMacros.push_back(macro);

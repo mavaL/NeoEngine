@@ -14,6 +14,11 @@
 #include "Buffer.h"
 #include "Texture.h"
 #include "RenderTarget.h"
+#include "Scene.h"
+#include "Entity.h"
+#include "Terrain/Terrain.h"
+#include "Terrain/TerrainQuadTreeNode.h"
+#include "Terrain/TerrainGroup.h"
 
 
 namespace Neo
@@ -67,9 +72,6 @@ namespace Neo
 		rasterState.Desc.SlopeScaledDepthBias = 0.0f;
 
 		SetRasterState(&rasterState);
-
-		m_wireframeRasterState = rasterState;
-		m_wireframeRasterState.Desc.FillMode = eFill_Wireframe;
 
 		// Init depth stencil state
 		SStateDepth depthState;
@@ -256,7 +258,15 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	void Renderer::EnableWireframeMode(bool b)
 	{
+		EntityList& lstEntity = g_env.pSceneMgr->GetCurScene()->GetEntityList();
 
+		for (uint32 i = 0; i < lstEntity.size(); ++i)
+		{
+			lstEntity[i]->GetMaterial()->SetFillMode(b ? eFill_Wireframe : eFill_Solid);
+		}
+
+		TerrainQuadTreeNode* pTerrainNode = g_env.pSceneMgr->GetTerrain()->getTerrain(0, 0)->getQuadTree();
+		pTerrainNode->enableWireframe(b);
 	}
 	//------------------------------------------------------------------------------------
 	void Renderer::UnbindTexture(Texture* tex)

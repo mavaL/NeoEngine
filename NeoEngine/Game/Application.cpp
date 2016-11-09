@@ -220,7 +220,9 @@ bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
 	case OIS::KC_R:
 		{
 			// Toggle wireframe rendering mode.
-			
+			static bool bWireframe = false;
+			bWireframe = !bWireframe;
+			g_env.pRenderer->EnableWireframeMode(bWireframe);
 		}
 		break;
 	};

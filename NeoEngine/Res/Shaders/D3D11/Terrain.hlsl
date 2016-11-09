@@ -27,7 +27,7 @@ struct VS_OUTPUT
 };
 
 
-VS_OUTPUT VS(VS_INPUT IN)
+VS_OUTPUT VS_GBuffer(VS_INPUT IN)
 {
 	VS_OUTPUT OUT = (VS_OUTPUT)0;
 
@@ -61,8 +61,10 @@ Texture2D normtex2 : register(t7);
 
 SamplerState samLinear : register(s0);
 
-float4 PS(VS_OUTPUT IN) : SV_Target
+gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {
+	gbuffer_output OUT = (gbuffer_output)0;
+
 	float4 outputCol = float4(0,0,0,1);
 	float2 uv = IN.oUVMisc.xy;
 	float3 normal = Expand(globalNormal.Sample(samLinear, uv)).rgb;
@@ -85,12 +87,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	//uv0 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(normtex0.Sample(samLinear, uv0)).rgb;
 	float3 vWorldNormal = mul(TBN, TSnormal);
-	vWorldNormal = normalize(mul(vWorldNormal, World));
-
-	float3 vView = camPos - IN.oWPos;
-	TShalfAngle = normalize(lightDirection + vView);
-	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
-	litRes = litResLayer;
+	vWorldNormal = mul(vWorldNormal, World);
 
 	float4 diffuseSpecTex0 = difftex0.Sample(samLinear, uv0);
 	diffuse = diffuseSpecTex0.rgb;
@@ -100,12 +97,8 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	displacement = normtex1.Sample(samLinear, uv1).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
 	//uv1 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(normtex1.Sample(samLinear, uv1)).rgb;
-	vWorldNormal = mul(TBN, TSnormal);
-	vWorldNormal = normalize(mul(vWorldNormal, World));
-
-	TShalfAngle = normalize(lightDirection + vView);
-	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
-	litRes = lerp(litRes, litResLayer, blendTexVal0.r);
+	TSnormal = mul(TBN, TSnormal);
+	vWorldNormal += mul(TSnormal, World);
 
 	float4 diffuseSpecTex1 = difftex1.Sample(samLinear, uv1);
 	diffuse = lerp(diffuse, diffuseSpecTex1.rgb, blendTexVal0.r);
@@ -115,19 +108,17 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	displacement = normtex2.Sample(samLinear, uv2).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
 	//uv2 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(normtex2.Sample(samLinear, uv2)).rgb;
-	vWorldNormal = mul(TBN, TSnormal);
-	vWorldNormal = normalize(mul(vWorldNormal, World));
-
-	TShalfAngle = normalize(lightDirection + vView);
-	litResLayer = lit(dot(lightDirection, vWorldNormal), dot(TShalfAngle, vWorldNormal), scaleBiasSpecular.z);
-	litRes = lerp(litRes, litResLayer, blendTexVal0.g);
+	TSnormal = mul(TBN, TSnormal);
+	vWorldNormal += mul(TSnormal, World);
 
 	float4 diffuseSpecTex2 = difftex2.Sample(samLinear, uv2);
 	diffuse = lerp(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
 	specular = lerp(specular, diffuseSpecTex2.a, blendTexVal0.g);
 
-	outputCol.rgb += litRes.y * lightColor.rgb * diffuse;
-	outputCol.rgb += litRes.z * lightColor.rgb * specular;
+	OUT.oAlbedo = float4(diffuse, 1.0f);
+	OUT.oSpec = float4(0.05f, 0.05f, 0.05f, 0.02f);
+	OUT.oNormal.xyz = normalize(vWorldNormal) * 0.5f + 0.5f;
+	OUT.oNormal.w = 1;
 
-	return outputCol;
+	return OUT;
 }

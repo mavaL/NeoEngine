@@ -61,6 +61,7 @@ namespace Neo
 		RenderTarget*				GetDepthRT() { return m_pRT_Depth; }
 		SSAO*						GetSSAO()		{ return m_pSSAO; }
 		Sky*						GetSky()		{ return m_pSky; }
+		TerrainGroup*				GetTerrain()	{ return m_pTerrain; }
 		ThirdPersonCharacter*		GetHero()		{ return m_pHero; }
 		ShadowMap*					GetShadowMap()	{ return m_pShadowMap; }
 		AmbientCube*				GetAmbientCube() { return m_pAmbientCube; }

@@ -127,10 +127,10 @@ namespace Neo
 		uint32						m_iCurBlendState;
 		uint32						m_iCurDepthState;
 		uint32						m_iCurRasterState;
-		SStateRaster				m_wireframeRasterState;
 
 		Font*						m_pFont;
 		bool						m_bClipPlaneEnabled;
+		bool						m_bWireframe;
 	};
 }
 

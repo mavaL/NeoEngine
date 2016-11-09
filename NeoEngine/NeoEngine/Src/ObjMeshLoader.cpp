@@ -274,10 +274,10 @@ namespace Neo
 			{
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_DiffuseMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
+				pNewMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_DiffuseMap);
-				pNewMaterial->SetSamplerStateDesc(eTexSlot_DiffuseMap, samDesc);
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(0);
+				pNewMaterial->SetSamplerStateDesc(0, samDesc);
 			}
 			else if (strcmp(command.c_str(), "bump") == 0)
 			{
@@ -285,19 +285,19 @@ namespace Neo
 
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_NormalMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
+				pNewMaterial->SetTexture(1, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_NormalMap);
-				pNewMaterial->SetSamplerStateDesc(eTexSlot_NormalMap, samDesc);
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(1);
+				pNewMaterial->SetSamplerStateDesc(1, samDesc);
 			}
 			else if (strcmp(command.c_str(), "spec") == 0)
 			{
 				STRING texName;
 				file >> texName;
-				pNewMaterial->SetTexture(eTexSlot_SpecMap, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
+				pNewMaterial->SetTexture(2, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));
 
-				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(eTexSlot_SpecMap);
-				pNewMaterial->SetSamplerStateDesc(eTexSlot_SpecMap, samDesc);
+				SSamplerDesc& samDesc = pNewMaterial->GetSamplerStateDesc(2);
+				pNewMaterial->SetSamplerStateDesc(2, samDesc);
 			}
 			else if (strcmp(command.c_str(), "Ks") == 0)
 			{

@@ -390,6 +390,11 @@ namespace Neo
 
 		m_pCurScene->RenderOpaque();
 
+		if (m_pTerrain)
+		{
+			m_pTerrain->Render();
+		}
+
 		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
 	}
 	//------------------------------------------------------------------------------------
@@ -453,8 +458,6 @@ namespace Neo
 				_FurPass(pEntity);
 			}
 		}
-
-		m_pTerrain->Render();
 	}
 	//------------------------------------------------------------------------------------
 	_declspec(align(16))

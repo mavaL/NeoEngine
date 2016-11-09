@@ -28,8 +28,8 @@ void main()
 	pos = pos * World;
 	oWPos = pos;
 
-//	float toMorph = -min(0, sign(delta.y - lodMorph.y));
-//	pos.y += delta.x * toMorph * lodMorph.x;
+	float toMorph = -min(0, sign(delta.y - lodMorph.y));
+	pos.y += delta.x * toMorph * lodMorph.x;
 	gl_Position = pos * ViewProj;
 
 	vec2 uv = vec2(posIndex.x * baseUVScale, 1.0 - (posIndex.y * baseUVScale));

@@ -125,18 +125,14 @@ void SetupTestScene3(Scene* scene)
 	//	}
 	//}
 
-#define TERRAIN_FILE_PREFIX STRING("testTerrain")
-#define TERRAIN_FILE_SUFFIX STRING("dat")
-#define TERRAIN_WORLD_SIZE 12000.0f
-#define TERRAIN_SIZE 513
-
 	Neo::TerrainGlobalOptions* pTerrainOptions = new Neo::TerrainGlobalOptions;
 	g_env.pSceneMgr->SetTerrainOptions(pTerrainOptions);
 
-	Neo::TerrainGroup* pTerrainGroup = new Neo::TerrainGroup(Terrain::ALIGN_X_Z, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
-	pTerrainGroup->setFilenameConvention(TERRAIN_FILE_PREFIX, TERRAIN_FILE_SUFFIX);
-
 	const VEC3 vTerrainPos(1000, 0, 5000);
+	const float TERRAIN_WORLD_SIZE = 12000.0f;
+	const int TERRAIN_SIZE = 513;
+
+	Neo::TerrainGroup* pTerrainGroup = new Neo::TerrainGroup(Terrain::ALIGN_X_Z, TERRAIN_SIZE, TERRAIN_WORLD_SIZE);
 	pTerrainGroup->setOrigin(vTerrainPos);
 
 	pTerrainOptions->setMaxPixelError(8);
@@ -154,12 +150,12 @@ void SetupTestScene3(Scene* scene)
 	defaultimp.maxBatchSize = 65;
 	// textures
 	defaultimp.layerList.resize(3);
-	defaultimp.layerList[0].worldSize = 100;
-	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_diffusespecular.dds"));
-	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_normalheight.dds"));
 	defaultimp.layerList[1].worldSize = 30;
-	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_diffusespecular.dds"));
-	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_normalheight.dds"));
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_diffusespecular.dds"));
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_normalheight.dds"));
+	defaultimp.layerList[0].worldSize = 100;
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/grass_green-01_diffusespecular.dds"));
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/grass_green-01_normalheight.dds"));
 	defaultimp.layerList[2].worldSize = 200;
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_diffusespecular.dds"));
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_normalheight.dds"));
@@ -178,7 +174,9 @@ void SetupTestScene3(Scene* scene)
 	float fadeDist0 = 40;
 	float minHeight1 = 70;
 	float fadeDist1 = 15;
+	float* pBlend0 = blendMap0->getBlendPointer();
 	float* pBlend1 = blendMap1->getBlendPointer();
+
 	for (uint16 y = 0; y < pTerrain->getLayerBlendMapSize(); ++y)
 	{
 		for (uint16 x = 0; x < pTerrain->getLayerBlendMapSize(); ++x)
@@ -189,12 +187,11 @@ void SetupTestScene3(Scene* scene)
 			float height = pTerrain->getHeightAtTerrainPosition(tx, ty);
 			float val = (height - minHeight0) / fadeDist0;
 			Clamp(val, 0.f, 1.f);
+			*pBlend0++ = val;
 
 			val = (height - minHeight1) / fadeDist1;
 			val = Clamp(val, 0.f, 1.f);
 			*pBlend1++ = val;
-
-
 		}
 	}
 	blendMap0->dirty();

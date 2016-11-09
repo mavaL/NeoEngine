@@ -17,12 +17,6 @@
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
-	enum eTexSlot
-	{
-		eTexSlot_DiffuseMap = 0,
-		eTexSlot_NormalMap,
-		eTexSlot_SpecMap,
-	};
 
 	class SubMaterial
 	{
@@ -67,6 +61,8 @@ namespace Neo
 		SSamplerDesc&			GetSamplerStateDesc(int stage)		{ return m_samplerStateDesc[stage]; }
 		void					SetCullMode(eCullMode mode)	{ m_cullMode = mode; }
 		eCullMode				GetCullMode() const	{ return m_cullMode; }
+		void					SetFillMode(eFillMode mode) { m_fillMode = mode; }
+		eFillMode				GetFillMode() const { return m_fillMode; }
 		SubMaterial&			GetSubMaterial(uint32 i);
 		SamplerState*			GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
@@ -104,6 +100,7 @@ namespace Neo
 
 		uint32						m_shaderFlag;
 		eCullMode					m_cullMode;
+		eFillMode					m_fillMode;
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
 		bool						m_bEnableGS;

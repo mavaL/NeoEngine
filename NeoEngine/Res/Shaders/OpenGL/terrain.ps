@@ -14,6 +14,8 @@ in vec4 oUV0;
 in vec4 oUV1;
 
 layout(location = 0) out vec4 Frag0;
+layout(location = 1) out vec4 Frag1;
+layout(location = 2) out vec4 Frag2;
 
 //--------------------------------------------------------------------------------------
 // PS for g-buffer generation
@@ -42,12 +44,7 @@ void main()
 	//uv0 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(texture(tex3, uv0)).rgb;
 	vec3 vWorldNormal = TBN * TSnormal;
-	vWorldNormal = normalize(vec4(vWorldNormal, 0) * World).xyz;
-
-	vec3 vView = camPos - oWPos.xyz;
-	TShalfAngle = normalize(lightDirection + vView);
-	litRes.y = saturate(dot(lightDirection, vWorldNormal));
-	litRes.z = pow(saturate(dot(TShalfAngle, vWorldNormal)), scaleBiasSpecular.z);
+	vWorldNormal = (vec4(vWorldNormal, 0) * World).xyz;
 
 	vec4 diffuseSpecTex0 = texture(tex2, uv0);
 	diffuse = diffuseSpecTex0.rgb;
@@ -57,13 +54,8 @@ void main()
 	displacement = texture(tex5, uv1).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
 	//uv1 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(texture(tex5, uv1)).rgb;
-	vWorldNormal = TBN * TSnormal;
-	vWorldNormal = normalize(vec4(vWorldNormal, 0) * World).xyz;
-
-	TShalfAngle = normalize(lightDirection + vView);
-	litResLayer.y = saturate(dot(lightDirection, vWorldNormal));
-	litResLayer.z = pow(saturate(dot(TShalfAngle, vWorldNormal)), scaleBiasSpecular.z);
-	litRes = mix(litRes, litResLayer, blendTexVal0.r);
+	TSnormal = TBN * TSnormal;
+	vWorldNormal += (vec4(TSnormal, 0) * World).xyz;
 
 	vec4 diffuseSpecTex1 = texture(tex4, uv1);
 	diffuse = mix(diffuse, diffuseSpecTex1.rgb, blendTexVal0.r);
@@ -73,20 +65,15 @@ void main()
 	displacement = texture(tex7, uv2).a * scaleBiasSpecular.x + scaleBiasSpecular.y;
 	//uv2 += TSeyeDir.xy * displacement;
 	TSnormal = Expand(texture(tex7, uv2)).rgb;
-	vWorldNormal = TBN * TSnormal;
-	vWorldNormal = normalize(vec4(vWorldNormal, 0) * World).xyz;
-
-	TShalfAngle = normalize(lightDirection + vView);
-	litResLayer.y = saturate(dot(lightDirection, vWorldNormal));
-	litResLayer.z = pow(saturate(dot(TShalfAngle, vWorldNormal)), scaleBiasSpecular.z);
-	litRes = mix(litRes, litResLayer, blendTexVal0.g);
+	TSnormal = TBN * TSnormal;
+	vWorldNormal += (vec4(TSnormal, 0) * World).xyz;
 
 	vec4 diffuseSpecTex2 = texture(tex6, uv2);
 	diffuse = mix(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
 	specular = mix(specular, diffuseSpecTex2.a, blendTexVal0.g);
 
-	outputCol.rgb += litRes.y * lightColor.rgb * diffuse;
-	outputCol.rgb += litRes.z * lightColor.rgb * specular;
-
-	Frag0 = outputCol;
+	Frag0.xyz = normalize(vWorldNormal) * 0.5f + 0.5f;
+	Frag0.w = 1.0f;
+	Frag1 = vec4(diffuse, 1.0f);
+	Frag2 = vec4(0.05f, 0.05f, 0.05f, 0.02f);
 }

@@ -101,7 +101,14 @@ namespace Neo
 			MAT44 matCrop = _CalculateCropMatrix(tmpCam, g_env.pSceneMgr->GetCurScene()->GetEntityList(), castersInSplit, frusumAABB, lightView * lightProj);
 
 			// combine
-			m_matLightProj[i] = lightView * lightProj * matCrop;
+			if (castersInSplit.empty())
+			{
+				m_matLightProj[i] = MAT44::ZERO;
+			} 
+			else
+			{
+				m_matLightProj[i] = lightView * lightProj * matCrop;
+			}
 
 			// calculate texture matrix
 			float fTexOffset = 0.5f + (0.5f / g_env.pSceneMgr->GetShadowMapSize());
@@ -352,6 +359,11 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	MAT44 ShadowMapPSSM::_CalculateCropMatrix(Camera& cam, const EntityList& receivers, const EntityList& castersInSplit, const AABB& frustumAABB, const MAT44& matLightViewProj)
 	{
+		if (castersInSplit.empty())
+		{
+			return MAT44::IDENTITY;
+		}
+
 		// bounding box limits
 		AABB receiversBB, splitBB, castersBB;
 

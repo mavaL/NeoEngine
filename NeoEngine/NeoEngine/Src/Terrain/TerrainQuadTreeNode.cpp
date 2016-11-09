@@ -7,6 +7,8 @@
 #include "MaterialManager.h"
 #include "Material.h"
 #include "Renderer.h"
+#include "Camera.h"
+#include "SceneManager.h"
 
 namespace Neo
 {
@@ -29,7 +31,6 @@ namespace Neo
 		, mQuadrant(quadrant)
 		, mBoundingRadius(0)
         , mCurrentLod(-1)
-		, mMaterialLodIndex(0)
 		, mLodTransition(0)
 		, mChildWithMaxHeightDelta(0)
 		, mSelfOrChildRendered(false)
@@ -919,6 +920,11 @@ namespace Neo
 				// clone, using default buffer manager ie hardware
 				populateIndexData(ll->batchSize, &ll->pIndexBuf, ll->nIndexCount);
 			}
+
+			if (ll->nIndexCount == 0)
+			{
+				int asdf = 0;
+			}
 		}
 	}
 	//---------------------------------------------------------------------
@@ -1023,190 +1029,169 @@ namespace Neo
 	//---------------------------------------------------------------------
 	bool TerrainQuadTreeNode::calculateCurrentLod(float cFactor)
 	{
-		mCurrentLod = 0;
-		mSelfOrChildRendered = true;
-		mLodTransition = 0;
+		mSelfOrChildRendered = false;
+
+		// early-out
+		/* disable this, could cause 'jumps' in LOD as children go out of frustum
+		if (!cam->isVisible(mMovable->getWorldBoundingBox(true)))
+		{
+			mCurrentLod = -1;
+			return mSelfOrChildRendered;
+		}
+		*/
+
+		// Check children first
+		int childRenderedCount = 0;
+		if (!isLeaf())
+		{
+			for (int i = 0; i < 4; ++i)
+			{
+				if (mChildren[i]->calculateCurrentLod(cFactor))
+					++childRenderedCount;
+			}
+
+		}
+
+		if (childRenderedCount == 0)
+		{
+
+			// no children were within their LOD ranges, so we should consider our own
+			VEC3 localPos = g_env.pSceneMgr->GetCamera()->GetPos() - mLocalCentre - mTerrain->getPosition();
+			float dist;
+			if (g_env.pSceneMgr->GetTerrainOptions()->getUseRayBoxDistanceCalculation())
+			{
+				// Get distance to this terrain node (to closest point of the box)
+				// head towards centre of the box (note, box may not cover mLocalCentre because of height)
+				//VEC3 dir(mAABB.getCenter() - localPos);
+				//dir.normalise();
+				//Ray ray(localPos, dir);
+				//std::pair<bool, float> intersectRes = Math::intersects(ray, mAABB);
+
+				//// ray will always intersect, we just want the distance
+				//dist = intersectRes.second;
+				_AST(0);
+			}
+			else
+			{
+				// distance to tile centre
+				dist = localPos.GetLength();
+				// deduct half the radius of the box, assume that on average the 
+				// worst case is best approximated by this
+				dist -= (mBoundingRadius * 0.5f);
+			}
+
+			// For each LOD, the distance at which the LOD will transition *downwards*
+			// is given by 
+			// distTransition = maxDelta * cFactor;
+			uint32 lodLvl = 0;
+			mCurrentLod = -1;
+			for (LodLevelList::iterator i = mLodLevels.begin(); i != mLodLevels.end(); ++i, ++lodLvl)
+			{
+				// If we have no parent, and this is the lowest LOD, we always render
+				// this is the 'last resort' so to speak, we always enoucnter this last
+				if (lodLvl+1 == mLodLevels.size() && !mParent)
+				{
+					mCurrentLod = lodLvl;
+					mSelfOrChildRendered = true;
+					mLodTransition = 0;
+				}
+				else
+				{
+					// check the distance
+					LodLevel* ll = *i;
+
+					// Calculate or reuse transition distance
+					float distTransition;
+					if (Common::Equal(cFactor, ll->lastCFactor))
+						distTransition = ll->lastTransitionDist;
+					else
+					{
+						distTransition = ll->maxHeightDelta * cFactor;
+						ll->lastCFactor = cFactor;
+						ll->lastTransitionDist = distTransition;
+					}
+
+					if (dist < distTransition)
+					{
+						// we're within range of this LOD
+						mCurrentLod = lodLvl;
+						mSelfOrChildRendered = true;
+
+						if (mTerrain->_getMorphRequired())
+						{
+							// calculate the transition percentage
+							// we need a percentage of the total distance for just this LOD, 
+							// which means taking off the distance for the next higher LOD
+							// which is either the previous entry in the LOD list, 
+							// or the largest of any children. In both cases these will
+							// have been calculated before this point, since we process
+							// children first. Distances at lower LODs are guaranteed
+							// to be larger than those at higher LODs
+
+							float distTotal = distTransition;
+							if (isLeaf())
+							{
+								// Any higher LODs?
+								if (i != mLodLevels.begin())
+								{
+									LodLevelList::iterator prev = i - 1;
+									distTotal -= (*prev)->lastTransitionDist;
+								}
+							}
+							else
+							{
+								// Take the distance of the lowest LOD of child
+								const LodLevel* childLod = mChildWithMaxHeightDelta->getLodLevel(
+									mChildWithMaxHeightDelta->getLodCount()-1);
+								distTotal -= childLod->lastTransitionDist;
+							}
+							// fade from 0 to 1 in the last 25% of the distance
+							float distMorphRegion = distTotal * 0.25f;
+							float distRemain = distTransition - dist;
+
+							mLodTransition = 1.0f - (distRemain / distMorphRegion);
+							mLodTransition = std::min(1.0f, mLodTransition);
+							mLodTransition = std::max(0.0f, mLodTransition);
+
+							// Pass both the transition % and target LOD (GLOBAL current + 1)
+							// this selectively applies the morph just to the
+							// vertices which would drop out at this LOD, even 
+							// while using the single shared vertex data
+							mTerrain->m_cbTerrain.lodMorph = VEC2(mLodTransition, mCurrentLod + mBaseLod + 1);
+						}
+						// since LODs are ordered from highest to lowest detail, 
+						// we can stop looking now
+						break;
+					}
+
+				}
+			}
+
+		}
+		else 
+		{
+			// we should not render ourself
+			mCurrentLod = -1;
+			mSelfOrChildRendered = true; 
+			if (childRenderedCount < 4)
+			{
+				// only *some* children decided to render on their own, but either 
+				// none or all need to render, so set the others manually to their lowest
+				for (int i = 0; i < 4; ++i)
+				{
+					TerrainQuadTreeNode* child = mChildren[i];
+					if (!child->isSelfOrChildRenderedAtCurrentLod())
+					{
+						child->setCurrentLod(child->getLodCount()-1);
+						child->setLodTransition(1.0);
+					}
+				}
+			} // (childRenderedCount < 4)
+
+		} // (childRenderedCount == 0)
+
+
 		return mSelfOrChildRendered;
-
-		//mSelfOrChildRendered = false;
-
-		//// early-out
-		///* disable this, could cause 'jumps' in LOD as children go out of frustum
-		//if (!cam->isVisible(mMovable->getWorldBoundingBox(true)))
-		//{
-		//	mCurrentLod = -1;
-		//	return mSelfOrChildRendered;
-		//}
-		//*/
-
-		//// Check children first
-		//int childRenderedCount = 0;
-		//if (!isLeaf())
-		//{
-		//	for (int i = 0; i < 4; ++i)
-		//	{
-		//		if (mChildren[i]->calculateCurrentLod(cam, cFactor))
-		//			++childRenderedCount;
-		//	}
-
-		//}
-
-		//// this node not loaded yet so skip
-		//if (!mMovable->isAttached())
-		//{
-		//	mCurrentLod = -1;
-		//	return mSelfOrChildRendered;
-		//}
-
-		//if (childRenderedCount == 0)
-		//{
-
-		//	// no children were within their LOD ranges, so we should consider our own
-		//	VEC3 localPos = cam->getDerivedPosition() - mLocalCentre - mTerrain->getPosition();
-		//	float dist;
-		//	if (TerrainGlobalOptions::getSingleton().getUseRayBoxDistanceCalculation())
-		//	{
-		//		// Get distance to this terrain node (to closest point of the box)
-		//		// head towards centre of the box (note, box may not cover mLocalCentre because of height)
-		//		VEC3 dir(mAABB.getCenter() - localPos);
-		//		dir.normalise();
-		//		Ray ray(localPos, dir);
-		//		std::pair<bool, float> intersectRes = Math::intersects(ray, mAABB);
-
-		//		// ray will always intersect, we just want the distance
-		//		dist = intersectRes.second;
-		//	}
-		//	else
-		//	{
-		//		// distance to tile centre
-		//		dist = localPos.length();
-		//		// deduct half the radius of the box, assume that on average the 
-		//		// worst case is best approximated by this
-		//		dist -= (mBoundingRadius * 0.5f);
-		//	}
-
-		//	// Do material LOD
-		//	MaterialPtr material = getMaterial();
-		//	const LodStrategy *materialStrategy = material->getLodStrategy();
-		//	float lodValue = materialStrategy->getValue(mMovable, cam);
-		//	// Get the index at this biased depth
-		//	mMaterialLodIndex = material->getLodIndex(lodValue);
-
-
-		//	// For each LOD, the distance at which the LOD will transition *downwards*
-		//	// is given by 
-		//	// distTransition = maxDelta * cFactor;
-		//	uint lodLvl = 0;
-		//	mCurrentLod = -1;
-		//	for (LodLevelList::iterator i = mLodLevels.begin(); i != mLodLevels.end(); ++i, ++lodLvl)
-		//	{
-		//		// If we have no parent, and this is the lowest LOD, we always render
-		//		// this is the 'last resort' so to speak, we always enoucnter this last
-		//		if (lodLvl+1 == mLodLevels.size() && !mParent)
-		//		{
-		//			mCurrentLod = lodLvl;
-		//			mSelfOrChildRendered = true;
-		//			mLodTransition = 0;
-		//		}
-		//		else
-		//		{
-		//			// check the distance
-		//			LodLevel* ll = *i;
-
-		//			// Calculate or reuse transition distance
-		//			float distTransition;
-		//			if (Math::RealEqual(cFactor, ll->lastCFactor))
-		//				distTransition = ll->lastTransitionDist;
-		//			else
-		//			{
-		//				distTransition = ll->maxHeightDelta * cFactor;
-		//				ll->lastCFactor = cFactor;
-		//				ll->lastTransitionDist = distTransition;
-		//			}
-
-		//			if (dist < distTransition)
-		//			{
-		//				// we're within range of this LOD
-		//				mCurrentLod = lodLvl;
-		//				mSelfOrChildRendered = true;
-
-		//				if (mTerrain->_getMorphRequired())
-		//				{
-		//					// calculate the transition percentage
-		//					// we need a percentage of the total distance for just this LOD, 
-		//					// which means taking off the distance for the next higher LOD
-		//					// which is either the previous entry in the LOD list, 
-		//					// or the largest of any children. In both cases these will
-		//					// have been calculated before this point, since we process
-		//					// children first. Distances at lower LODs are guaranteed
-		//					// to be larger than those at higher LODs
-
-		//					float distTotal = distTransition;
-		//					if (isLeaf())
-		//					{
-		//						// Any higher LODs?
-		//						if (i != mLodLevels.begin())
-		//						{
-		//							LodLevelList::iterator prev = i - 1;
-		//							distTotal -= (*prev)->lastTransitionDist;
-		//						}
-		//					}
-		//					else
-		//					{
-		//						// Take the distance of the lowest LOD of child
-		//						const LodLevel* childLod = mChildWithMaxHeightDelta->getLodLevel(
-		//							mChildWithMaxHeightDelta->getLodCount()-1);
-		//						distTotal -= childLod->lastTransitionDist;
-		//					}
-		//					// fade from 0 to 1 in the last 25% of the distance
-		//					float distMorphRegion = distTotal * 0.25f;
-		//					float distRemain = distTransition - dist;
-
-		//					mLodTransition = 1.0f - (distRemain / distMorphRegion);
-		//					mLodTransition = std::min(1.0f, mLodTransition);
-		//					mLodTransition = std::max(0.0f, mLodTransition);
-
-		//					// Pass both the transition % and target LOD (GLOBAL current + 1)
-		//					// this selectively applies the morph just to the
-		//					// vertices which would drop out at this LOD, even 
-		//					// while using the single shared vertex data
-		//					mRend->setCustomParameter(Terrain::LOD_MORPH_CUSTOM_PARAM, 
-		//						Vector4(mLodTransition, mCurrentLod + mBaseLod + 1, 0, 0));
-
-		//				}
-		//				// since LODs are ordered from highest to lowest detail, 
-		//				// we can stop looking now
-		//				break;
-		//			}
-
-		//		}
-		//	}
-
-		//}
-		//else 
-		//{
-		//	// we should not render ourself
-		//	mCurrentLod = -1;
-		//	mSelfOrChildRendered = true; 
-		//	if (childRenderedCount < 4)
-		//	{
-		//		// only *some* children decided to render on their own, but either 
-		//		// none or all need to render, so set the others manually to their lowest
-		//		for (int i = 0; i < 4; ++i)
-		//		{
-		//			TerrainQuadTreeNode* child = mChildren[i];
-		//			if (!child->isSelfOrChildRenderedAtCurrentLod())
-		//			{
-		//				child->setCurrentLod(child->getLodCount()-1);
-		//				child->setLodTransition(1.0);
-		//			}
-		//		}
-		//	} // (childRenderedCount < 4)
-
-		//} // (childRenderedCount == 0)
-
-
-		//return mSelfOrChildRendered;
 
 	}
 	//---------------------------------------------------------------------
@@ -1232,24 +1217,30 @@ namespace Neo
 		return mSelfOrChildRendered;
 	}
 	//------------------------------------------------------------------------------------
-	void TerrainQuadTreeNode::Update()
+	void TerrainQuadTreeNode::CreateEntity()
 	{
 		// Create the entity.
-		if (!mEntity)
+		if (isRenderedAtCurrentLod() && !mEntity)
 		{
 			Mesh* pMesh = new Mesh;
 			SubMesh* pSubmesh = new SubMesh;
 
 			pMesh->SetPrimitiveType(ePrimitive_TriangleStrip);
-			pSubmesh->InitTerrainVertData(mVertexDataRecord->gpuPosVertexBuf, mVertexDataRecord->gpuDeltaVertexBuf, 
+			pSubmesh->InitTerrainVertData(getVertexDataRecord()->gpuPosVertexBuf, getVertexDataRecord()->gpuDeltaVertexBuf,
 				mLodLevels[mCurrentLod]->pIndexBuf, mLodLevels[mCurrentLod]->nIndexCount);
 
 			pMesh->AddSubMesh(pSubmesh);
 			mEntity = new Entity(pMesh);
 
-			mEntity->SetPosition(mTerrain->getPosition() + mLocalCentre);
+			// vertex data is generated in terrain space
+			mEntity->SetPosition(mTerrain->getPosition());
 
-			Material* pMaterial = MaterialManager::GetSingleton().NewMaterial("Mtl_Terrain", eVertexType_Terrain);
+			static uint32 iMat = 0;
+			++iMat;
+			char szMatName[64];
+			sprintf_s(szMatName, 64, "Mtl_TerrainSector_%d", iMat);
+
+			Material* pMaterial = MaterialManager::GetSingleton().NewMaterial(szMatName, eVertexType_Terrain);
 
 			pMaterial->SetTexture(0, mTerrain->getTerrainNormalMap());
 			pMaterial->SetTexture(1, mTerrain->getLayerBlendTexture(0));
@@ -1270,8 +1261,16 @@ namespace Neo
 				pMaterial->SetSamplerStateDesc(2 + i * 2 + 1, samDesc);
 			}
 
-			pMaterial->InitShader("Terrain", eShader_Forward);
+			pMaterial->InitShader("Terrain", eShader_Terrain, 0, nullptr, "VS_GBuffer", "PS_GBuffer");
 			mEntity->SetMaterial(pMaterial);
+		}
+
+		if (mChildren[0])
+		{
+			mChildren[0]->CreateEntity();
+			mChildren[1]->CreateEntity();
+			mChildren[2]->CreateEntity();
+			mChildren[3]->CreateEntity();
 		}
 	}
 	//---------------------------------------------------------------------
@@ -1279,13 +1278,6 @@ namespace Neo
 	{
 		if (isRenderedAtCurrentLod())
 		{
-			MAT44 xx;
-			mTerrain->getPointTransform(&xx);
-
-			VEC4 vv(100, 100, 0, 1);
-			vv = Common::Transform_Vec4_By_Mat44(vv, xx);
-			vv = Common::Transform_Vec4_By_Mat44(vv, mEntity->GetWorldMatrix());
-
 			mEntity->Render();
 		}
 
@@ -1295,6 +1287,22 @@ namespace Neo
 			mChildren[1]->Render();
 			mChildren[2]->Render();
 			mChildren[3]->Render();
+		}
+	}
+	//---------------------------------------------------------------------
+	void TerrainQuadTreeNode::enableWireframe(bool b)
+	{
+		if (mEntity)
+		{
+			mEntity->GetMaterial()->SetFillMode(b ? eFill_Wireframe : eFill_Solid);
+		}
+
+		if (mChildren[0])
+		{
+			mChildren[0]->enableWireframe(b);
+			mChildren[1]->enableWireframe(b);
+			mChildren[2]->enableWireframe(b);
+			mChildren[3]->enableWireframe(b);
 		}
 	}
 	//---------------------------------------------------------------------

@@ -2157,21 +2157,19 @@ namespace Neo
 		if (mQuadTree)
 		{
 			// calculate error terms
-			//const Camera* cam = vp->getCamera()->getLodCamera();
 
-			//// W. de Boer 2000 calculation
-			//// A = vp_near / abs(vp_top)
-			//// A = 1 / tan(fovy*0.5)    (== 1 for fovy=45*2)
-			//float A = 1.0f / Math::Tan(cam->getFOVy() * 0.5f);
-			//// T = 2 * maxPixelError / vertRes
-			//float maxPixelError = TerrainGlobalOptions::getSingleton().getMaxPixelError() * cam->_getLodBiasInverse();
-			//Viewport* lodVp = cam->getViewport();
-			//float T = 2.0f * maxPixelError / (float)lodVp->getActualHeight();
+			// W. de Boer 2000 calculation
+			// A = vp_near / abs(vp_top)
+			// A = 1 / tan(fovy*0.5)    (== 1 for fovy=45*2)
+			float A = 1.0f / tanf(g_env.pSceneMgr->GetCamera()->GetFov() * 0.5f);
+			// T = 2 * maxPixelError / vertRes
+			float maxPixelError = g_env.pSceneMgr->GetTerrainOptions()->getMaxPixelError();
+			float T = 2.0f * maxPixelError / (float)g_env.pRenderer->GetViewport().Height;
 
-			//// CFactor = A / T
-			//float cFactor = A / T;
+			// CFactor = A / T
+			float cFactor = A / T;
 
-			mQuadTree->calculateCurrentLod(/*cFactor*/0);
+			mQuadTree->calculateCurrentLod(cFactor);
 		}
 	}
 	//---------------------------------------------------------------------
@@ -4074,7 +4072,7 @@ namespace Neo
 	void Terrain::UpdateLod()
 	{
 		calculateCurrentLod();
-		mQuadTree->Update();
+		mQuadTree->CreateEntity();
 	}
 	//------------------------------------------------------------------------------------
 	void Terrain::Render()
@@ -4426,12 +4424,12 @@ namespace Neo
 		uint32 hsh = hashIndexBuffer(batchSize, vdatasize, vertexIncrement, xoffset, yoffset,
 			numSkirtRowsCols, skirtRowColSkip);
 
+		nIndexCount = Terrain::_getNumIndexesForBatchSize(batchSize);
+
 		IBufMap::iterator i = mSharedIBufMap.find(hsh);
 		if (i == mSharedIBufMap.end())
 		{
 			// create new
-			nIndexCount = Terrain::_getNumIndexesForBatchSize(batchSize);
-
 			IndexBuffer* ret = g_env.pRenderer->GetRenderSys()->CreateIndexBuffer(nIndexCount * sizeof(DWORD), nullptr, 0);
 
 			uint32* pI = static_cast<uint32*>(ret->Lock());
@@ -4442,7 +4440,9 @@ namespace Neo
 			return ret;
 		}
 		else
+		{
 			return i->second;
+		}
 	}
 	//---------------------------------------------------------------------
 	void Terrain::DefaultGpuBufferAllocator::freeAllBuffers()

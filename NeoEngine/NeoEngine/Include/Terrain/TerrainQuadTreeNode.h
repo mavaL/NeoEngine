@@ -22,7 +22,7 @@ namespace Neo
 			uint16 xoff, uint16 yoff, uint16 size, uint16 lod, uint16 depth, uint16 quadrant);
 		virtual ~TerrainQuadTreeNode();
 
-		void Update();
+		void CreateEntity();
 		void Render();
 
 		/// Get the horizontal offset into the main terrain data of this node
@@ -185,6 +185,9 @@ namespace Neo
 		/// Manually set the current LOD transition state, intended for internal use only
 		void setLodTransition(float t);
 
+		Entity* getEntity() { return mEntity; }
+		void enableWireframe(bool b);
+
 		/// Buffer binding used for holding positions
 		static unsigned short POSITION_BUFFER;
 		/// Buffer binding used for holding delta values
@@ -209,7 +212,6 @@ namespace Neo
 		AABB mAABB; /// Relative to mLocalCentre
 		float mBoundingRadius; /// Relative to mLocalCentre
 		int mCurrentLod; /// -1 = none (do not render)
-		unsigned short mMaterialLodIndex;
 		float mLodTransition; /// 0-1 transition to lower LOD
 		/// The child with the largest height delta 
 		TerrainQuadTreeNode* mChildWithMaxHeightDelta;
