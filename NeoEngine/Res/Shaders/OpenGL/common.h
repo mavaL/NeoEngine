@@ -67,17 +67,17 @@ vec4 Expand(vec4 v)
 
 float saturate(float v)
 {
-	return max(v, 0);
+	return min(max(v, 0), 1);
 }
 
 vec3 saturate(vec3 v)
 {
-	return max(v, vec3(0));
+	return min(max(v, vec3(0)), vec3(1));
 }
 
 vec4 saturate(vec4 v)
 {
-	return max(v, vec4(0));
+	return min(max(v, vec4(0)), vec4(1));
 }
 
 vec4 TextureFlipY(sampler2D tex, vec2 uv)

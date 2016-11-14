@@ -33,8 +33,6 @@ namespace Neo
 		void		ClearScene();
 		Octree*		GetOctree() { return m_pOctree; }
 
-		// Create entity from loaded mesh
-		Entity*		CreateEntity(eEntity type, const STRING& meshname);
 		Mesh*		LoadMeshFromFile(const STRING& meshname, const STRING& filename);
 		void		EnableDebugRT(eDebugRT type);
 		void		SetShadowDepthBias(float fBias);
@@ -52,6 +50,8 @@ namespace Neo
 		void		CreateSky();
 		void		SetTerrain(TerrainGroup* p);
 		void		CreateWater(float waterHeight = 0.0f);
+		Entity*		CreateEntity(eEntity type, const STRING& meshname);
+		Decal*		CreateDecal(const VEC3& pos, float size);
 		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
 		const SDirectionLight&		GetSunLight() const { return m_sunLight; }
@@ -71,13 +71,13 @@ namespace Neo
 
 		// Convenient mesh create function
 		static Mesh*	CreatePlaneMesh(float w, float h, float fUvMultiplier = 1.0f);
-		static Mesh*	CreateCubeMesh(const VEC3& minPt, const VEC3& maxPt);
 		static Mesh*	CreateFrustumMesh(const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop);
 		bool			LoadSponzaScene(Scene* pScene);
 
 	private:
 		void		_InitAllScene();
 		void		_RenderGBuffer();
+		void		_DecalPass();
 		void		_LinearizeDepth();
 		void		_CompositionPass();
 		void		_PointLightPass();
@@ -108,6 +108,7 @@ namespace Neo
 		TerrainGroup*	m_pTerrain;
 		Water*			m_pWater;
 		Sky*			m_pSky;
+		DecalList		m_decals;
 		ShadowMap*		m_pShadowMap;
 		SSAO*			m_pSSAO;
 		TileBasedDeferredRenderer*	m_pTBDR;

@@ -24,6 +24,7 @@
 #include "Renderer.h"
 #include "Octree.h"
 #include "Terrain/TerrainGroup.h"
+#include "Decal.h"
 
 
 namespace Neo
@@ -327,6 +328,11 @@ namespace Neo
 		_LinearizeDepth();
 
 		//================================================================================
+		/// Decal pass, render into g-buffer, here because it needs scene depth
+		//================================================================================
+		_DecalPass();
+
+		//================================================================================
 		/// GBuffer composition phase
 		//================================================================================
 		if (g_bTiled)
@@ -396,6 +402,49 @@ namespace Neo
 		}
 
 		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
+	}
+	//------------------------------------------------------------------------------------
+	void SceneManager::_DecalPass()
+	{
+		if (m_decals.empty())
+		{
+			return;
+		}
+
+		eRenderPhase old = m_curRenderPhase;
+		m_curRenderPhase = eRenderPhase_GBuffer;
+
+		g_env.pRenderer->UnbindTexture(m_pRT_Normal->GetRenderTexture());
+		g_env.pRenderer->UnbindTexture(m_pRT_Albedo->GetRenderTexture());
+		g_env.pRenderer->UnbindTexture(m_pRT_Specular->GetRenderTexture());
+
+		RenderTarget* pRTs[3] = { m_pRT_Normal, m_pRT_Albedo, m_pRT_Specular };
+		m_pRenderSystem->SetRenderTarget(pRTs, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
+
+		// Turn-off depth write.
+		SStateDepth oldDepthState = g_env.pRenderer->GetCurDepthState();
+		SStateDepth depthState = oldDepthState;
+		depthState.Desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		depthState.Desc.DepthEnable = true;
+		g_env.pRenderer->SetDepthState(&depthState);
+
+		// Turn-on alpha blending
+		SStateBlend oldBlendState = g_env.pRenderer->GetCurBlendState();
+		SStateBlend blendState = oldBlendState;
+		blendState.Desc.RenderTarget[0].BlendEnable = true;
+		blendState.Desc.RenderTarget[0].SrcBlend = eBlend_SRC_ALPHA;
+		blendState.Desc.RenderTarget[0].DestBlend = eBlend_INV_SRC_ALPHA;
+		g_env.pRenderer->SetBlendState(&blendState);
+
+		for (uint32 i = 0; i < m_decals.size(); ++i)
+		{
+			m_decals[i]->Render();
+		}
+
+		g_env.pRenderer->SetDepthState(&oldDepthState);
+		g_env.pRenderer->SetBlendState(&oldBlendState);
+		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
+		m_curRenderPhase = old;
 	}
 	//------------------------------------------------------------------------------------
 	void SceneManager::_LinearizeDepth()
@@ -682,6 +731,13 @@ namespace Neo
 		return pEntity;
 	}
 	//------------------------------------------------------------------------------------
+	Decal* SceneManager::CreateDecal(const VEC3& pos, float size)
+	{
+		Decal* pDecal = new Decal(pos, size);
+		m_decals.push_back(pDecal);
+		return pDecal;
+	}
+	//------------------------------------------------------------------------------------
 	void SceneManager::EnableDebugRT( eDebugRT type )
 	{
 		m_debugRT = type;
@@ -736,119 +792,6 @@ namespace Neo
 		m_sunLight.lightDir = dir;
 		m_sunLight.lightDir.Normalize();
 		m_sunLight.lightColor = color;
-	}
-	//------------------------------------------------------------------------------------
-	Mesh* SceneManager::CreateCubeMesh( const VEC3& minPt, const VEC3& maxPt )
-	{
-		SVertex vert[24];
-
-		// front side
-		vert[0].pos.Set(minPt.x, minPt.y, maxPt.z);
-		vert[0].uv.Set(0, 1);
-		vert[1].pos.Set(maxPt.x, minPt.y, maxPt.z);
-		vert[1].uv.Set(1, 1);
-		vert[2].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-		vert[2].uv.Set(1, 0);
-		vert[3].pos.Set(minPt.x, maxPt.y, maxPt.z);
-		vert[3].uv.Set(0, 0);
-
-		vert[0].normal = vert[1].normal = vert[2].normal = vert[3].normal = VEC3::UNIT_Z;
-
-		// back side
-		vert[4].pos.Set(maxPt.x, minPt.y, minPt.z);
-		vert[4].uv.Set(0, 1);
-		vert[5].pos.Set(minPt.x, minPt.y, minPt.z);
-		vert[5].uv.Set(1, 1);
-		vert[6].pos.Set(minPt.x, maxPt.y, minPt.z);
-		vert[6].uv.Set(1, 0);
-		vert[7].pos.Set(maxPt.x, maxPt.y, minPt.z);
-		vert[7].uv.Set(0, 0);
-
-		vert[4].normal = vert[5].normal = vert[6].normal = vert[7].normal = VEC3::NEG_UNIT_Z;
-
-		// left side
-		vert[8].pos.Set(minPt.x, minPt.y, minPt.z);
-		vert[9].pos.Set(minPt.x, minPt.y, maxPt.z);
-		vert[10].pos.Set(minPt.x, maxPt.y, maxPt.z);
-		vert[11].pos.Set(minPt.x, maxPt.y, minPt.z);
-		vert[8].uv.Set(0, 1);
-		vert[9].uv.Set(1, 1);
-		vert[10].uv.Set(1, 0);
-		vert[11].uv.Set(0, 0);
-
-		vert[8].normal = vert[9].normal = vert[10].normal = vert[11].normal = VEC3::NEG_UNIT_X;
-
-		// right side
-		vert[12].pos.Set(maxPt.x, minPt.y, maxPt.z);
-		vert[13].pos.Set(maxPt.x, minPt.y, minPt.z);
-		vert[14].pos.Set(maxPt.x, maxPt.y, minPt.z);
-		vert[15].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-		vert[12].uv.Set(0, 1);
-		vert[13].uv.Set(1, 1);
-		vert[14].uv.Set(1, 0);
-		vert[15].uv.Set(0, 0);
-
-		vert[12].normal = vert[13].normal = vert[14].normal = vert[15].normal = VEC3::UNIT_X;
-
-		// up side
-		vert[16].pos.Set(minPt.x, maxPt.y, maxPt.z);
-		vert[17].pos.Set(maxPt.x, maxPt.y, maxPt.z);
-		vert[18].pos.Set(maxPt.x, maxPt.y, minPt.z);
-		vert[19].pos.Set(minPt.x, maxPt.y, minPt.z);
-		vert[16].uv.Set(0, 1);
-		vert[17].uv.Set(1, 1);
-		vert[18].uv.Set(1, 0);
-		vert[19].uv.Set(0, 0);
-
-		vert[16].normal = vert[17].normal = vert[18].normal = vert[19].normal = VEC3::UNIT_Y;
-
-		// down side
-		vert[20].pos.Set(minPt.x, minPt.y, minPt.z);
-		vert[21].pos.Set(maxPt.x, minPt.y, minPt.z);
-		vert[22].pos.Set(maxPt.x, minPt.y, maxPt.z);
-		vert[23].pos.Set(minPt.x, minPt.y, maxPt.z);
-		vert[20].uv.Set(0, 1);
-		vert[21].uv.Set(1, 1);
-		vert[22].uv.Set(1, 0);
-		vert[23].uv.Set(0, 0);
-
-		vert[20].normal = vert[21].normal = vert[22].normal = vert[23].normal = VEC3::NEG_UNIT_Y;
-
-		DWORD faces[6*2*3] = {
-			// front
-			0,1,2,
-			0,2,3,
-
-			// back
-			4,5,6,
-			4,6,7,
-
-			// left
-			8,9,10,
-			8,10,11,
-
-			// right
-			12,13,14,
-			12,14,15,
-
-			// up
-			16,17,18,
-			16,18,19,
-
-			// down
-			20,21,22,
-			20,22,23
-		};
-
-		Mesh* pCube =  new Mesh;
-		SubMesh* pSubmesh = new SubMesh;
-
-		pSubmesh->InitVertData(eVertexType_General, vert, 24, true);
-		pSubmesh->InitIndexData(faces, 6*2*3, true);
-
-		pCube->AddSubMesh(pSubmesh);
-
-		return pCube;
 	}
 	//------------------------------------------------------------------------------------
 	Mesh* SceneManager::CreateFrustumMesh( const VEC3& minBottom, const VEC3& maxBottom, const VEC3& minTop, const VEC3& maxTop )

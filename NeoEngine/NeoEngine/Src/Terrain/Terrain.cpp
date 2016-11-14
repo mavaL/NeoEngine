@@ -4509,10 +4509,8 @@ namespace Neo
 	{
 		if (deleteInputData)
 		{
-			inputImage->Release();
-			delete []inputFloat;
-			inputImage = 0;
-			inputFloat = 0;
+			SAFE_RELEASE(inputImage);
+			SAFE_DELETE_ARRAY(inputFloat);
 		}
 	}
 

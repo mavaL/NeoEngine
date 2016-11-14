@@ -55,6 +55,7 @@ namespace Neo
 	{
 		MAT44	matWorld;
 		MAT44	matWorldIT;
+		MAT44	matInvWorld;
 		VEC4	specularGloss;
 	};
 	// Skined matrixs constant buffer: (b2)

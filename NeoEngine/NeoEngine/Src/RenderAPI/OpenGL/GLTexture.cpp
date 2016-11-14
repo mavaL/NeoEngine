@@ -230,6 +230,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	GLTexture::~GLTexture()
 	{
+		SAFE_DELETE_ARRAY(m_pLockData);
 		OpenGLAPI::DeleteTextures(1, &m_id);
 	}
 	//------------------------------------------------------------------------------------
@@ -375,11 +376,12 @@ namespace Neo
 		} 
 		else
 		{
-			_AST(!m_pLockData);
-
-			const uint32 nTexSize = Texture::CalcTexDataSize(m_width, m_height, 1, m_texFormat);
-			m_pLockData = new char[nTexSize];
-			ZeroMemory(m_pLockData, nTexSize);
+			if (!m_pLockData)
+			{
+				const uint32 nTexSize = Texture::CalcTexDataSize(m_width, m_height, 1, m_texFormat);
+				m_pLockData = new char[nTexSize];
+				ZeroMemory(m_pLockData, nTexSize);
+			}		
 
 			return m_pLockData;
 		}
@@ -409,8 +411,6 @@ namespace Neo
 				nativeFormat.Type,
 				m_pLockData
 				);
-
-			SAFE_DELETE_ARRAY(m_pLockData);
 		}
 	}
 	//------------------------------------------------------------------------------------

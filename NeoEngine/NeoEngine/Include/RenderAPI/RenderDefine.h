@@ -97,6 +97,7 @@ namespace Neo
 	{
 		eShader_Opaque,
 		eShader_Terrain,
+		eShader_Decal,
 		eShader_Transparent,
 		eShader_Forward,
 		eShader_Fur,

@@ -19,6 +19,7 @@
 #include "Renderer.h"
 #include "Terrain/Terrain.h"
 #include "Terrain/TerrainGroup.h"
+#include "Decal.h"
 
 using namespace Neo;
 
@@ -40,15 +41,15 @@ void SetupTestScene2(Scene* scene)
 
 	/// Create a cube to observe reflection
 	{
-		Neo::Mesh* pCube =  SceneManager::CreateCubeMesh(VEC3(-100,100,-100), VEC3(100,300,100));
+		//Neo::Mesh* pCube =  SceneManager::CreateCubeMesh(VEC3(-100,100,-100), VEC3(100,300,100));
 
-		Neo::Entity* pEntity = new Neo::Entity(pCube);
+		//Neo::Entity* pEntity = new Neo::Entity(pCube);
 
-		scene->AddEntity(pEntity);
+		//scene->AddEntity(pEntity);
 
-		pEntity->SetMaterial(pMaterial);
-		pEntity->SetCastShadow(false);
-		pEntity->SetReceiveShadow(false);
+		//pEntity->SetMaterial(pMaterial);
+		//pEntity->SetCastShadow(false);
+		//pEntity->SetReceiveShadow(false);
 	}
 
 	/// Create another geometry to observe refraction
@@ -150,12 +151,12 @@ void SetupTestScene3(Scene* scene)
 	defaultimp.maxBatchSize = 65;
 	// textures
 	defaultimp.layerList.resize(3);
-	defaultimp.layerList[1].worldSize = 30;
-	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_diffusespecular.dds"));
-	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_normalheight.dds"));
 	defaultimp.layerList[0].worldSize = 100;
-	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/grass_green-01_diffusespecular.dds"));
-	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/grass_green-01_normalheight.dds"));
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_diffusespecular.dds"));
+	defaultimp.layerList[0].textureNames.push_back(GetResPath("terrain/dirt_grayrocky_normalheight.dds"));
+	defaultimp.layerList[1].worldSize = 30;
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_diffusespecular.dds"));
+	defaultimp.layerList[1].textureNames.push_back(GetResPath("terrain/grass_green-01_normalheight.dds"));
 	defaultimp.layerList[2].worldSize = 200;
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_diffusespecular.dds"));
 	defaultimp.layerList[2].textureNames.push_back(GetResPath("terrain/growth_weirdfungus-03_normalheight.dds"));
@@ -201,6 +202,11 @@ void SetupTestScene3(Scene* scene)
 
 	pTerrainGroup->freeTemporaryResources();
 	g_env.pSceneMgr->SetTerrain(pTerrainGroup);
+
+	/////////////////////////////////////////////////////////////
+	//// Create some decals on the terrain
+	Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(1000, 0, 5000) + VEC3(1683, 0, 2116), 100);
+	pDecal->SetTexture(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("dirt_on_road_4.dds"), eTextureType_2D, 0, true));
 }
 
 void EnterTestScene3(Scene* scene)
@@ -565,6 +571,7 @@ void EnterTestScene7(Scene* scene)
 	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
 	pCamera->SetNearClip(0.5f);
 	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.2f);
 }
 
 namespace Neo

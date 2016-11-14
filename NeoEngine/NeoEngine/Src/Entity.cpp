@@ -150,6 +150,7 @@ namespace Neo
 
 		g_env.pRenderer->GetMaterialCB().matWorld = GetWorldMatrix().Transpose();
 		g_env.pRenderer->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
+		g_env.pRenderer->GetMaterialCB().matInvWorld = GetWorldMatrix().Inverse().Transpose();
 
 		m_pMesh->Render();
 	}

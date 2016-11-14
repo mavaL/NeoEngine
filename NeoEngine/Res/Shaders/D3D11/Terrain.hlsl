@@ -115,6 +115,7 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	diffuse = lerp(diffuse, diffuseSpecTex2.rgb, blendTexVal0.g);
 	specular = lerp(specular, diffuseSpecTex2.a, blendTexVal0.g);
 
+	diffuse = sqrt(diffuse);
 	OUT.oAlbedo = float4(diffuse, 1.0f);
 	OUT.oSpec = float4(0.05f, 0.05f, 0.05f, 0.02f);
 	OUT.oNormal.xyz = normalize(vWorldNormal) * 0.5f + 0.5f;

@@ -1231,6 +1231,7 @@ namespace Neo
 
 			pMesh->AddSubMesh(pSubmesh);
 			mEntity = new Entity(pMesh);
+			mEntity->SetCastShadow(false);
 
 			// vertex data is generated in terrain space
 			mEntity->SetPosition(mTerrain->getPosition());

@@ -66,8 +66,8 @@ namespace Neo
 	{
 		if (m_vao != 0)
 		{
-			// Already generated.
-			return;
+			// TODO: This means this VB is shared, how to deal with it?
+			OpenGLAPI::DeleteVertexArrays(1, &m_vao);
 		}
 
 		// VAO recording

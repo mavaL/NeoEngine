@@ -104,6 +104,7 @@ namespace Neo
 			if (castersInSplit.empty())
 			{
 				m_matLightProj[i] = MAT44::ZERO;
+		//		m_matLightProj[i].m33 = 1.0f;
 			} 
 			else
 			{
@@ -140,7 +141,11 @@ namespace Neo
 			m_shadowMapCascades[iCascade]->AfterRender();
 
 #if USE_ESM
-			_VSMBlurPass(iCascade);
+			// If there's no shadow, no need to apply blurring.
+			if (!m_shadowCasters[iCascade].empty())
+			{
+				_VSMBlurPass(iCascade);
+			}
 #endif
 
 			m_shadowMapCascades[iCascade]->GetRenderTexture()->GenMipMaps();

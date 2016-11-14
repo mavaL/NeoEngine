@@ -95,6 +95,7 @@
     <ClInclude Include="Include\Color.h" />
     <ClInclude Include="Include\dds.h" />
     <ClInclude Include="Include\DDSTextureLoader.h" />
+    <ClInclude Include="Include\Decal.h" />
     <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\EventCallbackBase.h" />
     <ClInclude Include="Include\Font.h" />
@@ -203,6 +204,7 @@
     <ClCompile Include="Src\Camera.cpp" />
     <ClCompile Include="Src\ConvexBody.cpp" />
     <ClCompile Include="Src\DDSTextureLoader.cpp" />
+    <ClCompile Include="Src\Decal.cpp" />
     <ClCompile Include="Src\Entity.cpp" />
     <ClCompile Include="Src\Font.cpp" />
     <ClCompile Include="Src\InputManager.cpp" />
@@ -296,6 +298,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\Res\Shaders\D3D11\DebugSkeleton.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Res\Shaders\D3D11\Decal.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </FxCompile>

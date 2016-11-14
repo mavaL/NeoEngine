@@ -41,6 +41,7 @@ cbuffer cbufferMaterial : register(b1)
 {
 	matrix	World;
 	matrix	WorldIT;
+	matrix	InvWorld;
 	float4	specularGloss;
 };
 
