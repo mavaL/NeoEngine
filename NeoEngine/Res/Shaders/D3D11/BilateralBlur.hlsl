@@ -51,7 +51,7 @@ cbuffer cbufferGlobal : register( b0 )
 struct VertexIn
 {
 	float3 PosL    : POSITION;
-	float3 NormalL : NORMAL;
+	float3 Normal	: NORMAL;
 	float2 Tex     : TEXCOORD;
 };
 

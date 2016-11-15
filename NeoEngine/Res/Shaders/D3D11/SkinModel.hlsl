@@ -5,14 +5,7 @@
 struct VS_INPUT
 {
     float4 Pos : POSITION;
-
-#ifdef NORMAL_MAP
-	float4 tangent : TANGENT;
-	float3 binormal : BINORMAL;
-#else
 	float3 normal : NORMAL;
-#endif
-
 	float2 uv  : TEXCOORD0;
 	float4 boneIndices : BLENDINDICES;
 	float4 boneWeights : BLENDWEIGHT;
@@ -23,13 +16,7 @@ struct VS_OUTPUT
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
 	float3 WPos		: TEXCOORD1;
-
-#ifdef NORMAL_MAP
-	float4 tangent	: TEXCOORD2;
-	float3 binormal	: TEXCOORD3;
-#else
 	float3 normal	: TEXCOORD2;
-#endif
 };
 
 //--------------------------------------------------------------------------------------
@@ -59,14 +46,7 @@ VS_OUTPUT VS( VS_INPUT IN )
     output.Pos = posH;
 	output.WPos = vWorldPos.xyz;
 	output.uv = IN.uv;
-
-#ifdef NORMAL_MAP
-	output.tangent.xyz = normalize(mul(IN.tangent.xyz, (float3x3)WorldIT));
-	output.tangent.w = IN.tangent.w;
-	output.binormal = normalize(mul(IN.binormal, (float3x3)WorldIT));
-#else
 	output.normal = mul(vLocalNormal, (float3x3)WorldIT);
-#endif
 
     return output;
 }
@@ -130,7 +110,12 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	gbuffer_output output = (gbuffer_output)0;
 
 #ifdef NORMAL_MAP
-	float3x3 matTSToWS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	float3 tangent, binormal, normal;
+	normal = normalize(IN.normal);
+	float3 vView = normalize(camPos - IN.WPos);
+	cotangent_frame(normal, vView, IN.uv, tangent, binormal);
+
+	float3x3 matTSToWS = float3x3(tangent, binormal, normal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
 	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
 
@@ -154,6 +139,3 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 
 	return output;
 }
-
-
-#include "ClipPlaneWrapper.hlsl"

@@ -21,7 +21,7 @@ namespace Neo
 		~Decal() {}
 
 	public:
-		void	SetTexture(Texture* pTex);
+		void	Init(Texture* pDiffuseMap, Texture* pNormalMap);
 		void	Render();
 
 	private:

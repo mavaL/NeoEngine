@@ -61,17 +61,17 @@ struct PointLight
 
 float2 Expand(float2 v)
 {
-	return v * 2 - 1;
+	return v * 255.f / 127.f - 128.f / 127.f;
 }
 
 float3 Expand(float3 v)
 {
-	return v * 2 - 1;
+	return v * 255.f / 127.f - 128.f / 127.f;
 }
 
 float4 Expand(float4 v)
 {
-	return v * 2 - 1;
+	return v * 255.f / 127.f - 128.f / 127.f;
 }
 
 float3 GetNormalFromTexture(Texture2D tex, SamplerState samp, float2 uv)
@@ -186,4 +186,26 @@ half3 PhysicalBRDF(half3 N, half3 V, half3 L, half Gloss, half3 SpecCol)
 	half3 fresnel = lerp(SpecCol, 1.0h, pow(1 - dot(L, H), 5));
 
 	return (fresnel * spec) / 4.0h;
+}
+
+// See: http://www.thetenthplanet.de/archives/1180 [11/15/2016 maval]
+void cotangent_frame(float3 N, float3 p, float2 uv, out float3 ot, out float3 ob)
+{
+	// get edge vectors of the pixel triangle
+	float3 dp1 = ddx(p);
+	float3 dp2 = ddy(p);
+	float2 duv1 = ddx(uv);
+	float2 duv2 = ddy(uv);
+
+	// solve the linear system
+	float3 dp2perp = cross(dp2, N);
+	float3 dp1perp = cross(N, dp1);
+	float3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+	float3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+	// construct a scale-invariant frame 
+	float invmax = rsqrt(max(dot(T, T), dot(B, B)));
+
+	ot = T * invmax;
+	ob = B * invmax;
 }

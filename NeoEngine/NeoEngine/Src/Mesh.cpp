@@ -59,6 +59,7 @@ namespace Neo
 		pMaterial->AddRef();
 	}
 	//------------------------------------------------------------------------------------
+#if 0
 	bool Mesh::BuildTangents()
 	{
 		for (size_t i = 0; i < m_submeshes.size(); ++i)
@@ -68,6 +69,7 @@ namespace Neo
 		}
 		return true;
 	}
+#endif
 	//------------------------------------------------------------------------------------
 	SubMesh::SubMesh()
 		: m_pVertexStream0(nullptr)
@@ -108,6 +110,7 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
+#if 0
 	bool SubMesh::BuildTangents()
 	{
 		SVertex* pVerts = m_vertData.GetVertex();
@@ -226,18 +229,7 @@ namespace Neo
 
 		return true;
 	}
-	//------------------------------------------------------------------------------------
-	bool SubMesh::InitTangentData(const STangentData* pVerts, int nVert)
-	{
-		m_vertData.InitTangents(pVerts, nVert);
-
-		SAFE_DELETE(m_pVertexStream1);
-
-		m_pVertexStream1 = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(STangentData) * m_vertData.GetVertCount(),
-			sizeof(STangentData), m_vertData.GetTangent(), 0);
-
-		return true;
-	}
+#endif
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert)
 	{

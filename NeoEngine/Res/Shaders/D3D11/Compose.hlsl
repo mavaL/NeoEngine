@@ -7,14 +7,12 @@ struct VS_INPUT
 {
     float4 Pos : POSITION;
 	float2 uv  : TEXCOORD0;
-	float3 toFarCornerIndex : NORMAL;
 };
 
 struct VS_OUTPUT
 {
     float4	Pos		: SV_POSITION;
 	float2	uv		: TEXCOORD0;
-	float3	rayV	: TEXCOORD1;
 };
 
 //--------------------------------------------------------------------------------------
@@ -26,7 +24,6 @@ VS_OUTPUT VS( VS_INPUT IN )
 
     OUT.Pos = sign(IN.Pos);
 	OUT.uv = IN.uv;
-	OUT.rayV = frustumFarCorner[IN.toFarCornerIndex.x].xyz;
     
     return OUT;
 }

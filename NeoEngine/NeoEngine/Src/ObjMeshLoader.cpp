@@ -281,8 +281,6 @@ namespace Neo
 			}
 			else if (strcmp(command.c_str(), "bump") == 0)
 			{
-				pNewMaterial->SetVertexType(eVertexType_NormalMap);
-
 				STRING texName;
 				file >> texName;
 				pNewMaterial->SetTexture(1, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath(texName)));

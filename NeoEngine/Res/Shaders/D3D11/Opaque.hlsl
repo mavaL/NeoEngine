@@ -14,14 +14,7 @@ SamplerState	samLinear		: register(s0);
 struct VS_INPUT
 {
     float4 Pos : POSITION;
-
-#ifdef NORMAL_MAP
-	float4 tangent : TANGENT;
-	float3 binormal : BINORMAL;
-#else
 	float3 normal : NORMAL;
-#endif
-
 	float2 uv  : TEXCOORD0;
 };
 
@@ -30,13 +23,7 @@ struct VS_OUTPUT
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
 	float3 WPos		: TEXCOORD1;
-
-#ifdef NORMAL_MAP
-	float4 tangent	: TEXCOORD2;
-	float3 binormal	: TEXCOORD3;
-#else
 	float3 normal	: TEXCOORD2;
-#endif
 };
 
 //--------------------------------------------------------------------------------------
@@ -52,14 +39,7 @@ VS_OUTPUT VS( VS_INPUT IN )
 	OUT.Pos = posH;
 	OUT.WPos = vWorldPos.xyz;
 	OUT.uv = IN.uv;
-
-#ifdef NORMAL_MAP
-	OUT.tangent.xyz = normalize(mul(IN.tangent.xyz, (float3x3)WorldIT));
-	OUT.tangent.w = IN.tangent.w;
-	OUT.binormal = normalize(mul(IN.binormal, (float3x3)WorldIT));
-#else
 	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
-#endif
 
 	return OUT;
 }
@@ -89,14 +69,19 @@ VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
+	float3 vView = normalize(camPos - IN.WPos);
+
 #ifdef NORMAL_MAP
-	float3x3 matTSToWS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	float3 vNormal = normalize(IN.normal);
+	float3 tangent, binormal;
+	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+
+	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
 	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
 #else
 	float3 vWorldNormal = normalize(IN.normal);
 #endif
-	float3 vView = normalize(camPos - IN.WPos);
 
 	// Sun light
 	float fNdotL = saturate(dot(vWorldNormal, lightDirection));
@@ -132,7 +117,12 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	gbuffer_output output = (gbuffer_output)0;
 
 #ifdef NORMAL_MAP
-	float3x3 matTSToWS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
+	float3 vView = normalize(camPos - IN.WPos);
+	float3 vNormal = normalize(IN.normal);
+	float3 tangent, binormal;
+	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+
+	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
 	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
 

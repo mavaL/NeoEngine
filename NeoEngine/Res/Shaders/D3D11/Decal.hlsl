@@ -1,9 +1,9 @@
 #include "Common.h"
 
 
-Texture2D		texDepth		: register(t0);
-Texture2D		texDiffuse		: register(t1);
-Texture2D		texNormal		: register(t2);
+Texture2D		texDepth		: register(t10);
+Texture2D		texDiffuse		: register(t0);
+Texture2D		texNormal		: register(t1);
 Texture2D		texSpec			: register(t3);
 SamplerState	samPoint		: register(s0);
 SamplerState	samLinear		: register(s1);
@@ -13,25 +13,11 @@ SamplerState	samLinear		: register(s1);
 struct VS_INPUT
 {
 	float4 Pos : POSITION;
-
-#ifdef NORMAL_MAP
-	float4 tangent : TANGENT;
-	float3 binormal : BINORMAL;
-#else
-	float3 normal : NORMAL;
-#endif
 };
 
 struct VS_OUTPUT
 {
 	float4 Pos		: SV_POSITION;
-
-#ifdef NORMAL_MAP
-	float4 tangent	: TEXCOORD2;
-	float3 binormal	: TEXCOORD3;
-#else
-	float3 normal	: TEXCOORD2;
-#endif
 };
 
 //--------------------------------------------------------------------------------------
@@ -46,14 +32,6 @@ VS_OUTPUT VS_GBuffer(VS_INPUT IN)
 
 	OUT.Pos = posH;
 
-#ifdef NORMAL_MAP
-	OUT.tangent.xyz = normalize(mul(IN.tangent.xyz, (float3x3)WorldIT));
-	OUT.tangent.w = IN.tangent.w;
-	OUT.binormal = normalize(mul(IN.binormal, (float3x3)WorldIT));
-#else
-	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
-#endif
-
 	return OUT;
 }
 
@@ -61,6 +39,8 @@ VS_OUTPUT VS_GBuffer(VS_INPUT IN)
 //--------------------------------------------------------------------------------------
 // PS for g-buffer generation
 //--------------------------------------------------------------------------------------
+
+
 gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {
 	gbuffer_output output = (gbuffer_output)0;
@@ -72,23 +52,6 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	// Projecing 3d box to 2d plane
 	clip(0.5f - abs(vObjPos.xyz));
 
-#ifdef NORMAL_MAP
-	float3x3 matTSToWS = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
-	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
-	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
-
-	output.oNormal.xyz = vWorldNormal * 0.5f + 0.5f;
-#else
-	output.oNormal = float4(0, 0, 0, 0);
-#endif
-
-#ifdef SPEC_MAP
-	output.oSpec.xyz = texSpec.Sample(samLinear, IN.uv).xyz;
-	output.oSpec.w = specularGloss.w;
-#else
-	output.oSpec = specularGloss;
-#endif
-
 	// [-0.5, 0.5] -> [0, 1]
 	float2 fUv = vObjPos.xz + 0.5f;
 	fUv.y = 1 - fUv.y;
@@ -97,6 +60,36 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	// Avoid precision problem, decode in ComposePass.
 	albedo.xyz = sqrt(albedo.xyz);
 	output.oAlbedo = albedo;
+
+#ifdef NORMAL_MAP
+
+	//Get values across and along the surface
+	float3 ddxWp = ddx(vWorldPos);
+	float3 ddyWp = ddy(vWorldPos);
+
+	//Determine the normal
+	float3 normal = normalize(cross(ddxWp, ddyWp));
+
+	//Normalizing things is cool
+	float3 binormal = normalize(ddxWp);
+	float3 tangent = normalize(ddyWp);
+	float3x3 matTSToWS = float3x3(tangent, binormal, normal);
+
+	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, fUv);
+	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));
+
+	output.oNormal.xyz = vWorldNormal * 0.5f + 0.5f;
+	output.oNormal.w = albedo.w;
+#else
+	output.oNormal = float4(0, 0, 0, 0);
+#endif
+
+#ifdef SPEC_MAP
+	output.oSpec.xyz = texSpec.Sample(samLinear, fUv).xyz;
+	output.oSpec.w = specularGloss.w;
+#else
+	output.oSpec = specularGloss;
+#endif
 
 	return output;
 }

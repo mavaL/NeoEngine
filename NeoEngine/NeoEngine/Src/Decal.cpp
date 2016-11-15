@@ -50,16 +50,22 @@ namespace Neo
 			m_pUnitCube = new Entity(pMesh);
 			m_pUnitCube->SetCastShadow(false);
 		}
-
+	}
+	//------------------------------------------------------------------------------------
+	void Decal::Init(Texture* pDiffuseMap, Texture* pNormalMap)
+	{
 		static int iDecal = 0;
 		++iDecal;
 		char szBuf[64];
 		sprintf_s(szBuf, 64, "Mtl_Decal_%d", iDecal);
 
 		m_pMaterial = MaterialManager::GetSingleton().NewMaterial(szBuf);
-		m_pMaterial->InitShader("Decal", eShader_Opaque, 0, nullptr, "VS_GBuffer", "PS_GBuffer");
 
-		m_pMaterial->SetTexture(0, g_env.pSceneMgr->GetDepthRT()->GetRenderTexture());
+		m_pMaterial->SetTexture(10, g_env.pSceneMgr->GetDepthRT()->GetRenderTexture());
+		m_pMaterial->SetTexture(0, pDiffuseMap);
+		m_pMaterial->SetTexture(1, pNormalMap);
+
+		m_pMaterial->InitShader("Decal", eShader_Opaque, 0, nullptr, "VS_GBuffer", "PS_GBuffer");
 
 		SSamplerDesc& sam = m_pMaterial->GetSamplerStateDesc(0);
 		sam.Filter = SF_MIN_MAG_MIP_POINT;
@@ -67,11 +73,7 @@ namespace Neo
 
 		sam.Filter = SF_MIN_MAG_MIP_LINEAR;
 		m_pMaterial->SetSamplerStateDesc(1, sam);
-	}
-	//------------------------------------------------------------------------------------
-	void Decal::SetTexture(Texture* pTex)
-	{
-		m_pMaterial->SetTexture(1, pTex);
+		m_pMaterial->SetSamplerStateDesc(2, sam);
 	}
 	//------------------------------------------------------------------------------------
 	void Decal::Render()

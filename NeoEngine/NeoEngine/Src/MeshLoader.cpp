@@ -35,7 +35,6 @@ namespace Neo
 			if(szName) 
 				pSubMesh->SetName(szName);
 
-			bool bNormalMap = false;
 			if (bMaterial)
 			{
 				const char* szMtlName = submeshNode->Attribute("material");
@@ -43,11 +42,6 @@ namespace Neo
 
 				Material* pMaterial = MaterialManager::GetSingleton().GetMaterial(szMtlName);
 				pMesh->SetMaterial(pMaterial);
-
-				if (pMaterial->GetVertexType() == eVertexType_NormalMap)
-				{
-					bNormalMap = true;
-				}
 			}
 
 			//读取面信息
@@ -83,7 +77,7 @@ namespace Neo
 
 				TiXmlElement* vertNode = geometryNode->FirstChildElement("vertexbuffer")->FirstChildElement("vertex");
 
-				bSaveMesh = _LoadVertex_General(vertNode, nVert, pSubMesh, bNormalMap, &vecIndex[0], vecIndex.size());
+				bSaveMesh = _LoadVertex_General(vertNode, nVert, pSubMesh, false, &vecIndex[0], vecIndex.size());
 
 				TiXmlElement* pBoneWeightsNode = submeshNode->FirstChildElement("boneassignments");
 				if (pBoneWeightsNode)
@@ -117,13 +111,6 @@ namespace Neo
 	{
 		int idx = 0;
 		std::vector<SVertex> vecVertex(nVert);
-		std::vector<STangentData> vecTangent;
-
-		// Load tangent basis from mesh file.
-		if (vertNode->FirstChildElement("tangent"))
-		{
-			vecTangent.resize(nVert);
-		}
 
 		TiXmlElement* pNode = vertNode;
 		while (pNode)
@@ -153,26 +140,6 @@ namespace Neo
 			{
 				uvNode->Attribute("u", &texu);
 				uvNode->Attribute("v", &texv);
-			}
-
-			// tangent, binormal
-			TiXmlElement* tNode = pNode->FirstChildElement("tangent");
-			TiXmlElement* bNode = pNode->FirstChildElement("binormal");
-
-			double tx, ty, tz, tw, bx, by, bz;
-			if (tNode && bNode)
-			{
-				tNode->Attribute("x", &tx);
-				tNode->Attribute("y", &ty);
-				tNode->Attribute("z", &tz);
-				tNode->Attribute("w", &tw);
-
-				bNode->Attribute("x", &bx);
-				bNode->Attribute("y", &by);
-				bNode->Attribute("z", &bz);
-
-				vecTangent[idx].tangent.Set(tx, ty, tz, tw);
-				vecTangent[idx].binormal.Set(bx, by, bz);
 			}
 
 			SVertex& vert = vecVertex[idx++];
@@ -207,29 +174,10 @@ namespace Neo
 			}
 		}
 
-		bool bSaveMesh = false;
-		if (bNormalMap)
-		{
-			pSubMesh->InitVertData(eVertexType_NormalMap, &vecVertex[0], vecVertex.size(), true);
-			pSubMesh->InitIndexData(pIndexData, nIndex, true);
+		pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], nVert, true);
+		pSubMesh->InitIndexData(pIndexData, nIndex, true);
 
-			if (vecTangent.empty())
-			{
-				pSubMesh->BuildTangents();
-				bSaveMesh = true;
-			} 
-			else
-			{
-				pSubMesh->InitTangentData(&vecTangent[0], vecTangent.size());
-			}
-		}
-		else
-		{
-			pSubMesh->InitVertData(eVertexType_General, &vecVertex[0], nVert, true);
-			pSubMesh->InitIndexData(pIndexData, nIndex, true);
-		}
-
-		return bSaveMesh;
+		return false;
 	}
 	//------------------------------------------------------------------------------------
 	bool MeshLoader::SaveMesh(Mesh* pMesh, const STRING& filename)
@@ -273,7 +221,6 @@ namespace Neo
 			// Save vertex data
 			const uint32 nVertex = pSubMesh->GetVertData().GetVertCount();
 			const SVertex* pVertex = pSubMesh->GetVertData().GetVertex();
-			const STangentData* pTangent = pSubMesh->GetVertData().GetTangent();
 
 			TiXmlElement* pGeomNode = new TiXmlElement("geometry");
 			TiXmlElement* pVertBufNode = new TiXmlElement("vertexbuffer");
@@ -287,8 +234,6 @@ namespace Neo
 				TiXmlElement* pPosNode = new TiXmlElement("position");
 				TiXmlElement* pNormalNode = new TiXmlElement("normal");
 				TiXmlElement* pUvNode = new TiXmlElement("texcoord");
-				TiXmlElement* pTNode = new TiXmlElement("tangent");
-				TiXmlElement* pBNode = new TiXmlElement("binormal");
 
 				pPosNode->SetDoubleAttribute("x", pVertex[iVert].pos.x);
 				pPosNode->SetDoubleAttribute("y", pVertex[iVert].pos.y);
@@ -301,20 +246,9 @@ namespace Neo
 				pUvNode->SetDoubleAttribute("u", pVertex[iVert].uv.x);
 				pUvNode->SetDoubleAttribute("v", pVertex[iVert].uv.y);
 
-				pTNode->SetDoubleAttribute("x", pTangent[iVert].tangent.x);
-				pTNode->SetDoubleAttribute("y", pTangent[iVert].tangent.y);
-				pTNode->SetDoubleAttribute("z", pTangent[iVert].tangent.z);
-				pTNode->SetDoubleAttribute("w", pTangent[iVert].tangent.w);
-
-				pBNode->SetDoubleAttribute("x", pTangent[iVert].binormal.x);
-				pBNode->SetDoubleAttribute("y", pTangent[iVert].binormal.y);
-				pBNode->SetDoubleAttribute("z", pTangent[iVert].binormal.z);
-
 				pVertNode->LinkEndChild(pPosNode);
 				pVertNode->LinkEndChild(pNormalNode);
 				pVertNode->LinkEndChild(pUvNode);
-				pVertNode->LinkEndChild(pTNode);
-				pVertNode->LinkEndChild(pBNode);
 				pVertBufNode->LinkEndChild(pVertNode);
 			}
 

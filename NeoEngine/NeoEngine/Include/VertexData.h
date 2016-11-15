@@ -53,15 +53,6 @@ namespace Neo
 		float	height;
 	};
 
-	/////////	Stream 1
-	struct STangentData
-	{
-		STangentData() {}
-
-		VEC4	tangent;
-		VEC3	binormal;
-	};
-
 	struct STerrainDeltaVertex 
 	{
 		VEC2	delta;
@@ -90,11 +81,9 @@ namespace Neo
 
 	public:
 		void			InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert);
-		void			InitTangents(const STangentData* pTangent, uint32 nVert);
 		void			InitBoneWeights(const SVertexBoneWeight* pBoneWeights, uint32 nVert);
 		uint32			GetVertCount() const { return m_nVerts; }
 		SVertex*		GetVertex() const { return m_pVertData; }
-		STangentData*	GetTangent() const { return m_pTangentData; }
 		SVertexBoneWeight*	GetBoneWeights() const { return m_pBoneWeights; }
 		void			SetVertType(eVertexType type) { m_vertType = type; }
 		eVertexType		GetVertType() const { return m_vertType; }
@@ -102,7 +91,6 @@ namespace Neo
 	private:
 		eVertexType			m_vertType;
 		SVertex*			m_pVertData;
-		STangentData*		m_pTangentData;
 		SVertexBoneWeight*	m_pBoneWeights;
 		uint32				m_nVerts;
 	};

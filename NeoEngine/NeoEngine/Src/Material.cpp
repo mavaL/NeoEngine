@@ -296,7 +296,7 @@ namespace Neo
 			}
 		}
 
-		if (m_vertType == eVertexType_NormalMap && m_shaderType != eShader_Fur)
+		if (m_shaderType != eShader_Fur && m_vecSubMtls[0].m_pTexture[1])
 		{
 			D3D_SHADER_MACRO macro = { "NORMAL_MAP", "" };
 			retMacros.push_back(macro);
@@ -307,48 +307,6 @@ namespace Neo
 			D3D_SHADER_MACRO macro = { "SPEC_MAP", "" };
 			retMacros.push_back(macro);
 		}
-
-//		if (m_shaderFlag & eShaderFlag_EnableSSAO)
-//		{
-//			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
-//			{
-//				if (m_pTexture[i] == nullptr)
-//				{
-//					SetTexture(i, g_env.pSceneMgr->GetSSAO()->GetBlurVMap());
-//
-//					D3D_SHADER_MACRO macro = { "SSAO", "" };
-//					retMacros.push_back(macro);
-//
-//					break;
-//				}
-//			}
-//		}
-//
-//		if (m_shaderFlag & eShaderFlag_EnableShadowReceive)
-//		{
-//			for (int i=0; i<MAX_TEXTURE_STAGE; ++i)
-//			{
-//				if (m_pTexture[i] == nullptr)
-//				{
-//					D3D_SHADER_MACRO macro = { "SHADOW_RECEIVER", "" };
-//					retMacros.push_back(macro);
-//
-//					D3D11_SAMPLER_DESC& samDesc = GetSamplerStateDesc(i);
-//					samDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-//					samDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
-//					samDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-//					samDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-//					samDesc.BorderColor[0] = samDesc.BorderColor[1] = samDesc.BorderColor[2] = samDesc.BorderColor[3] = 1;
-//
-//					SetSamplerStateDesc(i, samDesc);
-//
-
-//
-//					break;
-//				}
-//			}
-//		}
-
 
 #if USE_PSSM
 		{

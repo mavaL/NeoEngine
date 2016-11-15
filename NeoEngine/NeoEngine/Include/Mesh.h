@@ -44,12 +44,13 @@ namespace Neo
 
 	public:
 		bool		InitVertData(eVertexType type, const SVertex* pVerts, int nVert, bool bStatic);
-		bool		InitTangentData(const STangentData* pVerts, int nVert);
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
 		bool		InitAdjIndexData(const DWORD* pIdx, int nIdx);
 		bool		InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert);
 		void		InitTerrainVertData(VertexBuffer* posVB, VertexBuffer* deltaVB, IndexBuffer* pIB, uint32 nIndexCount);
+#if 0
 		bool		BuildTangents();
+#endif
 
 		void			SetName(const STRING& name) { m_name = name; }
 		const STRING&	GetName() const { return m_name; }
@@ -97,7 +98,6 @@ namespace Neo
 		Material*		GetMaterial()	{ return m_pMaterial; }
 		void			SetPrimitiveType(ePrimitive type)	{ m_primType = type; }
 		ePrimitive		GetPrimitiveType() const	{ return m_primType; }
-		bool			BuildTangents();
 		void			ConvertToTriAdjIndices();
 		void			ConvertToLineAdjIndices();
 

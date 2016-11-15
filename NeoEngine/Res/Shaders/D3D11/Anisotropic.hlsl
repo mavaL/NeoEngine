@@ -24,9 +24,8 @@ SamplerState	samLinear		: register(s0);
 struct VS_INPUT
 {
     float4 Pos : POSITION;
-	float4 tangent : TANGENT;
-	float3 binormal : BINORMAL;
 	float2 uv  : TEXCOORD0;
+	float3 normal : NORMAL;
 };
 
 struct VS_OUTPUT
@@ -34,9 +33,7 @@ struct VS_OUTPUT
     float4 Pos		: SV_POSITION;
 	float2 uv		: TEXCOORD0;
 	float3 WPos		: TEXCOORD1;
-
-	float4 tangent	: TEXCOORD2;
-	float3 binormal	: TEXCOORD3;
+	float3 normal	: TEXCOORD2;
 };
 
 //--------------------------------------------------------------------------------------
@@ -52,10 +49,7 @@ VS_OUTPUT VS( VS_INPUT IN )
 	OUT.Pos = posH;
 	OUT.WPos = vWorldPos.xyz;
 	OUT.uv = IN.uv;
-
-	OUT.tangent.xyz = normalize(mul(IN.tangent.xyz, (float3x3)WorldIT));
-	OUT.tangent.w = IN.tangent.w;
-	OUT.binormal = normalize(mul(IN.binormal, (float3x3)WorldIT));
+	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 
 	return OUT;
 }
@@ -121,13 +115,17 @@ float3 AnisotropicGGX(float3 N, float3 V, float3 L, float3 X, float3 Y, float fG
 
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
-	float3 vNormal = cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w;
+	float3 vNormal = normalize(IN.normal);
 	float3 vView = normalize(camPos - IN.WPos);
 
 	// Sun light
 	float fNdotL = saturate(dot(vNormal, lightDirection));
 	float4 cDiffuse = fNdotL * lightColor;
-	float3 cSpecular = AnisotropicGGX(vNormal, vView, lightDirection, IN.tangent.xyz, IN.binormal, specularGloss.w, specularGloss.xyz, 0.7f);
+
+	float3 tangent, binormal;
+	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+
+	float3 cSpecular = AnisotropicGGX(vNormal, vView, lightDirection, tangent, binormal, specularGloss.w, specularGloss.xyz, 0.7f);
 
 	float4 vAmbient = float4(0.2f, 0.2f, 0.2f, 1.0f);	// Forward rendering uses simple ambient lighting
 	float4 oColor = texDiffuse.Sample(samLinear, IN.uv) * (cDiffuse + vAmbient);

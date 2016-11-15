@@ -71,7 +71,6 @@ namespace Neo
 	enum eVertexType
 	{
 		eVertexType_General,
-		eVertexType_NormalMap,
 		eVertexType_SkinModel,
 		eVertexType_Terrain,
 	};
@@ -97,7 +96,6 @@ namespace Neo
 	{
 		eShader_Opaque,
 		eShader_Terrain,
-		eShader_Decal,
 		eShader_Transparent,
 		eShader_Forward,
 		eShader_Fur,

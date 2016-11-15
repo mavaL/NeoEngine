@@ -38,8 +38,6 @@ cbuffer cbFur	:	register(b10)
 struct VS_INPUT
 {
 	float4 Pos : POSITION;
-	float4 tangent : TANGENT;
-	float3 binormal : BINORMAL;
 	float3 normal : NORMAL;
 	float2 uv  : TEXCOORD0;
 };
@@ -231,6 +229,7 @@ struct VS_OUTPUT
 	float3 LightVector  : TEXCOORD2;
 	float3 ViewVector   : TEXCOORD3;
 	float3 CombVector   : TEXCOORD4;
+	float3 WPos			: TEXCOORD5;
 };
 
 VS_OUTPUT VS_Shells(VS_INPUT IN)
@@ -250,18 +249,11 @@ VS_OUTPUT VS_Shells(VS_INPUT IN)
 	OUT.Pos = mul(vWorldPos, ViewProj);
 	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 	OUT.uv = IN.uv;
+	OUT.WPos = vWorldPos.xyz;
 
-	float3x3 matTSToObj = float3x3(IN.tangent.xyz, IN.binormal, cross(IN.tangent.xyz, IN.binormal) * IN.tangent.w);
-
-	//transform the light and eye vectors to tangent space for per pixel lighting 
-	float3 eyeVector = vModelCamPos.xyz - vModelPos;
-	OUT.ViewVector = mul(matTSToObj, eyeVector);
-
-	float3 lightVector = vModelLightDir.xyz;
-	OUT.LightVector = mul(matTSToObj, lightVector);
-	//transform the comb vector aswell, since this is going to be needed for 
-	//transforming the fur tangent in the lighting calculations
-	OUT.CombVector = mul(matTSToObj, CombVector);
+	OUT.ViewVector = vModelCamPos.xyz - vModelPos;
+	OUT.LightVector = vModelLightDir.xyz;
+	OUT.CombVector = CombVector;
 
 	return OUT;
 }
@@ -273,8 +265,18 @@ float4 PS_Shells(VS_OUTPUT IN) : SV_Target
     float ks = 0.2;
     float specPower = 20.0;
 	int shellNum = iShell - 1;
-
     float4 outputColor;
+
+	float3 vNormal = normalize(IN.normal);
+	float3 vView = normalize(camPos - IN.WPos);
+	float3 tangent, binormal;
+	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+
+	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
+	// transform to tangent sapce
+	IN.LightVector = mul(matTSToWS, IN.LightVector);
+	IN.ViewVector = mul(matTSToWS, IN.ViewVector);
+	IN.CombVector = mul(matTSToWS, IN.CombVector);
     
 	float2 Texture = IN.uv * shellTexTiling;
     float4 tangentAndAlpha  = furTextureArray.SampleLevel( samLinear, float3(Texture, shellNum),0 );

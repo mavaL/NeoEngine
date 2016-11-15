@@ -206,7 +206,8 @@ void SetupTestScene3(Scene* scene)
 	/////////////////////////////////////////////////////////////
 	//// Create some decals on the terrain
 	Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(1000, 0, 5000) + VEC3(1683, 0, 2116), 100);
-	pDecal->SetTexture(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("dirt_on_road_4.dds"), eTextureType_2D, 0, true));
+	pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
+		g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
 }
 
 void EnterTestScene3(Scene* scene)
@@ -339,7 +340,7 @@ void SetupTestScene5(Scene* scene)
 	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset14.dds");
 	g_furOffsetNames.push_back("../../../Res/Fur/FurTexture/FurTextureOffset15.dds");
 
-	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Fur", eVertexType_NormalMap);
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Fur");
 	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("Fur/catColor.dds"), eTextureType_2D, eTextureUsage_VertexShader | eTextureUsage_GeometryShader, true));
 	pMaterial->SetTexture(3, g_env.pRenderer->GetRenderSys()->CreateTextureArray(g_furTextureNames, false));
 	pMaterial->SetTexture(4, g_env.pRenderer->GetRenderSys()->CreateTextureArray(g_furOffsetNames, false));
@@ -438,9 +439,8 @@ void SetupTestScene6(Scene* scene)
 	Mesh* pMesh = new Mesh;
 	SubMesh* pSubmesh = new SubMesh;
 
-	pSubmesh->InitVertData(eVertexType_NormalMap, vert, 4, true);
+	pSubmesh->InitVertData(eVertexType_General, vert, 4, true);
 	pSubmesh->InitIndexData(dwIndex, 6, true);
-	pSubmesh->BuildTangents();
 
 	pMesh->AddSubMesh(pSubmesh);
 
@@ -449,7 +449,7 @@ void SetupTestScene6(Scene* scene)
 	scene->AddEntity(pEntity);
 
 
-	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor", eVertexType_NormalMap);
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor");
 	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("road002_diff.dds"), eTextureType_2D, 0, true));
 	pMaterial->SetTexture(1, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("road002_ddn.dds")));
 
@@ -489,13 +489,12 @@ void SetupTestScene6(Scene* scene)
 	// GGX anisotropic
 
 	Mesh* pSphereMesh = g_env.pSceneMgr->LoadMeshFromFile("sphere_group_anisotropic", GetResPath("sphere_group.obj"));
-	pSphereMesh->BuildTangents();
 
 	Neo::Entity* pSpheres2 = new Neo::Entity(pSphereMesh);
 	pSpheres2->SetPosition(VEC3(0, 2, 20));
 	scene->AddEntity(pSpheres2);
 
-	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX", eVertexType_NormalMap, 10);
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX", eVertexType_General, 10);
 
 	for (int i = 0; i < 10; ++i)
 	{
@@ -582,7 +581,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene2, EnterTestScene2);
 
 		////// Test Scene 3: Terrain
-		ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
+		//ADD_TEST_SCENE(SetupTestScene3, EnterTestScene3);
 
 		//// Test Scene 4: Shadow testing
 		//ADD_TEST_SCENE(SetupTestScene4, EnterTestScene4);
@@ -591,7 +590,7 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);

@@ -96,31 +96,6 @@ namespace Neo
 			}
 			break;
 
-		case eVertexType_NormalMap:
-			{
-				_AST(vecVBOs.size() == 2);
-				OpenGLAPI::BindBuffer(GL_ARRAY_BUFFER, (GLuint)vecVBOs[0]->GetInternel());
-
-				// position
-				OpenGLAPI::EnableVertexAttribArray(0);
-				OpenGLAPI::VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (GLvoid*)0);
-				// uv
-				OpenGLAPI::EnableVertexAttribArray(1);
-				OpenGLAPI::VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(SVertex), (GLvoid*)12);
-				// normal
-				OpenGLAPI::EnableVertexAttribArray(2);
-				OpenGLAPI::VertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(SVertex), (GLvoid*)20);
-				
-				// tangent
-				OpenGLAPI::BindBuffer(GL_ARRAY_BUFFER, (GLuint)vecVBOs[1]->GetInternel());
-				OpenGLAPI::EnableVertexAttribArray(3);
-				OpenGLAPI::VertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(STangentData), (GLvoid*)0);
-				// binormal
-				OpenGLAPI::EnableVertexAttribArray(4);
-				OpenGLAPI::VertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(STangentData), (GLvoid*)16);
-			}
-			break;
-
 		case eVertexType_Terrain:
 		{
 			_AST(vecVBOs.size() == 2);
