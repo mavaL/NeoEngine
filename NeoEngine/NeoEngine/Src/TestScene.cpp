@@ -202,12 +202,6 @@ void SetupTestScene3(Scene* scene)
 
 	pTerrainGroup->freeTemporaryResources();
 	g_env.pSceneMgr->SetTerrain(pTerrainGroup);
-
-	/////////////////////////////////////////////////////////////
-	//// Create some decals on the terrain
-	Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(1000, 0, 5000) + VEC3(1683, 0, 2116), 100);
-	pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
-		g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
 }
 
 void EnterTestScene3(Scene* scene)
@@ -428,10 +422,10 @@ void SetupTestScene6(Scene* scene)
 
 	SVertex vert[4] =
 	{
-		SVertex(VEC3(-halfW, 0, +halfH), VEC2(0, 0)),
-		SVertex(VEC3(+halfW, 0, +halfH), VEC2(10, 0)),
-		SVertex(VEC3(+halfW, 0, -halfH), VEC2(10, 10)),
-		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 10)),
+		SVertex(VEC3(-halfW, 0, +halfH), VEC2(0, 0), VEC3::UNIT_Y),
+		SVertex(VEC3(+halfW, 0, +halfH), VEC2(10, 0), VEC3::UNIT_Y),
+		SVertex(VEC3(+halfW, 0, -halfH), VEC2(10, 10), VEC3::UNIT_Y),
+		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 10), VEC3::UNIT_Y),
 	};
 
 	DWORD dwIndex[6] = { 0, 1, 3, 1, 2, 3 };
@@ -573,6 +567,101 @@ void EnterTestScene7(Scene* scene)
 	pCamera->SetMoveSpeed(0.2f);
 }
 
+
+void SetupTestScene8(Scene* scene)
+{
+	// Sun light
+	g_env.pSceneMgr->SetupSunLight(VEC3(1, -1, 2), SColor(0.9f, 0.9f, 0.9f));
+	g_env.pSceneMgr->SetShadowDepthBias(0.01f);
+
+	// A plane floor
+	float halfW = 100.0f / 2;
+	float halfH = 100.0f / 2;
+
+	SVertex vert[4] =
+	{
+		SVertex(VEC3(-halfW, 0, +halfH), VEC2(0, 0), VEC3::UNIT_Y),
+		SVertex(VEC3(+halfW, 0, +halfH), VEC2(10, 0), VEC3::UNIT_Y),
+		SVertex(VEC3(+halfW, 0, -halfH), VEC2(10, 10), VEC3::UNIT_Y),
+		SVertex(VEC3(-halfW, 0, -halfH), VEC2(0, 10), VEC3::UNIT_Y),
+	};
+
+	DWORD dwIndex[6] = { 0, 1, 3, 1, 2, 3 };
+
+	Mesh* pMesh = new Mesh;
+	SubMesh* pSubmesh = new SubMesh;
+
+	pSubmesh->InitVertData(eVertexType_General, vert, 4, true);
+	pSubmesh->InitIndexData(dwIndex, 6, true);
+
+	pMesh->AddSubMesh(pSubmesh);
+
+	Neo::Entity* pEntity = new Neo::Entity(pMesh);
+	pEntity->SetCastShadow(false);
+	scene->AddEntity(pEntity);
+
+
+	Neo::Material* pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_floor");
+	pMaterial->SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds"), eTextureType_2D, 0, true));
+
+	SSamplerDesc& samDesc = pMaterial->GetSamplerStateDesc(0);
+	pMaterial->SetSamplerStateDesc(0, samDesc);
+
+	pMaterial->InitShader(("Opaque"), eShader_Opaque);
+	pEntity->SetMaterial(pMaterial);
+
+	// box
+	Neo::Entity* pBox = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("cube.mesh"));
+	pBox->SetMaterial(pMaterial);
+	pBox->SetPosition(VEC3(-25, 0, 0));
+	pBox->SetScale(10.f);
+	scene->AddEntity(pBox);
+
+	// sphere
+	Neo::Entity* pSphere = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("sphere.mesh"));
+	pSphere->SetMaterial(pMaterial);
+	pSphere->SetPosition(VEC3(25, 2, 0));
+	pSphere->SetScale(3.f);
+	scene->AddEntity(pSphere);
+
+	// Place some decals
+	{
+		Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(0, 0, 0), 30);
+		pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
+			g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
+	}
+	
+	{
+		QUATERNION rot;
+		rot.FromAxisAngle(VEC3::NEG_UNIT_X, 90);
+
+		Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(-25, 4, -5), 15, rot);
+		pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
+			g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
+
+		pDecal->SetClipDistance(0.025f);
+	}
+
+	{
+		QUATERNION rot;
+		rot.FromAxisAngle(VEC3::UNIT_Y, 90);
+
+		Decal* pDecal = g_env.pSceneMgr->CreateDecal(VEC3(25, 1, -4), 7, rot);
+		pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
+			g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
+	}
+}
+
+void EnterTestScene8(Scene* scene)
+{
+	Neo::Camera* pCamera = g_env.pSceneMgr->GetCamera();
+	pCamera->SetPosition(VEC3(0, 5, 0));
+	pCamera->SetNearClip(0.1f);
+	pCamera->SetFarClip(500.0f);
+	pCamera->SetMoveSpeed(0.2f);
+	pCamera->SetDirection(VEC3::UNIT_Z);
+}
+
 namespace Neo
 {
 	void SceneManager::_InitAllScene()
@@ -590,10 +679,13 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);
+
+		//// Test Scene 8: Decals
+		ADD_TEST_SCENE(SetupTestScene8, EnterTestScene8);
 	}
 }
 

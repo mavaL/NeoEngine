@@ -1,23 +1,23 @@
 #include "Common.h"
 
 
-Texture2D		texDepth		: register(t10);
-Texture2D		texDiffuse		: register(t0);
-Texture2D		texNormal		: register(t1);
-Texture2D		texSpec			: register(t3);
-SamplerState	samPoint		: register(s0);
-SamplerState	samLinear		: register(s1);
-
-
+cbuffer cbDecal	:	register(b10)
+{
+	matrix	matRotation;
+	float	fClipDistance;
+};
 //--------------------------------------------------------------------------------------
 struct VS_INPUT
 {
 	float4 Pos : POSITION;
+	float3 normal	: NORMAL;
 };
 
 struct VS_OUTPUT
 {
 	float4 Pos		: SV_POSITION;
+	float3 normal	: NORMAL;
+	float3 WPos		: WPOS;
 };
 
 //--------------------------------------------------------------------------------------
@@ -31,6 +31,8 @@ VS_OUTPUT VS_GBuffer(VS_INPUT IN)
 	float4 posH = mul(vWorldPos, ViewProj);
 
 	OUT.Pos = posH;
+	OUT.WPos = vWorldPos.xyz;
+	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
 
 	return OUT;
 }
@@ -39,7 +41,12 @@ VS_OUTPUT VS_GBuffer(VS_INPUT IN)
 //--------------------------------------------------------------------------------------
 // PS for g-buffer generation
 //--------------------------------------------------------------------------------------
-
+Texture2D		texDepth		: register(t10);
+Texture2D		texDiffuse		: register(t0);
+Texture2D		texNormal		: register(t1);
+Texture2D		texSpec			: register(t3);
+SamplerState	samPoint		: register(s0);
+SamplerState	samLinear		: register(s1);
 
 gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {
@@ -53,8 +60,11 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	clip(0.5f - abs(vObjPos.xyz));
 
 	// [-0.5, 0.5] -> [0, 1]
+	vObjPos = mul(float4(vObjPos.xyz, 0), matRotation);
 	float2 fUv = vObjPos.xz + 0.5f;
 	fUv.y = 1 - fUv.y;
+
+	clip(fClipDistance - abs(vObjPos.y));
 
 	float4 albedo = texDiffuse.Sample(samLinear, fUv);
 	// Avoid precision problem, decode in ComposePass.
@@ -63,17 +73,12 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 
 #ifdef NORMAL_MAP
 
-	//Get values across and along the surface
-	float3 ddxWp = ddx(vWorldPos);
-	float3 ddyWp = ddy(vWorldPos);
+	float3 vView = normalize(camPos - IN.WPos);
+	float3 vNormal = normalize(IN.normal);
+	float3 tangent, binormal;
+	cotangent_frame(vView, fUv, tangent, binormal);
 
-	//Determine the normal
-	float3 normal = normalize(cross(ddxWp, ddyWp));
-
-	//Normalizing things is cool
-	float3 binormal = normalize(ddxWp);
-	float3 tangent = normalize(ddyWp);
-	float3x3 matTSToWS = float3x3(tangent, binormal, normal);
+	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, fUv);
 	float3 vWorldNormal = normalize(mul(vNormalTS, matTSToWS));

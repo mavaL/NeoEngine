@@ -163,6 +163,8 @@
     <None Include="..\Res\Shaders\OpenGL\boxblur_x.ps" />
     <None Include="..\Res\Shaders\OpenGL\boxblur_y.ps" />
     <None Include="..\Res\Shaders\OpenGL\compose.ps" />
+    <None Include="..\Res\Shaders\OpenGL\decal.ps" />
+    <None Include="..\Res\Shaders\OpenGL\decal.vs" />
     <None Include="..\Res\Shaders\OpenGL\font.ps" />
     <None Include="..\Res\Shaders\OpenGL\font.vs" />
     <None Include="..\Res\Shaders\OpenGL\fur_fins.gs" />
@@ -261,6 +263,7 @@
     <Xml Include="..\Res\Shaders\OpenGL\boxblur_x.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\boxblur_y.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\compose.xml" />
+    <Xml Include="..\Res\Shaders\OpenGL\decal.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\font.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\fur.xml" />
     <Xml Include="..\Res\Shaders\OpenGL\hdr.xml" />

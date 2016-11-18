@@ -11,7 +11,7 @@
 
 
 
-#define		USE_OPENGL				0			// Desktop OpenGL
+#define		USE_OPENGL				1			// Desktop OpenGL
 #define		USE_SIMD				0			// SIMD
 #define		USE_LISPPSM				0			// Light space perspective shadow mapping
 #define		USE_PSSM				1			// Parallel-Split Shadow Maps

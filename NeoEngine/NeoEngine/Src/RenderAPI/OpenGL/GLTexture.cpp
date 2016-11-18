@@ -101,6 +101,7 @@ namespace Neo
 		{
 		case DXGI_FORMAT_B8G8R8X8_UNORM:
 		case DXGI_FORMAT_B8G8R8A8_UNORM: m_texFormat = ePF_A8R8G8B8; break;
+		case DXGI_FORMAT_BC5_UNORM: m_texFormat = ePF_DXT5; break;
 		case DXGI_FORMAT_BC3_UNORM: m_texFormat = ePF_DXT5; break;
 		case DXGI_FORMAT_BC1_UNORM: m_texFormat = ePF_DXT1; break;
 		case DXGI_FORMAT_R8_UNORM: m_texFormat = ePF_L8; break;

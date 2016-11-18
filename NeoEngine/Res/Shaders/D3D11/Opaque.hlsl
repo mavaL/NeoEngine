@@ -74,7 +74,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 #ifdef NORMAL_MAP
 	float3 vNormal = normalize(IN.normal);
 	float3 tangent, binormal;
-	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+	cotangent_frame(vView, IN.uv, tangent, binormal);
 
 	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
@@ -120,7 +120,7 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	float3 vView = normalize(camPos - IN.WPos);
 	float3 vNormal = normalize(IN.normal);
 	float3 tangent, binormal;
-	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+	cotangent_frame(vView, IN.uv, tangent, binormal);
 
 	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);

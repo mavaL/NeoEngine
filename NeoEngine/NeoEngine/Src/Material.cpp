@@ -38,6 +38,7 @@ namespace Neo
 	, m_shaderFlag(0)
 	, m_cullMode(eCull_BACK)
 	, m_fillMode(eFill_Solid)
+	, m_depthFunc(eCompareFunc_LESS_EQUAL)
 	, m_vertType(type)
 	, m_iActivePass(0)
 	, m_bEnableGS(false)
@@ -190,6 +191,15 @@ namespace Neo
 		{
 			rasterState.Desc.FillMode = m_fillMode;
 			pRenderer->SetRasterState(&rasterState);
+		}
+
+		// Depth func
+		SStateDepth depthState = pRenderer->GetCurDepthState();
+
+		if (m_depthFunc != depthState.Desc.DepthFunc)
+		{
+			depthState.Desc.DepthFunc = m_depthFunc;
+			pRenderer->SetDepthState(&depthState);
 		}
 
 		const uint32 curPhase = g_env.pSceneMgr->GetCurRenderPhase();

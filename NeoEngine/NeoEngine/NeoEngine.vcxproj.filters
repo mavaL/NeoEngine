@@ -353,6 +353,12 @@
     <None Include="..\Res\Shaders\OpenGL\terrain.vs">
       <Filter>Shader\opengl</Filter>
     </None>
+    <None Include="..\Res\Shaders\OpenGL\decal.ps">
+      <Filter>Shader\opengl</Filter>
+    </None>
+    <None Include="..\Res\Shaders\OpenGL\decal.vs">
+      <Filter>Shader\opengl</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\AABB.cpp">
@@ -556,6 +562,9 @@
       <Filter>Shader\opengl</Filter>
     </Xml>
     <Xml Include="..\Res\Shaders\OpenGL\terrain.xml">
+      <Filter>Shader\opengl</Filter>
+    </Xml>
+    <Xml Include="..\Res\Shaders\OpenGL\decal.xml">
       <Filter>Shader\opengl</Filter>
     </Xml>
   </ItemGroup>

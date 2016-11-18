@@ -67,19 +67,19 @@ namespace Neo
 
 		if (m_bMove[0])
 		{
-			m_viewPt += forward * m_moveSpeed;
+			m_viewPt += forward * m_moveSpeed * dt * 100;
 		}
 		if (m_bMove[1])
 		{
-			m_viewPt -= right * m_moveSpeed;
+			m_viewPt -= right * m_moveSpeed * dt * 100;
 		}
 		if (m_bMove[2])
 		{
-			m_viewPt -= forward * m_moveSpeed;
+			m_viewPt -= forward * m_moveSpeed * dt * 100;
 		}
 		if (m_bMove[3])
 		{
-			m_viewPt += right * m_moveSpeed;
+			m_viewPt += right * m_moveSpeed * dt * 100;
 		}
 	}
 

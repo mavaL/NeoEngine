@@ -63,6 +63,8 @@ namespace Neo
 		eCullMode				GetCullMode() const	{ return m_cullMode; }
 		void					SetFillMode(eFillMode mode) { m_fillMode = mode; }
 		eFillMode				GetFillMode() const { return m_fillMode; }
+		void					SetDepthFunc(eCompareFunc func) { m_depthFunc = func; }
+		eCompareFunc			GetDepthFunc() const { return m_depthFunc; }
 		SubMaterial&			GetSubMaterial(uint32 i);
 		SamplerState*			GetSamplerState(uint32 i) { return m_pSamplerState[i]; }
 		eVertexType				GetVertexType() const { return m_vertType; }
@@ -101,6 +103,7 @@ namespace Neo
 		uint32						m_shaderFlag;
 		eCullMode					m_cullMode;
 		eFillMode					m_fillMode;
+		eCompareFunc				m_depthFunc;
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
 		bool						m_bEnableGS;

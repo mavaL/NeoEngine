@@ -14,14 +14,13 @@ uniform cbufferCustom0
 layout(location = 0) in vec4 iPos;
 layout(location = 1) in vec2 iUv;
 layout(location = 2) in vec3 iNormal;
-layout(location = 3) in vec4 iTangent;
-layout(location = 4) in vec3 iBinormal;
 
 out vec2 oUv;
 out vec3 oNormal;
 out vec3 oLightVector;
 out vec3 oViewVector;
 out vec3 oCombVector;
+out vec3 oWPos;
 
 
 void main()
@@ -35,16 +34,9 @@ void main()
 	gl_Position = vWorldPos * ViewProj;
 	oNormal = iNormal * WorldIT;
 	oUv = iUv;
+	oWPos = vWorldPos.xyz;
 
-	mat3 matTSToObj = mat3(iTangent.xyz, iBinormal, cross(iTangent.xyz, iBinormal) * iTangent.w);
-
-	//transform the light and eye vectors to tangent space for per pixel lighting 
-	vec3 eyeVector = vModelCamPos.xyz - vModelPos;
-	oViewVector = matTSToObj * eyeVector;
-
-	vec3 lightVector = vModelLightDir.xyz;
-	oLightVector = matTSToObj * lightVector;
-	//transform the comb vector aswell, since this is going to be needed for 
-	//transforming the fur tangent in the lighting calculations
-	oCombVector = matTSToObj * CombVector;
+	oViewVector = vModelCamPos.xyz - vModelPos;
+	oLightVector = vModelLightDir.xyz;
+	oCombVector = CombVector;
 }

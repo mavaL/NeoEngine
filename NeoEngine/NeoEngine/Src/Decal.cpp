@@ -6,12 +6,16 @@
 #include "Material.h"
 #include "SceneManager.h"
 #include "RenderTarget.h"
+#include "Renderer.h"
+#include "Camera.h"
 
 namespace Neo
 {
+
+	ConstantBuffer* Decal::m_pCB_Decal = nullptr;
 	Entity* Decal::m_pUnitCube = nullptr;
 	//------------------------------------------------------------------------------------
-	Decal::Decal(const VEC3& pos, float size)
+	Decal::Decal(const VEC3& pos, float size, const QUATERNION& rot)
 		: m_vPos(pos)
 		, m_fSize(size)
 		, m_pMaterial(nullptr)
@@ -49,7 +53,16 @@ namespace Neo
 
 			m_pUnitCube = new Entity(pMesh);
 			m_pUnitCube->SetCastShadow(false);
+
+			m_pCB_Decal = g_env.pRenderer->GetRenderSys()->CreateConstantBuffer(sizeof(cBufferDecal), 10);
 		}
+
+		m_cbDecal.matRotation = rot.ToRotationMatrix().Transpose();
+		m_cbDecal.fProjClip = 10000.f;
+	}
+	//------------------------------------------------------------------------------------
+	Decal::~Decal()
+	{
 	}
 	//------------------------------------------------------------------------------------
 	void Decal::Init(Texture* pDiffuseMap, Texture* pNormalMap)
@@ -82,7 +95,33 @@ namespace Neo
 		m_pUnitCube->SetScale(m_fSize);
 		m_pUnitCube->SetMaterial(m_pMaterial);
 
+		m_pUnitCube->UpdateAABB();
+		const AABB& aabb = m_pUnitCube->GetWorldAABB();
+		const VEC3& vCamPos = g_env.pSceneMgr->GetCamera()->GetPos();
+
+		if (vCamPos > aabb.m_minCorner && vCamPos < aabb.m_maxCorner)
+		{
+			// Camera is inside the decal entity
+			m_pMaterial->SetCullMode(eCull_FRONT);
+			m_pMaterial->SetDepthFunc(eCompareFunc_GREATER);
+		} 
+		else
+		{
+			m_pMaterial->SetCullMode(eCull_BACK);
+			m_pMaterial->SetDepthFunc(eCompareFunc_LESS_EQUAL);
+		}
+
+		m_pCB_Decal->UpdateBuf(&m_cbDecal);
+		m_pCB_Decal->Apply(10, true, true);
+
 		m_pUnitCube->Render();
 	}
+	//------------------------------------------------------------------------------------
+	void Decal::SetClipDistance(float fDist)
+	{
+		m_cbDecal.fProjClip = fDist;
+		m_pCB_Decal->UpdateBuf(&m_cbDecal);
+	}
+
 }
 

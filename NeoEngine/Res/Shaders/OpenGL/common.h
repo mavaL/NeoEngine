@@ -33,6 +33,7 @@ uniform cbufferMaterial
 {
 	mat4	World;
 	mat4	WorldIT;
+	mat4	InvWorld;
 	vec4	specularGloss;
 };
 
@@ -220,3 +221,32 @@ vec3 PhysicalBRDF(vec3 N, vec3 V, vec3 L, float Gloss, vec3 SpecCol)
 
 	return (fresnel * spec) / 4.0f;
 }
+
+#ifdef PIXEL_SHADER
+mat3 invert_3x3(mat3 M)
+{
+	float det = dot(cross(M[0], M[1]), M[2]);
+	mat3 T = transpose(M);
+	return mat3(cross(M[1], M[2]), cross(M[2], M[0]), cross(M[0], M[1]) / det);
+}
+
+void cotangent_frame(vec3 p, vec2 uv, out vec3 ot, out vec3 ob)
+{
+	// get edge vectors of the pixel triangle
+	vec3 dp1 = dFdx(p);
+	vec3 dp2 = dFdy(p);
+	vec2 duv1 = dFdx(uv);
+	vec2 duv2 = dFdy(uv);
+
+	// solve the linear system
+	mat3 M = mat3(dp1, dp2, cross(dp1, dp2));
+	mat3 inverseM = invert_3x3(M);
+	vec3 T = inverseM * vec3(duv1.x, duv2.x, 0);
+	vec3 B = inverseM * vec3(duv1.y, duv2.y, 0);
+
+	float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+
+	ot = T * invmax;
+	ob = B * invmax;
+}
+#endif

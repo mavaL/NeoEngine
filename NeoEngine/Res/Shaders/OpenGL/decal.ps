@@ -1,7 +1,13 @@
 
-uniform sampler2D	tex0;			//tex0;
-uniform sampler2D	tex1;			//tex1;
-uniform sampler2D	tex2;			//tex2;
+uniform cbufferCustom0
+{
+	mat4	matRotation;
+	float	fClipDistance;
+};
+
+uniform sampler2D	tex0;			// diffuse map
+uniform sampler2D	tex1;			// normal map
+uniform sampler2D	tex10;			// scene depth map
 
 in vec2 oUv;
 in vec3 oWPos;
@@ -16,6 +22,29 @@ layout(location = 2) out vec4 Frag2;
 //--------------------------------------------------------------------------------------
 void main()
 {
+	vec2 screenTC = gl_FragCoord.xy / frameBufferSize.xy;
+	screenTC.y = 1 - screenTC.y;
+
+	vec3 vWorldPos = ReconstructWorldPos(tex10, screenTC);
+	vec4 vObjPos = vec4(vWorldPos, 1) * InvWorld;
+
+	// Projecing 3d box to 2d plane
+	if(abs(vObjPos.x) > 0.5f || abs(vObjPos.y) > 0.5f || abs(vObjPos.z) > 0.5f)
+		discard;
+
+	// [-0.5, 0.5] -> [0, 1]
+	vObjPos = vec4(vObjPos.xyz, 0) * matRotation;
+	vec2 fUv = vObjPos.xz + 0.5f;
+	fUv.y = 1 - fUv.y;
+
+	if(fClipDistance - abs(vObjPos.y) < 0)
+		discard;
+
+	// Avoid precision problem, decode in ComposePass.
+	vec4 albedo = texture(tex0, fUv);
+	albedo.xyz = sqrt(albedo.xyz);
+	Frag1 = albedo;
+
 #ifdef NORMAL_MAP
 	vec3 vNormal = normalize(oNormal);
 	vec3 vView = normalize(camPos - oWPos);
@@ -27,10 +56,10 @@ void main()
 	vec3 vWorldNormal = normalize(vNormalTS * matTSToWS);
 
 	Frag0.xyz = vWorldNormal * 0.5f + 0.5f;
+	Frag0.w = albedo.w;
 #else
-	Frag0.xyz = normalize(oNormal) * 0.5f + 0.5f;
+	Frag0 = vec4(0, 0, 0, 0);
 #endif
-	Frag0.w = 1.0f;
 
 #ifdef SPEC_MAP
 	Frag2.xyz = texture(tex2, oUv).xyz;
@@ -38,9 +67,4 @@ void main()
 #else
 	Frag2 = specularGloss;
 #endif
-
-	// Avoid precision problem, decode in ComposePass.
-	vec4 albedo = texture(tex0, oUv);
-	albedo.xyz = sqrt(albedo.xyz);
-	Frag1 = albedo;
 }

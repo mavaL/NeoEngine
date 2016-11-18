@@ -51,7 +51,7 @@ namespace Neo
 		void		SetTerrain(TerrainGroup* p);
 		void		CreateWater(float waterHeight = 0.0f);
 		Entity*		CreateEntity(eEntity type, const STRING& meshname);
-		Decal*		CreateDecal(const VEC3& pos, float size);
+		Decal*		CreateDecal(const VEC3& pos, float size, const QUATERNION& rot = QUATERNION::IDENTITY);
 		ThirdPersonCharacter*		CreateHero(Scene* pScene, const VEC3& vCamPos);
 
 		const SDirectionLight&		GetSunLight() const { return m_sunLight; }

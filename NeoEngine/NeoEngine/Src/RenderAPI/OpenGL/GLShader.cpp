@@ -61,6 +61,13 @@ namespace Neo
 			vecShaderStrings.push_back(str);
 		}
 
+		switch (type)
+		{
+		case GL_FRAGMENT_SHADER: vecShaderStrings.push_back("#define PIXEL_SHADER\n"); break;
+		case GL_VERTEX_SHADER: vecShaderStrings.push_back("#define VERTEX_SHADER\n"); break;
+		default: break;
+		}
+
 		// #include "Common.h"
 		{
 			std::ifstream file(GetShaderPath("Common.h"));

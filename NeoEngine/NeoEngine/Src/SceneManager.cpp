@@ -731,9 +731,9 @@ namespace Neo
 		return pEntity;
 	}
 	//------------------------------------------------------------------------------------
-	Decal* SceneManager::CreateDecal(const VEC3& pos, float size)
+	Decal* SceneManager::CreateDecal(const VEC3& pos, float size, const QUATERNION& rot)
 	{
-		Decal* pDecal = new Decal(pos, size);
+		Decal* pDecal = new Decal(pos, size, rot);
 		m_decals.push_back(pDecal);
 		return pDecal;
 	}

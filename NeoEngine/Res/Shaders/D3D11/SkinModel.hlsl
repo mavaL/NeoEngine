@@ -113,7 +113,7 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 	float3 tangent, binormal, normal;
 	normal = normalize(IN.normal);
 	float3 vView = normalize(camPos - IN.WPos);
-	cotangent_frame(normal, vView, IN.uv, tangent, binormal);
+	cotangent_frame(vView, IN.uv, tangent, binormal);
 
 	float3x3 matTSToWS = float3x3(tangent, binormal, normal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);

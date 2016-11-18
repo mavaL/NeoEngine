@@ -189,7 +189,7 @@ half3 PhysicalBRDF(half3 N, half3 V, half3 L, half Gloss, half3 SpecCol)
 }
 
 // See: http://www.thetenthplanet.de/archives/1180 [11/15/2016 maval]
-void cotangent_frame(float3 N, float3 p, float2 uv, out float3 ot, out float3 ob)
+void cotangent_frame(float3 p, float2 uv, out float3 ot, out float3 ob)
 {
 	// get edge vectors of the pixel triangle
 	float3 dp1 = ddx(p);
@@ -198,12 +198,11 @@ void cotangent_frame(float3 N, float3 p, float2 uv, out float3 ot, out float3 ob
 	float2 duv2 = ddy(uv);
 
 	// solve the linear system
-	float3 dp2perp = cross(dp2, N);
-	float3 dp1perp = cross(N, dp1);
-	float3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-	float3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+	float3x3 M = float3x3(dp1, dp2, cross(dp1, dp2));
+	float2x3 inversetransposeM = float2x3(cross(M[1], M[2]), cross(M[2], M[0]));
+	float3 T = mul(float2(duv1.x, duv2.x), inversetransposeM);
+	float3 B = mul(float2(duv1.y, duv2.y), inversetransposeM);
 
-	// construct a scale-invariant frame 
 	float invmax = rsqrt(max(dot(T, T), dot(B, B)));
 
 	ot = T * invmax;

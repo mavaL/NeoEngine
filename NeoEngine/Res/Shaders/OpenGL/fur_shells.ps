@@ -20,8 +20,8 @@ uniform cbufferCustom0
 in vec2 oUv;
 in vec3 oNormal;
 in vec3 oLightVector;
-in vec3 oViewVector;
 in vec3 oCombVector;
+in vec3 oWPos;
 
 layout(location = 0) out vec4 Frag0;
 
@@ -32,8 +32,17 @@ void main()
     float ks = 0.2;
     float specPower = 20.0;
 	int shellNum = iShell - 1;
-
     vec4 outputColor;
+
+	vec3 vNormal = normalize(oNormal);
+	vec3 vView = normalize(camPos - oWPos);
+	vec3 tangent, binormal;
+	cotangent_frame(vView, oUv, tangent, binormal);
+
+	mat3 matTSToWS = mat3(tangent, binormal, vNormal);
+	// transform to tangent sapce
+	vec3 vLightVector = matTSToWS * oLightVector;
+	vec3 vCombVector = matTSToWS * oCombVector;
     
 	vec2 Texture = oUv * shellTexTiling;
     vec4 tangentAndAlpha  = textureLod( tex3, vec3(Texture, shellNum),0 );
@@ -52,10 +61,10 @@ void main()
     outputColor.a = tangentAndAlpha.a * offset.a; 
    
     //kajiya and kay lighting
-    vec3 lightVector  = normalize(oLightVector);
-    vec3 viewVector   = normalize(oViewVector);
+    vec3 lightVector  = normalize(vLightVector);
+    vec3 viewVector   = normalize(vViewVector);
 	vec3 tangentVector = Expand(tangentAndAlpha.xyz); //this is the tangent to the strand of fur
-	tangentVector = normalize(tangentVector + oCombVector);
+	tangentVector = normalize(tangentVector + vCombVector);
 
 	float TdotL = dot(tangentVector, lightVector);
 	float TdotE = dot(tangentVector, viewVector);

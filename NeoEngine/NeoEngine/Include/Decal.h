@@ -17,14 +17,24 @@ namespace Neo
 	class Decal
 	{
 	public:
-		Decal(const VEC3& pos, float size);
-		~Decal() {}
+		Decal(const VEC3& pos, float size, const QUATERNION& rot);
+		~Decal();
 
 	public:
 		void	Init(Texture* pDiffuseMap, Texture* pNormalMap);
 		void	Render();
+		void	SetClipDistance(float fDist);
 
 	private:
+		_declspec(align(16))
+		struct cBufferDecal
+		{
+			MAT44		matRotation;
+			float		fProjClip;		// Decal plane clip distance
+		};
+		cBufferDecal	m_cbDecal;
+		static ConstantBuffer*	m_pCB_Decal;
+
 		static Entity*	m_pUnitCube;
 		VEC3			m_vPos;
 		float			m_fSize;

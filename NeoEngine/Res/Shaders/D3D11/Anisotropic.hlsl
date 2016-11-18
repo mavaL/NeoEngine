@@ -123,7 +123,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 	float4 cDiffuse = fNdotL * lightColor;
 
 	float3 tangent, binormal;
-	cotangent_frame(vNormal, vView, IN.uv, tangent, binormal);
+	cotangent_frame(vView, IN.uv, tangent, binormal);
 
 	float3 cSpecular = AnisotropicGGX(vNormal, vView, lightDirection, tangent, binormal, specularGloss.w, specularGloss.xyz, 0.7f);
 

@@ -12,7 +12,7 @@ namespace Neo
 		, m_scale(1, 1, 1)
 		, m_bMatrixInvalid(true)
 		, m_pMesh(pMesh)
-		, m_bCastShadow(true)
+		, m_bCastShadow(false)
 		, m_bReceiveShadow(true)
 		, m_bUpdateAABB(bUpdateAABB)
 		, m_pCustomRenderData(nullptr)
