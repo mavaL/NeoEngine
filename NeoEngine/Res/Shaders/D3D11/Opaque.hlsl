@@ -16,6 +16,10 @@ struct VS_INPUT
     float4 Pos : POSITION;
 	float3 normal : NORMAL;
 	float2 uv  : TEXCOORD0;
+
+#ifdef INSTANCED
+	row_major float4x4 matWorldInst : INSTANCEDATA;
+#endif
 };
 
 struct VS_OUTPUT
@@ -24,6 +28,7 @@ struct VS_OUTPUT
 	float2 uv		: TEXCOORD0;
 	float3 WPos		: TEXCOORD1;
 	float3 normal	: TEXCOORD2;
+	float3 vView	: TEXCOORD3;
 };
 
 //--------------------------------------------------------------------------------------
@@ -33,13 +38,19 @@ VS_OUTPUT VS( VS_INPUT IN )
 {
     VS_OUTPUT OUT = (VS_OUTPUT)0;
 
+#ifdef INSTANCED
+	float4 vWorldPos = mul(IN.Pos, IN.matWorldInst);
+	OUT.normal = mul(IN.normal, (float3x3)IN.matWorldInst);
+#else
 	float4 vWorldPos = mul(IN.Pos, World);
+	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
+#endif
 	float4 posH = mul(vWorldPos, ViewProj);
 
 	OUT.Pos = posH;
 	OUT.WPos = vWorldPos.xyz;
 	OUT.uv = IN.uv;
-	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
+	OUT.vView = camPos - vWorldPos.xyz;
 
 	return OUT;
 }
@@ -69,12 +80,10 @@ VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
-	float3 vView = normalize(camPos - IN.WPos);
-
 #ifdef NORMAL_MAP
 	float3 vNormal = normalize(IN.normal);
 	float3 tangent, binormal;
-	cotangent_frame(vView, IN.uv, tangent, binormal);
+	cotangent_frame(IN.vView, IN.uv, tangent, binormal);
 
 	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
@@ -84,6 +93,7 @@ float4 PS(VS_OUTPUT IN) : SV_Target
 #endif
 
 	// Sun light
+	float3 vView = normalize(IN.vView);
 	float fNdotL = saturate(dot(vWorldNormal, lightDirection));
 	float4 cDiffuse = fNdotL * lightColor;
 	float3 cSpecular = PhysicalBRDF(vWorldNormal, vView, lightDirection, specularGloss.w, specularGloss.xyz);
@@ -116,11 +126,19 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 {
 	gbuffer_output output = (gbuffer_output)0;
 
+	// Avoid precision problem, decode in ComposePass.
+	float4 albedo = texDiffuse.Sample(samLinear, IN.uv);
+	albedo.xyz = sqrt(albedo.xyz);
+	output.oAlbedo = albedo;
+
+#ifdef TREE
+	clip(albedo.w - 0.01f);
+#endif
+
 #ifdef NORMAL_MAP
-	float3 vView = normalize(camPos - IN.WPos);
 	float3 vNormal = normalize(IN.normal);
 	float3 tangent, binormal;
-	cotangent_frame(vView, IN.uv, tangent, binormal);
+	cotangent_frame(IN.vView, IN.uv, tangent, binormal);
 
 	float3x3 matTSToWS = float3x3(tangent, binormal, vNormal);
 	float3 vNormalTS = GetNormalFromTexture(texNormal, samLinear, IN.uv);
@@ -138,11 +156,6 @@ gbuffer_output PS_GBuffer(VS_OUTPUT IN)
 #else
 	output.oSpec = specularGloss;
 #endif
-
-	// Avoid precision problem, decode in ComposePass.
-	float4 albedo = texDiffuse.Sample(samLinear, IN.uv);
-	albedo.xyz = sqrt(albedo.xyz);
-	output.oAlbedo = albedo;
 
 	return output;
 }

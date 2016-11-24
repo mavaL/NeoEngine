@@ -564,11 +564,19 @@ namespace Neo
 		return new D3D11Texture(nWidth, nHeight, pTexData, format, usage, bMipMap);
 	}
 	//------------------------------------------------------------------------------------
-	void D3D11RenderSystem::DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation)
+	void D3D11RenderSystem::DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation, uint32 nInstanced)
 	{
 		m_pDeviceContext->IASetPrimitiveTopology(GetD3D11PrimType(type));
 		m_pDeviceContext->IASetIndexBuffer((ID3D11Buffer*)indexBuf->GetInternel(), DXGI_FORMAT_R32_UINT, 0);
-		m_pDeviceContext->DrawIndexed(nIndexCnt, nStartIndexLocation, nBaseIndexLocation);
+
+		if (nInstanced)
+		{
+			m_pDeviceContext->DrawIndexedInstanced(nIndexCnt, nInstanced, nStartIndexLocation, nBaseIndexLocation, 0);
+		} 
+		else
+		{
+			m_pDeviceContext->DrawIndexed(nIndexCnt, nStartIndexLocation, nBaseIndexLocation);
+		}
 	}
 	//------------------------------------------------------------------------------------
 	void D3D11RenderSystem::SetVertexBuffer(VertexBuffer* vertBuf, uint32 iStream, uint32 nOffset)

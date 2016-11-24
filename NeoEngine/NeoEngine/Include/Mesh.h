@@ -47,10 +47,9 @@ namespace Neo
 		bool		InitIndexData(const DWORD* pIdx, int nIdx, bool bStatic);
 		bool		InitAdjIndexData(const DWORD* pIdx, int nIdx);
 		bool		InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert);
+		bool		InitTangentData(const STangentData* pVerts, int nVert);
 		void		InitTerrainVertData(VertexBuffer* posVB, VertexBuffer* deltaVB, IndexBuffer* pIB, uint32 nIndexCount);
-#if 0
 		bool		BuildTangents();
-#endif
 
 		void			SetName(const STRING& name) { m_name = name; }
 		const STRING&	GetName() const { return m_name; }
@@ -62,6 +61,7 @@ namespace Neo
 		DWORD*				GetAdjIndexData() const { return m_pAdjIndexData; }
 
 		void		Render(ePrimitive prim);
+		void		RenderInstanced(ePrimitive prim, const SInstanedBatch& ib);
 
 	private:
 		STRING			m_name;
@@ -94,19 +94,18 @@ namespace Neo
 		void			AddSubMesh(SubMesh* submesh);
 		SubMesh*		GetSubMesh(uint32 i);
 		uint32			GetSubMeshCount() const;
-		void			SetMaterial(Material* pMaterial);
-		Material*		GetMaterial()	{ return m_pMaterial; }
 		void			SetPrimitiveType(ePrimitive type)	{ m_primType = type; }
 		ePrimitive		GetPrimitiveType() const	{ return m_primType; }
+		bool			BuildTangents();
 		void			ConvertToTriAdjIndices();
 		void			ConvertToLineAdjIndices();
 
-		void			Render();
+		void			Render(Material* pMaterial = nullptr);
+		void			RenderInstanced(Material* pMaterial, const SInstanedBatch& ib);
 
 	private:
 		STRING			m_filename;
 		SubMeshes		m_submeshes;
-		Material*		m_pMaterial;
 		ePrimitive		m_primType;
 	};
 }

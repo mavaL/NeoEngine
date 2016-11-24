@@ -44,7 +44,7 @@ namespace Neo
 		virtual Texture*		GetDepthBuffer();
 		virtual Texture*		CreateTextureArray(const StringVector& vecTexNames, bool bSRGB = false);
 		virtual Texture*		CreateTextureManual(uint32 nWidth, uint32 nHeight, const char* pTexData, ePixelFormat format, uint32 usage, bool bMipMap);
-		virtual void			DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation);
+		virtual void			DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation, uint32 nInstanced = 0);
 		virtual void			Draw(uint32 nVertCnt, uint32 nStartVertLocation);
 		virtual void			SetVertexBuffer(VertexBuffer* vertBuf, uint32 iStream, uint32 nOffset);
 		virtual VertexBuffer*	CreateVertexBuffer(uint32 nSize, uint32 nStride, const void* pData, uint32 nUsage);

@@ -57,6 +57,7 @@ namespace Neo
 		MAT44	matWorldIT;
 		MAT44	matInvWorld;
 		VEC4	specularGloss;
+		VEC4	anisotropicParam;					// x=anisotropic  range. [0.316, 3.16]
 	};
 	// Skined matrixs constant buffer: (b2)
 	__declspec(align(16))

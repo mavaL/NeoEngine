@@ -43,6 +43,7 @@ namespace Neo
 		virtual void	Render();
 		virtual void	DebugRender() {}
 
+		void			RenderInstanced(const SInstanedBatch& ib);
 		void			SetMaterial(Material* pMaterial);
 		Material*		GetMaterial();
 		void			SetPosition(const VEC3& pos);
@@ -79,6 +80,7 @@ namespace Neo
 
 	protected:
 		Mesh*			m_pMesh;
+		Material*		m_pMaterial;
 		void*			m_pCustomRenderData;
 
 		VEC3			m_position;

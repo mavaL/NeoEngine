@@ -42,6 +42,7 @@ namespace Neo
 	, m_vertType(type)
 	, m_iActivePass(0)
 	, m_bEnableGS(false)
+	, m_nInstancedNum(0)
 	{
 		for(int i=0; i<MAX_TEXTURE_STAGE; ++i)
 		{
@@ -306,7 +307,13 @@ namespace Neo
 			}
 		}
 
-		if (m_shaderType != eShader_Fur && m_vecSubMtls[0].m_pTexture[1])
+		if (m_vertType == eVertexType_Instanced)
+		{
+			D3D_SHADER_MACRO macro = { "INSTANCED", "" };
+			retMacros.push_back(macro);
+		}
+
+		if (m_vertType == eVertexType_NormalMap && m_shaderType != eShader_Fur)
 		{
 			D3D_SHADER_MACRO macro = { "NORMAL_MAP", "" };
 			retMacros.push_back(macro);
@@ -363,6 +370,7 @@ namespace Neo
 	SubMaterial::SubMaterial()
 		: specular(0.05f, 0.05f, 0.05f)
 		, glossiness(0)
+		, anisotropicParam(0, 1, 0, 0)
 	{
 		for (int i = 0; i < MAX_TEXTURE_STAGE; ++i)
 		{
@@ -390,6 +398,7 @@ namespace Neo
 		}
 
 		g_env.pRenderer->GetMaterialCB().specularGloss = VEC4(specular, glossiness);
+		g_env.pRenderer->GetMaterialCB().anisotropicParam = anisotropicParam;
 		g_env.pRenderer->UpdateMaterialCBuffer(false, bCS, bGS);
 	}
 	//------------------------------------------------------------------------------------

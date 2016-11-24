@@ -4,13 +4,13 @@
 #include "Material.h"
 #include "TangentSpaceCalculation.h"
 #include "SceneManager.h"
+#include "Entity.h"
 
 namespace Neo
 {
 	//------------------------------------------------------------------------------------
 	Mesh::Mesh(const char* szfilename)
-		: m_pMaterial(nullptr)
-		, m_filename(szfilename)
+		: m_filename(szfilename)
 		, m_primType(ePrimitive_TriangleList)
 	{
 
@@ -20,8 +20,6 @@ namespace Neo
 	{
 		std::for_each(m_submeshes.begin(), m_submeshes.end(), std::default_delete<SubMesh>());
 		m_submeshes.clear();
-
-		SAFE_RELEASE(m_pMaterial);
 	}
 	//------------------------------------------------------------------------------------
 	void Mesh::AddSubMesh(SubMesh* submesh)
@@ -29,15 +27,29 @@ namespace Neo
 		m_submeshes.push_back(submesh);
 	}
 	//------------------------------------------------------------------------------------
-	void Mesh::Render()
+	void Mesh::Render(Material* pMaterial)
 	{
 		for (size_t i = 0; i < m_submeshes.size(); ++i)
 		{
-			if (m_pMaterial)
+			if (pMaterial)
 			{
-				m_pMaterial->Activate(i);
+				pMaterial->Activate(i);
 			}
+
 			m_submeshes[i]->Render(GetPrimitiveType());
+		}
+	}
+	//------------------------------------------------------------------------------------
+	void Mesh::RenderInstanced(Material* pMaterial, const SInstanedBatch& ib)
+	{
+		for (size_t i = 0; i < m_submeshes.size(); ++i)
+		{
+			if (pMaterial)
+			{
+				pMaterial->Activate(i);
+			}
+
+			m_submeshes[i]->RenderInstanced(GetPrimitiveType(), ib);
 		}
 	}
 	//------------------------------------------------------------------------------------
@@ -50,13 +62,6 @@ namespace Neo
 	uint32 Mesh::GetSubMeshCount() const
 	{
 		return m_submeshes.size();
-	}
-	//------------------------------------------------------------------------------------
-	void Mesh::SetMaterial(Material* pMaterial)
-	{
-		SAFE_RELEASE(m_pMaterial);
-		m_pMaterial = pMaterial;
-		pMaterial->AddRef();
 	}
 	//------------------------------------------------------------------------------------
 #if 0
@@ -110,7 +115,16 @@ namespace Neo
 		return true;
 	}
 	//------------------------------------------------------------------------------------
-#if 0
+	bool Mesh::BuildTangents()
+	{
+		for (size_t i = 0; i < m_submeshes.size(); ++i)
+		{
+			if (!m_submeshes[i]->BuildTangents())
+				return false;
+		}
+		return true;
+	}
+	//------------------------------------------------------------------------------------
 	bool SubMesh::BuildTangents()
 	{
 		SVertex* pVerts = m_vertData.GetVertex();
@@ -229,7 +243,18 @@ namespace Neo
 
 		return true;
 	}
-#endif
+	//------------------------------------------------------------------------------------
+	bool SubMesh::InitTangentData(const STangentData* pVerts, int nVert)
+	{
+		m_vertData.InitTangents(pVerts, nVert);
+
+		SAFE_DELETE(m_pVertexStream1);
+
+		m_pVertexStream1 = g_env.pRenderer->GetRenderSys()->CreateVertexBuffer(sizeof(STangentData) * m_vertData.GetVertCount(),
+			sizeof(STangentData), m_vertData.GetTangent(), 0);
+
+		return true;
+	}
 	//------------------------------------------------------------------------------------
 	bool SubMesh::InitBoneWeights(const SVertexBoneWeight* pVerts, int nVert)
 	{
@@ -315,7 +340,49 @@ namespace Neo
 			pRenderSys->Draw(m_vertData.GetVertCount(), 0);
 		}
 	}
+	//------------------------------------------------------------------------------------
+	void SubMesh::RenderInstanced(ePrimitive prim, const SInstanedBatch& ib)
+	{
+		RenderSystem* pRenderSys = g_env.pRenderer->GetRenderSys();
 
+		// Create instancing data stream
+		const uint32 nInstanced = ib.lstEntity.size();
+		if (!m_pVertexStream1)
+		{
+			std::unique_ptr<MAT44[]> data(new MAT44[nInstanced]);
+
+			for (uint32 i = 0; i < nInstanced; ++i)
+			{
+				data[i] = ib.lstEntity[i]->GetWorldMatrix();
+			}
+
+			m_pVertexStream1 = pRenderSys->CreateVertexBuffer(sizeof(SInstancedData) * nInstanced, sizeof(SInstancedData), data.get(), 0);
+		}
+
+		pRenderSys->SetVertexBuffer(m_pVertexStream0, 0, 0);
+		pRenderSys->SetVertexBuffer(m_pVertexStream1, 1, 0);
+
+		if (m_pVertexStream2)
+		{
+			pRenderSys->SetVertexBuffer(m_pVertexStream2, 2, 0);
+		}
+
+		if (m_pIndexBuf)
+		{
+			if (prim == ePrimitive_LineList_Adj)
+			{
+				pRenderSys->DrawIndexed(ePrimitive_LineList_Adj, m_pAdjIndexBuf, m_nAdjIndexCnt, 0, 0, nInstanced);
+			}
+			else
+			{
+				pRenderSys->DrawIndexed(prim, m_pIndexBuf, m_nIndexCnt, 0, 0, nInstanced);
+			}
+		}
+		else
+		{
+			_AST(0);
+		}
+	}
 	//------------------------------------------------------------------------------------
 	static inline VEC3 GetAngleWeight(const VEC3& v1, const VEC3& v2, const VEC3& v3)
 	{

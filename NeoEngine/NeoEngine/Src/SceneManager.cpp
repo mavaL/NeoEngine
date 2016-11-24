@@ -401,6 +401,8 @@ namespace Neo
 			m_pTerrain->Render();
 		}
 
+		m_pCurScene->RenderInstanced();
+
 		m_pRenderSystem->SetRenderTarget(nullptr, m_pRenderSystem->GetDepthBuffer(), 3, false, false);
 	}
 	//------------------------------------------------------------------------------------

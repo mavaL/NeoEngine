@@ -30,6 +30,7 @@ namespace Neo
 		Texture*			m_pTexture[MAX_TEXTURE_STAGE];
 		VEC3				specular;
 		float				glossiness;
+		VEC4				anisotropicParam;
 	};
 	//------------------------------------------------------------------------------------
 	class Material : public IRefCount
@@ -44,6 +45,7 @@ namespace Neo
 		void		TurnOffTessellation();
 		void		TurnOffComputeShader();
 		void		TurnOffGeometryShader();
+
 		// NB: Called before InitShader..
 		void		SetVertexType(eVertexType type) { m_vertType = type; }
 		void		SetTexture(int stage, Texture* pTexture);
@@ -107,6 +109,7 @@ namespace Neo
 		eVertexType					m_vertType;
 		eShader						m_shaderType;
 		bool						m_bEnableGS;
+		uint32						m_nInstancedNum;
 
 		std::vector<SubMaterial>	m_vecSubMtls;
 		SSamplerDesc				m_samplerStateDesc[MAX_TEXTURE_STAGE];

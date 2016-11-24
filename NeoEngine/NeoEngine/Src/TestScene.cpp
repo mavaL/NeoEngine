@@ -202,6 +202,34 @@ void SetupTestScene3(Scene* scene)
 
 	pTerrainGroup->freeTemporaryResources();
 	g_env.pSceneMgr->SetTerrain(pTerrainGroup);
+
+	// Create tree
+	Neo::Material* pMtlTree = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_Broadleaf_Low", eVertexType_Instanced, 2);
+	pMtlTree->GetSubMaterial(0).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("trees/BroadleafBark.dds"), eTextureType_2D, 0, true));
+	pMtlTree->GetSubMaterial(1).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("trees/BroadleafLeaves.dds"), eTextureType_2D, 0, true));
+
+	D3D_SHADER_MACRO macro = { "TREE", "" };
+	pMtlTree->InitShader(("Opaque"), eShader_Opaque, 0, &macro);
+
+	const VEC3 vCamPos = VEC3(1000, 0, 5000) + VEC3(1683, 50, 2116);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			Neo::Entity* pTree = g_env.pSceneMgr->CreateEntity(eEntity_StaticModel, GetResPath("trees/Broadleaf_Low.mesh"));
+			pTree->SetMaterial(pMtlTree);
+			pTree->SetScale(100.f);
+
+			VEC3 vPos = vCamPos + VEC3(-500+i*100, 0, -500+j*100);
+			float y = pTerrainGroup->getTerrain(0, 0)->getHeightAtWorldPosition(vPos);
+			pTree->SetPosition(VEC3(vPos.x, y, vPos.z));
+
+			pTree->SetCastShadow(false);
+			pTree->SetReceiveShadow(false);
+			scene->AddInstancedEntity("Broadleaf_Low", pTree);
+		}
+	}
 }
 
 void EnterTestScene3(Scene* scene)
@@ -433,8 +461,9 @@ void SetupTestScene6(Scene* scene)
 	Mesh* pMesh = new Mesh;
 	SubMesh* pSubmesh = new SubMesh;
 
-	pSubmesh->InitVertData(eVertexType_General, vert, 4, true);
+	pSubmesh->InitVertData(eVertexType_NormalMap, vert, 4, true);
 	pSubmesh->InitIndexData(dwIndex, 6, true);
+	pSubmesh->BuildTangents();
 
 	pMesh->AddSubMesh(pSubmesh);
 
@@ -483,22 +512,41 @@ void SetupTestScene6(Scene* scene)
 	// GGX anisotropic
 
 	Mesh* pSphereMesh = g_env.pSceneMgr->LoadMeshFromFile("sphere_group_anisotropic", GetResPath("sphere_group.obj"));
+	pSphereMesh->BuildTangents();
 
 	Neo::Entity* pSpheres2 = new Neo::Entity(pSphereMesh);
 	pSpheres2->SetPosition(VEC3(0, 2, 20));
 	scene->AddEntity(pSpheres2);
 
-	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX", eVertexType_General, 10);
+	pMaterial = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX1", eVertexType_NormalMap, 10);
 
 	for (int i = 0; i < 10; ++i)
 	{
-		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("White1x1.dds")));
+		pMaterial->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("black1x1.dds")));
 		pMaterial->GetSubMaterial(i).glossiness = i / 9.0f;
 		pMaterial->GetSubMaterial(i).specular.Set(1, 1, 1);
+		pMaterial->GetSubMaterial(i).anisotropicParam.Set(0.316f, 0, 0, 0);
 	}
 
 	pMaterial->InitShader(("Anisotropic"), eShader_Forward);
 	pSpheres2->SetMaterial(pMaterial);
+
+	Neo::Entity* pSpheres3 = new Neo::Entity(pSphereMesh);
+	pSpheres3->SetPosition(VEC3(0, 2, 30));
+	scene->AddEntity(pSpheres3);
+
+	Neo::Material* pMaterial3 = Neo::MaterialManager::GetSingleton().NewMaterial("Mtl_AnisotropicGGX2", eVertexType_NormalMap, 10);
+
+	for (int i = 0; i < 10; ++i)
+	{
+		pMaterial3->GetSubMaterial(i).SetTexture(0, g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("black1x1.dds")));
+		pMaterial3->GetSubMaterial(i).glossiness = 0.8f;
+		pMaterial3->GetSubMaterial(i).specular.Set(1, 1, 1);
+		pMaterial3->GetSubMaterial(i).anisotropicParam.Set((3.16f-0.316f)/10*(i+1), 0, 0, 0);
+	}
+
+	pMaterial3->InitShader(("Anisotropic"), eShader_Forward);
+	pSpheres3->SetMaterial(pMaterial3);
 }
 
 void EnterTestScene6(Scene* scene)
@@ -630,7 +678,7 @@ void SetupTestScene8(Scene* scene)
 		pDecal->Init(g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost.dds"), eTextureType_2D, 0, true),
 			g_env.pRenderer->GetRenderSys()->LoadTexture(GetResPath("decals/dirt_on_road_2_frost_ddn.dds")));
 	}
-	
+
 	{
 		QUATERNION rot;
 		rot.FromAxisAngle(VEC3::NEG_UNIT_X, 90);
@@ -679,13 +727,13 @@ namespace Neo
 		//ADD_TEST_SCENE(SetupTestScene5, EnterTestScene5);
 
 		//// Test Scene 6: Full HDR and physically-based deferred shading
-		//ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
+		ADD_TEST_SCENE(SetupTestScene6, EnterTestScene6);
 
 		//// Test Scene 7: Sponza
 		//ADD_TEST_SCENE(SetupTestScene7, EnterTestScene7);
 
 		//// Test Scene 8: Decals
-		ADD_TEST_SCENE(SetupTestScene8, EnterTestScene8);
+		//ADD_TEST_SCENE(SetupTestScene8, EnterTestScene8);
 	}
 }
 

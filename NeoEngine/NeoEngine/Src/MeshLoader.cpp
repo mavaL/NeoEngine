@@ -40,8 +40,9 @@ namespace Neo
 				const char* szMtlName = submeshNode->Attribute("material");
 				_AST(szMtlName);
 
-				Material* pMaterial = MaterialManager::GetSingleton().GetMaterial(szMtlName);
-				pMesh->SetMaterial(pMaterial);
+				_AST(0);
+				//Material* pMaterial = MaterialManager::GetSingleton().GetMaterial(szMtlName);
+				//pMesh->SetMaterial(pMaterial);
 			}
 
 			//读取面信息
@@ -192,7 +193,7 @@ namespace Neo
 		doc->LinkEndChild(pMeshNode);
 		pMeshNode->LinkEndChild(pSubMeshesNode);
 
-		const STRING& matName = pMesh->GetMaterial()->GetName();
+		const STRING& matName = /*pMesh->GetMaterial()->GetName()*/"";
 
 		for (uint32 iSubMesh = 0; iSubMesh < pMesh->GetSubMeshCount(); ++iSubMesh)
 		{

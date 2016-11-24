@@ -2,6 +2,7 @@
 #include "Entity.h"
 #include "Renderer.h"
 #include "Mesh.h"
+#include "Material.h"
 
 namespace Neo
 {
@@ -16,6 +17,7 @@ namespace Neo
 		, m_bReceiveShadow(true)
 		, m_bUpdateAABB(bUpdateAABB)
 		, m_pCustomRenderData(nullptr)
+		, m_pMaterial(nullptr)
 	{
 		SetVisible(true);
 
@@ -27,6 +29,7 @@ namespace Neo
 	//------------------------------------------------------------------------------------
 	Entity::~Entity()
 	{
+		SAFE_RELEASE(m_pMaterial);
 		SAFE_DELETE(m_pCustomRenderData);
 	}
 	//------------------------------------------------------------------------------------
@@ -152,17 +155,27 @@ namespace Neo
 		g_env.pRenderer->GetMaterialCB().matWorldIT = GetWorldITMatrix().Transpose();
 		g_env.pRenderer->GetMaterialCB().matInvWorld = GetWorldMatrix().Inverse().Transpose();
 
-		m_pMesh->Render();
+		m_pMesh->Render(m_pMaterial);
+	}
+	//------------------------------------------------------------------------------------
+	void Entity::RenderInstanced(const SInstanedBatch& ib)
+	{
+		if (!GetVisible())
+		{
+			return;
+		}
+
+		m_pMesh->RenderInstanced(m_pMaterial, ib);
 	}
 	//------------------------------------------------------------------------------------
 	void Entity::SetMaterial( Material* pMaterial )
 	{
-		m_pMesh->SetMaterial(pMaterial);
+		m_pMaterial = pMaterial;
 	}
 	//------------------------------------------------------------------------------------
 	Material* Entity::GetMaterial()
 	{
-		return m_pMesh->GetMaterial();
+		return m_pMaterial;
 	}
 	//------------------------------------------------------------------------------------
 	void Entity::UpdateAABB()

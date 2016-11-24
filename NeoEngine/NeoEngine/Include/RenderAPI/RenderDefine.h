@@ -10,11 +10,12 @@
 
 namespace Neo
 {
-	const int	MAX_TEXTURE_STAGE = 16;
-	const int	CSM_CASCADE_NUM = 3;
-	const int	FUR_SHELL_LAYER = 15;
-	const int	MAX_MRT_COUNT = 8;
-	const int	OCTREE_MAX_DEPTH = 4;
+	const int	MAX_TEXTURE_STAGE	= 16;
+	const int	CSM_CASCADE_NUM		= 3;
+	const int	FUR_SHELL_LAYER		= 15;
+	const int	MAX_MRT_COUNT		= 8;
+	const int	OCTREE_MAX_DEPTH	= 4;
+	const int	MIN_INSTANCE_COUNT	= 5;
 
 
 
@@ -71,8 +72,10 @@ namespace Neo
 	enum eVertexType
 	{
 		eVertexType_General,
+		eVertexType_NormalMap,
 		eVertexType_SkinModel,
 		eVertexType_Terrain,
+		eVertexType_Instanced,
 	};
 
 	// Use for render target to control which part to render
@@ -190,6 +193,18 @@ namespace Neo
 		float	MaxDepth;
 	};
 
+	struct SInstanedBatch 
+	{
+		SInstanedBatch()
+		{
+			//bInit = false;
+		}
+
+		EntityList	lstEntity;
+		//bool		bInit;
+		//std::vector<MAT44> vecInstancedData;	// World matrices of each entity.
+	};
+	typedef std::unordered_map<STRING, Neo::SInstanedBatch> InstancedBatchMap;
 
 
 #if defined(DEBUG) || defined(_DEBUG)

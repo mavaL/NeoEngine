@@ -43,6 +43,7 @@ cbuffer cbufferMaterial : register(b1)
 	matrix	WorldIT;
 	matrix	InvWorld;
 	float4	specularGloss;
+	float4	anisotropicParam;
 };
 
 cbuffer cbufferSkin : register(b2)

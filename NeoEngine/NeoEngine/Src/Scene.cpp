@@ -30,6 +30,27 @@ namespace Neo
 		m_lstEntity.push_back(pEntity);
 	}
 	//------------------------------------------------------------------------------------
+	void Scene::AddInstancedEntity(const STRING& category, Entity* pEntity)
+	{
+		m_mapInstanced[category].lstEntity.push_back(pEntity);
+	}
+	//------------------------------------------------------------------------------------
+	void Scene::RenderInstanced()
+	{
+		for (auto iter = m_mapInstanced.begin(); iter != m_mapInstanced.end(); ++iter)
+		{
+			SInstanedBatch& ib = iter->second;
+
+			if (ib.lstEntity.size() < MIN_INSTANCE_COUNT)
+			{
+				RenderEntityList(ib.lstEntity);
+				continue;
+			}
+
+			ib.lstEntity[0]->RenderInstanced(ib);
+		}
+	}
+	//------------------------------------------------------------------------------------
 	void Scene::Enter()
 	{
 		g_env.pSceneMgr->ClearScene();

@@ -47,15 +47,30 @@ namespace Neo
 		SColor	color;
 	};
 
+	/////////	Stream 0 as terrain vb0
 	struct STerrainPosVertex 
 	{
 		short	pos[2];
 		float	height;
 	};
 
+	/////////	Stream 1 as terrain vb1
 	struct STerrainDeltaVertex 
 	{
 		VEC2	delta;
+	};
+
+	/////////	Stream 1 as instanced data
+	struct SInstancedData 
+	{
+		MAT44	matWorld;
+	};
+
+	/////////	Stream 1 as tangent data
+	struct STangentData
+	{
+		VEC4	tangent;
+		VEC3	binormal;
 	};
 
 	/////////	Stream 2
@@ -81,9 +96,12 @@ namespace Neo
 
 	public:
 		void			InitVertex(eVertexType type, const SVertex* pVert, uint32 nVert);
+		void			InitTangents(const STangentData* pTangent, uint32 nVert);
 		void			InitBoneWeights(const SVertexBoneWeight* pBoneWeights, uint32 nVert);
 		uint32			GetVertCount() const { return m_nVerts; }
+		STangentData*	GetTangent() const { return m_pTangentData; }
 		SVertex*		GetVertex() const { return m_pVertData; }
+
 		SVertexBoneWeight*	GetBoneWeights() const { return m_pBoneWeights; }
 		void			SetVertType(eVertexType type) { m_vertType = type; }
 		eVertexType		GetVertType() const { return m_vertType; }
@@ -93,6 +111,7 @@ namespace Neo
 		SVertex*			m_pVertData;
 		SVertexBoneWeight*	m_pBoneWeights;
 		uint32				m_nVerts;
+		STangentData*		m_pTangentData;
 	};
 }
 

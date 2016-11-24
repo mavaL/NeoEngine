@@ -321,7 +321,7 @@ namespace Neo
 		m_vecCurVBOs.push_back(pVB);
 	}
 	//------------------------------------------------------------------------------------
-	void GLRenderSystem::DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation)
+	void GLRenderSystem::DrawIndexed(ePrimitive type, IndexBuffer* indexBuf, uint32 nIndexCnt, uint32 nStartIndexLocation, uint32 nBaseIndexLocation, uint32 nInstanced)
 	{
 		GLBoundShaderState* pShaderState = _FindOrCreateBoundShaderState();
 

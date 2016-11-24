@@ -35,6 +35,7 @@ uniform cbufferMaterial
 	mat4	WorldIT;
 	mat4	InvWorld;
 	vec4	specularGloss;
+	vec4	anisotropicParam;
 };
 
 uniform cbufferSkin

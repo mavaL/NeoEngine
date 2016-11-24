@@ -19,11 +19,10 @@ namespace Neo
 
 		m_pMesh = new Mesh;
 		SubMesh* pSubMesh = new SubMesh;
-
 		m_pMesh->AddSubMesh(pSubMesh);
-		m_pMesh->SetMaterial(m_pMaterial);
 
 		m_pEntity = new Entity(m_pMesh, false);
+		m_pEntity->SetMaterial(m_pMaterial);
 
 		m_pEntity->SetCastShadow(false);
 		m_pEntity->SetReceiveShadow(false);

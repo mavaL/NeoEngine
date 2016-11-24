@@ -10,6 +10,7 @@
 
 #include "Prerequiestity.h"
 #include "AABB.h"
+#include "RenderDefine.h"
 
 namespace Neo
 {
@@ -26,9 +27,11 @@ namespace Neo
 		void	Enter();
 		void	Update(float fDeltaTime);
 		void	RenderOpaque();
+		void	RenderInstanced();
 		void	RenderEntityList(const EntityList& ents);
 
 		void				AddEntity(Entity* pEntity);
+		void				AddInstancedEntity(const STRING& category, Entity* pEntity);
 		EntityList&			GetEntityList() { return m_lstEntity; }
 
 		const AABB&			GetSceneAABB() const { return m_sceneAABB; }
@@ -36,13 +39,14 @@ namespace Neo
 		const AABB&			GetSceneShadowReceiverAABB() const { return m_sceneShadowReceiverAABB; }
 
 	private:
-		StrategyFunc	m_setupFunc;
-		StrategyFunc	m_enterFunc;
-		bool			m_bSetup;
-		EntityList		m_lstEntity;
-		AABB			m_sceneAABB;		// AABB of the whole scene
-		AABB			m_sceneShadowCasterAABB;	// AABB of all shadow casters
-		AABB			m_sceneShadowReceiverAABB;	// AABB of all shadow receivers
+		StrategyFunc		m_setupFunc;
+		StrategyFunc		m_enterFunc;
+		bool				m_bSetup;
+		EntityList			m_lstEntity;
+		AABB				m_sceneAABB;		// AABB of the whole scene
+		AABB				m_sceneShadowCasterAABB;	// AABB of all shadow casters
+		AABB				m_sceneShadowReceiverAABB;	// AABB of all shadow receivers
+		InstancedBatchMap	m_mapInstanced;
 	};
 }
 

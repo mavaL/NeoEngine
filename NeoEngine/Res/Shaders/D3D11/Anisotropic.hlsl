@@ -26,6 +26,8 @@ struct VS_INPUT
     float4 Pos : POSITION;
 	float2 uv  : TEXCOORD0;
 	float3 normal : NORMAL;
+	float4 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 };
 
 struct VS_OUTPUT
@@ -34,6 +36,9 @@ struct VS_OUTPUT
 	float2 uv		: TEXCOORD0;
 	float3 WPos		: TEXCOORD1;
 	float3 normal	: TEXCOORD2;
+	float3 vView	: TEXCOORD3;
+	float4 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 };
 
 //--------------------------------------------------------------------------------------
@@ -50,6 +55,10 @@ VS_OUTPUT VS( VS_INPUT IN )
 	OUT.WPos = vWorldPos.xyz;
 	OUT.uv = IN.uv;
 	OUT.normal = mul(IN.normal, (float3x3)WorldIT);
+	OUT.tangent.xyz = mul(IN.tangent.xyz, (float3x3)WorldIT);
+	OUT.tangent.w = IN.tangent.w;
+	OUT.binormal = mul(IN.binormal, (float3x3)WorldIT);
+	OUT.vView = camPos - vWorldPos.xyz;
 
 	return OUT;
 }
@@ -80,14 +89,13 @@ VS_OUTPUT_ShadowMapGen VS_ShadowMapGen(VS_INPUT IN)
 
 // X = tangent in world space
 // Y = binormal in world space
-// fAnisotropic = [0, 1] strength of anisotropic
+// fAnisotropic = [0.316f, 3.16f] anisotropic range
 float3 AnisotropicGGX(float3 N, float3 V, float3 L, float3 X, float3 Y, float fGloss, half3 SpecCol, float fAnisotropic)
 {
 	// From sig2012 disney paper
-	float fAspect = sqrt(1 - 0.9f * fAnisotropic);
 	float fRoughness = max(1 - fGloss, 0.05f);
-	float ax = fRoughness * fRoughness / fAspect;
-	float ay = fRoughness * fRoughness * fAspect;
+	float ax = fRoughness * fRoughness / fAnisotropic;
+	float ay = fRoughness * fRoughness * fAnisotropic;
 
 	float3 H = normalize(L + V);
 
@@ -115,21 +123,31 @@ float3 AnisotropicGGX(float3 N, float3 V, float3 L, float3 X, float3 Y, float fG
 
 float4 PS(VS_OUTPUT IN) : SV_Target
 {
-	float3 vNormal = normalize(IN.normal);
-	float3 vView = normalize(camPos - IN.WPos);
+	// diffuse
+	float3 vWorldNormal = normalize(IN.normal);
+	float fNdotL = saturate(dot(vWorldNormal, lightDirection));
+	float4 cDiffuse = fNdotL* lightColor;
 
-	// Sun light
-	float fNdotL = saturate(dot(vNormal, lightDirection));
-	float4 cDiffuse = fNdotL * lightColor;
+	// spec
+	float3 vView = normalize(IN.vView);
+	float3 tangent = normalize(IN.tangent.xyz);
+	float3 binormal = normalize(IN.binormal);
+	//float3 halfwayVector = normalize(lightDirection + vView);
+	//float dotHN = dot(halfwayVector, vWorldNormal);
+	//float dotVN = dot(vView, vWorldNormal);
+	//float dotHTAlphaX = dot(halfwayVector, tangent);
+	//float dotHBAlphaY = dot(halfwayVector, binormal);
 
-	float3 tangent, binormal;
-	cotangent_frame(vView, IN.uv, tangent, binormal);
+	//cSpecular = sqrt(max(0.0, fNdotL / dotVN))
+	//	* exp(-2.0 * (dotHTAlphaX * dotHTAlphaX
+	//		+ dotHBAlphaY * dotHBAlphaY) / (1.0 + dotHN));
 
-	float3 cSpecular = AnisotropicGGX(vNormal, vView, lightDirection, tangent, binormal, specularGloss.w, specularGloss.xyz, 0.7f);
+	float3 cSpecular = AnisotropicGGX(vWorldNormal, vView, lightDirection, tangent, binormal, specularGloss.w, specularGloss.xyz, anisotropicParam.x) * fNdotL;
 
+	// compose
 	float4 vAmbient = float4(0.2f, 0.2f, 0.2f, 1.0f);	// Forward rendering uses simple ambient lighting
 	float4 oColor = texDiffuse.Sample(samLinear, IN.uv) * (cDiffuse + vAmbient);
-	oColor.xyz += cSpecular * lightColor.xyz * fNdotL;
+	oColor.xyz += cSpecular * lightColor.xyz;
 
 	return oColor;
 }
