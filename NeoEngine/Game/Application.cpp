@@ -8,7 +8,7 @@
 #include "InputManager.h"
 
 SGlobalEnv			g_env;
-   
+
 static const uint32	SCREEN_WIDTH	=	1536;
 static const uint32	SCREEN_HEIGHT	=	864;
 //----------------------------------------------------------------------------------------
