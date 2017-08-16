@@ -8,7 +8,7 @@
 #include "InputManager.h"
 
 SGlobalEnv			g_env;
-
+   
 static const uint32	SCREEN_WIDTH	=	1536;
 static const uint32	SCREEN_HEIGHT	=	864;
 //----------------------------------------------------------------------------------------
@@ -205,8 +205,6 @@ bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
 {
 	switch (arg.key)
 	{
-	case OIS::KC_ADD:		g_env.pSceneMgr->SetShadowDepthBias(g_env.pSceneMgr->GetShadowDepthBias()+0.001); break;
-	case OIS::KC_SUBTRACT:	g_env.pSceneMgr->SetShadowDepthBias(g_env.pSceneMgr->GetShadowDepthBias()-0.001); break;
 	case OIS::KC_ESCAPE:	DestroyWindow(g_env.hwnd); break;
 	case OIS::KC_F1:
 		{
@@ -224,6 +222,10 @@ bool Application::OnKeyPressed(const OIS::KeyEvent &arg)
 			bWireframe = !bWireframe;
 			g_env.pRenderer->EnableWireframeMode(bWireframe);
 		}
+		break;
+
+	default:
+		g_env.pSceneMgr->GetCurScene()->OnKeyPressed(arg);
 		break;
 	};
 
